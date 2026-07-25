@@ -40,10 +40,10 @@ export default async function PublicPlayerPage({ params }: { params: Promise<{ h
 
   return (
     <main className="app-canvas pb-12">
-      <header className="relative overflow-hidden bg-slate-950 px-5 pb-20 pt-6 text-white">
+      <header className="relative overflow-hidden bg-grass px-5 pb-20 pt-6 text-white">
         <div className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-emerald-500/20 blur-3xl" />
         <div className="relative mx-auto max-w-xl">
-          <BrandMark className="[&_span:last-child]:text-white" />
+          <BrandMark inverted />
           <div className="mt-10 grid size-28 place-items-center overflow-hidden rounded-[2rem] bg-white/10 text-emerald-100 ring-1 ring-white/15 shadow-2xl">
             {player.photo_url ? (
               <img

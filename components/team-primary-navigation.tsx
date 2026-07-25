@@ -42,8 +42,8 @@ export function TeamPrimaryNavigation({ teamSlug }: { teamSlug: string }) {
           aria-current={item.selected ? "page" : undefined}
           className={`inline-flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold transition ${
             item.selected
-              ? "bg-slate-950 text-white shadow-sm"
-              : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+              ? "bg-grass text-white shadow-sm"
+              : "text-slate-500 hover:bg-slate-100 hover:text-graphite"
           }`}
         >
           <item.icon className="size-4" aria-hidden />

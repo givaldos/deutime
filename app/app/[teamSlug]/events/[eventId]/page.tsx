@@ -139,7 +139,7 @@ export default async function EventDetailPage({
           </Link>
           <div className="flex items-center gap-2">
             {isScheduled || event.status === "completed" ? (
-              <Button asChild className="bg-slate-950 hover:bg-slate-800">
+              <Button asChild className="bg-grass hover:bg-slate-800">
                 <Link href={`/app/${team.slug}/events/${event.id}/match`}>
                   <NotebookTabs aria-hidden /> Súmula
                 </Link>
@@ -155,7 +155,7 @@ export default async function EventDetailPage({
           </div>
         </div>
 
-        <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-float sm:p-8">
+        <section className="relative overflow-hidden rounded-[2rem] bg-grass p-6 text-white shadow-float sm:p-8">
           <div className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-emerald-500/20 blur-3xl" />
           <div className="relative flex flex-wrap items-center gap-2 text-xs font-semibold text-emerald-200">
             <span>{kindLabels[event.kind]}</span><span>·</span>

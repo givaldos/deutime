@@ -213,7 +213,7 @@ export function TeamMediaManager({
       <div className="border-t border-slate-100 pt-6">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h3 className="font-black text-slate-950">Galeria do time</h3>
+            <h3 className="font-black text-graphite">Galeria do time</h3>
             <p className="mt-1 text-xs leading-5 text-slate-500">
               Jogos, resenhas e títulos. Escolha a foto que aparece maior na
               página pública.
@@ -236,7 +236,7 @@ export function TeamMediaManager({
                   type="button"
                   onClick={() => feature(item)}
                   disabled={item.isFeatured || featuringId === item.id || deletingId === item.id}
-                  className={`absolute left-2 top-2 grid size-10 place-items-center rounded-xl shadow-lg backdrop-blur transition disabled:cursor-default ${item.isFeatured ? "bg-amber-300 text-slate-950" : "bg-white/90 text-slate-700 hover:bg-amber-300 hover:text-slate-950"}`}
+                  className={`absolute left-2 top-2 grid size-10 place-items-center rounded-xl shadow-lg backdrop-blur transition disabled:cursor-default ${item.isFeatured ? "bg-amber-300 text-graphite" : "bg-white/90 text-slate-700 hover:bg-amber-300 hover:text-graphite"}`}
                   aria-label={
                     item.isFeatured
                       ? `${item.altText} já é a foto de destaque`
@@ -257,13 +257,13 @@ export function TeamMediaManager({
                   type="button"
                   onClick={() => remove(item)}
                   disabled={deletingId === item.id || featuringId === item.id}
-                  className="absolute right-2 top-2 grid size-10 place-items-center rounded-xl bg-slate-950/80 text-white shadow-lg backdrop-blur transition hover:bg-red-700 disabled:opacity-50"
+                  className="absolute right-2 top-2 grid size-10 place-items-center rounded-xl bg-grass/80 text-white shadow-lg backdrop-blur transition hover:bg-red-700 disabled:opacity-50"
                   aria-label={`Remover ${item.altText}`}
                 >
                   {deletingId === item.id ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : <Trash2 className="size-4" aria-hidden />}
                 </button>
                 {item.isFeatured ? (
-                  <span className="absolute inset-x-2 bottom-2 inline-flex min-h-8 items-center justify-center gap-1.5 rounded-xl bg-slate-950/85 px-2 text-[11px] font-black text-white shadow-lg backdrop-blur">
+                  <span className="absolute inset-x-2 bottom-2 inline-flex min-h-8 items-center justify-center gap-1.5 rounded-xl bg-grass/85 px-2 text-[11px] font-black text-white shadow-lg backdrop-blur">
                     <Star className="size-3 fill-amber-300 text-amber-300" aria-hidden />
                     Destaque da página
                   </span>
@@ -289,7 +289,7 @@ export function TeamMediaManager({
                 maxLength={160}
               />
             </div>
-            <label className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-bold text-white transition active:scale-[0.98] hover:bg-slate-800">
+            <label className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-grass px-4 text-sm font-bold text-white transition active:scale-[0.98] hover:bg-slate-800">
               {pendingKind === "gallery" ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : <Upload className="size-4" aria-hidden />}
               {pendingKind === "gallery" ? "Enviando..." : "Adicionar foto"}
               <input
@@ -391,7 +391,7 @@ function MediaPicker({
               type="button"
               onClick={onRemove}
               disabled={pending || deleting}
-              className="grid size-10 place-items-center rounded-xl bg-slate-950/85 text-white shadow-lg backdrop-blur hover:bg-red-700 disabled:opacity-50"
+              className="grid size-10 place-items-center rounded-xl bg-grass/85 text-white shadow-lg backdrop-blur hover:bg-red-700 disabled:opacity-50"
               aria-label={`Remover ${label.toLowerCase()}`}
             >
               {deleting ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : <Trash2 className="size-4" aria-hidden />}

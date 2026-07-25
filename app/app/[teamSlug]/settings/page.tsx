@@ -103,7 +103,7 @@ export default async function TeamSettingsPage({
         <div>
           <Link
             href={`/app/${team.slug}`}
-            className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-600 hover:text-slate-950"
+            className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-600 hover:text-graphite"
           >
             <ArrowLeft className="size-4" aria-hidden /> Voltar para o início
           </Link>
@@ -115,7 +115,7 @@ export default async function TeamSettingsPage({
                 Ajuste como o time aparece e quem ajuda na organização.
               </p>
             </div>
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-slate-950 text-emerald-300">
+            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-grass text-emerald-300">
               <Settings className="size-5" aria-hidden />
             </span>
           </div>
@@ -134,7 +134,7 @@ export default async function TeamSettingsPage({
         <section className="app-surface p-5 sm:p-7">
           <div className="mb-6">
             <p className="app-kicker">Visual</p>
-            <h2 className="mt-2 text-xl font-black tracking-tight text-slate-950">A cara do time</h2>
+            <h2 className="mt-2 text-xl font-black tracking-tight text-graphite">A cara do time</h2>
             <p className="mt-1 text-sm leading-6 text-slate-500">
               Escudo, capa e momentos que deixam a página viva.
             </p>
@@ -161,7 +161,7 @@ export default async function TeamSettingsPage({
         <section className="app-surface p-5 sm:p-7">
           <div className="mb-6 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-black tracking-tight text-slate-950">Perfil do time</h2>
+              <h2 className="text-xl font-black tracking-tight text-graphite">Perfil do time</h2>
               <p className="mt-1 text-sm text-slate-500">Informações usadas na agenda e na página pública.</p>
             </div>
             <Button asChild variant="outline" size="sm" className="rounded-xl">
@@ -194,7 +194,7 @@ export default async function TeamSettingsPage({
               <UserPlus className="size-5" aria-hidden />
             </span>
             <div>
-              <h2 className="font-black text-slate-950">Quem organiza com você</h2>
+              <h2 className="font-black text-graphite">Quem organiza com você</h2>
               <p className="text-xs text-slate-500">Convites protegidos e confirmados por e-mail</p>
             </div>
           </div>

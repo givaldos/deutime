@@ -30,7 +30,7 @@ export function UpdatePasswordForm({
         <CardHeader>
           <CardTitle className="text-2xl">Defina uma nova senha</CardTitle>
           <CardDescription>
-            Use pelo menos 12 caracteres e uma senha exclusiva para o FUT7.
+            Use pelo menos 12 caracteres e uma senha exclusiva para o DeuTime.
           </CardDescription>
         </CardHeader>
         <CardContent>

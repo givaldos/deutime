@@ -140,7 +140,7 @@ export default async function PlayerProfilePage({
 
       {profile ? (
         <>
-          <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 text-white shadow-float">
+          <section className="relative overflow-hidden rounded-[2rem] bg-grass text-white shadow-float">
             <div className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-emerald-500/20 blur-3xl" />
             <div className="relative p-6 sm:p-8">
               <div className="grid size-24 place-items-center overflow-hidden rounded-[1.75rem] bg-white/10 text-emerald-100 ring-1 ring-white/15">

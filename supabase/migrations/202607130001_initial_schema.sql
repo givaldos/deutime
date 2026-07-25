@@ -1,4 +1,4 @@
--- Fut7 initial domain schema.
+-- DeuTime initial domain schema.
 -- Security baseline: OWASP ASVS 5.0 Level 2 target, deny-by-default grants,
 -- tenant isolation with RLS, immutable audit records, and constrained public RPCs.
 

@@ -303,7 +303,7 @@ export function ImageCropDialog({
     <dialog
       ref={dialogRef}
       aria-labelledby="crop-dialog-title"
-      className="fixed inset-0 z-50 m-auto max-h-[calc(100svh-1rem)] w-[calc(100%-1rem)] max-w-2xl overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-950 p-0 text-white shadow-2xl backdrop:bg-slate-950/80 backdrop:backdrop-blur-sm"
+      className="fixed inset-0 z-50 m-auto max-h-[calc(100svh-1rem)] w-[calc(100%-1rem)] max-w-2xl overflow-hidden rounded-[1.75rem] border border-white/10 bg-grass p-0 text-white shadow-2xl backdrop:bg-grass/80 backdrop:backdrop-blur-sm"
       onCancel={(event) => {
         event.preventDefault();
         if (!exporting) onCancel();
@@ -334,7 +334,7 @@ export function ImageCropDialog({
         </header>
 
         <div className="min-h-0 overflow-y-auto px-3 pb-3 sm:px-6 sm:pb-5">
-          <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-slate-900 shadow-inner">
+          <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-graphite shadow-inner">
             <canvas
               ref={canvasRef}
               width={config.previewWidth}
@@ -397,7 +397,7 @@ export function ImageCropDialog({
           ) : null}
         </div>
 
-        <footer className="grid grid-cols-2 gap-2 border-t border-white/10 bg-slate-950 px-4 py-4 sm:flex sm:justify-end sm:px-6">
+        <footer className="grid grid-cols-2 gap-2 border-t border-white/10 bg-grass px-4 py-4 sm:flex sm:justify-end sm:px-6">
           <Button
             type="button"
             variant="ghost"

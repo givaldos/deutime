@@ -9,7 +9,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
         <header className="mx-auto mb-6 max-w-sm text-center">
           <BrandMark className="justify-center" />
           <p className="mt-3 text-sm font-medium text-slate-500">
-            Seu futebol, organizado no celular.
+            Deu time, deu jogo.
           </p>
         </header>
         <div className="mx-auto flex w-full justify-center">{children}</div>

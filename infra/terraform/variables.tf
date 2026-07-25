@@ -7,7 +7,7 @@ variable "github_owner" {
 variable "github_repository" {
   description = "GitHub repository name."
   type        = string
-  default     = "fut7"
+  default     = "deutime"
 }
 
 variable "enable_github_ruleset" {
@@ -125,7 +125,7 @@ variable "smtp_admin_email" {
 variable "smtp_sender_name" {
   description = "Sender name shown on authentication emails."
   type        = string
-  default     = "FUT7"
+  default     = "DeuTime"
 
   validation {
     condition     = length(trimspace(var.smtp_sender_name)) >= 2 && length(var.smtp_sender_name) <= 80

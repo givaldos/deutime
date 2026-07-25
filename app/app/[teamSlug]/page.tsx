@@ -243,7 +243,7 @@ export default async function TeamDashboardPage({
         <section className="flex items-end justify-between gap-4 pt-1 sm:pt-2">
           <div className="min-w-0">
             <p className="app-kicker">Central do time</p>
-            <h1 className="mt-2 text-3xl font-black tracking-[-0.045em] text-slate-950 sm:text-4xl">
+            <h1 className="mt-2 text-3xl font-black tracking-[-0.045em] text-graphite sm:text-4xl">
               Bora pro jogo?
             </h1>
             <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -266,7 +266,7 @@ export default async function TeamDashboardPage({
           </div>
         </section>
 
-        <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 text-white shadow-float">
+        <section className="relative overflow-hidden rounded-[2rem] bg-grass text-white shadow-float">
           <div className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-emerald-500/25 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 left-10 size-52 rounded-full bg-sky-500/10 blur-3xl" />
           {nextEvent ? (
@@ -282,7 +282,7 @@ export default async function TeamDashboardPage({
               </div>
 
               <div className="mt-6 flex items-start gap-4 sm:mt-8">
-                <div className="grid size-16 shrink-0 place-items-center rounded-[1.25rem] bg-white text-slate-950 shadow-lg sm:size-20">
+                <div className="grid size-16 shrink-0 place-items-center rounded-[1.25rem] bg-white text-graphite shadow-lg sm:size-20">
                   <div className="text-center leading-none">
                     <span className="block text-[10px] font-black uppercase tracking-wider text-emerald-700 sm:text-xs">
                       {new Intl.DateTimeFormat("pt-BR", {
@@ -327,7 +327,7 @@ export default async function TeamDashboardPage({
                 </div>
               </div>
 
-              <Button asChild size="lg" className="mt-4 h-12 w-full rounded-xl bg-white font-bold text-slate-950 hover:bg-emerald-50">
+              <Button asChild size="lg" className="mt-4 h-12 w-full rounded-xl bg-white font-bold text-graphite hover:bg-emerald-50">
                 <Link href={`/app/${currentTeam.slug}/events/${nextEvent.id}`}>
                   Abrir chamada <ArrowRight aria-hidden />
                 </Link>
@@ -347,7 +347,7 @@ export default async function TeamDashboardPage({
               <p className="mt-3 max-w-md text-sm leading-6 text-slate-300">
                 Marque o racha e a chamada já fica pronta para o elenco responder.
               </p>
-              <Button asChild size="lg" className="mt-6 h-12 rounded-xl bg-white text-slate-950 hover:bg-emerald-50">
+              <Button asChild size="lg" className="mt-6 h-12 rounded-xl bg-white text-graphite hover:bg-emerald-50">
                 <Link href={`/app/${currentTeam.slug}/events/new`}>
                   <Plus aria-hidden /> Marcar primeiro jogo
                 </Link>
@@ -401,7 +401,7 @@ export default async function TeamDashboardPage({
                     step.complete
                       ? "bg-white/55 text-amber-950"
                       : step === nextActivationStep
-                        ? "bg-white font-bold text-slate-950 shadow-sm"
+                        ? "bg-white font-bold text-graphite shadow-sm"
                         : "text-amber-900/65"
                   }`}
                 >
@@ -422,7 +422,7 @@ export default async function TeamDashboardPage({
               ))}
             </div>
 
-            <Button asChild className="relative mt-4 h-12 w-full rounded-xl bg-amber-950 text-amber-50 hover:bg-slate-950">
+            <Button asChild className="relative mt-4 h-12 w-full rounded-xl bg-amber-950 text-amber-50 hover:bg-grass">
               {nextActivationStep.external ? (
                 <a href={nextActivationStep.href} target="_blank" rel="noreferrer">
                   Completar próxima missão <ArrowRight aria-hidden />
@@ -476,7 +476,7 @@ export default async function TeamDashboardPage({
                   Aconteceu no time
                 </p>
               </div>
-              <h2 className="mt-2 text-2xl font-black tracking-[-0.035em] text-slate-950">
+              <h2 className="mt-2 text-2xl font-black tracking-[-0.035em] text-graphite">
                 Linha do tempo
               </h2>
             </div>
@@ -574,7 +574,7 @@ function DashboardMetric({
         <Icon className={`size-4 ${highlight ? "text-amber-700" : "text-emerald-700"}`} aria-hidden />
         {highlight ? <span className="size-2 rounded-full bg-amber-500" aria-label="Requer atenção" /> : null}
       </div>
-      <p className="mt-3 text-2xl font-black tracking-[-0.04em] text-slate-950 sm:text-3xl">
+      <p className="mt-3 text-2xl font-black tracking-[-0.04em] text-graphite sm:text-3xl">
         {value}
       </p>
       <p className="mt-0.5 truncate text-[11px] font-semibold text-slate-500 sm:text-xs">

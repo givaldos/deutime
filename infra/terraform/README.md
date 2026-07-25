@@ -1,6 +1,6 @@
 # Infraestrutura Terraform
 
-Este módulo declara os recursos remotos do Fut7. Migrações e políticas do banco continuam em `supabase/` e são aplicadas pelo workflow de deploy.
+Este módulo declara os recursos remotos do DeuTime. Migrações e políticas do banco continuam em `supabase/` e são aplicadas pelo workflow de deploy.
 
 Requisitos:
 

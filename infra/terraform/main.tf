@@ -5,7 +5,7 @@ locals {
 
 resource "supabase_project" "production" {
   organization_id         = var.supabase_organization_id
-  name                    = "fut7-production"
+  name                    = "deutime-production"
   database_password       = var.supabase_database_password
   region                  = var.supabase_region
   instance_size           = var.supabase_instance_size
@@ -39,7 +39,7 @@ resource "supabase_settings" "production" {
     mailer_secure_email_change_enabled                = true
     mailer_otp_exp                                    = 600
     mailer_otp_length                                 = 6
-    mailer_subjects_confirmation                      = "Confirme seu e-mail — FUT7"
+    mailer_subjects_confirmation                      = "Confirme seu e-mail — DeuTime"
     mailer_templates_confirmation_content             = <<-HTML
       <!doctype html>
       <html lang="pt-BR">
@@ -48,10 +48,10 @@ resource "supabase_settings" "production" {
             <tr><td align="center">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background:#fff;border-radius:16px;padding:32px">
                 <tr><td>
-                  <p style="margin:0 0 8px;color:#16a34a;font-size:14px;font-weight:700">FUT7</p>
+                  <p style="margin:0 0 8px;color:#0D2B22;font-size:14px;font-weight:700">DeuTime</p>
                   <h1 style="margin:0 0 16px;font-size:24px;line-height:1.25">Confirme seu e-mail</h1>
                   <p style="margin:0 0 24px;color:#52525b;font-size:16px;line-height:1.5">Confirme este endereço para concluir a criação da sua conta de administrador.</p>
-                  <p style="margin:0 0 24px"><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=email&amp;next=/app" style="display:inline-block;border-radius:10px;background:#16a34a;color:#fff;padding:12px 20px;font-size:16px;font-weight:700;text-decoration:none">Confirmar e-mail</a></p>
+                  <p style="margin:0 0 24px"><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=email&amp;next=/app" style="display:inline-block;border-radius:10px;background:#0D2B22;color:#BDF63C;padding:12px 20px;font-size:16px;font-weight:700;text-decoration:none">Confirmar e-mail</a></p>
                   <p style="margin:0;color:#71717a;font-size:13px;line-height:1.5">Este link é pessoal e expira em poucos minutos. Se você não criou esta conta, ignore esta mensagem.</p>
                 </td></tr>
               </table>
@@ -60,7 +60,7 @@ resource "supabase_settings" "production" {
         </body>
       </html>
     HTML
-    mailer_subjects_recovery                          = "Redefina sua senha — FUT7"
+    mailer_subjects_recovery                          = "Redefina sua senha — DeuTime"
     mailer_templates_recovery_content                 = <<-HTML
       <!doctype html>
       <html lang="pt-BR">
@@ -69,10 +69,10 @@ resource "supabase_settings" "production" {
             <tr><td align="center">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background:#fff;border-radius:16px;padding:32px">
                 <tr><td>
-                  <p style="margin:0 0 8px;color:#16a34a;font-size:14px;font-weight:700">FUT7</p>
+                  <p style="margin:0 0 8px;color:#0D2B22;font-size:14px;font-weight:700">DeuTime</p>
                   <h1 style="margin:0 0 16px;font-size:24px;line-height:1.25">Redefina sua senha</h1>
                   <p style="margin:0 0 24px;color:#52525b;font-size:16px;line-height:1.5">Recebemos uma solicitação para recuperar sua conta administrativa.</p>
-                  <p style="margin:0 0 24px"><a href="{{ .SiteURL }}/auth/recovery?token_hash={{ .TokenHash }}&amp;type=recovery" style="display:inline-block;border-radius:10px;background:#16a34a;color:#fff;padding:12px 20px;font-size:16px;font-weight:700;text-decoration:none">Escolher nova senha</a></p>
+                  <p style="margin:0 0 24px"><a href="{{ .SiteURL }}/auth/recovery?token_hash={{ .TokenHash }}&amp;type=recovery" style="display:inline-block;border-radius:10px;background:#0D2B22;color:#BDF63C;padding:12px 20px;font-size:16px;font-weight:700;text-decoration:none">Escolher nova senha</a></p>
                   <p style="margin:0;color:#71717a;font-size:13px;line-height:1.5">Este link é pessoal, só pode ser usado uma vez e expira em poucos minutos. Se você não solicitou a recuperação, ignore esta mensagem.</p>
                 </td></tr>
               </table>
@@ -82,7 +82,7 @@ resource "supabase_settings" "production" {
       </html>
     HTML
     mailer_notifications_password_changed_enabled    = true
-    mailer_subjects_password_changed_notification     = "Sua senha foi alterada — FUT7"
+    mailer_subjects_password_changed_notification     = "Sua senha foi alterada — DeuTime"
     mailer_templates_password_changed_notification_content = <<-HTML
       <!doctype html>
       <html lang="pt-BR">
@@ -91,7 +91,7 @@ resource "supabase_settings" "production" {
             <tr><td align="center">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background:#fff;border-radius:16px;padding:32px">
                 <tr><td>
-                  <p style="margin:0 0 8px;color:#16a34a;font-size:14px;font-weight:700">FUT7</p>
+                  <p style="margin:0 0 8px;color:#0D2B22;font-size:14px;font-weight:700">DeuTime</p>
                   <h1 style="margin:0 0 16px;font-size:24px;line-height:1.25">Sua senha foi alterada</h1>
                   <p style="margin:0 0 16px;color:#52525b;font-size:16px;line-height:1.5">A senha da sua conta administrativa foi atualizada e as sessões anteriores foram encerradas.</p>
                   <p style="margin:0;color:#71717a;font-size:13px;line-height:1.5">Se você não fez esta alteração, solicite uma nova recuperação imediatamente e avise o responsável pela plataforma.</p>
@@ -118,7 +118,7 @@ resource "supabase_settings" "production" {
     sms_otp_exp                                       = 600
     sms_otp_length                                    = 6
     sms_provider                                      = "twilio"
-    sms_template                                      = "Seu código FUT7 é {{ .Code }}"
+    sms_template                                      = "Seu código DeuTime é {{ .Code }}"
     sms_twilio_account_sid                            = var.twilio_account_sid
     sms_twilio_auth_token                             = var.twilio_auth_token
     sms_twilio_message_service_sid                    = var.twilio_message_service_sid
@@ -144,7 +144,7 @@ data "supabase_apikeys" "production" {
 }
 
 resource "vercel_project" "production" {
-  name                                              = "fut7"
+  name                                              = "deutime"
   framework                                         = "nextjs"
   node_version                                      = "24.x"
   git_fork_protection                               = true

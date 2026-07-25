@@ -79,7 +79,7 @@ export function SectionHeader({
         ) : null}
         <div className="min-w-0">
           {eyebrow ? <p className="app-kicker">{eyebrow}</p> : null}
-          <h2 className="text-lg font-black tracking-tight text-slate-950">
+          <h2 className="text-lg font-black tracking-tight text-graphite">
             {title}
           </h2>
           {description ? (
@@ -146,7 +146,7 @@ export function Metric({
       >
         <Icon className="size-4" aria-hidden />
       </span>
-      <p className="mt-3 text-2xl font-black tracking-[-0.04em] text-slate-950">
+      <p className="mt-3 text-2xl font-black tracking-[-0.04em] text-graphite">
         {value}
       </p>
       <p className="mt-0.5 truncate text-[0.6875rem] font-medium text-slate-500 sm:text-xs">

@@ -159,7 +159,7 @@ export default async function MatchReportPage({
           )}
         </div>
 
-        <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 text-white shadow-float">
+        <section className="relative overflow-hidden rounded-[2rem] bg-grass text-white shadow-float">
           <div className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-emerald-500/20 blur-3xl" />
           <div className="relative p-6 sm:p-8">
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-emerald-300">

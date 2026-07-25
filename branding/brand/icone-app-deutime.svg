@@ -1,0 +1,4 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Icone do app DeuTime">
+  <rect width="512" height="512" rx="116" fill="#BDF63C"/>
+  <g transform="translate(86,81) scale(3.4)"><path d="M10,8 H90 V50 C90,66 82,78 68,86 L50,95 L32,86 C18,78 10,66 10,50 Z" fill="#0D2B22"/><path d="M16,14 H84 V50 C84,62.5 77.5,72 65.5,78.5 L50,86.5 L34.5,78.5 C22.5,72 16,62.5 16,50 Z" fill="none" stroke="#BDF63C" stroke-width="2.5"/><polyline points="32,50 45,63 69,35" fill="none" stroke="#BDF63C" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></g>
+</svg>

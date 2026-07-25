@@ -89,7 +89,7 @@ export function TeamSettingsForm({
 
       <fieldset className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
         <div>
-          <legend className="font-black text-slate-950">Redes sociais</legend>
+          <legend className="font-black text-graphite">Redes sociais</legend>
           <p className="mt-1 text-xs leading-5 text-slate-500">
             Você pode informar o @usuário ou colar o link completo.
           </p>

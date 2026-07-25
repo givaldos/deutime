@@ -371,7 +371,7 @@ export function MatchIncidentForm({
 
       <Button
         type="submit"
-        className="h-12 w-full rounded-xl bg-slate-950 hover:bg-slate-800"
+        className="h-12 w-full rounded-xl bg-grass hover:bg-slate-800"
         disabled={pending || !athletes.length}
       >
         {pending && <LoaderCircle className="animate-spin" aria-hidden />}

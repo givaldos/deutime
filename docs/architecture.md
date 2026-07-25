@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-O Fut7 é um SaaS multi-time. A mesma pessoa pode administrar vários times, cada time tem sua página pública por slug e nenhum dado privado pode atravessar a fronteira entre times.
+O DeuTime é um SaaS multi-time. A mesma pessoa pode administrar vários times, cada time tem sua página pública por slug e nenhum dado privado pode atravessar a fronteira entre times.
 
 ## Contextos do produto
 

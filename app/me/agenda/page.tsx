@@ -132,7 +132,7 @@ export default async function PlayerAgendaPage() {
               >
                 <div className="p-5 sm:p-6">
                   <div className="flex items-start gap-4">
-                    <div className="min-w-14 rounded-2xl bg-slate-950 px-2 py-2.5 text-center text-white shadow-sm">
+                    <div className="min-w-14 rounded-2xl bg-grass px-2 py-2.5 text-center text-white shadow-sm">
                       <p className="text-[10px] font-bold uppercase text-emerald-300">
                         {new Intl.DateTimeFormat("pt-BR", {
                           month: "short",

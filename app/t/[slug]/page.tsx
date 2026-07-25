@@ -113,8 +113,8 @@ export default async function PublicTeamPage({
   ].filter((item): item is typeof item & { href: string } => Boolean(item.href));
 
   return (
-    <main className="min-h-svh bg-[#f5f4ef] pb-12 text-slate-950">
-      <header className="relative min-h-[30rem] overflow-hidden bg-slate-950 text-white sm:min-h-[34rem]">
+    <main className="min-h-svh bg-[#f5f4ef] pb-12 text-graphite">
+      <header className="relative min-h-[30rem] overflow-hidden bg-grass text-white sm:min-h-[34rem]">
         {team.cover_url ? (
           <img
             src={team.cover_url}
@@ -129,10 +129,10 @@ export default async function PublicTeamPage({
 
         <div className="relative mx-auto flex min-h-[30rem] max-w-5xl flex-col px-5 pb-10 pt-6 sm:min-h-[34rem] sm:px-8">
           <div className="flex items-center justify-between gap-4">
-            <BrandMark className="[&_span:last-child]:text-white" />
+            <BrandMark inverted />
             <Link
               href={teamLink?.athlete_status === "active" ? "/me" : `/t/${slug}/cadastro`}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/20 bg-slate-950/35 px-4 text-xs font-bold text-white shadow-lg backdrop-blur-md transition hover:bg-slate-950/60"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/20 bg-grass/35 px-4 text-xs font-bold text-white shadow-lg backdrop-blur-md transition hover:bg-grass/60"
             >
               {teamLink?.athlete_status === "active" ? <ShieldCheck className="size-4" aria-hidden /> : <UserPlus className="size-4" aria-hidden />}
               {teamLink?.athlete_status === "active" ? "Minha área" : "Quero jogar"}
@@ -181,7 +181,7 @@ export default async function PublicTeamPage({
                     target="_blank"
                     rel="noreferrer"
                     aria-label={social.label}
-                    className="grid size-11 place-items-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white hover:text-slate-950"
+                    className="grid size-11 place-items-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white hover:text-graphite"
                   >
                     <social.icon className="size-4" aria-hidden />
                   </a>
@@ -237,12 +237,12 @@ export default async function PublicTeamPage({
           )}
 
           {!userId && events.length ? (
-            <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-slate-950 p-5 text-white sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-grass p-5 text-white sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-bold">Já é atleta deste time?</p>
                 <p className="mt-1 text-sm text-slate-300">Entre com seu WhatsApp para confirmar presença.</p>
               </div>
-              <Button asChild className="h-11 rounded-xl bg-white text-slate-950 hover:bg-emerald-50">
+              <Button asChild className="h-11 rounded-xl bg-white text-graphite hover:bg-emerald-50">
                 <Link href={`/auth/login?next=${encodeURIComponent(`/t/${slug}#agenda`)}`}>
                   <LogIn aria-hidden /> Entrar e confirmar
                 </Link>
@@ -262,7 +262,7 @@ export default async function PublicTeamPage({
         {team.about || gallery.length ? (
           <section aria-labelledby="team-content-title">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-2xl bg-slate-950 text-emerald-300">
+              <span className="grid size-11 place-items-center rounded-2xl bg-grass text-emerald-300">
                 <Camera className="size-5" aria-hidden />
               </span>
               <div>
@@ -283,7 +283,7 @@ export default async function PublicTeamPage({
                       <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-emerald-700">
                         <Sparkles className="size-4" aria-hidden /> Nossa história
                       </p>
-                      <h3 className="mt-3 text-2xl font-black tracking-tight text-slate-950">
+                      <h3 className="mt-3 text-2xl font-black tracking-tight text-graphite">
                         Quem somos
                       </h3>
                       <div className="mt-5 flex items-center gap-2 border-t border-slate-100 pt-4 text-xs font-bold text-slate-500">
@@ -300,7 +300,7 @@ export default async function PublicTeamPage({
               ) : null}
 
               {gallery.length ? (
-                <div id="fotos" className="scroll-mt-24 overflow-hidden rounded-[1.75rem] bg-slate-950 p-3 sm:p-4">
+                <div id="fotos" className="scroll-mt-24 overflow-hidden rounded-[1.75rem] bg-grass p-3 sm:p-4">
                   <div className="flex items-center justify-between gap-4 px-2 pb-3 pt-1 text-white">
                     <div>
                       <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-300">
@@ -326,7 +326,7 @@ export default async function PublicTeamPage({
                           className="size-full object-cover transition duration-500 group-hover:scale-[1.03]"
                         />
                         {photo.isFeatured ? (
-                          <span className="absolute left-3 top-3 inline-flex min-h-8 items-center gap-1.5 rounded-full bg-amber-300 px-3 text-[10px] font-black uppercase tracking-[0.1em] text-slate-950 shadow-lg sm:left-4 sm:top-4">
+                          <span className="absolute left-3 top-3 inline-flex min-h-8 items-center gap-1.5 rounded-full bg-amber-300 px-3 text-[10px] font-black uppercase tracking-[0.1em] text-graphite shadow-lg sm:left-4 sm:top-4">
                             <Star className="size-3 fill-current" aria-hidden />
                             Em destaque
                           </span>
@@ -452,14 +452,14 @@ function PublicAthleteCard({ athlete }: { athlete: PublicAthlete }) {
           </div>
         )}
         {athlete.shirt_number ? (
-          <span className="absolute right-3 top-3 grid size-10 place-items-center rounded-full bg-slate-950/85 text-sm font-black text-white shadow-lg backdrop-blur">
+          <span className="absolute right-3 top-3 grid size-10 place-items-center rounded-full bg-grass/85 text-sm font-black text-white shadow-lg backdrop-blur">
             {athlete.shirt_number}
           </span>
         ) : null}
       </div>
       <div className="p-4">
         <div className="flex items-center gap-2">
-          <h3 className="min-w-0 flex-1 truncate font-black text-slate-950">
+          <h3 className="min-w-0 flex-1 truncate font-black text-graphite">
             {athlete.display_name}
           </h3>
           {athlete.player_handle ? (
@@ -527,7 +527,7 @@ function FeaturedEventCard({
         </div>
 
         <div className="mt-6 grid gap-6 sm:grid-cols-[9rem_1fr] sm:items-center">
-          <div className="grid min-h-36 place-items-center rounded-[1.75rem] bg-white px-4 py-5 text-center text-slate-950 shadow-xl">
+          <div className="grid min-h-36 place-items-center rounded-[1.75rem] bg-white px-4 py-5 text-center text-graphite shadow-xl">
             <div>
               <span className="block text-xs font-black uppercase tracking-[0.16em] text-emerald-700">
                 {new Intl.DateTimeFormat("pt-BR", { month: "long", timeZone })
@@ -628,7 +628,7 @@ function CompactEventCard({
   return (
     <article className="flex flex-col rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-[0_16px_42px_-34px_rgba(2,20,14,.6)] sm:p-5">
       <div className="flex items-start gap-3">
-        <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-slate-950 text-center text-white">
+        <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-grass text-center text-white">
           <div className="leading-none">
             <span className="block text-[9px] font-black uppercase text-emerald-300">
               {new Intl.DateTimeFormat("pt-BR", { month: "short", timeZone })
@@ -645,7 +645,7 @@ function CompactEventCard({
           <p className="text-[10px] font-black uppercase tracking-wide text-emerald-700">
             {kindLabels[event.kind]} · {sportFormatLabel(event.sport_format)}
           </p>
-          <h3 className="mt-1 line-clamp-2 font-black leading-tight text-slate-950">
+          <h3 className="mt-1 line-clamp-2 font-black leading-tight text-graphite">
             {event.title}
           </h3>
           {event.opponent_name ? (
@@ -704,7 +704,7 @@ function SectionLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
-      className="inline-flex min-h-10 shrink-0 items-center rounded-full bg-white px-4 text-xs font-black text-slate-700 shadow-sm transition hover:bg-slate-950 hover:text-white"
+      className="inline-flex min-h-10 shrink-0 items-center rounded-full bg-white px-4 text-xs font-black text-slate-700 shadow-sm transition hover:bg-grass hover:text-white"
     >
       {label}
     </a>

@@ -129,7 +129,7 @@ export default async function AppIndexPage({
             </section>
           </>
         ) : (
-          <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-float sm:p-8">
+          <section className="relative overflow-hidden rounded-[2rem] bg-grass p-6 text-white shadow-float sm:p-8">
             <div className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-emerald-500/20 blur-3xl" />
             <div className="grid size-12 place-items-center rounded-2xl bg-white/10 text-emerald-200">
               <ShieldCheck className="size-6" aria-hidden />

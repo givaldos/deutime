@@ -1,6 +1,6 @@
 import "server-only";
 
-export const PASSWORD_RECOVERY_COOKIE = "fut7-password-recovery";
+export const PASSWORD_RECOVERY_COOKIE = "deutime-password-recovery";
 export const PASSWORD_RECOVERY_MAX_AGE_SECONDS = 10 * 60;
 
 export function passwordRecoveryCookieOptions() {

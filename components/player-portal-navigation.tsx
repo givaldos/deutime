@@ -45,7 +45,7 @@ export function PlayerPortalNavigation() {
                     aria-current={selected ? "page" : undefined}
                     className={`inline-flex h-10 items-center gap-2 rounded-xl px-3 text-sm font-semibold transition ${
                       selected
-                        ? "bg-slate-950 text-white shadow-sm"
+                        ? "bg-grass text-white shadow-sm"
                         : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
                     }`}
                   >
@@ -64,7 +64,7 @@ export function PlayerPortalNavigation() {
         aria-label="Área do atleta"
         className="fixed inset-x-3 bottom-[max(.75rem,env(safe-area-inset-bottom))] z-50 sm:hidden"
       >
-        <div className="mx-auto grid max-w-md grid-cols-3 rounded-[1.5rem] border border-white/10 bg-slate-950/95 p-1.5 shadow-float backdrop-blur-xl">
+        <div className="mx-auto grid max-w-md grid-cols-3 rounded-[1.5rem] border border-white/10 bg-grass/95 p-1.5 shadow-float backdrop-blur-xl">
           {items.map((item) => {
             const selected = item.matches(pathname);
             return (
@@ -74,7 +74,7 @@ export function PlayerPortalNavigation() {
                 aria-current={selected ? "page" : undefined}
                 className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-[1.1rem] py-1 text-[10px] font-bold transition active:scale-95 ${
                   selected
-                    ? "bg-white text-slate-950 shadow-sm"
+                    ? "bg-white text-graphite shadow-sm"
                     : "text-slate-400"
                 }`}
               >

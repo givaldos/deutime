@@ -298,7 +298,7 @@ export function PlayerProfileForm({
             className="mt-0.5 size-4 accent-emerald-700"
           />
           <span>
-            <strong className="block text-slate-950">Perfil público</strong>
+            <strong className="block text-graphite">Perfil público</strong>
             <span className="mt-1 block leading-6">
               Nome esportivo, apresentação e posições poderão aparecer em
               `/p/{values.handle}`. Telefone e outros dados privados nunca são

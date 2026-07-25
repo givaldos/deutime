@@ -417,7 +417,7 @@ export function AdminEventForm({
                   }
                 />
                 <span>
-                  <span className="block text-sm font-bold text-slate-950">
+                  <span className="block text-sm font-bold text-graphite">
                     Somente este evento
                   </span>
                   <span className="mt-1 block text-xs leading-5 text-slate-600">
@@ -439,7 +439,7 @@ export function AdminEventForm({
                   }
                 />
                 <span>
-                  <span className="block text-sm font-bold text-slate-950">
+                  <span className="block text-sm font-bold text-graphite">
                     Este e os próximos
                   </span>
                   <span className="mt-1 block text-xs leading-5 text-slate-600">

@@ -27,7 +27,7 @@ export function AdminInviteForm({
   );
   const [copied, setCopied] = useState(false);
   const whatsappUrl = state.inviteUrl
-    ? `https://wa.me/?text=${encodeURIComponent(`Você foi convidado para administrar um time no FUT7: ${state.inviteUrl}`)}`
+    ? `https://wa.me/?text=${encodeURIComponent(`Você foi convidado para administrar um time no DeuTime: ${state.inviteUrl}`)}`
     : null;
 
   return (

@@ -1,4 +1,4 @@
-# Fut7
+# DeuTime
 
 Plataforma multi-time, mobile-first e preparada para WhatsApp para organizar atletas, agendas, presenças, divisões de racha e escalações de futebol de campo, society e futsal.
 

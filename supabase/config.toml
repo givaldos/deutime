@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "fut7"
+project_id = "deutime"
 
 [api]
 enabled = true
@@ -253,16 +253,16 @@ otp_expiry = 600
 # Using ConfirmationURL here would consume the token in GoTrue and then reach the
 # application callback without the token_hash it needs.
 [auth.email.template.confirmation]
-subject = "Confirme seu e-mail — FUT7"
+subject = "Confirme seu e-mail — DeuTime"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.recovery]
-subject = "Redefina sua senha — FUT7"
+subject = "Redefina sua senha — DeuTime"
 content_path = "./supabase/templates/recovery.html"
 
 [auth.email.notification.password_changed]
 enabled = true
-subject = "Sua senha foi alterada — FUT7"
+subject = "Sua senha foi alterada — DeuTime"
 content_path = "./templates/password-changed.html"
 
 [auth.sms]
@@ -271,7 +271,7 @@ enable_signup = true
 # If enabled, users need to confirm their phone number before signing in.
 enable_confirmations = true
 # Template for sending OTP to users
-template = "Seu código FUT7 é {{ `{{ .Code }}` }}"
+template = "Seu código DeuTime é {{ `{{ .Code }}` }}"
 # Controls the minimum amount of time that must pass before sending another sms otp.
 max_frequency = "60s"
 

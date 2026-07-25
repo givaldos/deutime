@@ -15,8 +15,8 @@ export function safeInternalPath(
   }
 
   try {
-    const parsed = new URL(candidate, "https://fut7.invalid");
-    if (parsed.origin !== "https://fut7.invalid") {
+    const parsed = new URL(candidate, "https://deutime.invalid");
+    if (parsed.origin !== "https://deutime.invalid") {
       return fallback;
     }
     return `${parsed.pathname}${parsed.search}${parsed.hash}`;

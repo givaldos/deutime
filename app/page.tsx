@@ -20,10 +20,10 @@ export default async function Home() {
 
   return (
     <main className="app-canvas overflow-hidden">
-      <div className="relative bg-slate-950 text-white">
-        <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_80%_15%,#34d399_0,transparent_32%),radial-gradient(circle_at_5%_85%,#10b981_0,transparent_28%)]" />
+      <div className="relative bg-grass text-white">
+        <div className="absolute inset-0 opacity-25 [background-image:radial-gradient(circle_at_80%_15%,#BDF63C_0,transparent_32%),radial-gradient(circle_at_5%_85%,#5B6B62_0,transparent_28%)]" />
         <nav className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-          <BrandMark className="[&_span:last-child]:text-white" />
+          <BrandMark inverted />
           <Button
             asChild
             variant="outline"
@@ -39,12 +39,12 @@ export default async function Home() {
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-semibold text-emerald-100">
               <Smartphone className="size-3.5" aria-hidden /> Feito primeiro para o celular
             </div>
-            <h1 className="mt-6 max-w-2xl text-4xl font-bold leading-[1.04] tracking-[-0.04em] sm:text-5xl md:text-6xl">
-              Do “quem vai?” ao jogo organizado.
+            <h1 className="mt-6 max-w-2xl font-display text-4xl font-bold leading-[1.04] tracking-[-0.04em] sm:text-5xl md:text-6xl">
+              Deu time. Agora é só jogar.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-emerald-100 sm:text-lg">
-              BID, agenda, presença e súmula do racha sem planilhas nem
-              mensagens perdidas no grupo.
+              Convocação, presença, agenda e súmula do racha sem planilhas nem
+              mensagem perdida no grupo.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button
@@ -53,7 +53,7 @@ export default async function Home() {
                 className="h-12 rounded-xl bg-emerald-400 px-6 font-semibold text-emerald-950 hover:bg-emerald-300"
               >
                 <Link href="/auth/sign-up">
-                  Criar conta de administrador <ArrowRight aria-hidden />
+                  Organizar meu time <ArrowRight aria-hidden />
                 </Link>
               </Button>
               <span className="self-center text-xs text-emerald-200">
@@ -63,13 +63,13 @@ export default async function Home() {
           </div>
 
           <div className="mx-auto w-full max-w-sm rounded-[2rem] border border-white/15 bg-white/10 p-3 shadow-2xl backdrop-blur">
-            <div className="rounded-[1.4rem] bg-white p-4 text-slate-950">
+            <div className="rounded-[1.4rem] bg-white p-4 text-graphite">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
                     Próximo jogo
                   </p>
-                  <p className="mt-1 font-semibold">Racha de quarta</p>
+                  <p className="mt-1 font-semibold">Racha de quinta</p>
                 </div>
                 <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-800">
                   Society
@@ -77,18 +77,18 @@ export default async function Home() {
               </div>
               <div className="my-4 h-px bg-slate-100" />
               <div className="flex items-center gap-3">
-                <div className="grid size-12 place-items-center rounded-2xl bg-slate-950 text-white">
+                <div className="grid size-12 place-items-center rounded-2xl bg-grass text-white">
                   <span className="text-lg font-bold">19</span>
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Quarta, 20:30</p>
+                  <p className="text-sm font-medium">Quinta, 20:00</p>
                   <p className="text-xs text-slate-500">Arena Central</p>
                 </div>
               </div>
               <div className="mt-5 grid grid-cols-3 gap-2 text-center">
                 {[
-                  ["14", "Confirmados"],
-                  ["3", "Pendentes"],
+                  ["10", "Confirmados"],
+                  ["0", "Faltam"],
                   ["2", "Não vão"],
                 ].map(([value, label]) => (
                   <div key={label} className="rounded-xl bg-slate-50 px-2 py-3">
@@ -97,8 +97,8 @@ export default async function Home() {
                   </div>
                 ))}
               </div>
-              <div className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white">
-                <CheckCircle2 className="size-4" aria-hidden /> Presença confirmada
+              <div className="mt-4 flex items-center gap-2 rounded-xl bg-volt px-4 py-3 text-sm font-bold text-grass">
+                <CheckCircle2 className="size-4" aria-hidden /> Deu time!
               </div>
             </div>
           </div>
@@ -109,7 +109,7 @@ export default async function Home() {
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-700">
           Uma rotina, um lugar
         </p>
-        <h2 className="mt-3 max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
+        <h2 className="mt-3 max-w-2xl font-display text-3xl font-bold tracking-tight sm:text-4xl">
           A operação do time cabe na mão.
         </h2>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -146,7 +146,7 @@ export default async function Home() {
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-700">
               Segurança como requisito
             </p>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
+            <h2 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl">
               Isolamento por time, menor privilégio e tudo versionado.
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
@@ -154,7 +154,7 @@ export default async function Home() {
               verificação é OWASP ASVS 5.0 nível 2, além do Top 10.
             </p>
           </div>
-          <div className="flex items-center gap-3 rounded-2xl bg-slate-950 p-4 text-sm text-white">
+          <div className="flex items-center gap-3 rounded-2xl bg-grass p-4 text-sm text-white">
             <ShieldCheck className="size-8 shrink-0 text-emerald-400" aria-hidden />
             Nenhuma chave privilegiada vai para o navegador.
           </div>
@@ -162,8 +162,8 @@ export default async function Home() {
       </section>
 
       <footer className="mx-auto flex max-w-6xl items-center justify-between px-5 py-10 text-xs text-slate-500">
-        <span className="font-bold tracking-[0.16em] text-slate-800">FUT7</span>
-        <span>Construído no Brasil</span>
+        <BrandMark />
+        <span>deutime.app · Construído no Brasil</span>
       </footer>
     </main>
   );

@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
+import { BrandMark } from "@/components/brand-mark";
 import { createPrivilegedClient } from "@/lib/supabase/privileged";
 import { BadgeCheck, Clock3, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Convite para administrar um time | FUT7",
+  title: "Convite para administrar um time",
   robots: { index: false, follow: false, nocache: true },
 };
 
@@ -33,11 +34,9 @@ export default async function TeamInvitationPage({
   }
 
   return (
-    <main className="grid min-h-svh place-items-center bg-slate-50 p-5 text-slate-950">
+    <main className="grid min-h-svh place-items-center bg-slate-50 p-5 text-graphite">
       <section className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <Link href="/" className="text-sm font-black tracking-[0.14em] text-emerald-800">
-          FUT7
-        </Link>
+        <BrandMark />
 
         {invitation ? (
           <>

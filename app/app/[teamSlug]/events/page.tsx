@@ -84,7 +84,7 @@ export default async function EventsPage({ params }: { params: Promise<{ teamSlu
     return (
       <Link key={event.id} href={`/app/${team.slug}/events/${event.id}`} className="app-surface app-interactive group block p-4 sm:p-5">
         <div className="flex items-start gap-4">
-          <div className="min-w-14 rounded-2xl bg-slate-950 px-2 py-2.5 text-center text-white shadow-sm">
+          <div className="min-w-14 rounded-2xl bg-grass px-2 py-2.5 text-center text-white shadow-sm">
             <p className="text-[10px] font-bold uppercase text-emerald-300">{new Intl.DateTimeFormat("pt-BR", { month: "short", timeZone: team.timezone }).format(new Date(event.starts_at)).replace(".", "")}</p>
             <p className="text-xl font-black">{new Intl.DateTimeFormat("pt-BR", { day: "2-digit", timeZone: team.timezone }).format(new Date(event.starts_at))}</p>
           </div>
@@ -92,7 +92,7 @@ export default async function EventsPage({ params }: { params: Promise<{ teamSlu
             <div className="flex items-start justify-between gap-2">
               <div>
                 <p className="text-xs font-semibold text-emerald-700">{kindLabels[event.kind]} · {event.sport_format === "field" ? "Campo" : event.sport_format === "futsal" ? "Futsal" : "Society"}</p>
-                <h2 className="mt-1 truncate text-base font-black tracking-tight text-slate-950">{event.title}</h2>
+                <h2 className="mt-1 truncate text-base font-black tracking-tight text-graphite">{event.title}</h2>
               </div>
               <ChevronRight className="size-5 shrink-0 text-slate-300 transition group-hover:text-emerald-700" aria-hidden />
             </div>

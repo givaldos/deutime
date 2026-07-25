@@ -125,7 +125,7 @@ export default async function AthleteRegistrationPage({
       <div className="mx-auto max-w-lg">
         <Link
           href={`/t/${slug}`}
-          className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-950"
+          className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-slate-600 hover:text-graphite"
         >
           <ArrowLeft className="size-4" aria-hidden /> Voltar para {team.name}
         </Link>
@@ -209,7 +209,7 @@ function ExistingLinkStatus({
       <Button
         asChild
         size="lg"
-        className="mt-5 h-12 w-full rounded-xl bg-slate-950 text-white hover:bg-slate-800"
+        className="mt-5 h-12 w-full rounded-xl bg-grass text-white hover:bg-slate-800"
       >
         <Link href="/me">
           Abrir minha área <ArrowRight aria-hidden />
@@ -268,14 +268,14 @@ function RegistrationChoice({
 
       <div className="rounded-3xl border border-slate-200 bg-white p-5">
         <div className="flex items-start gap-3">
-          <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-slate-950 text-white">
+          <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-grass text-white">
             <UserPlus className="size-5" aria-hidden />
           </div>
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Primeiro acesso
             </p>
-            <h2 className="mt-1 text-lg font-bold text-slate-950">
+            <h2 className="mt-1 text-lg font-bold text-graphite">
               Criar perfil de atleta
             </h2>
             <p className="mt-1 text-sm leading-6 text-slate-600">

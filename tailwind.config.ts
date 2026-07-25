@@ -12,6 +12,25 @@ export default {
   theme: {
     extend: {
       colors: {
+        grass: "#0D2B22",
+        graphite: "#16211C",
+        ice: "#F7FAF5",
+        volt: "#BDF63C",
+        whistle: "#FF6B35",
+        "field-gray": "#5B6B62",
+        emerald: {
+          50: "#F3F8F2",
+          100: "#E7F0E8",
+          200: "#D4E4D6",
+          300: "#BDF63C",
+          400: "#BDF63C",
+          500: "#A8E52D",
+          600: "#668E1B",
+          700: "#0D2B22",
+          800: "#16211C",
+          900: "#0D2B22",
+          950: "#071813",
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -57,6 +76,18 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 3px)",
         sm: "calc(var(--radius) - 6px)",
+      },
+      fontFamily: {
+        sans: ["var(--font-inter)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: [
+          "var(--font-space-grotesk)",
+          "Space Grotesk",
+          "var(--font-inter)",
+          "Inter",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
       },
       boxShadow: {
         soft: "0 10px 35px -24px rgba(7, 35, 24, 0.45)",

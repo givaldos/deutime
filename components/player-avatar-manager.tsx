@@ -153,7 +153,7 @@ export function PlayerAvatarManager({
           <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">
             Sua foto
           </p>
-          <h2 className="mt-1 text-lg font-black text-slate-950">
+          <h2 className="mt-1 text-lg font-black text-graphite">
             Seja reconhecido no BID
           </h2>
           <p className="mt-1 text-xs leading-5 text-slate-500">
@@ -161,7 +161,7 @@ export function PlayerAvatarManager({
             se o perfil fica público.
           </p>
           <div className="mt-4 flex flex-col gap-2 min-[400px]:flex-row min-[400px]:justify-center sm:justify-start">
-            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-bold text-white transition hover:bg-slate-800 active:scale-[0.98] has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
+            <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-grass px-4 text-sm font-bold text-white transition hover:bg-slate-800 active:scale-[0.98] has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
               {pending ? (
                 <LoaderCircle className="size-4 animate-spin" aria-hidden />
               ) : (

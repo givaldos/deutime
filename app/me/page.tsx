@@ -147,7 +147,7 @@ export default async function PlayerPortalPage({
         </div>
       )}
 
-      <section className="relative overflow-hidden rounded-[2rem] bg-slate-950 text-white shadow-float">
+      <section className="relative overflow-hidden rounded-[2rem] bg-grass text-white shadow-float">
         <div className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-emerald-500/25 blur-3xl" />
         <div className="relative grid gap-6 p-6 sm:grid-cols-[1fr_auto] sm:items-end sm:p-8">
           <div>
@@ -323,7 +323,7 @@ export default async function PlayerPortalPage({
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold">{link.team_name}</p>
                     <p className="text-xs text-slate-500">
-                      BID FUT7 #{link.registration_number}
+                      BID DeuTime #{link.registration_number}
                     </p>
                   </div>
                   <span
