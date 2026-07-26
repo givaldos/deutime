@@ -31,16 +31,16 @@ resource "supabase_settings" "production" {
   })
 
   auth = jsonencode({
-    site_url                                          = var.app_url
-    uri_allow_list                                    = "${var.app_url}/auth/confirm,${var.app_url}/auth/recovery"
-    disable_signup                                    = false
-    jwt_exp                                           = 3600
-    mailer_autoconfirm                                = false
-    mailer_secure_email_change_enabled                = true
-    mailer_otp_exp                                    = 600
-    mailer_otp_length                                 = 6
-    mailer_subjects_confirmation                      = "Confirme seu e-mail — DeuTime"
-    mailer_templates_confirmation_content             = <<-HTML
+    site_url                                               = var.app_url
+    uri_allow_list                                         = "${var.app_url}/auth/confirm,${var.app_url}/auth/recovery"
+    disable_signup                                         = false
+    jwt_exp                                                = 3600
+    mailer_autoconfirm                                     = false
+    mailer_secure_email_change_enabled                     = true
+    mailer_otp_exp                                         = 600
+    mailer_otp_length                                      = 6
+    mailer_subjects_confirmation                           = "Confirme seu e-mail — DeuTime"
+    mailer_templates_confirmation_content                  = <<-HTML
       <!doctype html>
       <html lang="pt-BR">
         <body style="margin:0;background:#f4f4f5;color:#18181b;font-family:Arial,sans-serif">
@@ -60,8 +60,8 @@ resource "supabase_settings" "production" {
         </body>
       </html>
     HTML
-    mailer_subjects_recovery                          = "Redefina sua senha — DeuTime"
-    mailer_templates_recovery_content                 = <<-HTML
+    mailer_subjects_recovery                               = "Redefina sua senha — DeuTime"
+    mailer_templates_recovery_content                      = <<-HTML
       <!doctype html>
       <html lang="pt-BR">
         <body style="margin:0;background:#f4f4f5;color:#18181b;font-family:Arial,sans-serif">
@@ -81,8 +81,8 @@ resource "supabase_settings" "production" {
         </body>
       </html>
     HTML
-    mailer_notifications_password_changed_enabled    = true
-    mailer_subjects_password_changed_notification     = "Sua senha foi alterada — DeuTime"
+    mailer_notifications_password_changed_enabled          = true
+    mailer_subjects_password_changed_notification          = "Sua senha foi alterada — DeuTime"
     mailer_templates_password_changed_notification_content = <<-HTML
       <!doctype html>
       <html lang="pt-BR">
@@ -102,31 +102,31 @@ resource "supabase_settings" "production" {
         </body>
       </html>
     HTML
-    smtp_admin_email                                  = var.smtp_admin_email
-    smtp_host                                         = var.smtp_host
-    smtp_port                                         = var.smtp_port
-    smtp_user                                         = var.smtp_user
-    smtp_pass                                         = var.smtp_password
-    smtp_sender_name                                  = var.smtp_sender_name
-    smtp_max_frequency                                = 60
-    rate_limit_email_sent                             = var.auth_email_rate_limit
-    password_min_length                               = 12
-    refresh_token_rotation_enabled                    = true
-    external_phone_enabled                            = true
-    sms_autoconfirm                                   = false
-    sms_max_frequency                                 = 60
-    sms_otp_exp                                       = 600
-    sms_otp_length                                    = 6
-    sms_provider                                      = "twilio"
-    sms_template                                      = "Seu código DeuTime é {{ .Code }}"
-    sms_twilio_account_sid                            = var.twilio_account_sid
-    sms_twilio_auth_token                             = var.twilio_auth_token
-    sms_twilio_message_service_sid                    = var.twilio_message_service_sid
-    security_captcha_enabled                          = true
-    security_captcha_provider                         = "turnstile"
-    security_captcha_secret                           = var.turnstile_secret_key
-    security_manual_linking_enabled                   = false
-    security_update_password_require_reauthentication = true
+    smtp_admin_email                                       = var.smtp_admin_email
+    smtp_host                                              = var.smtp_host
+    smtp_port                                              = var.smtp_port
+    smtp_user                                              = var.smtp_user
+    smtp_pass                                              = var.smtp_password
+    smtp_sender_name                                       = var.smtp_sender_name
+    smtp_max_frequency                                     = 60
+    rate_limit_email_sent                                  = var.auth_email_rate_limit
+    password_min_length                                    = 12
+    refresh_token_rotation_enabled                         = true
+    external_phone_enabled                                 = true
+    sms_autoconfirm                                        = false
+    sms_max_frequency                                      = 60
+    sms_otp_exp                                            = 600
+    sms_otp_length                                         = 6
+    sms_provider                                           = "twilio"
+    sms_template                                           = "Seu código DeuTime é {{ .Code }}"
+    sms_twilio_account_sid                                 = var.twilio_account_sid
+    sms_twilio_auth_token                                  = var.twilio_auth_token
+    sms_twilio_message_service_sid                         = var.twilio_message_service_sid
+    security_captcha_enabled                               = true
+    security_captcha_provider                              = "turnstile"
+    security_captcha_secret                                = var.turnstile_secret_key
+    security_manual_linking_enabled                        = false
+    security_update_password_require_reauthentication      = true
   })
 
   storage = jsonencode({
