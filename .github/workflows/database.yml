@@ -34,6 +34,6 @@ jobs:
         run: supabase test db
       - name: Verify generated database types
         run: |
-          supabase gen types typescript --local > /tmp/database.types.ts
+          supabase gen types typescript --local 2>/dev/null > /tmp/database.types.ts
           diff --strip-trailing-cr lib/database.types.ts /tmp/database.types.ts
 

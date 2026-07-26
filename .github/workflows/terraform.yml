@@ -37,6 +37,9 @@ jobs:
         run: terraform fmt -check -recursive
       - name: Initialize providers without a backend
         run: terraform init -backend=false -input=false
+        env:
+          TF_CLOUD_ORGANIZATION: ""
+          TF_WORKSPACE: ""
       - name: Validate configuration
         run: terraform validate
 
