@@ -15,41 +15,15 @@ export default function OgImage() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          alignItems: "flex-start",
-          justifyContent: "flex-end",
-          padding: "72px 80px",
+          justifyContent: "space-between",
+          padding: "64px 80px",
           fontFamily: "sans-serif",
-          position: "relative",
-          overflow: "hidden",
         }}
       >
-        {/* Gradiente decorativo */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: 600,
-            height: 600,
-            borderRadius: "50%",
-            background:
-              "radial-gradient(circle, rgba(189,246,60,0.18) 0%, transparent 70%)",
-          }}
-        />
-
-        {/* Escudo / ícone */}
-        <div
-          style={{
-            position: "absolute",
-            top: 64,
-            left: 80,
-            display: "flex",
-            alignItems: "center",
-            gap: 20,
-          }}
-        >
-          {/* Escudo SVG simplificado */}
-          <svg width="56" height="64" viewBox="0 0 100 110" fill="none">
+        {/* Topo: logotipo */}
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {/* Escudo */}
+          <svg width="48" height="56" viewBox="0 0 100 110" fill="none">
             <path
               d="M10,8 H90 V50 C90,66 82,78 68,86 L50,95 L32,86 C18,78 10,66 10,50 Z"
               fill="#BDF63C"
@@ -71,7 +45,7 @@ export default function OgImage() {
           </svg>
           <span
             style={{
-              fontSize: 32,
+              fontSize: 30,
               fontWeight: 700,
               color: "#f2efe6",
               letterSpacing: "-0.5px",
@@ -81,57 +55,51 @@ export default function OgImage() {
           </span>
         </div>
 
-        {/* Headline */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-            maxWidth: 760,
-          }}
-        >
+        {/* Centro: headline */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div
             style={{
-              fontSize: 72,
-              fontWeight: 700,
+              fontSize: 76,
+              fontWeight: 800,
               color: "#f2efe6",
               lineHeight: 1.05,
-              letterSpacing: "-2px",
+              letterSpacing: "-2.5px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
             }}
           >
-            Cansou de perguntar
-            <br />
-            <span style={{ color: "#bdf63c" }}>&ldquo;quem vai?&rdquo;</span>
+            <span>Cansou de perguntar</span>
+            <span style={{ color: "#bdf63c" }}>{'"quem vai?"'}</span>
           </div>
           <div
             style={{
               fontSize: 28,
-              color: "rgba(242,239,230,0.70)",
-              lineHeight: 1.4,
-              maxWidth: 680,
+              color: "#a8b8a4",
+              lineHeight: 1.45,
+              maxWidth: 700,
+              display: "flex",
             }}
           >
-            Convoca, cobra, fecha o número e divide os times.
-            <br />
-            Você só marca o jogo — e joga.
+            Convoca, cobra, fecha o numero e divide os times. Voce so marca o jogo — e joga.
           </div>
         </div>
 
-        {/* Badge */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 72,
-            right: 80,
-            background: "#bdf63c",
-            borderRadius: 999,
-            padding: "14px 32px",
-            fontSize: 24,
-            fontWeight: 700,
-            color: "#0d2b22",
-          }}
-        >
-          deutime.app
+        {/* Rodapé: badge */}
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div
+            style={{
+              background: "#bdf63c",
+              borderRadius: 999,
+              padding: "12px 28px",
+              fontSize: 22,
+              fontWeight: 700,
+              color: "#0d2b22",
+              display: "flex",
+            }}
+          >
+            deutime.app
+          </div>
         </div>
       </div>
     ),
