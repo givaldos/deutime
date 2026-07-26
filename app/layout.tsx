@@ -36,12 +36,21 @@ export const metadata: Metadata = {
     description:
       "O DeuTime convoca a galera, cobra resposta, fecha o número e divide os times. Você só marca o jogo — e joga.",
     url: "https://deutime.app",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "DeuTime — deu time, deu jogo",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "DeuTime — deu time, deu jogo",
     description:
       "O DeuTime convoca a galera, cobra resposta, fecha o número e divide os times. Você só marca o jogo — e joga.",
+    images: ["/opengraph-image"],
   },
   robots: { index: true, follow: true },
 };
