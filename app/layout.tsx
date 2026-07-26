@@ -18,11 +18,11 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   metadataBase: getAppUrl(),
   title: {
-    default: "DeuTime — deu time, deu jogo",
+    default: "DeuTime — cansou de perguntar \"quem vai?\"",
     template: "%s | DeuTime",
   },
   description:
-    "Convocação, presença, agenda, súmula e estatísticas do seu time em um só lugar.",
+    "O DeuTime convoca a galera, cobra resposta, fecha o número e divide os times. Você só marca o jogo — e joga.",
   applicationName: "DeuTime",
   icons: {
     icon: "/brand/icone-app-deutime.svg",
@@ -34,14 +34,14 @@ export const metadata: Metadata = {
     siteName: "DeuTime",
     title: "DeuTime — deu time, deu jogo",
     description:
-      "Convocação, presença, agenda, súmula e estatísticas do seu time em um só lugar.",
+      "O DeuTime convoca a galera, cobra resposta, fecha o número e divide os times. Você só marca o jogo — e joga.",
     url: "https://deutime.app",
   },
   twitter: {
     card: "summary",
     title: "DeuTime — deu time, deu jogo",
     description:
-      "Convocação, presença, agenda, súmula e estatísticas do seu time em um só lugar.",
+      "O DeuTime convoca a galera, cobra resposta, fecha o número e divide os times. Você só marca o jogo — e joga.",
   },
   robots: { index: true, follow: true },
 };

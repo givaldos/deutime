@@ -18,6 +18,12 @@ export default {
         volt: "#BDF63C",
         whistle: "#FF6B35",
         "field-gray": "#5B6B62",
+        // aliases usados pela home pública
+        cream: "#f2efe6",
+        gramado: "#0d2b22",
+        "gramado-700": "#174535",
+        apito: "#ff6b35",
+        ink: "#24382f",
         emerald: {
           50: "#F3F8F2",
           100: "#E7F0E8",
