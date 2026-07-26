@@ -12,7 +12,7 @@ export function signUpErrorMessage(code?: string): string | null {
     return "Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.";
   }
   if (code === "weak_password") {
-    return "A senha não atende aos requisitos de segurança. Use pelo menos 12 caracteres e evite senhas conhecidas.";
+    return "A senha não atende aos requisitos de segurança. Use pelo menos 12 caracteres com letras maiúsculas, minúsculas, números e um caractere especial.";
   }
   if (code === "email_address_invalid" || code === "validation_failed") {
     return "Informe um endereço de e-mail válido.";
@@ -25,7 +25,7 @@ export function signUpErrorMessage(code?: string): string | null {
 
 export function passwordUpdateErrorMessage(code?: string): string {
   if (code === "weak_password") {
-    return "A senha não atende aos requisitos de segurança. Use pelo menos 12 caracteres e evite senhas conhecidas.";
+    return "A senha não atende aos requisitos de segurança. Use pelo menos 12 caracteres com letras maiúsculas, minúsculas, números e um caractere especial.";
   }
   if (code === "same_password") {
     return "A nova senha precisa ser diferente da senha atual.";
