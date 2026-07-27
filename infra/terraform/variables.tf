@@ -151,7 +151,7 @@ variable "twilio_account_sid" {
 }
 
 variable "twilio_auth_token" {
-  description = "Twilio auth token used by Supabase Auth. Keep it only in the HCP Terraform workspace."
+  description = "Twilio auth token used by Supabase Auth. Keep it only in the secrets manager selected when Terraform becomes operational."
   type        = string
   sensitive   = true
 }
