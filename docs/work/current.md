@@ -2,7 +2,7 @@
 release: R00
 work_package: WP-R00-04
 scope: feature_delivery
-branch_or_commit: "10cbe0e"
+branch_or_commit: "8328337"
 checkpoint: CP5
 status: awaiting_external_validation
 completed_ac:
@@ -18,7 +18,6 @@ completed_ac:
   - AC-R00-11
 dirty_files:
   - ".github/workflows/terraform.yml"
-  - "docs/releases/R00-fundacao-de-entrega.md"
   - "docs/work/current.md"
   - "docs/runbook.md"
   - "infra/terraform/README.md"
@@ -40,7 +39,7 @@ tests:
   - "terraform validate"
   - "npm run security:audit — 0 vulnerabilidades"
 blocker: "AC-R00-13 depende dos Environments production-plan/production-apply e das credenciais do HCP Terraform; staging foi explicitamente adiado para depois do MVP."
-next_action: "Publicar a proteção do tfplan, configurar production-plan e production-apply, revisar o primeiro plano e aplicar exatamente o artefato aprovado."
+next_action: "Publicar o mapeamento completo de inputs, configurar o workspace HCP em modo Local e preencher production-plan/production-apply antes do primeiro plano."
 ---
 
 # Trabalho atual
