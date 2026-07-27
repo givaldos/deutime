@@ -121,7 +121,7 @@ export const removeAthleteSchema = z.object({
   teamSlug: z.string().regex(TEAM_SLUG_PATTERN),
 });
 
-export const createEventSchema = z.object({
+const eventFieldsSchema = z.object({
   teamId: z.string().uuid(),
   teamSlug: z.string().regex(TEAM_SLUG_PATTERN),
   title: z.string().trim().min(2).max(120),
@@ -135,6 +135,14 @@ export const createEventSchema = z.object({
   ]),
   organizationMode: z.enum(["single_squad", "split_teams"]),
   sportFormat: z.enum(["field", "society", "futsal"]),
+  durationMinutes: z.coerce.number().int().min(15).max(480),
+  deadlineMinutes: z.coerce.number().int().min(0).max(43_200),
+  opponentName: optionalText(120),
+  venueName: optionalText(120),
+  venueAddress: optionalText(500, 1),
+});
+
+const legacyStartsAtSchema = z.object({
   startsAtIso: z
     .string()
     .datetime({
@@ -144,20 +152,46 @@ export const createEventSchema = z.object({
     .refine((value) => new Date(value).valueOf() > Date.now(), {
       message: "A data e a hora do evento precisam estar no futuro.",
     }),
-  durationMinutes: z.coerce.number().int().min(15).max(480),
-  deadlineMinutes: z.coerce.number().int().min(0).max(43_200),
-  repeatWeeks: z.coerce.number().int().min(1).max(52),
-  opponentName: optionalText(120),
-  venueName: optionalText(120),
-  venueAddress: optionalText(500, 1),
 });
 
-export const updateEventSchema = createEventSchema
-  .omit({ repeatWeeks: true })
-  .extend({
-    eventId: z.string().uuid(),
-    editScope: z.enum(["single_event", "this_and_future"]),
-  });
+const civilStartsAtSchema = z.object({
+  requestId: z.string().uuid(),
+  startsAtLocal: z
+    .string()
+    .regex(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,
+      "Informe uma data e uma hora válidas.",
+    ),
+});
+
+export const legacyCreateEventSchema = eventFieldsSchema
+  .and(legacyStartsAtSchema)
+  .and(
+    z.object({
+      repeatWeeks: z.coerce.number().int().min(1).max(52),
+    }),
+  );
+
+export const createEventSchema = eventFieldsSchema
+  .and(civilStartsAtSchema)
+  .and(
+    z.object({
+      repeatWeeks: z.coerce.number().int().min(1).max(52),
+    }),
+  );
+
+const updateIdentitySchema = z.object({
+  eventId: z.string().uuid(),
+  editScope: z.enum(["single_event", "this_and_future"]),
+});
+
+export const legacyUpdateEventSchema = eventFieldsSchema
+  .and(legacyStartsAtSchema)
+  .and(updateIdentitySchema);
+
+export const updateEventSchema = eventFieldsSchema
+  .and(civilStartsAtSchema)
+  .and(updateIdentitySchema);
 
 export const attendanceUpdateSchema = z.object({
   teamSlug: z.string().regex(TEAM_SLUG_PATTERN),

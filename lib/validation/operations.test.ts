@@ -1,6 +1,7 @@
 import {
   createAthleteSchema,
   createEventSchema,
+  legacyCreateEventSchema,
   matchIncidentSchema,
   matchReportSchema,
   removeAthleteSchema,
@@ -90,7 +91,6 @@ describe("operational validation", () => {
   });
 
   it("accepts one-off and bounded weekly events", () => {
-    const future = new Date(Date.now() + 86_400_000).toISOString();
     const parsed = createEventSchema.safeParse({
       teamId: "11111111-1111-4111-8111-111111111111",
       teamSlug: "racha-do-bairro",
@@ -98,7 +98,8 @@ describe("operational validation", () => {
       kind: "weekly_match",
       organizationMode: "split_teams",
       sportFormat: "society",
-      startsAtIso: future,
+      requestId: "33333333-3333-4333-8333-333333333333",
+      startsAtLocal: "2030-08-15T20:30",
       durationMinutes: "90",
       deadlineMinutes: "120",
       repeatWeeks: "12",
@@ -111,7 +112,7 @@ describe("operational validation", () => {
     if (parsed.success) expect(parsed.data.repeatWeeks).toBe(12);
   });
 
-  it("rejects past events and excessive recurrence", () => {
+  it("rejects malformed civil dates and excessive recurrence", () => {
     const base = {
       teamId: "11111111-1111-4111-8111-111111111111",
       teamSlug: "racha-do-bairro",
@@ -123,19 +124,44 @@ describe("operational validation", () => {
       deadlineMinutes: 120,
     };
 
-    const pastEvent = createEventSchema.safeParse({
+    const malformedEvent = createEventSchema.safeParse({
       ...base,
-      startsAtIso: new Date(0).toISOString(),
+      requestId: "33333333-3333-4333-8333-333333333333",
+      startsAtLocal: "15/08/2030 20:30",
       repeatWeeks: 1,
     });
 
-    expect(pastEvent.success).toBe(false);
-    if (!pastEvent.success) {
-      expect(pastEvent.error.flatten().fieldErrors.startsAtIso).toContain(
-        "A data e a hora do evento precisam estar no futuro.",
+    expect(malformedEvent.success).toBe(false);
+    if (!malformedEvent.success) {
+      expect(malformedEvent.error.flatten().fieldErrors.startsAtLocal).toContain(
+        "Informe uma data e uma hora válidas.",
       );
     }
-    expect(createEventSchema.safeParse({ ...base, startsAtIso: new Date(Date.now() + 86_400_000).toISOString(), repeatWeeks: 53 }).success).toBe(false);
+    expect(
+      createEventSchema.safeParse({
+        ...base,
+        requestId: "33333333-3333-4333-8333-333333333333",
+        startsAtLocal: "2030-08-15T20:30",
+        repeatWeeks: 53,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("keeps accepting the ISO payload while event control is disabled", () => {
+    expect(
+      legacyCreateEventSchema.safeParse({
+        teamId: "11111111-1111-4111-8111-111111111111",
+        teamSlug: "racha-do-bairro",
+        title: "Racha legado",
+        kind: "weekly_match",
+        organizationMode: "split_teams",
+        sportFormat: "society",
+        startsAtIso: new Date(Date.now() + 86_400_000).toISOString(),
+        durationMinutes: 90,
+        deadlineMinutes: 120,
+        repeatWeeks: 1,
+      }).success,
+    ).toBe(true);
   });
 
   it("accepts only the supported recurring event edit scopes", () => {
@@ -147,7 +173,8 @@ describe("operational validation", () => {
       kind: "weekly_match",
       organizationMode: "split_teams",
       sportFormat: "society",
-      startsAtIso: new Date(Date.now() + 86_400_000).toISOString(),
+      requestId: "33333333-3333-4333-8333-333333333333",
+      startsAtLocal: "2030-08-15T20:30",
       durationMinutes: 90,
       deadlineMinutes: 120,
       editScope: "single_event",
