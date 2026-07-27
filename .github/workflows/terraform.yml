@@ -67,6 +67,16 @@ jobs:
       TF_VAR_app_url: ${{ vars.APP_URL }}
       TF_VAR_turnstile_site_key: ${{ secrets.TURNSTILE_SITE_KEY }}
       TF_VAR_turnstile_secret_key: ${{ secrets.TURNSTILE_SECRET_KEY }}
+      TF_VAR_smtp_host: ${{ vars.SMTP_HOST }}
+      TF_VAR_smtp_port: ${{ vars.SMTP_PORT || '587' }}
+      TF_VAR_smtp_user: ${{ secrets.SMTP_USER }}
+      TF_VAR_smtp_password: ${{ secrets.SMTP_PASSWORD }}
+      TF_VAR_smtp_admin_email: ${{ vars.SMTP_ADMIN_EMAIL }}
+      TF_VAR_smtp_sender_name: ${{ vars.SMTP_SENDER_NAME || 'DeuTime' }}
+      TF_VAR_auth_email_rate_limit: ${{ vars.AUTH_EMAIL_RATE_LIMIT || '30' }}
+      TF_VAR_twilio_account_sid: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TF_VAR_twilio_auth_token: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      TF_VAR_twilio_message_service_sid: ${{ secrets.TWILIO_MESSAGE_SERVICE_SID }}
       TF_VAR_enable_github_ruleset: "true"
       TF_VAR_required_approvals: ${{ vars.REQUIRED_APPROVALS || '0' }}
     steps:

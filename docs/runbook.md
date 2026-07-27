@@ -73,19 +73,20 @@ Crie `production-plan` com:
 - `VERCEL_API_TOKEN`: token de automação do projeto/time;
 - `INFRA_GITHUB_TOKEN`: fine-grained token para rulesets deste repositório;
 - `SUPABASE_ACCESS_TOKEN` e `SUPABASE_DB_PASSWORD`;
-- `TURNSTILE_SITE_KEY` e `TURNSTILE_SECRET_KEY`.
+- `TURNSTILE_SITE_KEY` e `TURNSTILE_SECRET_KEY`;
+- `SMTP_USER` e `SMTP_PASSWORD`;
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` e
+  `TWILIO_MESSAGE_SERVICE_SID`.
 
 Crie `production-apply` com `TF_API_TOKEN`, `TF_PLAN_ENCRYPTION_KEY`,
 `SUPABASE_ACCESS_TOKEN`, `VERCEL_API_TOKEN` e `INFRA_GITHUB_TOKEN`. O apply
 recebe os demais inputs do plano binário já revisado e não recalcula o plano.
 
-No workspace HCP Terraform, defina como variáveis sensíveis:
-
-- `TF_VAR_smtp_user`;
-- `TF_VAR_smtp_password`;
-- `TF_VAR_twilio_account_sid`;
-- `TF_VAR_twilio_auth_token`;
-- `TF_VAR_twilio_message_service_sid` apontando para um Messaging Service habilitado no WhatsApp.
+O workspace HCP Terraform opera em modo **Local**: ele fornece state remoto
+criptografado, lock e histórico, enquanto o runner GitHub cria e aplica o plano
+salvo. Por isso, não guarde inputs `TF_VAR_*` no workspace; mantenha-os no
+Environment `production-plan`. `TWILIO_MESSAGE_SERVICE_SID` deve apontar para
+um Messaging Service habilitado no WhatsApp.
 
 O `supabase_settings` habilita Phone Auth, exige confirmação e configura Twilio. Antes do primeiro deploy produtivo, valide o remetente e os templates no Twilio; WhatsApp no Supabase Auth é suportado apenas com Twilio ou Twilio Verify. Não copie essas credenciais para Vercel nem para `.env.local`.
 
@@ -96,6 +97,8 @@ Crie também as Repository Variables:
 - `TF_CLOUD_ORGANIZATION` e `TF_WORKSPACE`;
 - `SUPABASE_ORGANIZATION_ID`;
 - `APP_URL`;
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_ADMIN_EMAIL` e `SMTP_SENDER_NAME`;
+- `AUTH_EMAIL_RATE_LIMIT`;
 - `REQUIRED_APPROVALS` (comece em `0` enquanto houver um único mantenedor);
 - `ENABLE_TERRAFORM_APPLY` deve permanecer `false` até os Environments
   `production-plan` e `production-apply` estarem protegidos. Quando habilitado,

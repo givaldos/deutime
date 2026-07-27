@@ -5,11 +5,16 @@ Este módulo declara os recursos remotos do DeuTime. Migrações e políticas do
 Requisitos:
 
 - Terraform 1.11+;
-- HCP Terraform com workspace exclusivo, locking e histórico;
+- HCP Terraform com workspace exclusivo em modo **Local**, locking e histórico;
 - `SUPABASE_ACCESS_TOKEN`, `VERCEL_API_TOKEN` e `GITHUB_TOKEN` no ambiente;
 - arquivo `terraform.tfvars` local ou variáveis `TF_VAR_*` vindas de um cofre.
 
-Não faça commit de estado, plano salvo, tokens ou `terraform.tfvars`. Configure `TF_CLOUD_ORGANIZATION`, `TF_WORKSPACE` e `TF_TOKEN_app_terraform_io`; o bloco `cloud {}` mantém o state remoto. O provider do Supabase lê chaves geradas para configurar a Vercel, então o state deve ser tratado como secreto.
+Não faça commit de estado, plano salvo, tokens ou `terraform.tfvars`. Configure
+`TF_CLOUD_ORGANIZATION`, `TF_WORKSPACE` e `TF_TOKEN_app_terraform_io`; o bloco
+`cloud {}` mantém o state remoto. O modo Local é obrigatório porque o workflow
+salva e reaplica o mesmo plano binário. Os inputs ficam nos Environments do
+GitHub, não no workspace HCP. O provider do Supabase lê chaves geradas para
+configurar a Vercel, então o state deve ser tratado como secreto.
 
 O ruleset começa desabilitado porque GitHub só reconhece um required check depois de sua primeira execução. Após a primeira CI verde, aplique novamente com `enable_github_ruleset = true`.
 
