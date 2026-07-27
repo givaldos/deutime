@@ -2,7 +2,7 @@
 release: R00
 work_package: WP-R00-04
 scope: feature_delivery
-branch_or_commit: "working-tree"
+branch_or_commit: "10cbe0e"
 checkpoint: CP5
 status: awaiting_external_validation
 completed_ac:
@@ -10,18 +10,18 @@ completed_ac:
   - AC-R00-02
   - AC-R00-03
   - AC-R00-04
+  - AC-R00-05
   - AC-R00-07
+  - AC-R00-08
   - AC-R00-09
   - AC-R00-10
   - AC-R00-11
 dirty_files:
-  - "supabase/migrations/202607270001_delivery_foundation.sql"
-  - "supabase/tests/013_delivery_foundation.test.sql"
-  - "lib/features/delivery/"
-  - "scripts/check-migration-integrity.mjs"
-  - "scripts/smoke.mjs"
-  - ".github/workflows/"
-  - "docs/"
+  - ".github/workflows/terraform.yml"
+  - "docs/releases/R00-fundacao-de-entrega.md"
+  - "docs/work/current.md"
+  - "docs/runbook.md"
+  - "infra/terraform/README.md"
 tests:
   - "npm ci — instalação limpa, 0 vulnerabilidades"
   - "npm run lint"
@@ -32,17 +32,21 @@ tests:
   - "npm run db:lint — somente warnings preexistentes"
   - "npm run db:test — 287 testes"
   - "npm run smoke:production — build local"
+  - "supabase db push --dry-run — produção sem migrations pendentes"
+  - "Deploy database — workflow de produção concluído"
+  - "Smoke — workflow de produção concluído"
+  - "rollback para 2cd8589 e restauração de 10cbe0e — smoke read-only concluído nas duas versões"
   - "terraform fmt -check -recursive"
   - "terraform validate"
   - "npm run security:audit — 0 vulnerabilidades"
-blocker: "CP5 depende dos gates reais de produção; staging foi explicitamente adiado para depois do MVP."
-next_action: "Validar e publicar a expansão inerte em main, confirmar o histórico remoto, executar smoke read-only em https://deutime.app e ensaiar rollback pela Vercel."
+blocker: "AC-R00-13 depende dos Environments production-plan/production-apply e das credenciais do HCP Terraform; staging foi explicitamente adiado para depois do MVP."
+next_action: "Publicar a proteção do tfplan, configurar production-plan e production-apply, revisar o primeiro plano e aplicar exatamente o artefato aprovado."
 ---
 
 # Trabalho atual
 
-O código da fundação está validado localmente até CP4. A release permanece em
-CP5 porque matriz N/N−1, plano/aplicação protegidos e rollback precisam de
-evidência em produção. Staging foi adiado para acelerar o MVP; por isso
-`AC-R00-06` e `AC-R00-12` permanecem dívida explícita. Não habilitar flags,
-kill switches nem `ENABLE_TERRAFORM_APPLY` antes do ensaio produtivo.
+A fundação está em CP5 com banco, smoke, compatibilidade N/N−1 e rollback
+validados em produção. Falta o plano/aplicação protegidos de `AC-R00-13`.
+Staging foi adiado para acelerar o MVP; por isso `AC-R00-06` e `AC-R00-12`
+permanecem dívida explícita. Não habilitar flags, kill switches nem
+`ENABLE_TERRAFORM_APPLY` antes de configurar e revisar os Environments.

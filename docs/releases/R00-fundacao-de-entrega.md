@@ -97,10 +97,10 @@ Ficam fora desta release as jornadas finais de confirmação, envio, pós-jogo e
 - [x] `AC-R00-02` — Uma capacidade desligada não pode ser acionada por UI, Action ou RPC manipulada.
 - [x] `AC-R00-03` — É possível ativar e desativar a capacidade para um único time sem deploy.
 - [x] `AC-R00-04` — Produção e consumo de integrações possuem kill switches independentes.
-- [ ] `AC-R00-05` — Expansão inerte é publicada e verificada com o app anterior antes de liberar o app consumidor; uma matriz N/N−1 ou evidência equivalente cobre a compatibilidade.
+- [x] `AC-R00-05` — Expansão inerte é publicada e verificada com o app anterior antes de liberar o app consumidor; uma matriz N/N−1 ou evidência equivalente cobre a compatibilidade.
 - [ ] `AC-R00-06` — Staging não usa dados, chaves ou callbacks de produção. **Adiado: o MVP opera somente com local e produção.**
 - [x] `AC-R00-07` — Smoke test detecta indisponibilidade das jornadas públicas essenciais sem escrever dados pessoais.
-- [ ] `AC-R00-08` — Rollback de aplicação e desativação por flag foram ensaiados e documentados.
+- [x] `AC-R00-08` — Rollback de aplicação e desativação por flag foram ensaiados e documentados.
 - [x] `AC-R00-09` — CI falha se migration existente no merge-base for alterada ou removida e o deploy valida o histórico remoto antes de escrever.
 - [x] `AC-R00-10` — pgTAP percorre dinamicamente as tabelas elegíveis e falha por RLS ou grant inseguro não allowlisted.
 - [x] `AC-R00-11` — Somente operador autorizado altera flags, toda mudança é auditada e falha/timeout desliga apenas a capacidade nova, preservando o fluxo legado.
@@ -148,14 +148,22 @@ Implementação local concluída até CP4:
   `fmt/validate` válido;
 - `WP-R00-04`: workflow de smoke somente leitura, produção em
   `https://deutime.app` verificada e contrato local/produção registrado;
+- produção: histórico remoto alinhado às 21 migrations, `db push --dry-run`
+  sem pendências e workflows `Deploy database` e `Smoke` concluídos;
+- compatibilidade e recuperação: o deployment anterior, commit `2cd8589`
+  (`Remocao de staging`), respondeu ao smoke com o schema expandido; após a
+  restauração do deployment corrente em `10cbe0e`, o mesmo smoke voltou a
+  concluir sem escrita;
 - gates locais: lint, typecheck, 64 testes Vitest, 287 testes pgTAP, build de
   produção e auditoria npm com zero vulnerabilidades;
-- Terraform aplica o mesmo `tfplan` publicado para revisão; as Actions de
-  upload/download foram fixadas nos commits assinados das releases declaradas.
+- Terraform aplica o mesmo `tfplan` publicado para revisão; o plano binário é
+  criptografado no artefato e validado por checksum antes do apply; as Actions
+  de upload/download foram fixadas nos commits assinados das releases
+  declaradas.
 
-CP5 permanece pendente porque exige estado externo: configurar os Environments
-`production-plan` e `production`, manter `ENABLE_TERRAFORM_APPLY=false` até a
-proteção existir, validar o merge inerte contra a produção N−1, ensaiar a
-promoção do deployment anterior e anexar os IDs reais. `AC-R00-06` e `12` foram
-explicitamente adiados pela decisão de operar sem staging no MVP; `AC-R00-05`,
-`08` e `13` continuam pendentes.
+CP5 permanece pendente porque exige configurar os Environments
+`production-plan` e `production-apply`, manter `ENABLE_TERRAFORM_APPLY=false` até a
+proteção existir e executar o plano/aplicação protegidos. Os IDs da Vercel podem
+ser anexados posteriormente aos commits já registrados. `AC-R00-06` e `12`
+foram explicitamente adiados pela decisão de operar sem staging no MVP;
+`AC-R00-13` continua pendente.
