@@ -1,7 +1,7 @@
 ---
 id: R00
 type: enabling
-status: discovery
+status: active
 outcome: "Entregar as próximas jornadas com contratos claros, ativação controlada, smoke test e rollback praticável."
 depends_on: []
 baseline:
@@ -90,17 +90,17 @@ Ficam fora desta release as jornadas finais de confirmação, envio, pós-jogo e
 
 ## Critérios de aceite
 
-- [ ] `AC-R00-01` — `DEC-PERSISTENT-ACCESS` possui ADR e threat model aceitos; toda outra decisão aberta tem release consumidora e não bloqueia a R01.
-- [ ] `AC-R00-02` — Uma capacidade desligada não pode ser acionada por UI, Action ou RPC manipulada.
-- [ ] `AC-R00-03` — É possível ativar e desativar a capacidade para um único time sem deploy.
-- [ ] `AC-R00-04` — Produção e consumo de integrações possuem kill switches independentes.
+- [x] `AC-R00-01` — `DEC-PERSISTENT-ACCESS` possui ADR e threat model aceitos; toda outra decisão aberta tem release consumidora e não bloqueia a R01.
+- [x] `AC-R00-02` — Uma capacidade desligada não pode ser acionada por UI, Action ou RPC manipulada.
+- [x] `AC-R00-03` — É possível ativar e desativar a capacidade para um único time sem deploy.
+- [x] `AC-R00-04` — Produção e consumo de integrações possuem kill switches independentes.
 - [ ] `AC-R00-05` — Expansão inerte é publicada e verificada com o app anterior antes de liberar o app consumidor; uma matriz N/N−1 ou evidência equivalente cobre a compatibilidade.
 - [ ] `AC-R00-06` — Staging não usa dados, chaves ou callbacks de produção.
-- [ ] `AC-R00-07` — Smoke test detecta indisponibilidade das jornadas públicas essenciais sem escrever dados pessoais.
+- [x] `AC-R00-07` — Smoke test detecta indisponibilidade das jornadas públicas essenciais sem escrever dados pessoais.
 - [ ] `AC-R00-08` — Rollback de aplicação e desativação por flag foram ensaiados e documentados.
-- [ ] `AC-R00-09` — CI falha se migration existente no merge-base for alterada ou removida e o deploy valida o histórico remoto antes de escrever.
-- [ ] `AC-R00-10` — pgTAP percorre dinamicamente as tabelas elegíveis e falha por RLS ou grant inseguro não allowlisted.
-- [ ] `AC-R00-11` — Somente operador autorizado altera flags, toda mudança é auditada e falha/timeout desliga apenas a capacidade nova, preservando o fluxo legado.
+- [x] `AC-R00-09` — CI falha se migration existente no merge-base for alterada ou removida e o deploy valida o histórico remoto antes de escrever.
+- [x] `AC-R00-10` — pgTAP percorre dinamicamente as tabelas elegíveis e falha por RLS ou grant inseguro não allowlisted.
+- [x] `AC-R00-11` — Somente operador autorizado altera flags, toda mudança é auditada e falha/timeout desliga apenas a capacidade nova, preservando o fluxo legado.
 - [ ] `AC-R00-12` — Staging usa tenant sintético sem PII para testar escrita idempotente, acesso permitido, negação, cross-tenant e limpeza.
 - [ ] `AC-R00-13` — Terraform aplica exatamente o artefato de plano revisado sob Environment protegido; `ENABLE_TERRAFORM_APPLY` permanece desligado até esse gate existir.
 
@@ -130,3 +130,28 @@ Ficam fora desta release as jornadas finais de confirmação, envio, pós-jogo e
 - rollback desliga flag, pausa consumidor externo e promove o último deploy conhecido como bom;
 - a infraestrutura de flags nasce por expansão própria e não depende da flag que está introduzindo;
 - banco recebe apenas expansão compatível; remoção ocorre em release posterior.
+
+## Evidências e checkpoint
+
+Implementação local concluída até CP4:
+
+- `DP-R00-01`: threat model aceito em `DEC-PERSISTENT-ACCESS`, com transporte,
+  ciclo de vida, revogação e release consumidora definidos;
+- `WP-R00-02`: migration aditiva, tipos gerados, camada server-side fail-closed,
+  29 testes pgTAP focados e testes Vitest de erro/timeout/independência;
+- `WP-R00-03`: gate de merge-base, preflight remoto, censo dinâmico de RLS e
+  grants, correção forward-only de grants anônimos legados e Terraform
+  `fmt/validate` válido;
+- `WP-R00-04`: workflow de smoke, teste local somente leitura aprovado e
+  contrato de staging/rollback registrado no runbook;
+- gates locais: lint, typecheck, 64 testes Vitest, 293 testes pgTAP, build de
+  produção e auditoria npm com zero vulnerabilidades;
+- Terraform aplica o mesmo `tfplan` publicado para revisão; as Actions de
+  upload/download foram fixadas nos commits assinados das releases declaradas.
+
+CP5 permanece pendente porque exige estado externo: configurar os Environments
+`production-plan`, `production` e `staging`, manter
+`ENABLE_TERRAFORM_APPLY=false` até a proteção existir, executar o smoke
+sintético, validar app N−1 com schema N, ensaiar promoção do deployment anterior
+e anexar os IDs reais. Por isso `AC-R00-05`, `06`, `08`, `12` e `13` ainda não
+estão marcados e a release não pode avançar para `done`.

@@ -128,7 +128,7 @@ Uma série não é a partida. No MVP, a criação materializa de 2 a 52 ocorrên
 - após a troca, o segredo será removido da barra de endereço e bloqueado em Open Graph, analytics, logs controlados pela aplicação e `Referer`; a visibilidade do link ao provedor de WhatsApp fará parte do threat model e do DPA;
 - templates e webhooks do provedor ficam atrás de adaptadores, evitando acoplamento do domínio à Meta ou a um BSP.
 
-O contrato canônico está em [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md). O ADR ainda precisa fechar e testar o transporte inicial da credencial — por exemplo, fragmento trocado por `POST` antes de carregar terceiros — considerando unfurl, prefetch, cache e logs da plataforma. O detalhamento de ameaça, renovação, limite absoluto e recuperação é gate da R00. “Duradouro” descreve a experiência normal sem login repetido; não significa segredo eterno ou autorização fora da fase do evento.
+O contrato canônico está em [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md). A R00 fechou o transporte inicial como fragmento removido e trocado por `POST` same-origin em uma página mínima, antes de terceiros. O ADR define ameaças, renovação, limite absoluto, revogação e recuperação; a R02 deve provar o comportamento em Android/iPhone, navegador interno e padrão. “Duradouro” descreve a experiência normal sem login repetido; não significa segredo eterno ou autorização fora da fase do evento.
 
 ## Fronteiras de implementação
 

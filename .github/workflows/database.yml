@@ -20,6 +20,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+      - name: Protect existing migrations
+        if: github.event_name == 'pull_request'
+        run: node scripts/check-migration-integrity.mjs "origin/${{ github.base_ref }}" HEAD
+      - name: Protect existing migrations on main
+        if: github.event_name == 'push'
+        run: node scripts/check-migration-integrity.mjs "${{ github.event.before }}" HEAD
       - name: Install Supabase CLI
         uses: supabase/setup-cli@ab058987d8d6c725971f6cf9d0b5c98467e30bd1 # v1.7.1
         with:
@@ -36,4 +44,3 @@ jobs:
         run: |
           supabase gen types typescript --local 2>/dev/null > /tmp/database.types.ts
           diff --strip-trailing-cr lib/database.types.ts /tmp/database.types.ts
-

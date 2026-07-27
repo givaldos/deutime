@@ -13,6 +13,17 @@ Não faça commit de estado, plano salvo, tokens ou `terraform.tfvars`. Configur
 
 O ruleset começa desabilitado porque GitHub só reconhece um required check depois de sua primeira execução. Após a primeira CI verde, aplique novamente com `enable_github_ruleset = true`.
 
-O workflow `Terraform` valida todo pull request. No estado atual, `ENABLE_TERRAFORM_APPLY=true` executa um novo `apply -auto-approve` quando `main` é atualizada; mantenha a variável `false` até a R00 publicar e aplicar exatamente o mesmo artefato de plano revisado sob o Environment protegido. Enquanto isso, faça a aplicação manual somente após revisar o plano. Use tokens de automação com o menor escopo possível.
+O workflow `Terraform` valida todo pull request. Quando
+`ENABLE_TERRAFORM_APPLY=true`, um push em `main` cria `tfplan` no Environment
+`production-plan`, publica o plano textual no resumo e guarda ambos no artefato
+imutável da execução. O job `terraform-apply`, protegido pelo Environment
+`production`, baixa e aplica exatamente esse `tfplan`; ele não recalcula o
+plano. Configure aprovação obrigatória no Environment `production` e revise o
+resumo antes de aprovar. Mantenha a variável desligada até os dois Environments,
+segredos e proteção estarem configurados. Use tokens de automação com o menor
+escopo possível.
 
-Previews da Vercel não devem usar o banco de produção em operação real. Antes de abrir pull requests de terceiros ou adicionar dados reais, provisione um Supabase de staging/branch e substitua as variáveis de preview.
+Previews da Vercel não devem usar o banco de produção. Staging usa projeto
+Supabase, aplicação, callbacks e segredos exclusivos e nunca recebe cópia de
+dados reais. O contrato executável e as variáveis obrigatórias estão na seção
+“Contrato de staging” de `docs/runbook.md`.

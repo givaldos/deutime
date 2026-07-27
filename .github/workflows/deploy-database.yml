@@ -34,8 +34,11 @@ jobs:
           version: 2.109.1
       - name: Link production project
         run: supabase link --project-ref "$SUPABASE_PROJECT_ID"
+      - name: Validate remote migration history
+        run: |
+          supabase migration list --linked
+          supabase db push --include-all --dry-run
       - name: Apply reviewed migrations
         run: supabase db push --include-all
       - name: Verify migration history
         run: supabase migration list --linked
-

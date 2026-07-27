@@ -60,7 +60,7 @@ O Turnstile não substitui rate limiting. Antes de abrir produção, configure l
 
 ## Credencial reutilizável e sessão duradoura
 
-O acesso WhatsApp-first planejado segue [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md): credencial pessoal reutilizável, capability persistente limitada ao evento e sessão de identidade persistente no aparelho. Antes da R02, a R00 deve aprovar o threat model e demonstrar:
+O acesso WhatsApp-first planejado segue [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md): credencial pessoal reutilizável, capability persistente limitada ao evento e sessão de identidade persistente no aparelho. A R00 aprovou o transporte por fragmento + `POST` same-origin e o threat model; antes da R02, a implementação deve demonstrar:
 
 - entropia suficiente, persistência somente de hash e comparação resistente;
 - escopo da credencial limitado ao par evento-atleta e autorização recalculada no servidor a cada ação;
@@ -74,6 +74,12 @@ O acesso WhatsApp-first planejado segue [`DEC-PERSISTENT-ACCESS`](decisions/DEC-
 - limite absoluto e renovação deslizante que evitem autenticação recorrente no uso normal;
 - teste específico de link encaminhado e de persistência no navegador interno do WhatsApp;
 - resposta a incidente que preserve a URL pública e desabilite somente ações identificadas.
+
+O contrato fixa 256 bits de entropia, hash SHA-256, expiração máxima sete dias
+após o evento, capability com renovação deslizante de 30 dias limitada pelo
+evento e sessão de aparelho com 30 dias de inatividade e limite absoluto de 180
+dias. Mudança de risco, aparelho novo, revogação ou elevação de privilégio exige
+OTP. Os detalhes, ameaças e critérios de teste estão no ADR canônico.
 
 A credencial reconhece a elegibilidade no evento; ela não concede por si só sessão global, comentário, voto, papel administrativo nem acesso depois que o vínculo ou a fase deixarem de permitir a ação.
 

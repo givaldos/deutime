@@ -61,7 +61,6 @@ export function TurnstileWidget({
         widgetId.current = undefined;
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [siteKey, action, containerId]);
 
   if (!siteKey) return null;

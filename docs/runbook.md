@@ -119,6 +119,85 @@ Os deploys da Vercel e do Supabase são independentes e não têm ordenação co
 - smoke pós-deploy começa somente leitura e nunca depende de PII ou estado mutável de um time real;
 - ativação amplia gradualmente apenas depois de métricas e alertas permanecerem saudáveis.
 
+### Operação das flags e kill switches
+
+As chaves tipadas estão no enum `feature_key`. Owner ou admin do time altera
+uma flag exclusivamente pela RPC `set_team_feature_flag`; escrita direta não é
+concedida. Toda mudança entra em `audit_logs`. A leitura de uma capacidade deve
+passar por `is_team_feature_enabled` ou por uma RPC de domínio que consulte
+`private.is_team_feature_enabled`, sempre junto da autorização normal do time.
+Flag nunca concede acesso por si só.
+
+Os controles `integration_produce` e `integration_consume` são globais,
+independentes, nascem `false` e só podem ser operados pela credencial
+`service_role` por `set_runtime_control`. Workers consultam o controle antes de
+reservar trabalho e antes do efeito externo. Erro ou timeout retorna `false`
+somente para o caminho novo; o fluxo legado não consulta esse serviço.
+
+Para interromper um piloto:
+
+1. desativar a flag do time;
+2. desativar `integration_produce`;
+3. desativar `integration_consume` se houver risco no worker;
+4. confirmar a auditoria e preservar itens pendentes da outbox;
+5. só então promover o último deploy conhecido como bom, se necessário.
+
+### Contrato de staging
+
+O Environment `staging` usa projeto Supabase, origem de aplicação, callbacks,
+chaves e tenant sintético exclusivos. Não recebe dump, backup, chave, callback
+ou dado de produção. O tenant do smoke tem `teams.is_synthetic = true`, nomes
+fictícios e nenhuma PII. Previews não podem apontar para Supabase de produção.
+
+O workflow `Smoke` compara origem, URL do Supabase e chave secreta de staging
+com as referências de produção e falha antes de escrever se houver reuso. O
+smoke de staging chama `run_staging_delivery_smoke` duas vezes com a mesma chave,
+confere o tenant sintético e limpa a linha na própria transação da RPC. A suíte
+pgTAP cobre acesso permitido, negação de tenant real, cross-tenant, idempotência
+e limpeza.
+
+Variáveis do Environment `staging`:
+
+- `APP_URL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`;
+- `SMOKE_SYNTHETIC_TEAM_ID`;
+- `PRODUCTION_APP_URL`, `PRODUCTION_SUPABASE_URL` e
+  `PRODUCTION_SUPABASE_SECRET_KEY`, usadas apenas para o gate de desigualdade.
+
+### Smoke e promoção
+
+Produção executa `npm run smoke:production` após deployment bem-sucedido. O
+teste faz somente `GET` nas jornadas públicas `/` e `/auth/login`, exige HTML e
+não envia identificador pessoal. Staging executa `npm run smoke:staging` por
+despacho manual antes do piloto.
+
+Matriz obrigatória para uma expansão:
+
+| Estado | Banco N−1 | Banco N |
+|---|---|---|
+| App N−1 | baseline já validada | deve continuar funcionando; validar antes do app consumidor |
+| App N | deve tolerar ausência da expansão ou permanecer desligado | liberar somente após smoke |
+
+O PR de expansão de banco é inerte e separado do consumidor. Após o deploy,
+verifique o histórico remoto e o app N−1; somente então integre o consumidor.
+Se o mesmo merge for inevitável, o teste do pacote deve demonstrar as quatro
+células. Contração fica para release posterior.
+
+### Ensaio de rollback
+
+Antes do piloto, registre o deployment bom da Vercel e execute em staging:
+
+1. ligar a flag apenas no tenant sintético e concluir o smoke;
+2. desligar a flag e confirmar efeito imediato pelo probe/RPC;
+3. ligar produção de integração mantendo consumo desligado, depois desligar
+   ambos;
+4. promover o deployment bom anterior na Vercel;
+5. repetir o smoke somente leitura;
+6. se houver correção de banco, aplicar migration forward-only; nunca reverter
+   ou editar migration aplicada.
+
+Anexe ao pacote da release os IDs das execuções, deployment promovido, horários
+e resultado. Sem essa evidência, CP5 permanece pendente.
+
 ## Primeira ativação do repositório
 
 O ruleset referencia checks que só existem depois que os workflows executarem ao menos uma vez. Para o primeiro bootstrap:

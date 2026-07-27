@@ -16,7 +16,7 @@ Cada arquivo desta pasta é o contexto autossuficiente de uma release prestes a 
 
 | Pacote | Estado inicial | Papel |
 |---|---|---|
-| [R00 — Fundação de entrega](R00-fundacao-de-entrega.md) | `discovery` | Fecha o threat model imediato e reduz risco das releases seguintes |
+| [R00 — Fundação de entrega](R00-fundacao-de-entrega.md) | `active` | Fundação implementada localmente; aguarda ensaio CP5 nos Environments reais |
 | [R01 — Evento sob controle](R01-evento-sob-controle.md) | `draft` | Torna agenda e revogação confiáveis |
 | [R02 — Confirmação pelo link](R02-confirmacao-pelo-link.md) | `draft` | Entrega o primeiro ciclo WhatsApp-first sem automação |
 

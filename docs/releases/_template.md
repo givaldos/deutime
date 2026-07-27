@@ -80,16 +80,27 @@ npm test
 ```
 
 Acrescente os gates de banco, segurança, mobile e integração exigidos pelo risco.
+Quando houver migration, registre o resultado do gate de imutabilidade contra o
+merge-base, do censo dinâmico de RLS/grants e da matriz app/schema N/N−1.
+Quando houver infraestrutura, anexe o plano revisado e confirme que o apply usou
+o mesmo artefato.
 
 ## Rollout, fallback e rollback
 
-- flag:
+- flag tipada, desligada por padrão e conferida server-side:
 - piloto:
 - telemetria:
 - fallback:
-- rollback:
-- compatibilidade entre deploys:
+- kill switches independentes para produzir/consumir efeitos externos:
+- smoke de produção somente leitura:
+- smoke de staging sintético, idempotente e com limpeza:
+- isolamento de staging (dados, chaves, origem e callbacks):
+- rollback ensaiado:
+- compatibilidade entre deploys N/N−1:
 
 ## Evidências e checkpoint
 
-Preencher durante a execução; o estado efêmero fica em `docs/work/current.md`.
+Preencher durante a execução com comandos, IDs de workflows/deployments,
+resultado do smoke, coorte, fallback e próximo passo. O estado efêmero fica em
+`docs/work/current.md`. CP5 exige evidência do ambiente real; código de workflow
+sem execução não substitui o piloto.
