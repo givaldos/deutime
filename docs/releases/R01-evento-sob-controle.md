@@ -1,6 +1,6 @@
 ---
 id: R01
-status: ready
+status: active
 outcome: "Permitir editar, remarcar e cancelar eventos com horário correto e efeitos previsíveis sobre pessoas, links e notificações."
 depends_on:
   - R00
@@ -123,6 +123,131 @@ e assinaturas finais para a capacidade `event_control`, o registro idempotente
 de comandos, a versão da agenda e as RPCs; nenhuma migration aplicada será
 editada.
 
+## Contrato técnico do CP1
+
+### Expansão de banco
+
+A expansão será dividida em duas migrations para que o novo valor de enum
+esteja disponível antes de ser usado:
+
+1. `event_control_feature`: adiciona `event_control` a `feature_key`, sem
+   habilitar nenhum time;
+2. `event_control_contract`: adiciona tipos, tabelas, colunas e RPCs abaixo.
+
+`events` recebe:
+
+- `schedule_version bigint not null default 1`, incrementada uma vez por comando
+  que altere horário ou estado daquela ocorrência;
+- `cancelled_at timestamptz` e `cancelled_by uuid`, ambos nulos fora do estado
+  `cancelled`.
+
+`event_commands` é o ledger idempotente:
+
+- `id uuid`, `team_id`, `request_id uuid`, ator, tipo do comando, hash do
+  payload, IDs opcionais de evento/série, resultado mínimo em `jsonb` e
+  `created_at`;
+- `unique (team_id, request_id)`;
+- o mesmo `request_id` com payload diferente falha; retry igual retorna o
+  resultado persistido com `replayed = true`;
+- nenhuma escrita direta para `authenticated`; RPCs transacionais são a única
+  entrada.
+
+`event_changes` é o contrato consumível por R03:
+
+- uma linha por ocorrência afetada, ligada ao comando;
+- `kind` em `created`, `details_updated`, `rescheduled`, `cancelled` ou
+  `series_extended`;
+- `scope`, `schedule_version`, status anterior/novo, horário anterior/novo e
+  `occurred_at`;
+- `unique (event_id, schedule_version)`;
+- não contém destinatário, telefone, conteúdo de mensagem ou outra PII.
+
+As duas tabelas nascem com RLS, grants mínimos e pgTAP positivo, negativo e
+cross-tenant. Staff ativo pode ler mudanças do próprio time; comandos e hashes
+não recebem leitura direta pelo cliente.
+
+### RPCs e retornos
+
+As RPCs novas retornam um resultado comum com `request_id`, `event_id`,
+`series_id`, `affected_count`, `max_schedule_version` e `replayed`:
+
+- `create_event_as_staff_v2(requested_team_id, request_id,
+  starts_at_local timestamp without time zone, ...campos atuais...)`;
+- `update_event_as_staff_v2(requested_team_id, requested_event_id, request_id,
+  edit_scope, starts_at_local timestamp without time zone, ...campos atuais...)`;
+- `cancel_event_as_staff(requested_team_id, requested_event_id, request_id,
+  cancel_scope)`;
+- `extend_event_series_as_staff(requested_team_id, requested_series_id,
+  request_id, additional_occurrences integer)`.
+
+Todas usam `security definer`, `search_path = ''`, timeout, lock das linhas
+autoritativas, `private.is_team_staff` e
+`private.is_team_feature_enabled(..., 'event_control')`. O servidor não confia
+em papel, timezone, série ou time derivados apenas do formulário.
+
+### Fuso e recorrência
+
+- o formulário mantém o texto civil de `datetime-local`; não chama
+  `new Date(value)` nem envia ISO calculado no aparelho;
+- a Action valida formato e futuro sem converter o fuso e delega à RPC;
+- a RPC lê `teams.timezone`, resolve
+  `starts_at_local at time zone teams.timezone` e valida round-trip;
+- horário inexistente no salto de DST é rejeitado; horário ambíguo usa a
+  resolução determinística do PostgreSQL e permanece independente do aparelho;
+- ocorrências semanais são materializadas por data civil + `local_start_time`
+  + timezone da série, nunca somando semanas ao `timestamptz`;
+- edição “esta e futuras” preserva ocorrências anteriores e exceções
+  independentes.
+
+### Máquina de estados e efeitos
+
+| Estado atual | Editar/remarcar | Cancelar | Estender série |
+|---|---|---|---|
+| `scheduled`, futuro | permitido | permitido | permitido para série ativa |
+| `scheduled`, iniciado/passado | negado | negado | não altera a ocorrência |
+| `cancelled` | negado | replay idempotente do mesmo comando | negado |
+| `completed` | negado | negado | negado |
+
+Cancelamento é soft: mantém `event_id`, presença, times montados, lances e
+súmula. `single_event` marca apenas a ocorrência como exceção; `this_and_future`
+cancela somente ocorrências futuras agendadas, preserva exceções anteriores e
+torna a série inativa. Extensão só aceita série ativa, respeita o limite total
+de 52 ocorrências e usa posição única para impedir duplicação.
+
+Na mesma transação, comandos de remarcação/cancelamento:
+
+- cancelam linhas `notification_outbox` ainda `pending` ou `failed` para as
+  ocorrências afetadas;
+- registram `event_changes` com status, versão e horário explícitos;
+- escrevem auditoria uma única vez por comando.
+
+Nenhum envio externo nasce na R01.
+
+### Aplicação, rollout e compatibilidade
+
+- `FeatureKey` passa a conhecer `event_control`;
+- a UI gera um UUID por tentativa lógica e o mantém durante retries;
+- com a flag desligada, criação/edição atuais continuam no fluxo legado;
+  cancelamento e extensão não aparecem e as RPCs novas negam execução;
+- banco N com app N−1 é apenas expansão inerte;
+- app N com banco N−1 consulta a capacidade em fail-closed e usa o fluxo legado;
+- primeiro piloto habilita um único time após testes locais de fuso, replay,
+  cancelamento e cross-tenant.
+
+### Matriz mínima de testes
+
+- mesmo valor civil com aparelhos em fusos diferentes produz o mesmo
+  `timestamptz`;
+- horário inválido de DST é rejeitado e recorrência mantém a hora civil;
+- retry sequencial e concorrente retorna o mesmo resultado sem duplicar linha,
+  ocorrência, mudança ou auditoria;
+- cancelamento isolado e futuro preserva presença/súmula e não reescreve
+  passado/exceção;
+- extensão respeita 52 ocorrências, série inativa e posição única;
+- owner/admin/manager ativos passam; atleta, inativo, externo e cross-tenant
+  falham;
+- flag desligada falha server-side e preserva o fluxo legado.
+
 ## Critérios de aceite
 
 - [ ] `AC-R01-01` — A mesma data local resulta no mesmo instante independentemente do fuso do aparelho.
@@ -166,3 +291,13 @@ editada.
   extensão idempotente, `request_id` nem versão explícita de agenda;
 - migration nova, capacidade desligada, papéis, retenção, fallback e perfis
   `VAL-APP`/`VAL-DB` identificados.
+
+## Evidência do CP1
+
+- expansão separada para enum e contrato, compatível nas duas ordens de deploy;
+- modelo de estado, ledger idempotente e log consumível por R03 definidos;
+- assinaturas das RPCs e retorno comum definidos;
+- conversão de fuso e materialização semanal definidas sem dependência do
+  aparelho;
+- autorização, RLS, efeitos na outbox, fallback, rollout e matriz de testes
+  fechados antes do código.
