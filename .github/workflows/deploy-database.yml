@@ -37,8 +37,8 @@ jobs:
       - name: Validate remote migration history
         run: |
           supabase migration list --linked
-          supabase db push --include-all --dry-run
+          supabase db push --dry-run
       - name: Apply reviewed migrations
-        run: supabase db push --include-all
+        run: supabase db push
       - name: Verify migration history
         run: supabase migration list --linked
