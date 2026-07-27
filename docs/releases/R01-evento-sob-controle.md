@@ -1,6 +1,6 @@
 ---
 id: R01
-status: draft
+status: ready
 outcome: "Permitir editar, remarcar e cancelar eventos com horário correto e efeitos previsíveis sobre pessoas, links e notificações."
 depends_on:
   - R00
@@ -8,7 +8,7 @@ baseline:
   - BASE-SERIES
   - BASE-ATTENDANCE
   - BASE-MATCH-REPORT
-verified_at: 77aed23
+verified_at: 0466d04
 decisions: []
 invariants:
   - INV-MOBILE-WHATSAPP-FIRST
@@ -48,17 +48,67 @@ No celular, a diretoria cria ou altera um evento usando o fuso do time e cancela
 
 Ficam fora desta release URL pública por evento, envio automático e limite/lista de espera.
 
+## Escopo
+
+### Incluído
+
+- interpretar data/hora local exclusivamente pelo fuso IANA do time;
+- editar ou remarcar uma ocorrência e, quando houver série, “esta e futuras”;
+- cancelar ocorrência ou “esta e futuras” sem apagar evento, presença ou
+  súmula;
+- estender série de forma idempotente sem recriar ocorrências existentes;
+- registrar comando e mudança de agenda de forma transacional para retry e
+  consumo futuro por R03;
+- mostrar alcance e consequência antes da confirmação;
+- liberar a jornada por time pela capacidade `event_control`, inicialmente
+  desligada.
+
+### Fora
+
+- envio real de WhatsApp, e-mail ou push;
+- URL pública estável e confirmação sem login, pertencentes à R02;
+- lista de espera, cobrança e alteração retroativa de fatos esportivos;
+- edição ou reabertura de evento iniciado, concluído ou cancelado;
+- exclusão física de evento, presença, súmula ou série.
+
+## Contratos fechados no CP0
+
+- **Papéis:** owner, admin e manager ativos podem operar; atleta, vínculo
+  inativo, usuário externo e outro time são negados na RPC e por RLS.
+- **Fuso:** UI envia o valor civil `YYYY-MM-DDTHH:mm` e o identificador do time
+  não é confiado do cliente; a RPC deriva o time autorizado e converte usando
+  `teams.timezone`. Fuso do aparelho nunca define o instante.
+- **Histórico:** cancelamento altera estado, nunca exclui. Presença e súmula
+  existentes permanecem ligadas ao mesmo `event_id`.
+- **Escopo:** comandos aceitam apenas `single_event` ou `this_and_future`;
+  ocorrências anteriores e exceções independentes não são reescritas.
+- **Idempotência:** toda mutação nova recebe `request_id` UUID e persiste um
+  comando único por time. Retry devolve o resultado anterior sem novo evento,
+  ocorrência, auditoria ou efeito.
+- **Versão futura:** cada mudança transacional registra tipo, versão da agenda,
+  horário anterior/novo e escopo. R03 consumirá esse contrato sem inferir
+  cancelamento ou remarcação por comparação de datas.
+- **Dados e retenção:** não nasce PII nova; comandos e mudanças retêm somente
+  IDs, horários, ator e metadados operacionais mínimos, seguindo a retenção de
+  auditoria.
+- **Rollout:** `event_control` nasce `false`; quando desligada, criação e edição
+  legadas continuam disponíveis e as operações novas ficam ocultas e negadas
+  server-side.
+
 ## Entry points
 
 - `components/admin-event-form.tsx`
 - `app/app/[teamSlug]/events/actions.ts`
+- `app/app/[teamSlug]/events/[eventId]/page.tsx`
 - `app/app/[teamSlug]/events/[eventId]/edit/page.tsx`
+- `app/me/agenda/[eventId]/page.tsx`
 - `supabase/migrations/202607200004_event_editing.sql`
 - `supabase/tests/007_event_editing.test.sql`
+- `lib/features/delivery/capabilities.ts`
 - `lib/validation/operations.ts`
 - `lib/validation/operations.test.ts`
 
-Esses caminhos foram conferidos em `77aed23` e devem ser revalidados no CP0.
+Esses caminhos foram conferidos em `0466d04`.
 
 ## Pacotes de trabalho
 
@@ -67,6 +117,11 @@ Esses caminhos foram conferidos em `77aed23` e devem ser revalidados no CP0.
 | `WP-R01-01` — Fuso autoritativo | `AC-R01-01`, `06`, `07` | `admin-event-form.tsx`, validação de operações, Actions de evento, `007_event_editing` | `VAL-APP`, `VAL-DB` |
 | `WP-R01-02` — Cancelamento e remarcação | `AC-R01-02`, `03`, `05`, `07` | Actions/página de evento, migration nova, `007_event_editing` | `VAL-APP`, `VAL-DB` |
 | `WP-R01-03` — Extensão e cancelamento de série | `AC-R01-02` a `05`, `07` | Actions de evento, `202607200004`, migration nova, pgTAP | `VAL-APP`, `VAL-DB` |
+
+As mudanças de banco serão forward-only em migration nova. O CP1 define nomes
+e assinaturas finais para a capacidade `event_control`, o registro idempotente
+de comandos, a versão da agenda e as RPCs; nenhuma migration aplicada será
+editada.
 
 ## Critérios de aceite
 
@@ -99,3 +154,15 @@ Esses caminhos foram conferidos em `77aed23` e devem ser revalidados no CP0.
 - manter leitura dos estados antigos durante a expansão;
 - fallback administrativo é bloquear automações e preservar a página informativa;
 - correção de banco é forward-only, sem reabrir evento ou série passada.
+
+## Evidência do CP0
+
+- R00 concluída e produção saudável em `0466d04`;
+- baseline e invariantes revalidados no contexto canônico;
+- entrypoints existentes localizados e histórico consultado;
+- defeito de fuso reproduzido no código: `datetime-local` passa por
+  `new Date(value)` no navegador;
+- edição atual já preserva presença e exceções, mas não possui cancelamento,
+  extensão idempotente, `request_id` nem versão explícita de agenda;
+- migration nova, capacidade desligada, papéis, retenção, fallback e perfis
+  `VAL-APP`/`VAL-DB` identificados.
