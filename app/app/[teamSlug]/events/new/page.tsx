@@ -2,6 +2,7 @@ import { AdminEventForm } from "@/components/admin-event-form";
 import { TeamAppHeader } from "@/components/team-app-header";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,7 +18,7 @@ export default async function NewEventPage({
   const [{ data: team }, { data: teams }] = await Promise.all([
     supabase
       .from("teams")
-      .select("id, name, slug, default_sport_format")
+      .select("id, name, slug, timezone, default_sport_format")
       .eq("slug", teamSlug)
       .maybeSingle(),
     supabase.from("teams").select("name, slug").order("name"),
@@ -32,6 +33,10 @@ export default async function NewEventPage({
     .eq("status", "active")
     .maybeSingle();
   if (!membership) notFound();
+  const eventControlEnabled = await isTeamFeatureEnabled(
+    team.id,
+    "event_control",
+  );
 
   return (
     <main className="app-canvas">
@@ -50,7 +55,14 @@ export default async function NewEventPage({
         </div>
 
         <section className="app-surface mt-6 p-5 sm:p-7">
-          <AdminEventForm teamId={team.id} teamSlug={team.slug} defaultSportFormat={team.default_sport_format} />
+          <AdminEventForm
+            teamId={team.id}
+            teamSlug={team.slug}
+            teamTimezone={team.timezone}
+            defaultSportFormat={team.default_sport_format}
+            eventControlEnabled={eventControlEnabled}
+            initialRequestId={crypto.randomUUID()}
+          />
         </section>
 
         <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-slate-500">

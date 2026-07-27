@@ -10,7 +10,11 @@ import { redirect } from "next/navigation";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; password?: string }>;
+  searchParams: Promise<{
+    next?: string;
+    password?: string;
+    confirmed?: string;
+  }>;
 }) {
   const params = await searchParams;
   const sessionDestination = await getSessionDestination();
@@ -29,6 +33,14 @@ export default async function Page({
   return (
     <AuthShell>
       <div className="w-full max-w-sm space-y-5">
+        {params.confirmed === "1" ? (
+          <p
+            role="status"
+            className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-900"
+          >
+            E-mail confirmado. Entre para acessar seu ambiente.
+          </p>
+        ) : null}
         {params.password === "updated" ? (
           <p role="status" className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
             Senha atualizada. Entre novamente; as sessões anteriores foram encerradas.

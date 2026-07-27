@@ -1,48 +1,46 @@
 ---
-release: R00
-work_package: WP-R00-04
-scope: feature_delivery
-branch_or_commit: "working-tree"
-checkpoint: CP5
-status: awaiting_external_validation
+release: R01
+work_package: WP-R01-01
+scope: event_control
+branch_or_commit: "codex/r01-event-control-wp01"
+checkpoint: CP2
+status: complete
 completed_ac:
-  - AC-R00-01
-  - AC-R00-02
-  - AC-R00-03
-  - AC-R00-04
-  - AC-R00-07
-  - AC-R00-09
-  - AC-R00-10
-  - AC-R00-11
+  - "AC-R01-01"
+  - "AC-R01-06"
+  - "AC-R01-07"
 dirty_files:
-  - "supabase/migrations/202607270001_delivery_foundation.sql"
-  - "supabase/tests/013_delivery_foundation.test.sql"
-  - "lib/features/delivery/"
-  - "scripts/check-migration-integrity.mjs"
-  - "scripts/smoke.mjs"
-  - ".github/workflows/"
-  - "docs/"
+  - "app/app/[teamSlug]/events/[eventId]/edit/page.tsx"
+  - "app/app/[teamSlug]/events/actions.ts"
+  - "app/app/[teamSlug]/events/new/page.tsx"
+  - "components/admin-event-form.tsx"
+  - "docs/releases/R01-evento-sob-controle.md"
+  - "docs/work/current.md"
+  - "lib/database.types.ts"
+  - "lib/features/delivery/capabilities.ts"
+  - "lib/validation/operations.test.ts"
+  - "lib/validation/operations.ts"
+  - "supabase/migrations/202607270002_event_control_feature.sql"
+  - "supabase/migrations/202607270003_event_control_contract.sql"
+  - "supabase/tests/006_public_team_schedule.test.sql"
+  - "supabase/tests/014_event_control.test.sql"
 tests:
-  - "npm ci — instalação limpa, 0 vulnerabilidades"
-  - "npm run lint"
-  - "npm run typecheck"
-  - "npm test — 64 testes"
-  - "npm run build"
-  - "npm run db:reset"
-  - "npm run db:lint — somente warnings preexistentes"
-  - "npm run db:test — 287 testes"
-  - "npm run smoke:production — build local"
-  - "terraform fmt -check -recursive"
-  - "terraform validate"
-  - "npm run security:audit — 0 vulnerabilidades"
-blocker: "CP5 depende dos gates reais de produção; staging foi explicitamente adiado para depois do MVP."
-next_action: "Validar e publicar a expansão inerte em main, confirmar o histórico remoto, executar smoke read-only em https://deutime.app e ensaiar rollback pela Vercel."
+  - "npx supabase db reset — migrations e seed aplicados"
+  - "npm run db:test — 14 arquivos, 306 testes"
+  - "npm run db:lint — sem regressão; aviso legado em create_event_as_staff"
+  - "npm run lint — ok"
+  - "npm run typecheck — ok"
+  - "npm test — 11 arquivos, 65 testes"
+  - "npm run build — ok com rede para Google Fonts"
+  - "viewport 390x844 — sem overflow, labels/descrições e teclado verificados"
+blocker: null
+next_action: "Revisar e integrar WP-R01-01; depois iniciar WP-R01-02 com cancelamento soft e remarcação completa."
 ---
 
 # Trabalho atual
 
-O código da fundação está validado localmente até CP4. A release permanece em
-CP5 porque matriz N/N−1, plano/aplicação protegidos e rollback precisam de
-evidência em produção. Staging foi adiado para acelerar o MVP; por isso
-`AC-R00-06` e `AC-R00-12` permanecem dívida explícita. Não habilitar flags,
-kill switches nem `ENABLE_TERRAFORM_APPLY` antes do ensaio produtivo.
+WP-R01-01 concluiu o caminho fino do CP2. A expansão permanece inerte até a
+flag ser habilitada por time; criação e edição v2 usam horário civil
+autoritativo, replay idempotente e mudanças versionadas. O fluxo legado segue
+intacto com a capacidade desligada. O próximo pacote implementa cancelamento
+soft e completa os efeitos transacionais de remarcação.

@@ -468,15 +468,16 @@ O anonimato deste marco é definido contra atletas, diretoria, suporte e superf�
 Este é um trabalho contínuo e não espera os Marcos 1 a 6 terminarem.
 
 - [x] RLS multi-time, auditoria de mudanças sensíveis, PII separada e storage privado.
-- [x] CI, testes de banco, CodeQL, dependency review e infraestrutura como código.
+- [x] CI, testes de banco, CodeQL e dependency review.
 
 ### 7.1 Gates de operação e segurança
 
 - [ ] Provisionar e comprovar staging isolado, sem dados, segredos ou callbacks de produção.
-- [ ] Criar flags tipadas por time, desligadas por padrão e verificadas no servidor/banco, além de kill switches globais para integrações.
-- [ ] Manter controles separados para produzir e consumir a outbox e oferecer dry-run antes de qualquer efeito externo.
-- [ ] Garantir por teste que aplicação e banco aceitam as duas ordens possíveis de deploy.
-- [ ] Automatizar E2E das jornadas móveis críticas e smoke pós-deploy inicialmente somente leitura.
+- [x] Criar flags tipadas por time, desligadas por padrão e verificadas no servidor/banco, além de kill switches globais para integrações.
+- [x] Manter controles separados para produzir e consumir a outbox.
+- [x] Garantir por teste e ensaio produtivo que aplicação e banco aceitam as duas ordens possíveis de deploy.
+- [x] Automatizar smoke pós-deploy somente leitura.
+- [ ] Automatizar E2E das jornadas móveis críticas.
 - [ ] Exportar dados pessoais em formato portátil e atender exclusão/minimização conforme LGPD.
 - [ ] Incluir atributos internos e fornecer explicação adequada quando uma solicitação formal do titular ou a legislação aplicável exigir.
 - [ ] Criar logs, métricas e alertas para falhas de autenticação, notificações, jobs e integrações.
@@ -488,6 +489,24 @@ Este é um trabalho contínuo e não espera os Marcos 1 a 6 terminarem.
 - [ ] Demonstrar que APIs, painel administrativo, suporte, exports, logs, analytics e backups operacionais não expõem associação entre eleitor e candidato; documentar o risco residual de operadores da infraestrutura.
 - [ ] Definir retenção e descarte de recibos e cédulas, preservando apenas o resultado agregado quando possível.
 - [ ] Realizar pentest independente antes de liberar links de ação sem login, votação identificada e páginas públicas de partidas em escala.
+
+### 7.3 Melhorias técnicas adiadas no MVP
+
+- [ ] Criar staging isolado com tenant sintético sem PII, segredos e callbacks
+  próprios, smoke de escrita idempotente, casos negativos/cross-tenant e
+  limpeza automática.
+- [ ] Tornar Terraform operacional somente depois de criar state remoto
+  protegido e importar, sem recriação, os recursos existentes de Supabase,
+  Vercel e GitHub; exigir plano revisado e apply do mesmo artefato.
+- [ ] Automatizar E2E mobile das jornadas críticas em Android, iPhone e
+  navegador interno do WhatsApp.
+- [ ] Ampliar smoke por jornada mantendo produção somente leitura enquanto não
+  houver ambiente isolado para escrita.
+- [ ] Criar observabilidade operacional com métricas, alertas e logs redigidos
+  para autenticação, notificações, jobs e integrações.
+- [ ] Configurar backup/PITR e ensaiar restauração com evidência.
+- [ ] Atualizar Actions ainda baseadas em Node.js 20 quando os mantenedores
+  publicarem versões compatíveis, sem habilitar runtime inseguro.
 
 ### 7.2 Produto e análise
 

@@ -336,6 +336,144 @@ export type Database = {
           },
         ]
       }
+      event_changes: {
+        Row: {
+          command_id: string
+          event_id: string
+          id: number
+          kind: Database["public"]["Enums"]["event_change_kind"]
+          next_starts_at: string | null
+          next_status: Database["public"]["Enums"]["event_status"]
+          occurred_at: string
+          previous_starts_at: string | null
+          previous_status: Database["public"]["Enums"]["event_status"] | null
+          schedule_version: number
+          scope: string
+          series_id: string | null
+          team_id: string
+        }
+        Insert: {
+          command_id: string
+          event_id: string
+          id?: never
+          kind: Database["public"]["Enums"]["event_change_kind"]
+          next_starts_at?: string | null
+          next_status: Database["public"]["Enums"]["event_status"]
+          occurred_at?: string
+          previous_starts_at?: string | null
+          previous_status?: Database["public"]["Enums"]["event_status"] | null
+          schedule_version: number
+          scope: string
+          series_id?: string | null
+          team_id: string
+        }
+        Update: {
+          command_id?: string
+          event_id?: string
+          id?: never
+          kind?: Database["public"]["Enums"]["event_change_kind"]
+          next_starts_at?: string | null
+          next_status?: Database["public"]["Enums"]["event_status"]
+          occurred_at?: string
+          previous_starts_at?: string | null
+          previous_status?: Database["public"]["Enums"]["event_status"] | null
+          schedule_version?: number
+          scope?: string
+          series_id?: string | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_changes_command_id_fkey"
+            columns: ["command_id"]
+            isOneToOne: false
+            referencedRelation: "event_commands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_changes_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_changes_series_id_team_id_fkey"
+            columns: ["series_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "event_series"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_changes_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_commands: {
+        Row: {
+          actor_id: string
+          created_at: string
+          event_id: string | null
+          id: string
+          kind: Database["public"]["Enums"]["event_command_kind"]
+          payload_hash: string
+          request_id: string
+          result: Json | null
+          series_id: string | null
+          team_id: string
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["event_command_kind"]
+          payload_hash: string
+          request_id: string
+          result?: Json | null
+          series_id?: string | null
+          team_id: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["event_command_kind"]
+          payload_hash?: string
+          request_id?: string
+          result?: Json | null
+          series_id?: string | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_commands_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_commands_series_id_team_id_fkey"
+            columns: ["series_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "event_series"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_commands_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_series: {
         Row: {
           attendance_deadline_offset: string
@@ -464,6 +602,8 @@ export type Database = {
       events: {
         Row: {
           attendance_deadline: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           created_at: string
           created_by: string
           ends_at: string
@@ -472,6 +612,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["event_kind"]
           opponent_name: string | null
           organization_mode: Database["public"]["Enums"]["organization_mode"]
+          schedule_version: number
           series_id: string | null
           series_position: number | null
           sport_format: Database["public"]["Enums"]["sport_format"]
@@ -484,6 +625,8 @@ export type Database = {
         }
         Insert: {
           attendance_deadline?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           created_by: string
           ends_at: string
@@ -492,6 +635,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["event_kind"]
           opponent_name?: string | null
           organization_mode?: Database["public"]["Enums"]["organization_mode"]
+          schedule_version?: number
           series_id?: string | null
           series_position?: number | null
           sport_format: Database["public"]["Enums"]["sport_format"]
@@ -504,6 +648,8 @@ export type Database = {
         }
         Update: {
           attendance_deadline?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           created_by?: string
           ends_at?: string
@@ -512,6 +658,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["event_kind"]
           opponent_name?: string | null
           organization_mode?: Database["public"]["Enums"]["organization_mode"]
+          schedule_version?: number
           series_id?: string | null
           series_position?: number | null
           sport_format?: Database["public"]["Enums"]["sport_format"]
@@ -1387,6 +1534,30 @@ export type Database = {
         }
         Returns: string
       }
+      create_event_as_staff_v2: {
+        Args: {
+          attendance_deadline_minutes: number
+          event_duration_minutes: number
+          event_kind: Database["public"]["Enums"]["event_kind"]
+          event_opponent_name?: string
+          event_organization_mode: Database["public"]["Enums"]["organization_mode"]
+          event_sport_format: Database["public"]["Enums"]["sport_format"]
+          event_title: string
+          event_venue_address?: string
+          event_venue_name?: string
+          repeat_weeks?: number
+          request_id: string
+          requested_team_id: string
+          starts_at_local: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_team_for_current_user: {
         Args: {
           sport_format: Database["public"]["Enums"]["sport_format"]
@@ -1644,6 +1815,31 @@ export type Database = {
         }
         Returns: number
       }
+      update_event_as_staff_v2: {
+        Args: {
+          attendance_deadline_minutes: number
+          edit_scope: string
+          event_duration_minutes: number
+          event_kind: Database["public"]["Enums"]["event_kind"]
+          event_opponent_name?: string
+          event_organization_mode: Database["public"]["Enums"]["organization_mode"]
+          event_sport_format: Database["public"]["Enums"]["sport_format"]
+          event_title: string
+          event_venue_address?: string
+          event_venue_name?: string
+          request_id: string
+          requested_event_id: string
+          requested_team_id: string
+          starts_at_local: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       update_my_player_profile: {
         Args: {
           field_positions: string[]
@@ -1685,6 +1881,13 @@ export type Database = {
         | "maybe"
         | "waitlist"
       consent_status: "granted" | "revoked"
+      event_change_kind:
+        | "created"
+        | "details_updated"
+        | "rescheduled"
+        | "cancelled"
+        | "series_extended"
+      event_command_kind: "create" | "update" | "cancel" | "extend_series"
       event_kind:
         | "weekly_match"
         | "championship"
@@ -1700,6 +1903,7 @@ export type Database = {
         | "voting"
         | "comments"
         | "team_division"
+        | "event_control"
       lineup_slot_kind: "starter" | "substitute"
       match_incident_kind: "goal" | "yellow_card" | "red_card"
       membership_status: "invited" | "active" | "suspended"
@@ -1718,7 +1922,14 @@ export type Database = {
       team_role: "owner" | "admin" | "manager"
     }
     CompositeTypes: {
-      [_ in never]: never
+      event_command_result: {
+        request_id: string | null
+        event_id: string | null
+        series_id: string | null
+        affected_count: number | null
+        max_schedule_version: number | null
+        replayed: boolean | null
+      }
     }
   }
 }
@@ -1856,6 +2067,14 @@ export const Constants = {
         "waitlist",
       ],
       consent_status: ["granted", "revoked"],
+      event_change_kind: [
+        "created",
+        "details_updated",
+        "rescheduled",
+        "cancelled",
+        "series_extended",
+      ],
+      event_command_kind: ["create", "update", "cancel", "extend_series"],
       event_kind: [
         "weekly_match",
         "championship",
@@ -1872,6 +2091,7 @@ export const Constants = {
         "voting",
         "comments",
         "team_division",
+        "event_control",
       ],
       lineup_slot_kind: ["starter", "substitute"],
       match_incident_kind: ["goal", "yellow_card", "red_card"],

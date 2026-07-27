@@ -5,6 +5,7 @@ export const featureKeys = [
   "voting",
   "comments",
   "team_division",
+  "event_control",
 ] as const;
 
 export type FeatureKey = (typeof featureKeys)[number];
@@ -50,4 +51,3 @@ export function canConsumeExternalCommands(
 ) {
   return failClosedLookup("integration_consume", lookup, timeoutMs);
 }
-

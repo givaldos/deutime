@@ -31,67 +31,28 @@ O cadastro público real fica indisponível em produção se Turnstile ou a chav
 
 ## Provisionamento remoto
 
-O módulo em `infra/terraform` cria/configura:
+Produção foi provisionada diretamente no Supabase e na Vercel. O deploy da
+aplicação ocorre pela integração Vercel com `main`; migrations são aplicadas
+pelo workflow `Deploy database`.
 
-- projeto e settings do Supabase;
-- projeto Vercel ligado ao GitHub e variáveis de runtime;
-- ruleset da branch `main`.
-
-Use Terraform 1.11+ com HCP Terraform para estado remoto criptografado, lock e histórico. O bloco `cloud {}` recebe organização e workspace por ambiente. Nunca execute com estado local em uma máquina compartilhada.
-
-```bash
-cp infra/terraform/terraform.tfvars.example infra/terraform/terraform.tfvars
-terraform -chdir=infra/terraform init
-terraform -chdir=infra/terraform plan
-terraform -chdir=infra/terraform apply
-```
-
-Defina `TF_CLOUD_ORGANIZATION`, `TF_WORKSPACE` e `TF_TOKEN_app_terraform_io` antes do `init`. O workspace HCP deve existir e usar uma versão Terraform compatível.
-
-Credenciais dos providers devem entrar somente por variáveis de ambiente:
-
-- `SUPABASE_ACCESS_TOKEN`;
-- `VERCEL_API_TOKEN`;
-- `GITHUB_TOKEN`.
-
-O `terraform.tfvars` contém identificadores e também valores sensíveis de bootstrap; está ignorado pelo Git. Para CI, mapeie inputs com `TF_VAR_*` e um cofre de segredos.
+`infra/terraform` permanece apenas como referência validada por `fmt` e
+`validate`. Não execute `init`, `plan`, `apply` ou `import` contra produção
+durante o MVP. Torná-lo operacional exige primeiro importar todos os recursos
+existentes para um state remoto protegido e comprovar plano sem recriação; essa
+atividade está no backlog técnico.
 
 ## Segredos do GitHub Actions
 
-Crie um Environment protegido chamado `production` e adicione:
+O Environment `production`, usado pelo banco e pelo smoke, contém:
 
 - `SUPABASE_ACCESS_TOKEN`: token de automação com escopo mínimo;
 - `SUPABASE_PROJECT_ID`: ref do projeto de produção;
 - `SUPABASE_DB_PASSWORD`: senha de produção.
-- `TF_API_TOKEN`: token de equipe do HCP Terraform com acesso só ao workspace;
-- `VERCEL_API_TOKEN`: token de automação do projeto/time;
-- `INFRA_GITHUB_TOKEN`: fine-grained token para rulesets deste repositório;
-- `TURNSTILE_SITE_KEY` e `TURNSTILE_SECRET_KEY`.
-
-No workspace HCP Terraform, defina como variáveis sensíveis:
-
-- `TF_VAR_smtp_user`;
-- `TF_VAR_smtp_password`;
-- `TF_VAR_twilio_account_sid`;
-- `TF_VAR_twilio_auth_token`;
-- `TF_VAR_twilio_message_service_sid` apontando para um Messaging Service habilitado no WhatsApp.
 
 O `supabase_settings` habilita Phone Auth, exige confirmação e configura Twilio. Antes do primeiro deploy produtivo, valide o remetente e os templates no Twilio; WhatsApp no Supabase Auth é suportado apenas com Twilio ou Twilio Verify. Não copie essas credenciais para Vercel nem para `.env.local`.
 
-Configure também `smtp_host`, `smtp_port`, `smtp_admin_email` e `smtp_sender_name` no workspace. O domínio do remetente deve estar verificado no provedor transacional, com SPF, DKIM e DMARC publicados. Desative rastreamento de links nos e-mails de autenticação e teste cadastro, reenvio, recuperação e notificação de senha antes de liberar produção.
-
-Crie também as Repository Variables:
-
-- `TF_CLOUD_ORGANIZATION` e `TF_WORKSPACE`;
-- `SUPABASE_ORGANIZATION_ID`;
-- `APP_URL`;
-- `REQUIRED_APPROVALS` (comece em `0` enquanto houver um único mantenedor);
-- `ENABLE_TERRAFORM_APPLY` deve permanecer `false` até os Environments
-  `production-plan` e `production` estarem protegidos. Quando habilitado, o
-  workflow cria um `tfplan`, publica seu resumo e aplica exatamente o mesmo
-  artefato somente após o gate de `production`.
-
-Restrinja o Environment à branch `main`. Se houver mais de uma pessoa responsável, exija aprovação para deploy de produção.
+A Repository Variable `APP_URL` aponta para `https://deutime.app`. Terraform
+não recebe tokens, segredos ou permissão de apply durante o MVP.
 
 ## Fluxo de entrega
 
@@ -198,7 +159,7 @@ localmente:
    ou editar migration aplicada.
 
 Anexe ao pacote da release os IDs das execuções, deployment promovido, horários
-e resultado. Sem essa evidência, CP5 permanece pendente.
+e resultado. Sem essa evidência, o ensaio de rollback não está concluído.
 
 ## Primeira ativação do repositório
 
@@ -206,9 +167,11 @@ O ruleset referencia checks que só existem depois que os workflows executarem a
 
 1. enviar a fundação para `main`;
 2. aguardar a primeira execução dos workflows;
-3. configurar o HCP Terraform e as variáveis/segredos acima;
-4. aplicar o Terraform com `enable_github_ruleset = true`;
-5. testar um pull request pequeno para confirmar o bloqueio.
+3. configurar o ruleset diretamente no GitHub com os checks reais;
+4. testar um pull request pequeno para confirmar o bloqueio.
+
+Automatizar esse provisionamento por Terraform depende da importação segura
+registrada no backlog técnico.
 
 ## Rollback
 
