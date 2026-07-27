@@ -2,15 +2,19 @@
 
 ## Ambientes
 
-Use três fronteiras separadas:
+Durante o MVP, use duas fronteiras:
 
 - local: Supabase via Docker e chaves locais;
-- preview/staging: projeto Supabase próprio ou branches de preview quando o plano permitir;
-- produção: projeto Supabase exclusivo, jamais usado por preview.
+- produção: projeto Supabase exclusivo ligado à branch `main`.
 
-Não reutilize senha, chave secreta, Turnstile secret ou banco entre ambientes.
+Previews ficam desabilitados ou sem variáveis de banco; nunca apontam para
+produção. Não reutilize senha, chave secreta, Turnstile secret ou banco entre
+local e produção.
 
-O repositório descreve essa separação, mas o ambiente de staging ainda precisa ser comprovadamente provisionado na R00. Até isso acontecer, nenhuma integração externa, credencial duradoura ou ação pública sensível deve ser considerada pronta para piloto.
+Staging foi adiado por decisão de aceleração do MVP. Enquanto não existir,
+integrações externas, credencial duradoura e ações públicas sensíveis só podem
+ser validadas localmente e permanecem desligadas em produção. Produção aceita
+apenas expansão inerte, smoke somente leitura e ativação manual reversível.
 
 ## Bootstrap local
 
@@ -82,7 +86,10 @@ Crie também as Repository Variables:
 - `SUPABASE_ORGANIZATION_ID`;
 - `APP_URL`;
 - `REQUIRED_APPROVALS` (comece em `0` enquanto houver um único mantenedor);
-- `ENABLE_TERRAFORM_APPLY` deve permanecer `false` até a R00 fazer o workflow aplicar exatamente um artefato de plano revisado sob o Environment protegido. No estado atual, `true` executa um novo `apply -auto-approve` em cada push de `main`.
+- `ENABLE_TERRAFORM_APPLY` deve permanecer `false` até os Environments
+  `production-plan` e `production` estarem protegidos. Quando habilitado, o
+  workflow cria um `tfplan`, publica seu resumo e aplica exatamente o mesmo
+  artefato somente após o gate de `production`.
 
 Restrinja o Environment à branch `main`. Se houver mais de uma pessoa responsável, exija aprovação para deploy de produção.
 
@@ -118,6 +125,80 @@ Os deploys da Vercel e do Supabase são independentes e não têm ordenação co
 - cada pacote declara fluxo fallback, sinal de saúde e condição automática/manual de interrupção;
 - smoke pós-deploy começa somente leitura e nunca depende de PII ou estado mutável de um time real;
 - ativação amplia gradualmente apenas depois de métricas e alertas permanecerem saudáveis.
+
+### Operação das flags e kill switches
+
+As chaves tipadas estão no enum `feature_key`. Owner ou admin do time altera
+uma flag exclusivamente pela RPC `set_team_feature_flag`; escrita direta não é
+concedida. Toda mudança entra em `audit_logs`. A leitura de uma capacidade deve
+passar por `is_team_feature_enabled` ou por uma RPC de domínio que consulte
+`private.is_team_feature_enabled`, sempre junto da autorização normal do time.
+Flag nunca concede acesso por si só.
+
+Os controles `integration_produce` e `integration_consume` são globais,
+independentes, nascem `false` e só podem ser operados pela credencial
+`service_role` por `set_runtime_control`. Workers consultam o controle antes de
+reservar trabalho e antes do efeito externo. Erro ou timeout retorna `false`
+somente para o caminho novo; o fluxo legado não consulta esse serviço.
+
+Para interromper um piloto:
+
+1. desativar a flag do time;
+2. desativar `integration_produce`;
+3. desativar `integration_consume` se houver risco no worker;
+4. confirmar a auditoria e preservar itens pendentes da outbox;
+5. só então promover o último deploy conhecido como bom, se necessário.
+
+### Limite operacional sem staging
+
+O ambiente local é o único lugar autorizado para smoke de escrita, testes
+cross-tenant, falhas, timeout e alternância de flags. Esses testes usam o
+Supabase Docker recriado por migrations e dados fictícios da própria suíte.
+
+Nenhum workflow, preview ou script recebe chave secreta de produção para testar
+escrita. O smoke de produção é sempre anônimo e somente leitura. Qualquer
+jornada que exija mensagem real, credencial duradoura ou escrita de smoke
+permanece com flag e kill switches desligados até existir staging isolado ou uma
+decisão posterior com controles equivalentes.
+
+### Smoke e promoção
+
+Produção executa `npm run smoke:production` após deployment bem-sucedido. O
+teste faz somente `GET` nas jornadas públicas `/` e `/auth/login`, exige HTML e
+não envia identificador pessoal. A mesma verificação pode ser despachada
+manualmente no workflow `Smoke`.
+
+Matriz obrigatória para uma expansão:
+
+| Estado | Banco N−1 | Banco N |
+|---|---|---|
+| App N−1 | baseline já validada | deve continuar funcionando; validar antes do app consumidor |
+| App N | deve tolerar ausência da expansão ou permanecer desligado | liberar somente após smoke |
+
+Sem staging, a expansão precisa ser inerte e não pode ter consumidor ativo no
+mesmo merge. O app N deve tolerar banco N−1 porque o módulo novo não participa
+de nenhuma jornada ativa; o app N−1 tolera banco N porque a migration apenas
+adiciona tabelas, enums, funções e grants. Após o merge, valide o histórico
+remoto e execute imediatamente o smoke somente leitura. Contração fica para
+release posterior.
+
+### Ensaio de rollback
+
+Antes do merge, registre o deployment produtivo bom da Vercel e execute
+localmente:
+
+1. ligar e desligar a flag no time fictício e confirmar efeito imediato;
+2. ligar produção de integração mantendo consumo desligado, depois desligar
+   ambos;
+3. reconstruir o banco do zero e repetir pgTAP e aplicação;
+4. após o merge, se o smoke falhar, manter flags e kill switches desligados e
+   promover o deployment produtivo bom anterior na Vercel;
+5. repetir o smoke somente leitura;
+6. para banco, aplicar somente migration corretiva forward-only; nunca reverter
+   ou editar migration aplicada.
+
+Anexe ao pacote da release os IDs das execuções, deployment promovido, horários
+e resultado. Sem essa evidência, CP5 permanece pendente.
 
 ## Primeira ativação do repositório
 

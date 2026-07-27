@@ -1,6 +1,6 @@
 # DEC-PERSISTENT-ACCESS — Acesso duradouro vindo do WhatsApp
 
-- Status: decisão de produto aceita; threat model e transporte pendentes na R00
+- Status: aceita; threat model aprovado na R00
 - Data: 27 de julho de 2026
 - Release consumidora: R02
 
@@ -30,7 +30,57 @@ Adotar a terceira opção:
 - vínculo, fase, cancelamento e revogação são recalculados server-side em cada ação;
 - segredo sai da URL após a troca e não entra em Open Graph, analytics, `Referer` ou logs controlados pela aplicação.
 
-O transporte inicial — fragmento trocado por `POST` antes de terceiros ou mecanismo equivalente — será fechado pelo threat model da R00. O provedor de WhatsApp necessariamente conhece o link enviado; isso deve constar no DPA e não pode ser descrito como anonimato contra o provedor.
+O transporte inicial usa um fragmento, no formato conceitual
+`/e/<evento>#c=<credencial>`. Fragmentos não são enviados na requisição HTTP. A
+página de troca é um documento mínimo, same-origin, sem analytics, imagens
+remotas, preconnect, service worker ou scripts de terceiros. O bootstrap remove
+o fragmento com `history.replaceState` e faz `POST` same-origin para a troca
+antes de carregar a jornada. A resposta instala a capability em cookie
+`Secure`, `HttpOnly`, `SameSite=Lax`, limitado ao caminho do evento. Sem
+JavaScript ou diante de falha, a página oferece o fluxo autenticado atual, sem
+refletir a credencial no HTML.
+
+O provedor de WhatsApp necessariamente conhece o conteúdo enviado, inclusive a
+credencial no fragmento; isso deve constar no DPA e não pode ser descrito como
+anonimato contra o provedor.
+
+## Threat model aprovado
+
+| Ameaça | Controle obrigatório | Evidência de implementação |
+|---|---|---|
+| Link encaminhado | capability limitada ao atleta-evento; confirmação permitida apenas na fase atual; comentário, voto e identidade global exigem step-up por OTP | teste cross-tenant, cross-evento e de encaminhamento |
+| Unfurl ou prefetch | segredo somente no fragmento; `GET` canônico é genérico e não troca credencial; troca exige `POST` same-origin | teste de `GET`, unfurl e prefetch sem consumo |
+| Vazamento por `Referer`, cache, OG, analytics, erro ou log | `Referrer-Policy: no-referrer`, página sem terceiros, URL limpa antes da jornada, respostas `no-store`, redaction por nome/formato e nenhuma credencial em telemetria | inspeção de rede, cache, HTML, logs e erros |
+| Replay e concorrência | credencial identificada por hash SHA-256 e comparação constante; troca serializada; múltiplas trocas válidas convergem para capability do mesmo escopo, sem ampliar permissão | teste simultâneo e de replay |
+| Fixação de sessão | servidor gera capability nova; nunca aceita identificador de sessão fornecido pelo cliente; rotação após step-up e ação sensível | teste de cookie predefinido e rotação |
+| Aparelho roubado | inventário por aparelho, revogação individual e global imediata; sinal de risco força OTP; suporte não recupera segredo | ensaio de revogação e runbook |
+| Navegador interno perde cookies | o link reutilizável pode refazer a troca; ausência do link ou revogação cai no fluxo OTP, nunca em permissão implícita | Android/iPhone, navegador interno e padrão |
+| Capability usada em outro evento/time | chave composta e autorização recalculada por evento, atleta, time, vínculo e fase em cada RPC | pgTAP positivo, negativo e cross-tenant |
+| Provedor ou operador acessa o link | DPA e acesso mínimo; capacidade limitada reduz impacto; rotação/revogação disponíveis | revisão de fornecedor e auditoria |
+
+### Material criptográfico e ciclo de vida
+
+- credencial gerada com 256 bits de entropia por CSPRNG, codificada em base64url
+  sem padding e persistida apenas como SHA-256;
+- comparação de hash constante e nenhum prefixo pesquisável em logs;
+- credencial expira no máximo sete dias após o encerramento do evento e pode ser
+  revogada antes; a fase do evento pode retirar ações imediatamente;
+- capability renova de forma deslizante por até 30 dias de inatividade, sem
+  ultrapassar a expiração da credencial/evento;
+- sessão completa de aparelho rotaciona refresh token, expira após 30 dias de
+  inatividade e possui limite absoluto de 180 dias;
+- OTP é obrigatório em aparelho novo, após limite absoluto, revogação, troca
+  suspeita de contexto ou antes de elevar uma capability para identidade;
+- uso sensível rotaciona a capability/sessão, sem tornar o link original uma
+  sessão global.
+
+### Revogação e recuperação
+
+A revogação pode atingir uma credencial, uma capability, um aparelho, toda a
+identidade ou globalmente a troca. O efeito é conferido no banco em cada ação e
+não depende apenas da validade do cookie. Em incidente, o kill switch interrompe
+a troca e ações identificadas, preserva a URL pública e o fluxo autenticado
+atual, revoga o escopo afetado e registra somente identificadores não secretos.
 
 ## Consequências
 
@@ -41,13 +91,16 @@ O transporte inicial — fragmento trocado por `POST` antes de terceiros ou meca
 - implementação exige inventário/rotação de aparelho e testes específicos de replay, forwarding, unfurl, cache e logs;
 - suporte nunca consulta nem reconstrói o segredo original.
 
-## Validação pendente
+## Validação da implementação consumidora
 
 - threat model com link encaminhado, aparelho roubado, unfurl, prefetch, `Referer`, logs da plataforma e concorrência;
 - protótipo Android/iPhone nos navegadores interno e padrão;
 - teste de que capability de um evento não acessa outro evento/time;
 - teste de step-up antes de comentário ou voto em aparelho não verificado;
-- definição de renovação deslizante, limite absoluto e política de risco.
+- conferência dos prazos e sinais de risco acima com telemetria do piloto.
+
+Esses itens são gates da implementação R02, não decisões estruturais abertas.
+A R01 não consome esta credencial e permanece desbloqueada.
 
 ## Migração e reversão
 

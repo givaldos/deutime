@@ -943,6 +943,59 @@ export type Database = {
         }
         Relationships: []
       }
+      runtime_controls: {
+        Row: {
+          control: Database["public"]["Enums"]["runtime_control_key"]
+          enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          control: Database["public"]["Enums"]["runtime_control_key"]
+          enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          control?: Database["public"]["Enums"]["runtime_control_key"]
+          enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      team_feature_flags: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          feature: Database["public"]["Enums"]["feature_key"]
+          team_id: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          feature: Database["public"]["Enums"]["feature_key"]
+          team_id: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          feature?: Database["public"]["Enums"]["feature_key"]
+          team_id?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_feature_flags_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_invitations: {
         Row: {
           accepted_at: string | null
@@ -1358,6 +1411,13 @@ export type Database = {
         Args: { requested_incident_id: string }
         Returns: boolean
       }
+      delivery_foundation_probe: {
+        Args: {
+          requested_feature: Database["public"]["Enums"]["feature_key"]
+          requested_team_id: string
+        }
+        Returns: boolean
+      }
       get_my_player_statistics: {
         Args: never
         Returns: {
@@ -1386,6 +1446,19 @@ export type Database = {
           team_name: string
           team_slug: string
         }[]
+      }
+      is_runtime_control_enabled: {
+        Args: {
+          requested_control: Database["public"]["Enums"]["runtime_control_key"]
+        }
+        Returns: boolean
+      }
+      is_team_feature_enabled: {
+        Args: {
+          requested_feature: Database["public"]["Enums"]["feature_key"]
+          requested_team_id: string
+        }
+        Returns: boolean
       }
       list_my_player_team_links: {
         Args: never
@@ -1482,6 +1555,44 @@ export type Database = {
           requested_event_id: string
         }
         Returns: Database["public"]["Enums"]["attendance_status"]
+      }
+      set_runtime_control: {
+        Args: {
+          requested_control: Database["public"]["Enums"]["runtime_control_key"]
+          requested_enabled: boolean
+        }
+        Returns: {
+          control: Database["public"]["Enums"]["runtime_control_key"]
+          enabled: boolean
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "runtime_controls"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_team_feature_flag: {
+        Args: {
+          requested_enabled: boolean
+          requested_feature: Database["public"]["Enums"]["feature_key"]
+          requested_team_id: string
+        }
+        Returns: {
+          created_at: string
+          enabled: boolean
+          feature: Database["public"]["Enums"]["feature_key"]
+          team_id: string
+          updated_at: string
+          updated_by: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "team_feature_flags"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       set_team_featured_media: {
         Args: { requested_media_id: string }
@@ -1582,6 +1693,13 @@ export type Database = {
         | "training"
         | "other"
       event_status: "scheduled" | "cancelled" | "completed"
+      feature_key:
+        | "persistent_event_access"
+        | "whatsapp_delivery"
+        | "post_match"
+        | "voting"
+        | "comments"
+        | "team_division"
       lineup_slot_kind: "starter" | "substitute"
       match_incident_kind: "goal" | "yellow_card" | "red_card"
       membership_status: "invited" | "active" | "suspended"
@@ -1589,6 +1707,7 @@ export type Database = {
       message_status: "pending" | "processing" | "sent" | "failed" | "cancelled"
       organization_mode: "single_squad" | "split_teams"
       registration_source: "admin" | "public_form" | "import"
+      runtime_control_key: "integration_produce" | "integration_consume"
       sport_format: "field" | "society" | "futsal"
       team_invitation_status:
         | "pending"
@@ -1746,6 +1865,14 @@ export const Constants = {
         "other",
       ],
       event_status: ["scheduled", "cancelled", "completed"],
+      feature_key: [
+        "persistent_event_access",
+        "whatsapp_delivery",
+        "post_match",
+        "voting",
+        "comments",
+        "team_division",
+      ],
       lineup_slot_kind: ["starter", "substitute"],
       match_incident_kind: ["goal", "yellow_card", "red_card"],
       membership_status: ["invited", "active", "suspended"],
@@ -1753,6 +1880,7 @@ export const Constants = {
       message_status: ["pending", "processing", "sent", "failed", "cancelled"],
       organization_mode: ["single_squad", "split_teams"],
       registration_source: ["admin", "public_form", "import"],
+      runtime_control_key: ["integration_produce", "integration_consume"],
       sport_format: ["field", "society", "futsal"],
       team_invitation_status: [
         "pending",
