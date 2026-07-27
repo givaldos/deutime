@@ -2,15 +2,19 @@
 
 ## Ambientes
 
-Use três fronteiras separadas:
+Durante o MVP, use duas fronteiras:
 
 - local: Supabase via Docker e chaves locais;
-- preview/staging: projeto Supabase próprio ou branches de preview quando o plano permitir;
-- produção: projeto Supabase exclusivo, jamais usado por preview.
+- produção: projeto Supabase exclusivo ligado à branch `main`.
 
-Não reutilize senha, chave secreta, Turnstile secret ou banco entre ambientes.
+Previews ficam desabilitados ou sem variáveis de banco; nunca apontam para
+produção. Não reutilize senha, chave secreta, Turnstile secret ou banco entre
+local e produção.
 
-O repositório descreve essa separação, mas o ambiente de staging ainda precisa ser comprovadamente provisionado na R00. Até isso acontecer, nenhuma integração externa, credencial duradoura ou ação pública sensível deve ser considerada pronta para piloto.
+Staging foi adiado por decisão de aceleração do MVP. Enquanto não existir,
+integrações externas, credencial duradoura e ações públicas sensíveis só podem
+ser validadas localmente e permanecem desligadas em produção. Produção aceita
+apenas expansão inerte, smoke somente leitura e ativação manual reversível.
 
 ## Bootstrap local
 
@@ -82,7 +86,10 @@ Crie também as Repository Variables:
 - `SUPABASE_ORGANIZATION_ID`;
 - `APP_URL`;
 - `REQUIRED_APPROVALS` (comece em `0` enquanto houver um único mantenedor);
-- `ENABLE_TERRAFORM_APPLY` deve permanecer `false` até a R00 fazer o workflow aplicar exatamente um artefato de plano revisado sob o Environment protegido. No estado atual, `true` executa um novo `apply -auto-approve` em cada push de `main`.
+- `ENABLE_TERRAFORM_APPLY` deve permanecer `false` até os Environments
+  `production-plan` e `production` estarem protegidos. Quando habilitado, o
+  workflow cria um `tfplan`, publica seu resumo e aplica exatamente o mesmo
+  artefato somente após o gate de `production`.
 
 Restrinja o Environment à branch `main`. Se houver mais de uma pessoa responsável, exija aprovação para deploy de produção.
 
@@ -142,33 +149,24 @@ Para interromper um piloto:
 4. confirmar a auditoria e preservar itens pendentes da outbox;
 5. só então promover o último deploy conhecido como bom, se necessário.
 
-### Contrato de staging
+### Limite operacional sem staging
 
-O Environment `staging` usa projeto Supabase, origem de aplicação, callbacks,
-chaves e tenant sintético exclusivos. Não recebe dump, backup, chave, callback
-ou dado de produção. O tenant do smoke tem `teams.is_synthetic = true`, nomes
-fictícios e nenhuma PII. Previews não podem apontar para Supabase de produção.
+O ambiente local é o único lugar autorizado para smoke de escrita, testes
+cross-tenant, falhas, timeout e alternância de flags. Esses testes usam o
+Supabase Docker recriado por migrations e dados fictícios da própria suíte.
 
-O workflow `Smoke` compara origem, URL do Supabase e chave secreta de staging
-com as referências de produção e falha antes de escrever se houver reuso. O
-smoke de staging chama `run_staging_delivery_smoke` duas vezes com a mesma chave,
-confere o tenant sintético e limpa a linha na própria transação da RPC. A suíte
-pgTAP cobre acesso permitido, negação de tenant real, cross-tenant, idempotência
-e limpeza.
-
-Variáveis do Environment `staging`:
-
-- `APP_URL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`;
-- `SMOKE_SYNTHETIC_TEAM_ID`;
-- `PRODUCTION_APP_URL`, `PRODUCTION_SUPABASE_URL` e
-  `PRODUCTION_SUPABASE_SECRET_KEY`, usadas apenas para o gate de desigualdade.
+Nenhum workflow, preview ou script recebe chave secreta de produção para testar
+escrita. O smoke de produção é sempre anônimo e somente leitura. Qualquer
+jornada que exija mensagem real, credencial duradoura ou escrita de smoke
+permanece com flag e kill switches desligados até existir staging isolado ou uma
+decisão posterior com controles equivalentes.
 
 ### Smoke e promoção
 
 Produção executa `npm run smoke:production` após deployment bem-sucedido. O
 teste faz somente `GET` nas jornadas públicas `/` e `/auth/login`, exige HTML e
-não envia identificador pessoal. Staging executa `npm run smoke:staging` por
-despacho manual antes do piloto.
+não envia identificador pessoal. A mesma verificação pode ser despachada
+manualmente no workflow `Smoke`.
 
 Matriz obrigatória para uma expansão:
 
@@ -177,22 +175,26 @@ Matriz obrigatória para uma expansão:
 | App N−1 | baseline já validada | deve continuar funcionando; validar antes do app consumidor |
 | App N | deve tolerar ausência da expansão ou permanecer desligado | liberar somente após smoke |
 
-O PR de expansão de banco é inerte e separado do consumidor. Após o deploy,
-verifique o histórico remoto e o app N−1; somente então integre o consumidor.
-Se o mesmo merge for inevitável, o teste do pacote deve demonstrar as quatro
-células. Contração fica para release posterior.
+Sem staging, a expansão precisa ser inerte e não pode ter consumidor ativo no
+mesmo merge. O app N deve tolerar banco N−1 porque o módulo novo não participa
+de nenhuma jornada ativa; o app N−1 tolera banco N porque a migration apenas
+adiciona tabelas, enums, funções e grants. Após o merge, valide o histórico
+remoto e execute imediatamente o smoke somente leitura. Contração fica para
+release posterior.
 
 ### Ensaio de rollback
 
-Antes do piloto, registre o deployment bom da Vercel e execute em staging:
+Antes do merge, registre o deployment produtivo bom da Vercel e execute
+localmente:
 
-1. ligar a flag apenas no tenant sintético e concluir o smoke;
-2. desligar a flag e confirmar efeito imediato pelo probe/RPC;
-3. ligar produção de integração mantendo consumo desligado, depois desligar
+1. ligar e desligar a flag no time fictício e confirmar efeito imediato;
+2. ligar produção de integração mantendo consumo desligado, depois desligar
    ambos;
-4. promover o deployment bom anterior na Vercel;
+3. reconstruir o banco do zero e repetir pgTAP e aplicação;
+4. após o merge, se o smoke falhar, manter flags e kill switches desligados e
+   promover o deployment produtivo bom anterior na Vercel;
 5. repetir o smoke somente leitura;
-6. se houver correção de banco, aplicar migration forward-only; nunca reverter
+6. para banco, aplicar somente migration corretiva forward-only; nunca reverter
    ou editar migration aplicada.
 
 Anexe ao pacote da release os IDs das execuções, deployment promovido, horários

@@ -285,32 +285,6 @@ export type Database = {
           },
         ]
       }
-      delivery_smoke_runs: {
-        Row: {
-          checked_at: string
-          idempotency_key: string
-          team_id: string
-        }
-        Insert: {
-          checked_at?: string
-          idempotency_key: string
-          team_id: string
-        }
-        Update: {
-          checked_at?: string
-          idempotency_key?: string
-          team_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "delivery_smoke_runs_team_id_fkey"
-            columns: ["team_id"]
-            isOneToOne: false
-            referencedRelation: "teams"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       event_attendance: {
         Row: {
           athlete_id: string
@@ -1211,7 +1185,6 @@ export type Database = {
           default_sport_format: Database["public"]["Enums"]["sport_format"]
           id: string
           is_public: boolean
-          is_synthetic: boolean
           logo_path: string | null
           name: string
           slug: string
@@ -1224,7 +1197,6 @@ export type Database = {
           default_sport_format?: Database["public"]["Enums"]["sport_format"]
           id?: string
           is_public?: boolean
-          is_synthetic?: boolean
           logo_path?: string | null
           name: string
           slug: string
@@ -1237,7 +1209,6 @@ export type Database = {
           default_sport_format?: Database["public"]["Enums"]["sport_format"]
           id?: string
           is_public?: boolean
-          is_synthetic?: boolean
           logo_path?: string | null
           name?: string
           slug?: string
@@ -1556,10 +1527,6 @@ export type Database = {
       }
       revoke_team_invitation: {
         Args: { requested_invitation_id: string }
-        Returns: boolean
-      }
-      run_staging_delivery_smoke: {
-        Args: { requested_idempotency_key: string; requested_team_id: string }
         Returns: boolean
       }
       save_match_report_as_staff: {

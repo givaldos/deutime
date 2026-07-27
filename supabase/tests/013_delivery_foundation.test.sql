@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(29);
+select plan(23);
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -30,21 +30,19 @@ values
     '{}', '{}', now(), now(), '', '', '', ''
   );
 
-insert into public.teams (id, name, slug, created_by, is_synthetic)
+insert into public.teams (id, name, slug, created_by)
 values
   (
     'd2000000-0000-4000-8000-000000000001',
-    'Time sintético R00',
-    'time-sintetico-r00',
-    'd1000000-0000-4000-8000-000000000001',
-    true
+    'Time local R00',
+    'time-local-r00',
+    'd1000000-0000-4000-8000-000000000001'
   ),
   (
     'd2000000-0000-4000-8000-000000000002',
-    'Time real R00',
-    'time-real-r00',
-    'd1000000-0000-4000-8000-000000000003',
-    false
+    'Outro time local R00',
+    'outro-time-local-r00',
+    'd1000000-0000-4000-8000-000000000003'
   );
 
 insert into public.team_memberships (team_id, user_id, role, status)
@@ -87,8 +85,7 @@ select is(
     where p.table_schema = 'public'
       and p.table_name in (
         'team_feature_flags',
-        'runtime_controls',
-        'delivery_smoke_runs'
+        'runtime_controls'
       )
       and p.grantee in ('anon', 'authenticated')
       and p.privilege_type in ('INSERT', 'UPDATE', 'DELETE', 'TRUNCATE', 'REFERENCES', 'TRIGGER')
@@ -105,11 +102,6 @@ select ok(
   (select relrowsecurity from pg_class where oid = 'public.runtime_controls'::regclass),
   'controles globais usam RLS'
 );
-select ok(
-  (select relrowsecurity from pg_class where oid = 'public.delivery_smoke_runs'::regclass),
-  'registros de smoke usam RLS'
-);
-
 select ok(
   not has_function_privilege(
     'anon',
@@ -190,16 +182,6 @@ select is(
   1::bigint,
   'mudança de flag é auditada'
 );
-select throws_ok(
-  $$
-    update public.teams
-    set is_synthetic = false
-    where id = 'd2000000-0000-4000-8000-000000000001'
-  $$,
-  '22023',
-  null,
-  'operador do time não altera o marcador sintético'
-);
 select lives_ok(
   $$
     select public.set_team_feature_flag(
@@ -251,21 +233,6 @@ select throws_ok(
   null,
   'cliente não contorna a RPC com escrita direta'
 );
-select throws_ok(
-  $$
-    insert into public.teams (name, slug, created_by, is_synthetic)
-    values (
-      'Sintético forjado',
-      'sintetico-forjado-r00',
-      'd1000000-0000-4000-8000-000000000002',
-      true
-    )
-  $$,
-  '42501',
-  null,
-  'cliente não cria tenant sintético'
-);
-
 reset role;
 set local role service_role;
 
@@ -294,42 +261,6 @@ select is(
   public.is_runtime_control_enabled('integration_consume'),
   false,
   'consumo externo permaneceu desligado'
-);
-
-select lives_ok(
-  $$
-    select public.run_staging_delivery_smoke(
-      'd2000000-0000-4000-8000-000000000001',
-      'smoke-r00-idempotente'
-    );
-    select public.run_staging_delivery_smoke(
-      'd2000000-0000-4000-8000-000000000001',
-      'smoke-r00-idempotente'
-    )
-  $$,
-  'smoke de staging é idempotente no tenant sintético'
-);
-select throws_ok(
-  $$
-    select public.run_staging_delivery_smoke(
-      'd2000000-0000-4000-8000-000000000002',
-      'smoke-r00-time-real'
-    )
-  $$,
-  '42501',
-  null,
-  'smoke de escrita recusa tenant real'
-);
-
-reset role;
-select is(
-  (
-    select count(*)
-    from public.delivery_smoke_runs
-    where team_id = 'd2000000-0000-4000-8000-000000000001'
-  ),
-  0::bigint,
-  'smoke limpa seu dado sintético'
 );
 
 select * from finish();

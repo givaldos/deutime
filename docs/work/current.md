@@ -30,18 +30,19 @@ tests:
   - "npm run build"
   - "npm run db:reset"
   - "npm run db:lint — somente warnings preexistentes"
-  - "npm run db:test — 293 testes"
+  - "npm run db:test — 287 testes"
   - "npm run smoke:production — build local"
   - "terraform fmt -check -recursive"
   - "terraform validate"
   - "npm run security:audit — 0 vulnerabilidades"
-blocker: "CP5 depende da configuração e execução dos Environments reais de staging/produção."
-next_action: "Configurar production-plan, production e staging com segredos isolados; executar matriz N/N−1, smoke sintético e ensaio de rollback; anexar IDs ao R00."
+blocker: "CP5 depende dos gates reais de produção; staging foi explicitamente adiado para depois do MVP."
+next_action: "Validar e publicar a expansão inerte em main, confirmar o histórico remoto, executar smoke read-only em https://deutime.app e ensaiar rollback pela Vercel."
 ---
 
 # Trabalho atual
 
 O código da fundação está validado localmente até CP4. A release permanece em
-CP5 porque smoke de staging, matriz N/N−1, plano/aplicação protegidos e rollback
-precisam de evidência dos Environments reais. Não habilitar flags nem
-`ENABLE_TERRAFORM_APPLY` antes desse ensaio.
+CP5 porque matriz N/N−1, plano/aplicação protegidos e rollback precisam de
+evidência em produção. Staging foi adiado para acelerar o MVP; por isso
+`AC-R00-06` e `AC-R00-12` permanecem dívida explícita. Não habilitar flags,
+kill switches nem `ENABLE_TERRAFORM_APPLY` antes do ensaio produtivo.

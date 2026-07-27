@@ -23,7 +23,6 @@ resumo antes de aprovar. Mantenha a variável desligada até os dois Environment
 segredos e proteção estarem configurados. Use tokens de automação com o menor
 escopo possível.
 
-Previews da Vercel não devem usar o banco de produção. Staging usa projeto
-Supabase, aplicação, callbacks e segredos exclusivos e nunca recebe cópia de
-dados reais. O contrato executável e as variáveis obrigatórias estão na seção
-“Contrato de staging” de `docs/runbook.md`.
+Previews da Vercel não devem usar o banco de produção. Durante o MVP sem
+staging, deixe previews sem variáveis de banco e faça testes de escrita somente
+no Supabase local. O limite operacional está documentado em `docs/runbook.md`.
