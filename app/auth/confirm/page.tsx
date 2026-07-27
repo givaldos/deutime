@@ -1,5 +1,6 @@
 import { confirmEmail } from "@/app/auth/confirm/actions";
 import { ClearConfirmationUrl } from "@/app/auth/confirm/clear-confirmation-url";
+import { CompletePkceConfirmation } from "@/app/auth/confirm/complete-pkce-confirmation";
 import { AuthShell } from "@/components/auth-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +14,7 @@ import { safeInternalPath } from "@/lib/security/redirects";
 import { redirect } from "next/navigation";
 
 const TOKEN_HASH_PATTERN = /^[A-Za-z0-9_-]{32,256}$/;
+const AUTH_CODE_PATTERN = /^[A-Za-z0-9._~-]{16,512}$/;
 
 type ConfirmPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -26,7 +28,16 @@ export default async function ConfirmPage({ searchParams }: ConfirmPageProps) {
   const params = await searchParams;
   const tokenHash = firstValue(params.token_hash);
   const type = firstValue(params.type);
+  const code = firstValue(params.code);
   const next = safeInternalPath(firstValue(params.next) ?? null);
+
+  if (!tokenHash && !type && code && AUTH_CODE_PATTERN.test(code)) {
+    return (
+      <AuthShell>
+        <CompletePkceConfirmation nextPath={next} />
+      </AuthShell>
+    );
+  }
 
   if (!tokenHash || !TOKEN_HASH_PATTERN.test(tokenHash) || type !== "email") {
     redirect("/auth/error");
