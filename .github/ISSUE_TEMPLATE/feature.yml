@@ -1,45 +1,113 @@
 name: Funcionalidade
-description: Propor um incremento de produto com critérios verificáveis.
+description: Propor uma fatia vertical, autossuficiente e verificável.
 title: "[Feature]: "
 labels: ["feature"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Use este formulário para um pacote de trabalho de uma release. Antes de iniciar, confirme a Definition of Ready em `docs/development.md`.
+  - type: dropdown
+    id: release
+    attributes:
+      label: Release
+      description: A release deve possuir ou receber um pacote em `docs/releases/`.
+      options:
+        - R00 — Fundação de entrega
+        - R01 — Evento sob controle
+        - R02 — Confirmação pelo link
+    validations:
+      required: true
+  - type: input
+    id: work_package
+    attributes:
+      label: Pacote de trabalho
+      description: Use o ID já definido no pacote da release, como WP-R02-01 ou DP-R00-01.
+      placeholder: WP-RXX-YY
+    validations:
+      required: true
   - type: textarea
     id: outcome
     attributes:
       label: Resultado esperado
-      description: Qual problema do atleta ou gestor será resolvido?
+      description: Qual jornada uma pessoa conseguirá concluir de ponta a ponta?
+    validations:
+      required: true
+  - type: textarea
+    id: context_capsule
+    attributes:
+      label: Cápsula de contexto
+      description: Referencie BASE/INV/DEC, lacuna atual, compatibilidade futura e commit em que os entrypoints foram conferidos. Não copie as definições.
+      placeholder: |
+        Baseline/invariantes/decisões:
+        Lacuna:
+        Futuro compatível:
+        Entry points verificados em:
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Escopo e não escopo
+      description: Liste o que entra e o que fica explicitamente de fora.
+      placeholder: |
+        Incluído:
+        - ...
+        Fora:
+        - ...
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependências e decisões
+      description: Liste somente dependências específicas deste WP e confirme que decisões bloqueadoras estão fechadas. Pacote DP pode apontar a decisão que produzirá.
     validations:
       required: true
   - type: textarea
     id: flow
     attributes:
-      label: Fluxo mobile
-      description: Descreva o caminho principal e estados vazio, carregando, erro e sucesso.
+      label: Fluxo mobile e WhatsApp
+      description: Descreva entrada, ação principal e estados vazio, carregando, sucesso, erro, indisponibilidade e retorno em outro dia.
+    validations:
+      required: true
+  - type: textarea
+    id: contracts
+    attributes:
+      label: Contratos e entrypoints
+      description: Dados, RPC/API, papéis, eventos e arquivos concretos de código, migration e teste. Diretório amplo exige justificativa.
+      placeholder: |
+        Contratos:
+        Entry points:
+        - ...
     validations:
       required: true
   - type: textarea
     id: acceptance
     attributes:
       label: Critérios de aceite
-      description: Use itens objetivos e testáveis.
-      placeholder: "- [ ] ..."
+      description: Referencie os ACs da release e acrescente somente critérios próprios deste recorte.
+      placeholder: "- [ ] AC-RXX-... "
     validations:
       required: true
   - type: textarea
     id: security
     attributes:
-      label: Segurança e privacidade
-      description: Papéis, fronteiras de time, PII, abuso, retenção e auditoria.
+      label: Segurança, privacidade e falhas
+      description: Referencie invariantes e registre apenas riscos/controles específicos do WP.
     validations:
       required: true
-  - type: dropdown
-    id: milestone
+  - type: textarea
+    id: verification
     attributes:
-      label: Marco sugerido
-      options:
-        - MVP operacional
-        - WhatsApp-first
-        - Operação e confiança
-        - Depois do MVP
+      label: Validação e evidências
+      description: Perfis VAL-* do playbook, testes focados, dispositivos e evidência específica.
+    validations:
+      required: true
+  - type: textarea
+    id: rollout
+    attributes:
+      label: Rollout, fallback e rollback
+      description: Flag, coorte piloto, compatibilidade entre deploys, fallback funcional e procedimento de reversão.
     validations:
       required: true

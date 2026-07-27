@@ -1,131 +1,90 @@
-# Roadmap e backlog
+# DeuTime — Roadmap executivo
 
-Cada item abaixo foi escrito para virar issue do GitHub. O critério global de pronto inclui responsividade a partir de 320 px, acessibilidade por teclado/leitor de tela, autorização server-side, testes e nenhum vazamento cross-tenant.
+> Atualizado em 27 de julho de 2026.
 
-## Marco 0 — Fundação (implementado nesta entrega)
+Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
-- [x] Next.js, Supabase SSR, Tailwind, validação de ambiente e headers seguros.
-- [x] Schema multi-time, BID, agenda, presença, divisão, escalação, consentimento, outbox e auditoria.
-- [x] RLS deny-by-default e testes pgTAP de isolamento.
-- [x] Página pública por slug e solicitação pública de atleta pendente.
-- [x] Shell do painel e troca de time.
-- [x] CI, auditoria de dependências, CodeQL e deploy de migration.
-- [x] Terraform inicial e runbooks.
+## Passado — base comprovada
 
-## Marco 1 — MVP operacional
+O produto já possui:
 
-### M1.1 Onboarding e times
+- SaaS multi-time com RLS, PII separada, CI, pgTAP e infraestrutura como código;
+- identidade global para atletas reivindicados e vínculo independente por time;
+- onboarding, convites, BID, agenda avulsa/recorrente e confirmação autenticada;
+- súmula administrativa com placar, lances, encerramento e correções auditadas;
+- página pública do time, perfil público consentido e mídia privada;
+- OTP no WhatsApp e outbox como fundação, ainda sem automação operacional.
 
-- [x] Roteador de ativação entre time existente, convite pendente e criação do primeiro time.
-- [x] Criação guiada com nome, slug protegido por unicidade e modalidade principal.
-- [x] Convite de administrador/organizador vinculado ao e-mail confirmado, com hash, TTL, uso único, recusa e revogação.
-- [x] Compartilhamento inicial de cadastro e convite pelo WhatsApp sem acoplamento à API do provedor.
-- [ ] Edição de nome, slug, modalidade e fuso com proteção contra takeover.
-- [ ] Transferência de owner com reautenticação e confirmação das duas partes.
+O padrão técnico comprovado é uma fatia vertical: UI mobile → Server Action fina → RPC transacional → autorização/RLS → testes e auditoria. Os fatos exatos possuem IDs `BASE-*` no contexto canônico.
 
-### M1.2 Gestão do BID
+## Presente — preparar e entregar o ciclo confiável
 
-- [x] Listar elenco e solicitações pendentes com PII restrita a staff.
-- [x] Cadastrar atleta ativo com até três posições ordenadas da modalidade do time.
-- [x] Aprovar/rejeitar cadastro público e ativar/inativar atleta.
-- [x] Editar cadastro administrativo até a reivindicação; depois dela, restringir owner/admin aos dados do vínculo.
-- [x] Remover atleta sem afetar perfil global/outros times, minimizando o cadastro e preservando a identificação necessária às súmulas históricas.
-- [ ] Pesquisar e filtrar o elenco por nome, posição e situação.
+| Release | Estado | Resultado | Pacote |
+|---|---|---|---|
+| **R00 — Fundação de entrega** | `discovery` | Ativação controlada, deploy compatível, staging e smoke test; é uma release habilitadora. | [Abrir](releases/R00-fundacao-de-entrega.md) |
+| **R01 — Evento sob controle** | `draft` | Fuso correto e cancelamento/remarcação com histórico preservado. | [Abrir](releases/R01-evento-sob-controle.md) |
+| **R02 — Confirmação pelo link** | `draft` | Mesmo link, acesso persistente, SIM/NÃO/TALVEZ e compartilhamento manual pelo WhatsApp. | [Abrir](releases/R02-confirmacao-pelo-link.md) |
 
-### M1.3 Agenda avulsa
+Ordem recomendada para uma única frente: **R00 → R01 → R02**. Pacotes de descoberta podem fechar decisões da release consumidora, mas implementação não começa com decisão que altere schema, autorização ou contrato público ainda aberta.
 
-- [x] Criar e listar jogo/amistoso/campeonato/treino com local, modalidade, adversário e janela de confirmação.
-- [x] Abrir chamada automaticamente para o elenco ativo.
-- [ ] Editar, cancelar/concluir e configurar limite de atletas.
+A R02 só passa a `ready` depois de `DEC-EVENT-PUBLIC-MINIMUM` e `DEC-UNCLAIMED-IDENTITY`; o threat model de `DEC-PERSISTENT-ACCESS` é produzido na R00.
 
-### M1.4 Agenda recorrente
+## Futuro — releases verticais
 
-- [x] Criar uma série semanal e materializar de 2 a 52 ocorrências com chamadas independentes.
-- [ ] Estender a janela de forma idempotente e editar/cancelar uma ocorrência ou série sem alterar o histórico.
+| Release | Resultado autossuficiente | Depende de | Decisão antes de promover | Fallback |
+|---|---|---|---|---|
+| **R03 — WhatsApp ponta a ponta** | Uma chamada real, consentida e observável, com worker, retry e webhook. | R01, R02 | `DEC-WHATSAPP-PROVIDER` | Compartilhamento manual |
+| **R04 — Partida e pós-jogo básico** | Partida mínima, encerramento, presença real e súmula pública/identificada. | R02 | `DEC-EVENT-MATCH`, `DEC-PUBLIC-PRIVACY` | Súmula administrativa |
+| **R05 — Craque da Galera** | Voto único anônimo, candidatos presentes e resultado agregado. | R04 | `DEC-ANONYMOUS-RETENTION` | Súmula sem votação |
+| **R06 — Conversa da súmula** | Comentários identificados, respostas, denúncia e moderação. | R02, R04 | `DEC-CONVERSATION-LIFETIME`, `DEC-ANONYMOUS-RETENTION` | Súmula somente leitura |
+| **R07 — Times manuais compartilháveis** | Divisão acessível, publicação e imagem pelo mesmo link. | R02 | `DEC-EVENT-MATCH` | Lista de confirmados |
+| **R08 — Divisão automática** | Sugestão reproduzível, ajustável e explicável. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Divisão manual |
+| **R09 — Camisas, temporadas e tabela** | Camisas, resultados transacionais, tabela e histórico. | R04, R07 | — | Histórico por partida |
+| **R10 — Reconhecimento** | Pontos positivos, Craques e perfis consentidos. | R04, R05 | — | Estatísticas básicas |
 
-### M1.5 Confirmação de presença
+Depois da R02, R03, R04 e R07 são trilhas independentes. R05 e R06 não esperam divisão automática nem tabela.
 
-- [x] Chamada mobile administrativa com confirmação, recusa, dúvida e limpeza da resposta.
-- [x] Contadores por estado e base de confirmados para a escala.
-- [x] Identidade global, vínculo aprovado por time e resposta pelo próprio atleta dentro da janela.
+Revogação administrativa, “Minha conta”, e-mails e diretório público serão promovidos do catálogo como releases independentes; não bloqueiam artificialmente o ciclo principal.
 
-### M1.6 Escalação de jogo
+## Horizonte exploratório — marketplace do futebol amador
 
-Selecionar apenas confirmados, montar titulares/reservas e distribuir por posição compatível com a modalidade. Registrar override justificado para exceções.
+Depois que o ciclo principal estiver validado e houver densidade de times, atletas e partidas, o DeuTime poderá evoluir de ferramenta de organização para um marketplace completo do ecossistema do futebol amador:
 
-### M1.7 Divisão do racha
+- encontrar e contratar árbitros;
+- encontrar organizadores para jogos, torneios e eventos;
+- encontrar e reservar quadras e campos;
+- encontrar empresas de churrasco, alimentação e serviços para o pós-jogo;
+- descobrir outros atletas e convidá-los para times ou eventos, sempre com controles de privacidade e consentimento;
+- cobrar, dividir e repassar os pagamentos do racha;
+- gerar receita transacional sobre reservas, contratações e pagamentos processados pela plataforma.
 
-Gerar de 2 a N times equilibrados a partir dos confirmados, levando em conta goleiros, posições, avaliação opcional e histórico de equilíbrio. O algoritmo sugere; o gestor confirma e pode ajustar.
+Este horizonte serve apenas para orientar decisões de longo prazo. Ele não recebe número de release, pacote de trabalho, prazo ou implementação agora. Antes de ser promovido, precisa validar demanda e oferta local, confiança entre as partes, reputação, moderação, suporte e as obrigações de pagamento, antifraude, identidade, tributação e LGPD.
 
-### M1.8 Convite e vínculo do atleta
+## Caminhos críticos
 
-- [x] Criar perfil por OTP no WhatsApp e associar ao BID pendente sem senha.
-- [x] Permitir um perfil em vários times com aprovação independente.
-- [x] Oferecer, na página do time, escolha clara entre entrar com WhatsApp e criar o primeiro perfil.
-- [x] Perfil pessoal público/privado com posições globais.
-- [ ] Fluxo assistido para reivindicar um BID administrativo antigo cujo telefone coincida, com trilha explícita para conflitos.
+```mermaid
+flowchart LR
+    R00["R00 Entrega segura"] --> R01["R01 Evento sob controle"]
+    R01 --> R02["R02 Mesmo link"]
+    R02 --> R03["R03 WhatsApp automático"]
+    R02 --> R04["R04 Pós-jogo básico"]
+    R02 --> R07["R07 Divisão manual"]
+    R04 --> R05["R05 Craque da Galera"]
+    R04 --> R06["R06 Conversa"]
+    R03 --> R08["R08 Divisão automática"]
+    R07 --> R08
+    R04 --> R09["R09 Temporadas"]
+    R07 --> R09
+    R05 --> R10["R10 Reconhecimento"]
+```
 
-### M1.8.1 Home administrativa
+## Regras de promoção
 
-- [x] Ativação gamificada e removida automaticamente após a missão de estreia.
-- [x] Próximo jogo e chamada como foco principal no mobile.
-- [x] Linha do tempo de eventos e movimentações recentes do BID.
-- [x] Configurações e convites fora da home, em área própria do time.
-
-### M1.8.2 Vitrine social do time
-
-- [x] Sobre e redes sociais editáveis por owner/admin.
-- [x] Escudo, capa e galeria com storage privado e publicação por URL temporária.
-- [x] Escolha administrativa de uma foto de destaque com composição editorial responsiva.
-- [x] Página pública editorial, mobile-first e orientada a entrada no time.
-- [x] BID público limitado ao consentimento individual do atleta.
-- [x] Foto global do atleta com recorte, storage privado, troca/remoção e acesso do BID ao perfil público.
-
-### M1.9 Súmula e estatísticas básicas
-
-- [x] Placar, nomes dos times e observações gerais por ocorrência.
-- [x] Gols com assistência opcional e cartões amarelo/vermelho para atletas confirmados.
-- [x] Correção de lances com ajuste do placar e auditoria.
-- [x] Encerramento explícito antes de contabilizar estatísticas pessoais.
-- [x] Acompanhamento mobile pelo atleta e agregados em perfil privado/público consentido.
-- [ ] Métricas avançadas, filtros por time/temporada e importação de súmulas antigas.
-
-## Marco 2 — WhatsApp-first
-
-### M2.1 Adaptador de notificações
-
-Worker idempotente para a outbox, política de retries/dead-letter, métricas, redaction e interface independente do provedor.
-
-### M2.2 Opt-in e templates
-
-Fluxo completo de consentimento/revogação, templates aprovados, lembrete da abertura, lembrete a pendentes e confirmação da escalação.
-
-### M2.3 Confirmação por link seguro
-
-Deep link com token com hash armazenado, escopo evento-atleta, TTL curto, uso único e fallback autenticado. Rate limit e alerta de abuso.
-
-### M2.4 Webhooks
-
-Validar assinatura, timestamp e replay; responder rápido; processar assíncrono; mapear entrega/leitura/falha sem salvar payload integral indefinidamente.
-
-## Marco 3 — Operação e confiança
-
-- dashboard de métricas do time sem ranking vexatório;
-- histórico de presença e escalações;
-- análises históricas por time e temporada sem ranking vexatório;
-- exportação e exclusão LGPD;
-- logs e alertas operacionais;
-- backups/PITR e exercício de restauração;
-- MFA obrigatório para funções privilegiadas;
-- pentest independente e correção dos achados;
-- PWA somente se trouxer valor mensurável além dos links do WhatsApp.
-
-## Fora do MVP
-
-- pagamentos/mensalidades;
-- arbitragem e súmula oficial;
-- chat interno;
-- feed social;
-- marketplace público de atletas.
-
-Esses itens só entram após validar o fluxo semanal principal: convite → confirmação → divisão/escalação → comunicação.
+- somente releases ativas ou imediatamente seguintes recebem pacote detalhado;
+- uma branch mantém uma única release vertical ativa;
+- cada pacote precisa passar pela Definition of Ready do playbook;
+- descoberta pode resolver uma decisão aberta; implementação dependente não pode começar antes dela;
+- release nova nasce desligada, possui piloto, telemetria, fallback e rollback;
+- expansão de banco é verificada antes do consumidor ou aplicação e banco toleram as duas ordens de deploy;
+- segurança, privacidade, mobile, WhatsApp, documentação e operação são gates de cada release;
+- ao concluir, evidências atualizam o pacote, os fatos `BASE-*` e este índice.

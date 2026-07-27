@@ -76,11 +76,16 @@ npm run security:audit
 
 ## Leitura recomendada
 
-1. [Arquitetura](docs/architecture.md)
-2. [Segurança](docs/security.md)
-3. [Runbook de ambientes e deploy](docs/runbook.md)
-4. [Roadmap e backlog](docs/roadmap.md)
+1. [Playbook de desenvolvimento](docs/development.md)
+2. [Pacote da release ativa](docs/releases/README.md)
+3. [Contexto canônico do produto](docs/product-context.md)
+4. [Visão do produto](docs/visao-do-produto.md)
+5. [Arquitetura](docs/architecture.md)
+6. [Segurança](docs/security.md)
+7. [Runbook de ambientes e deploy](docs/runbook.md)
+8. [Roadmap executivo](docs/roadmap.md)
+9. [Catálogo detalhado de capacidades](docs/backlog.md)
 
 ## Regra de entrega
 
-Todo incremento deve entrar por pull request, passar por `quality`, `database`, `dependency-review` e CodeQL, incluir migração/testes quando tocar no banco e preservar o isolamento multi-time. Alterações manuais nos dashboards devem ser refletidas em código no mesmo pull request para evitar drift.
+Todo incremento deve seguir um pacote de release, entrar por pull request, passar por `quality`, `database`, `dependency-review`, CodeQL e `terraform-check`, incluir migração/testes quando tocar no banco e preservar o isolamento multi-time. Features novas nascem desligadas e com fallback; a expansão do banco é publicada antes do app consumidor ou ambos comprovam compatibilidade nas duas ordens de deploy. Alterações manuais nos dashboards devem ser refletidas em código no mesmo pull request para evitar drift.

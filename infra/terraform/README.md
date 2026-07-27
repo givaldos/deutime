@@ -13,6 +13,6 @@ Não faça commit de estado, plano salvo, tokens ou `terraform.tfvars`. Configur
 
 O ruleset começa desabilitado porque GitHub só reconhece um required check depois de sua primeira execução. Após a primeira CI verde, aplique novamente com `enable_github_ruleset = true`.
 
-O workflow `Terraform` valida todo pull request e, depois que a variável `ENABLE_TERRAFORM_APPLY=true` for habilitada, aplica automaticamente a configuração revisada quando `main` é atualizada. Proteja o Environment `production` e use tokens de automação com o menor escopo possível.
+O workflow `Terraform` valida todo pull request. No estado atual, `ENABLE_TERRAFORM_APPLY=true` executa um novo `apply -auto-approve` quando `main` é atualizada; mantenha a variável `false` até a R00 publicar e aplicar exatamente o mesmo artefato de plano revisado sob o Environment protegido. Enquanto isso, faça a aplicação manual somente após revisar o plano. Use tokens de automação com o menor escopo possível.
 
 Previews da Vercel não devem usar o banco de produção em operação real. Antes de abrir pull requests de terceiros ou adicionar dados reais, provisione um Supabase de staging/branch e substitua as variáveis de preview.

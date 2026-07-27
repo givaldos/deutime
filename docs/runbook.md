@@ -10,6 +10,8 @@ Use três fronteiras separadas:
 
 Não reutilize senha, chave secreta, Turnstile secret ou banco entre ambientes.
 
+O repositório descreve essa separação, mas o ambiente de staging ainda precisa ser comprovadamente provisionado na R00. Até isso acontecer, nenhuma integração externa, credencial duradoura ou ação pública sensível deve ser considerada pronta para piloto.
+
 ## Bootstrap local
 
 1. Instale Node.js 24, npm 11 e Docker Desktop.
@@ -80,21 +82,42 @@ Crie também as Repository Variables:
 - `SUPABASE_ORGANIZATION_ID`;
 - `APP_URL`;
 - `REQUIRED_APPROVALS` (comece em `0` enquanto houver um único mantenedor);
-- `ENABLE_TERRAFORM_APPLY` como `true` somente depois de revisar um primeiro `plan` manual.
+- `ENABLE_TERRAFORM_APPLY` deve permanecer `false` até a R00 fazer o workflow aplicar exatamente um artefato de plano revisado sob o Environment protegido. No estado atual, `true` executa um novo `apply -auto-approve` em cada push de `main`.
 
 Restrinja o Environment à branch `main`. Se houver mais de uma pessoa responsável, exija aprovação para deploy de produção.
 
 ## Fluxo de entrega
 
 1. Criar branch `codex/<tema>` ou `feat/<tema>`.
-2. Implementar com testes e migration quando necessário.
-3. Abrir pull request usando o template.
-4. Aguardar `quality`, `database`, `dependency-review` e CodeQL.
-5. Fazer merge somente após revisão.
-6. A Vercel publica a aplicação automaticamente.
-7. O workflow `Deploy database` aplica migrations em produção de forma serializada.
+2. Vincular a mudança a um pacote em `docs/releases/` e confirmar seu CP0.
+3. Implementar uma fatia vertical com testes, flag e migration quando necessário.
+4. Abrir pull request usando o template e registrar as duas ordens possíveis de deploy.
+5. Aguardar `quality`, `database`, `dependency-review`, CodeQL e `terraform-check`.
+6. Fazer merge somente após revisão e com a feature desligada por padrão.
+7. A Vercel publica a aplicação automaticamente.
+8. O workflow `Deploy database` aplica migrations em produção de forma serializada.
+9. Executar smoke test e ativar somente a coorte piloto prevista no pacote.
 
 Migrações destrutivas usam expand/contract: primeiro adicionar estrutura compatível, depois migrar dados e código, só então remover a estrutura antiga em outro deploy. Nunca editar uma migration já aplicada.
+
+Os deploys da Vercel e do Supabase são independentes e não têm ordenação conjunta garantida. Portanto:
+
+- o caminho preferencial é publicar a expansão inerte em pull request próprio, aguardar migration e smoke com o app anterior e só então integrar o app consumidor;
+- schema expandido deve aceitar a aplicação anterior;
+- se aplicação e banco forem publicados pelo mesmo merge, a aplicação nova deve detectar ou tolerar o contrato compatível disponível;
+- coluna/tabela nova não pode ser obrigatória para o fluxo antigo no primeiro deploy;
+- leitura/escrita dupla, quando necessária, permanece até uma release posterior;
+- contração nunca entra no mesmo pull request que introduz o novo contrato.
+
+## Flags, piloto e smoke
+
+- feature nova nasce desligada e é habilitada por time/coorte;
+- a verificação ocorre no servidor e, quando aplicável, também na RPC; esconder UI não é autorização;
+- integrações possuem kill switch global e controles separados para produzir e consumir comandos;
+- worker com efeito externo começa em dry-run;
+- cada pacote declara fluxo fallback, sinal de saúde e condição automática/manual de interrupção;
+- smoke pós-deploy começa somente leitura e nunca depende de PII ou estado mutável de um time real;
+- ativação amplia gradualmente apenas depois de métricas e alertas permanecerem saudáveis.
 
 ## Primeira ativação do repositório
 

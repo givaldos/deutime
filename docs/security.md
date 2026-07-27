@@ -23,13 +23,13 @@ O baseline é OWASP ASVS 5.0 nível 2 e OWASP Top 10. Isso não é uma certifica
 | A05 Injection | Zod, SQL parametrizado pelo SDK, RPC tipada, sem `eval`/`new Function`, regras ESLint |
 | A06 Insecure Design | PII separada, consentimento explícito, registro público pendente, outbox idempotente, deny-by-default |
 | A07 Authentication Failures | cookies geridos pelo Supabase SSR, claims verificados no servidor, senha local mínima de 12 caracteres, confirmação de e-mail, redirecionamento interno validado |
-| A08 Data Integrity Failures | migrations imutáveis, CI, branch protegida, constraints, aceite de convite transacional com row lock, cadastro de atleta/evento atômico, auditoria e workflows fixados por SHA |
+| A08 Data Integrity Failures | migrations versionadas, CI, branch protegida, constraints, aceite de convite transacional com row lock, cadastro de atleta/evento atômico, auditoria e workflows fixados por SHA; o gate automático contra edição retroativa entra na R00 |
 | A09 Logging and Alerting | audit log de mudanças sensíveis sem conteúdo integral da PII; runbook prevê alertas e resposta a incidente |
 | A10 Exceptional Conditions | erros públicos genéricos, timeouts, limites de tamanho, criação de times serializada e limitada por conta, falha fechada para anti-bot em produção, operações idempotentes |
 
 ## Cadastro público
 
-O formulário usa duas camadas de validação, campo honeypot, Turnstile validado no servidor, limite de tamanho e resposta genérica. A RPC privilegiada não pode ser executada pelos papéis `anon` ou `authenticated`; somente o servidor a chama com a chave secreta. Todo cadastro entra como `pending`, invisível no diretório público até aprovação e opt-in.
+O formulário usa duas camadas de validação, campo honeypot, Turnstile validado no servidor, limite de tamanho e resposta genérica antes de solicitar OTP. A conclusão exige sessão autenticada com telefone confirmado e chama `complete_verified_athlete_registration`, que revalida a identidade no banco; não usa a chave secreta da aplicação. Todo cadastro entra como `pending`, invisível no diretório público até aprovação e conforme as flags atuais. A exigência de consentimento específico para BID administrativo não reivindicado permanece uma lacuna de `DEC-PUBLIC-PRIVACY`.
 
 O Turnstile não substitui rate limiting. Antes de abrir produção, configure limite por IP/slug no firewall da Vercel ou serviço equivalente, com política conservadora e observabilidade de falsos positivos.
 
@@ -58,6 +58,25 @@ O Turnstile não substitui rate limiting. Antes de abrir produção, configure l
 - não usar telefone para WhatsApp sem consentimento válido ou outra base legal revisada;
 - usar `privacy_notes` apenas para informação operacional estritamente necessária, nunca dados sensíveis sem avaliação jurídica.
 
+## Credencial reutilizável e sessão duradoura
+
+O acesso WhatsApp-first planejado segue [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md): credencial pessoal reutilizável, capability persistente limitada ao evento e sessão de identidade persistente no aparelho. Antes da R02, a R00 deve aprovar o threat model e demonstrar:
+
+- entropia suficiente, persistência somente de hash e comparação resistente;
+- escopo da credencial limitado ao par evento-atleta e autorização recalculada no servidor a cada ação;
+- capability `httpOnly` ou proteção equivalente limitada ao evento, sem poder emitir diretamente uma sessão global de identidade;
+- sessão rotativa vinculada à identidade atual somente após OTP ou reaproveitamento de aparelho já verificado, sem copiar papéis ou permissões imutáveis para o cliente;
+- transporte inicial resistente a unfurl, prefetch e logs — como fragmento trocado por `POST` antes de terceiros — e remoção do segredo da URL após a troca;
+- bloqueio do segredo em `Referer`, Open Graph, analytics, logs controlados pela aplicação, erros e suporte, documentando que o provedor da mensagem necessariamente conhece o link enviado;
+- revogação individual de credencial/aparelho e revogação global com efeito imediato;
+- rotação após uso sensível e proteção contra replay, fixação, concorrência e roubo;
+- reidentificação por OTP antes de emitir identidade completa em aparelho novo e sempre diante de credencial ausente/revogada ou sinal de risco;
+- limite absoluto e renovação deslizante que evitem autenticação recorrente no uso normal;
+- teste específico de link encaminhado e de persistência no navegador interno do WhatsApp;
+- resposta a incidente que preserve a URL pública e desabilite somente ações identificadas.
+
+A credencial reconhece a elegibilidade no evento; ela não concede por si só sessão global, comentário, voto, papel administrativo nem acesso depois que o vínculo ou a fase deixarem de permitir a ação.
+
 ## Checklist antes de produção
 
 - [ ] domínio e URLs de callback definitivos configurados;
@@ -68,6 +87,7 @@ O Turnstile não substitui rate limiting. Antes de abrir produção, configure l
 - [ ] Supabase e Vercel na região definida, com backups/PITR e teste de restauração;
 - [ ] previews protegidos e sem apontar para dados de produção;
 - [ ] logs sem tokens, telefones, e-mails ou payloads de autenticação;
+- [ ] threat model, rotação, revogação e testes de replay da credencial duradoura aprovados;
 - [ ] alertas para erro, pico de cadastros, falhas de auth, RLS e outbox;
 - [ ] política de retenção e rotina de exclusão implementadas;
 - [ ] threat model revisado por feature e pentest independente concluído;

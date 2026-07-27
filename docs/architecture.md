@@ -33,7 +33,7 @@ flowchart LR
   T --> B["Proteção do repositório"]
 ```
 
-O navegador usa apenas a chave publicável. Operações comuns são autorizadas no PostgreSQL por RLS. A chave secreta que ignora RLS existe somente no servidor e está limitada a RPCs estreitas: cadastro público previamente validado com Turnstile e prévia não sensível de um convite por token.
+O navegador usa apenas a chave publicável. Operações comuns são autorizadas no PostgreSQL por RLS. A chave secreta que ignora RLS existe somente no servidor; hoje ela serve à prévia mínima de convite por RPC e à assinatura de caminhos de mídia previamente filtrados por projeções públicas. O cadastro do atleta termina em sessão autenticada após OTP e chama uma RPC restrita ao próprio usuário, sem a chave secreta. Todo novo uso privilegiado exige função estreita, entrada revalidada e teste contra assinatura ou leitura arbitrária.
 
 ## Design system e experiência mobile
 
@@ -109,9 +109,9 @@ O atleta aprovado lê a súmula pelo RLS do próprio time, sem permissão de esc
 
 ## Recorrência
 
-Uma série não é a partida. No MVP, a criação materializa de 2 a 52 ocorrências semanais e armazena a RRULE e o fuso do time na série. Cada ocorrência tem chamada própria e poderá receber escala e exceções independentes. O próximo incremento deve adicionar extensão idempotente da janela e edição/cancelamento sem recalcular o histórico.
+Uma série não é a partida. No MVP, a criação materializa de 2 a 52 ocorrências semanais e armazena a RRULE e o fuso do time na série. Cada ocorrência tem chamada própria e pode receber edição, presença e exceções independentes. O próximo incremento deve adicionar extensão idempotente da janela e cancelamento de ocorrência/série sem recalcular o histórico.
 
-## WhatsApp-first
+## WhatsApp-first — estado atual e arquitetura alvo
 
 - o telefone é normalizado em E.164;
 - Supabase Auth/Twilio verifica a posse do número antes de criar o vínculo no BID; a aplicação nunca confia no telefone vindo do formulário;
@@ -120,8 +120,21 @@ Uma série não é a partida. No MVP, a criação materializa de 2 a 52 ocorrên
 - consentimento e sua versão/evidência são dados de domínio;
 - mensagens são comandos idempotentes na outbox, não chamadas diretas no fluxo do usuário;
 - todo item possui status, tentativas, disponibilidade e chave de deduplicação;
-- links devem levar direto à confirmação de presença, com token curto, escopo mínimo, expiração e uso único;
+- a URL canônica, a capability e a sessão descritas a seguir são arquitetura alvo da R02, ainda não comportamento implementado;
+- a URL canônica do evento será pública e estável; o link personalizado acrescentará uma credencial opaca, reutilizável, armazenada somente como hash e limitada ao atleta e evento;
+- a primeira abertura criará uma capability duradoura do evento; ela não poderá ser trocada diretamente por uma sessão global do usuário;
+- uma sessão completa de identidade será duradoura e rotativa no aparelho, mas exigirá OTP uma vez ou uma sessão anterior já verificada;
+- credencial, capability e sessão permanecerão revogáveis, não ampliarão o vínculo atual e poderão exigir reidentificação diante de revogação ou risco;
+- após a troca, o segredo será removido da barra de endereço e bloqueado em Open Graph, analytics, logs controlados pela aplicação e `Referer`; a visibilidade do link ao provedor de WhatsApp fará parte do threat model e do DPA;
 - templates e webhooks do provedor ficam atrás de adaptadores, evitando acoplamento do domínio à Meta ou a um BSP.
+
+O contrato canônico está em [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md). O ADR ainda precisa fechar e testar o transporte inicial da credencial — por exemplo, fragmento trocado por `POST` antes de carregar terceiros — considerando unfurl, prefetch, cache e logs da plataforma. O detalhamento de ameaça, renovação, limite absoluto e recuperação é gate da R00. “Duradouro” descreve a experiência normal sem login repetido; não significa segredo eterno ou autorização fora da fase do evento.
+
+## Fronteiras de implementação
+
+Novas jornadas devem seguir o [Playbook de desenvolvimento](development.md) e nascer como fatias verticais. Rotas e Server Actions permanecem finas; regras novas devem ser isoladas em `lib/features/<feature>/`, leituras em `lib/data/`, contratos em `lib/validation/` e invariantes sensíveis em RPCs/RLS.
+
+Aplicação e banco possuem pipelines de deploy independentes. Toda evolução de schema usa expansão compatível publicada antes do consumidor; quando o mesmo merge afetar ambos, deve aceitar as duas ordens de publicação. Ativação ocorre por flag e contração somente em release posterior.
 
 ## Decisões de plataforma
 
