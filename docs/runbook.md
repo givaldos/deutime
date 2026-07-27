@@ -58,15 +58,26 @@ O `terraform.tfvars` contém identificadores e também valores sensíveis de boo
 
 ## Segredos do GitHub Actions
 
-Crie um Environment protegido chamado `production` e adicione:
+O Environment `production`, usado pelo banco e pelo smoke, contém:
 
 - `SUPABASE_ACCESS_TOKEN`: token de automação com escopo mínimo;
 - `SUPABASE_PROJECT_ID`: ref do projeto de produção;
 - `SUPABASE_DB_PASSWORD`: senha de produção.
+
+Crie `production-plan` com:
+
 - `TF_API_TOKEN`: token de equipe do HCP Terraform com acesso só ao workspace;
+- `TF_PLAN_ENCRYPTION_KEY`: segredo aleatório forte, igual em
+  `production-plan` e `production-apply`, usado somente para proteger o plano
+  binário no artefato;
 - `VERCEL_API_TOKEN`: token de automação do projeto/time;
 - `INFRA_GITHUB_TOKEN`: fine-grained token para rulesets deste repositório;
+- `SUPABASE_ACCESS_TOKEN` e `SUPABASE_DB_PASSWORD`;
 - `TURNSTILE_SITE_KEY` e `TURNSTILE_SECRET_KEY`.
+
+Crie `production-apply` com `TF_API_TOKEN`, `TF_PLAN_ENCRYPTION_KEY`,
+`SUPABASE_ACCESS_TOKEN`, `VERCEL_API_TOKEN` e `INFRA_GITHUB_TOKEN`. O apply
+recebe os demais inputs do plano binário já revisado e não recalcula o plano.
 
 No workspace HCP Terraform, defina como variáveis sensíveis:
 
@@ -87,11 +98,13 @@ Crie também as Repository Variables:
 - `APP_URL`;
 - `REQUIRED_APPROVALS` (comece em `0` enquanto houver um único mantenedor);
 - `ENABLE_TERRAFORM_APPLY` deve permanecer `false` até os Environments
-  `production-plan` e `production` estarem protegidos. Quando habilitado, o
-  workflow cria um `tfplan`, publica seu resumo e aplica exatamente o mesmo
-  artefato somente após o gate de `production`.
+  `production-plan` e `production-apply` estarem protegidos. Quando habilitado,
+  o workflow cria um `tfplan`, publica seu resumo, criptografa o plano binário e
+  aplica exatamente o mesmo artefato somente após o gate de
+  `production-apply`.
 
-Restrinja o Environment à branch `main`. Se houver mais de uma pessoa responsável, exija aprovação para deploy de produção.
+Restrinja ambos os Environments à branch `main`. Exija aprovação no
+`production-apply`; com um único mantenedor, permita a própria aprovação.
 
 ## Fluxo de entrega
 

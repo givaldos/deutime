@@ -15,11 +15,14 @@ O ruleset começa desabilitado porque GitHub só reconhece um required check dep
 
 O workflow `Terraform` valida todo pull request. Quando
 `ENABLE_TERRAFORM_APPLY=true`, um push em `main` cria `tfplan` no Environment
-`production-plan`, publica o plano textual no resumo e guarda ambos no artefato
-imutável da execução. O job `terraform-apply`, protegido pelo Environment
-`production`, baixa e aplica exatamente esse `tfplan`; ele não recalcula o
-plano. Configure aprovação obrigatória no Environment `production` e revise o
-resumo antes de aprovar. Mantenha a variável desligada até os dois Environments,
+`production-plan`, publica o plano textual redigido pelo Terraform no resumo e
+guarda o plano binário criptografado no artefato imutável da execução. O job
+`terraform-apply`, protegido pelo Environment `production-apply`, baixa,
+descriptografa, confere o checksum e aplica exatamente esse `tfplan`; ele não
+recalcula o plano. Configure aprovação obrigatória no Environment
+`production-apply` e revise o resumo antes de aprovar. O segredo
+`TF_PLAN_ENCRYPTION_KEY` deve existir nos dois Environments. Mantenha a variável
+desligada até os dois Environments,
 segredos e proteção estarem configurados. Use tokens de automação com o menor
 escopo possível.
 
