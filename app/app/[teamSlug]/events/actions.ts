@@ -1,11 +1,14 @@
 "use server";
 
 import { requireUser } from "@/lib/auth/dal";
+import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   attendanceUpdateSchema,
   createEventSchema,
   deleteMatchIncidentSchema,
+  legacyCreateEventSchema,
+  legacyUpdateEventSchema,
   matchIncidentSchema,
   matchReportSchema,
   updateEventSchema,
@@ -31,13 +34,19 @@ export async function createEvent(
 ): Promise<CreateEventState> {
   await requireUser();
   const attempt = (previousState.attempt ?? 0) + 1;
-  const parsed = createEventSchema.safeParse({
+  const rawTeamId = formData.get("teamId");
+  const eventControlEnabled =
+    typeof rawTeamId === "string" &&
+    (await isTeamFeatureEnabled(rawTeamId, "event_control"));
+  const input = {
     teamId: formData.get("teamId"),
     teamSlug: formData.get("teamSlug"),
     title: formData.get("title"),
     kind: formData.get("kind"),
     organizationMode: formData.get("organizationMode"),
     sportFormat: formData.get("sportFormat"),
+    requestId: formData.get("requestId"),
+    startsAtLocal: formData.get("startsAtLocal"),
     startsAtIso: formData.get("startsAtIso"),
     durationMinutes: formData.get("durationMinutes"),
     deadlineMinutes: formData.get("deadlineMinutes"),
@@ -45,7 +54,10 @@ export async function createEvent(
     opponentName: formData.get("opponentName"),
     venueName: formData.get("venueName"),
     venueAddress: formData.get("venueAddress"),
-  });
+  };
+  const parsed = eventControlEnabled
+    ? createEventSchema.safeParse(input)
+    : legacyCreateEventSchema.safeParse(input);
 
   if (!parsed.success) {
     const errors = parsed.error.flatten().fieldErrors;
@@ -62,20 +74,40 @@ export async function createEvent(
   }
 
   const supabase = await createClient();
-  const { data: eventId, error } = await supabase.rpc("create_event_as_staff", {
-    requested_team_id: parsed.data.teamId,
-    event_title: parsed.data.title,
-    event_kind: parsed.data.kind,
-    event_organization_mode: parsed.data.organizationMode,
-    event_sport_format: parsed.data.sportFormat,
-    event_starts_at: parsed.data.startsAtIso,
-    event_duration_minutes: parsed.data.durationMinutes,
-    attendance_deadline_minutes: parsed.data.deadlineMinutes,
-    repeat_weeks: parsed.data.repeatWeeks,
-    event_opponent_name: parsed.data.opponentName,
-    event_venue_name: parsed.data.venueName,
-    event_venue_address: parsed.data.venueAddress,
-  });
+  const { data, error } = "startsAtIso" in parsed.data
+    ? await supabase.rpc("create_event_as_staff", {
+        requested_team_id: parsed.data.teamId,
+        event_title: parsed.data.title,
+        event_kind: parsed.data.kind,
+        event_organization_mode: parsed.data.organizationMode,
+        event_sport_format: parsed.data.sportFormat,
+        event_starts_at: parsed.data.startsAtIso,
+        event_duration_minutes: parsed.data.durationMinutes,
+        attendance_deadline_minutes: parsed.data.deadlineMinutes,
+        repeat_weeks: parsed.data.repeatWeeks,
+        event_opponent_name: parsed.data.opponentName,
+        event_venue_name: parsed.data.venueName,
+        event_venue_address: parsed.data.venueAddress,
+      })
+    : await supabase.rpc("create_event_as_staff_v2", {
+        requested_team_id: parsed.data.teamId,
+        request_id: parsed.data.requestId,
+        starts_at_local: parsed.data.startsAtLocal,
+        event_title: parsed.data.title,
+        event_kind: parsed.data.kind,
+        event_organization_mode: parsed.data.organizationMode,
+        event_sport_format: parsed.data.sportFormat,
+        event_duration_minutes: parsed.data.durationMinutes,
+        attendance_deadline_minutes: parsed.data.deadlineMinutes,
+        repeat_weeks: parsed.data.repeatWeeks,
+        event_opponent_name: parsed.data.opponentName,
+        event_venue_name: parsed.data.venueName,
+        event_venue_address: parsed.data.venueAddress,
+      });
+  const eventId =
+    data && typeof data === "object" && "event_id" in data
+      ? data.event_id
+      : data;
 
   if (error || !eventId) {
     return {
@@ -98,7 +130,11 @@ export async function updateEvent(
 ): Promise<CreateEventState> {
   await requireUser();
   const attempt = (previousState.attempt ?? 0) + 1;
-  const parsed = updateEventSchema.safeParse({
+  const rawTeamId = formData.get("teamId");
+  const eventControlEnabled =
+    typeof rawTeamId === "string" &&
+    (await isTeamFeatureEnabled(rawTeamId, "event_control"));
+  const input = {
     teamId: formData.get("teamId"),
     teamSlug: formData.get("teamSlug"),
     eventId: formData.get("eventId"),
@@ -107,13 +143,18 @@ export async function updateEvent(
     kind: formData.get("kind"),
     organizationMode: formData.get("organizationMode"),
     sportFormat: formData.get("sportFormat"),
+    requestId: formData.get("requestId"),
+    startsAtLocal: formData.get("startsAtLocal"),
     startsAtIso: formData.get("startsAtIso"),
     durationMinutes: formData.get("durationMinutes"),
     deadlineMinutes: formData.get("deadlineMinutes"),
     opponentName: formData.get("opponentName"),
     venueName: formData.get("venueName"),
     venueAddress: formData.get("venueAddress"),
-  });
+  };
+  const parsed = eventControlEnabled
+    ? updateEventSchema.safeParse(input)
+    : legacyUpdateEventSchema.safeParse(input);
 
   if (!parsed.success) {
     const errors = parsed.error.flatten().fieldErrors;
@@ -130,24 +171,42 @@ export async function updateEvent(
   }
 
   const supabase = await createClient();
-  const { data: updatedCount, error } = await supabase.rpc(
-    "update_event_as_staff",
-    {
-      requested_team_id: parsed.data.teamId,
-      requested_event_id: parsed.data.eventId,
-      edit_scope: parsed.data.editScope,
-      event_title: parsed.data.title,
-      event_kind: parsed.data.kind,
-      event_organization_mode: parsed.data.organizationMode,
-      event_sport_format: parsed.data.sportFormat,
-      event_starts_at: parsed.data.startsAtIso,
-      event_duration_minutes: parsed.data.durationMinutes,
-      attendance_deadline_minutes: parsed.data.deadlineMinutes,
-      event_opponent_name: parsed.data.opponentName,
-      event_venue_name: parsed.data.venueName,
-      event_venue_address: parsed.data.venueAddress,
-    },
-  );
+  const { data, error } = "startsAtIso" in parsed.data
+    ? await supabase.rpc("update_event_as_staff", {
+        requested_team_id: parsed.data.teamId,
+        requested_event_id: parsed.data.eventId,
+        edit_scope: parsed.data.editScope,
+        event_title: parsed.data.title,
+        event_kind: parsed.data.kind,
+        event_organization_mode: parsed.data.organizationMode,
+        event_sport_format: parsed.data.sportFormat,
+        event_starts_at: parsed.data.startsAtIso,
+        event_duration_minutes: parsed.data.durationMinutes,
+        attendance_deadline_minutes: parsed.data.deadlineMinutes,
+        event_opponent_name: parsed.data.opponentName,
+        event_venue_name: parsed.data.venueName,
+        event_venue_address: parsed.data.venueAddress,
+      })
+    : await supabase.rpc("update_event_as_staff_v2", {
+        requested_team_id: parsed.data.teamId,
+        requested_event_id: parsed.data.eventId,
+        request_id: parsed.data.requestId,
+        edit_scope: parsed.data.editScope,
+        starts_at_local: parsed.data.startsAtLocal,
+        event_title: parsed.data.title,
+        event_kind: parsed.data.kind,
+        event_organization_mode: parsed.data.organizationMode,
+        event_sport_format: parsed.data.sportFormat,
+        event_duration_minutes: parsed.data.durationMinutes,
+        attendance_deadline_minutes: parsed.data.deadlineMinutes,
+        event_opponent_name: parsed.data.opponentName,
+        event_venue_name: parsed.data.venueName,
+        event_venue_address: parsed.data.venueAddress,
+      });
+  const updatedCount =
+    data && typeof data === "object" && "affected_count" in data
+      ? data.affected_count
+      : data;
 
   if (error || !updatedCount) {
     let message =

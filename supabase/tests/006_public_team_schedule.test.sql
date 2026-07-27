@@ -26,13 +26,14 @@ values
 
 insert into public.events (
   id, team_id, title, kind, organization_mode, sport_format,
-  starts_at, ends_at, attendance_deadline, opponent_name, status, created_by
+  starts_at, ends_at, attendance_deadline, opponent_name, status, created_by,
+  cancelled_at, cancelled_by
 )
 values
-  ('63000000-0000-4000-8000-000000000001', '62000000-0000-4000-8000-000000000001', 'Próximo racha', 'weekly_match', 'split_teams', 'society', now() + interval '2 days', now() + interval '2 days 90 minutes', now() + interval '1 day', null, 'scheduled', '61000000-0000-4000-8000-000000000001'),
-  ('63000000-0000-4000-8000-000000000002', '62000000-0000-4000-8000-000000000001', 'Evento cancelado', 'friendly', 'single_squad', 'society', now() + interval '3 days', now() + interval '3 days 90 minutes', null, 'Adversário', 'cancelled', '61000000-0000-4000-8000-000000000001'),
-  ('63000000-0000-4000-8000-000000000003', '62000000-0000-4000-8000-000000000001', 'Evento passado', 'training', 'single_squad', 'society', now() - interval '2 days', now() - interval '2 days' + interval '90 minutes', null, null, 'scheduled', '61000000-0000-4000-8000-000000000001'),
-  ('63000000-0000-4000-8000-000000000004', '62000000-0000-4000-8000-000000000002', 'Jogo privado', 'championship', 'single_squad', 'futsal', now() + interval '2 days', now() + interval '2 days 60 minutes', null, null, 'scheduled', '61000000-0000-4000-8000-000000000001');
+  ('63000000-0000-4000-8000-000000000001', '62000000-0000-4000-8000-000000000001', 'Próximo racha', 'weekly_match', 'split_teams', 'society', now() + interval '2 days', now() + interval '2 days 90 minutes', now() + interval '1 day', null, 'scheduled', '61000000-0000-4000-8000-000000000001', null, null),
+  ('63000000-0000-4000-8000-000000000002', '62000000-0000-4000-8000-000000000001', 'Evento cancelado', 'friendly', 'single_squad', 'society', now() + interval '3 days', now() + interval '3 days 90 minutes', null, 'Adversário', 'cancelled', '61000000-0000-4000-8000-000000000001', now(), '61000000-0000-4000-8000-000000000001'),
+  ('63000000-0000-4000-8000-000000000003', '62000000-0000-4000-8000-000000000001', 'Evento passado', 'training', 'single_squad', 'society', now() - interval '2 days', now() - interval '2 days' + interval '90 minutes', null, null, 'scheduled', '61000000-0000-4000-8000-000000000001', null, null),
+  ('63000000-0000-4000-8000-000000000004', '62000000-0000-4000-8000-000000000002', 'Jogo privado', 'championship', 'single_squad', 'futsal', now() + interval '2 days', now() + interval '2 days 60 minutes', null, null, 'scheduled', '61000000-0000-4000-8000-000000000001', null, null);
 
 set local role anon;
 

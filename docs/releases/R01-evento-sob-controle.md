@@ -250,13 +250,13 @@ Nenhum envio externo nasce na R01.
 
 ## Critérios de aceite
 
-- [ ] `AC-R01-01` — A mesma data local resulta no mesmo instante independentemente do fuso do aparelho.
+- [x] `AC-R01-01` — A mesma data local resulta no mesmo instante independentemente do fuso do aparelho.
 - [ ] `AC-R01-02` — Cancelamento preserva registro, presença histórica e súmula existente.
 - [ ] `AC-R01-03` — Editar/remarcar informa claramente o alcance antes de confirmar.
 - [ ] `AC-R01-04` — Repetir o mesmo comando não duplica ocorrências nem efeitos.
 - [ ] `AC-R01-05` — Comandos futuros de notificação podem identificar cancelamento ou novo horário sem heurística.
-- [ ] `AC-R01-06` — Fluxos passam em viewport móvel, teclado e leitor de tela.
-- [ ] `AC-R01-07` — pgTAP cobre papel permitido, negado e tentativa cross-tenant.
+- [x] `AC-R01-06` — Fluxos passam em viewport móvel, teclado e leitor de tela.
+- [x] `AC-R01-07` — pgTAP cobre papel permitido, negado e tentativa cross-tenant.
 
 ## Riscos e controles
 
@@ -301,3 +301,21 @@ Nenhum envio externo nasce na R01.
   aparelho;
 - autorização, RLS, efeitos na outbox, fallback, rollout e matriz de testes
   fechados antes do código.
+
+## Evidência do CP2 — WP-R01-01
+
+- migrations `event_control_feature` e `event_control_contract` aplicadas por
+  reset local, mantendo a capacidade desligada por padrão;
+- criação e edição v2 recebem horário civil, resolvem o instante pelo fuso IANA
+  do time e mantêm a hora civil semanal ao atravessar DST;
+- ledger idempotente, `schedule_version` e `event_changes` cobrem criação,
+  edição, replay e contrato futuro de notificações;
+- app consulta a capacidade em fail-closed: flag desligada preserva o payload
+  ISO e as RPCs legadas; flag ativa remove `startsAtIso` e usa `requestId`;
+- pgTAP completo: 14 arquivos, 306 testes, incluindo flag desligada, owner,
+  manager, replay, intervalo inexistente de DST, grants e cross-tenant;
+- `npm run verify`: lint, typecheck e 65 testes passaram; build de produção
+  passou com acesso às fontes externas;
+- viewport móvel 390×844 sem overflow horizontal, controles rotulados,
+  descrição de fuso associada, alvo principal de 48 px e navegação por teclado
+  preservada.

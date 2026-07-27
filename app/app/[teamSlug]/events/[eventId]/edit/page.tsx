@@ -5,6 +5,7 @@ import {
 import { TeamAppHeader } from "@/components/team-app-header";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { ArrowLeft, CalendarClock, ListChecks } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -103,6 +104,10 @@ export default async function EditEventPage({
     venueName: venue?.name ?? "",
     venueAddress: venue?.address ?? "",
   };
+  const eventControlEnabled = await isTeamFeatureEnabled(
+    team.id,
+    "event_control",
+  );
 
   return (
     <main className="app-canvas">
@@ -132,7 +137,10 @@ export default async function EditEventPage({
           <AdminEventForm
             teamId={team.id}
             teamSlug={team.slug}
+            teamTimezone={team.timezone}
             defaultSportFormat={team.default_sport_format}
+            eventControlEnabled={eventControlEnabled}
+            initialRequestId={crypto.randomUUID()}
             event={editableEvent}
           />
         </section>

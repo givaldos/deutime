@@ -62,12 +62,18 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 export function AdminEventForm({
   teamId,
   teamSlug,
+  teamTimezone,
   defaultSportFormat,
+  eventControlEnabled,
+  initialRequestId,
   event,
 }: {
   teamId: string;
   teamSlug: string;
+  teamTimezone: string;
   defaultSportFormat: "field" | "society" | "futsal";
+  eventControlEnabled: boolean;
+  initialRequestId: string;
   event?: EditableEventValues;
 }) {
   const [state, formAction, pending] = useActionState(
@@ -91,7 +97,10 @@ export function AdminEventForm({
   });
   const [editedFields, setEditedFields] = useState<Record<string, number>>({});
   const [editedAtAttempt, setEditedAtAttempt] = useState<number>();
-  const startsAtIso = localDateTimeToIso(values.startsAtLocal);
+  const [requestId] = useState(initialRequestId);
+  const startsAtIso = eventControlEnabled
+    ? ""
+    : localDateTimeToIso(values.startsAtLocal);
   const currentAttempt = state.attempt ?? 0;
 
   function updateField(
@@ -139,7 +148,9 @@ export function AdminEventForm({
   const titleError = errorFor("title");
   const kindError = errorFor("kind");
   const sportFormatError = errorFor("sportFormat");
-  const startsAtError = errorFor("startsAtIso");
+  const startsAtError = errorFor(
+    eventControlEnabled ? "startsAtLocal" : "startsAtIso",
+  );
   const durationError = errorFor("durationMinutes");
   const deadlineError = errorFor("deadlineMinutes");
   const repeatWeeksError = errorFor("repeatWeeks");
@@ -153,7 +164,11 @@ export function AdminEventForm({
     <form action={formAction} className="space-y-6">
       <input type="hidden" name="teamId" value={teamId} />
       <input type="hidden" name="teamSlug" value={teamSlug} />
-      <input type="hidden" name="startsAtIso" value={startsAtIso} />
+      {eventControlEnabled ? (
+        <input type="hidden" name="requestId" value={requestId} />
+      ) : (
+        <input type="hidden" name="startsAtIso" value={startsAtIso} />
+      )}
       {event && <input type="hidden" name="eventId" value={event.id} />}
       {event && !event.seriesId && (
         <input type="hidden" name="editScope" value="single_event" />
@@ -229,7 +244,11 @@ export function AdminEventForm({
           required
           value={values.startsAtLocal}
           onChange={(event) =>
-            updateField("startsAtLocal", event.target.value, "startsAtIso")
+            updateField(
+              "startsAtLocal",
+              event.target.value,
+              eventControlEnabled ? "startsAtLocal" : "startsAtIso",
+            )
           }
           aria-invalid={Boolean(startsAtError)}
           aria-describedby={
@@ -237,7 +256,9 @@ export function AdminEventForm({
           }
         />
         <p id="starts-at-help" className="text-xs text-slate-500">
-          O horário é interpretado no fuso deste celular e precisa estar no futuro.
+          {eventControlEnabled
+            ? `O horário será salvo no fuso do time (${teamTimezone}), independentemente deste aparelho.`
+            : "O horário é interpretado no fuso deste celular e precisa estar no futuro."}
         </p>
         <FieldError id="starts-at-error" message={startsAtError} />
       </div>
@@ -463,7 +484,11 @@ export function AdminEventForm({
         type="submit"
         size="lg"
         className="h-12 w-full rounded-xl bg-emerald-700 hover:bg-emerald-800"
-        disabled={pending || !startsAtIso}
+        disabled={
+          pending ||
+          !values.startsAtLocal ||
+          (!eventControlEnabled && !startsAtIso)
+        }
       >
         {pending
           ? isEditing
