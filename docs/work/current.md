@@ -2,9 +2,9 @@
 release: R00
 work_package: WP-R00-04
 scope: feature_delivery
-branch_or_commit: "8328337"
-checkpoint: CP5
-status: awaiting_external_validation
+branch_or_commit: "c522b9f"
+checkpoint: idle
+status: complete
 completed_ac:
   - AC-R00-01
   - AC-R00-02
@@ -16,11 +16,7 @@ completed_ac:
   - AC-R00-09
   - AC-R00-10
   - AC-R00-11
-dirty_files:
-  - ".github/workflows/terraform.yml"
-  - "docs/work/current.md"
-  - "docs/runbook.md"
-  - "infra/terraform/README.md"
+dirty_files: []
 tests:
   - "npm ci — instalação limpa, 0 vulnerabilidades"
   - "npm run lint"
@@ -38,14 +34,17 @@ tests:
   - "terraform fmt -check -recursive"
   - "terraform validate"
   - "npm run security:audit — 0 vulnerabilidades"
-blocker: "AC-R00-13 depende dos Environments production-plan/production-apply e das credenciais do HCP Terraform; staging foi explicitamente adiado para depois do MVP."
-next_action: "Publicar o mapeamento completo de inputs, configurar o workspace HCP em modo Local e preencher production-plan/production-apply antes do primeiro plano."
+deferred_ac:
+  - AC-R00-06
+  - AC-R00-12
+  - AC-R00-13
+blocker: null
+next_action: "Iniciar o CP0 da R01; melhorias técnicas adiadas estão em docs/backlog.md, seção 7.3."
 ---
 
 # Trabalho atual
 
-A fundação está em CP5 com banco, smoke, compatibilidade N/N−1 e rollback
-validados em produção. Falta o plano/aplicação protegidos de `AC-R00-13`.
-Staging foi adiado para acelerar o MVP; por isso `AC-R00-06` e `AC-R00-12`
-permanecem dívida explícita. Não habilitar flags, kill switches nem
-`ENABLE_TERRAFORM_APPLY` antes de configurar e revisar os Environments.
+R00 concluída para o escopo local + produção do MVP, com banco, smoke,
+compatibilidade N/N−1 e rollback validados em produção. Terraform operacional,
+staging e demais melhorias não bloqueadoras seguem no backlog técnico. A
+próxima execução começa no CP0 da R01.

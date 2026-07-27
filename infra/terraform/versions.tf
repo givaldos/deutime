@@ -1,8 +1,8 @@
 terraform {
   required_version = ">= 1.11.0, < 2.0.0"
 
-  # HCP Terraform supplies encrypted remote state and locking. The organization
-  # and workspace are injected through TF_CLOUD_ORGANIZATION and TF_WORKSPACE.
+  # Reservado para o futuro backend remoto. No MVP o workflow usa
+  # init -backend=false e nunca executa plan/apply contra produção.
   cloud {}
 
   required_providers {
