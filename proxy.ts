@@ -18,18 +18,8 @@ export async function proxy(request: NextRequest) {
   const response = applySecurityHeaders(
     await updateSession(request, requestHeaders),
     contentSecurityPolicy,
+    request.nextUrl.pathname,
   );
-
-  // Confirmation tokens are URL capabilities. Do not propagate their URL in
-  // the Referer header when the user explicitly submits the confirmation form.
-  if (
-    request.nextUrl.pathname === "/auth/confirm" ||
-    request.nextUrl.pathname === "/auth/recovery" ||
-    request.nextUrl.pathname === "/auth/update-password" ||
-    request.nextUrl.pathname.startsWith("/invite/")
-  ) {
-    response.headers.set("Referrer-Policy", "no-referrer");
-  }
 
   return response;
 }

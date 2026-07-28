@@ -1,32 +1,36 @@
 ---
 release: R02
 work_package: WP-R02-01
-scope: public_event_database_contract
-branch_or_commit: "codex/r02-cp0-decisions"
+scope: public_event_page
+branch_or_commit: "codex/r02-public-event-page"
 checkpoint: idle
 status: completed
-completed_ac: []
+completed_ac:
+  - "AC-R02-01"
+  - "AC-R02-02"
+  - "AC-R02-10"
 dirty_files: []
 tests:
-  - "npm run db:reset — ok"
-  - "npm run db:lint — sem erro novo; 2 avisos preexistentes em create_event_as_staff"
-  - "npm run db:test — 17 arquivos, 379 testes, PASS"
-  - "npm run db:types — tipos atualizados"
-  - "npm run migrations:check -- d1cd5b2 — ok"
-  - "npm run verify — lint, tipos, 82 testes e build aprovados"
+  - "Vitest focado — 8 testes aprovados"
+  - "mobile 390 × 844 — conteúdo, CTA e ausência de overflow verificados"
+  - "flag local ativa — rota 200 e metadata contextual"
+  - "flag local ausente — rota 404"
+  - "HTML de /e — sem recurso do GTM"
+  - "headers no build local — no-store, no-referrer e noindex"
+  - "npm run verify — lint, tipos, 88 testes e build aprovados"
+  - "npm run security:audit — 0 vulnerabilidades"
 blocker: null
-next_action: "Abrir o CP2 de WP-R02-01 e implementar a rota /e/{public_id} atrás de public_event_page, tolerando banco N−1 e preservando a agenda atual."
+next_action: "Abrir o CP3 de WP-R02-01 e automatizar regressões da rota anônima: resposta indistinguível para ausente/flag/banco N−1, estados cancelado/concluído, headers, metadata e ausência de terceiros."
 ---
 
 # Trabalho atual
 
-O CP1 de `WP-R02-01` definiu e implementou a expansão de banco: três flags
-independentes da R02, `events.public_id` gerado e imutável e a projeção
-`public_event_directory` fechada por `public_event_page`. A agenda pública
-existente foi preservada para compatibilidade com o app atual.
+O CP2 de `WP-R02-01` publicou o caminho fino mobile da URL canônica sem ativar
+nenhum time. A rota usa somente a projeção anônima, tolera banco N−1 com 404,
+mantém evento cancelado/concluído informativo e encaminha o atleta à agenda
+autenticada existente.
 
-O pgTAP novo cobre geração, unicidade, imutabilidade, contrato exato de campos,
-grants somente leitura, flag desligada, perfil privado, estados cancelado e
-concluído e compatibilidade da view legada. O gate `VAL-DB` passou; os dois
-avisos do lint já existiam em `create_event_as_staff` e não pertencem a esta
-fatia. A próxima ação é implementar a rota consumidora no CP2.
+A abertura inicial não renderiza GTM e recebe headers contra referência, cache
+e indexação. Capability e RSVP continuam desligados e não foram implementados.
+A próxima ação é transformar as evidências manuais da rota em regressões
+automatizadas no CP3 antes de qualquer piloto.
