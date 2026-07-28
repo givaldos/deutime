@@ -375,5 +375,15 @@ Nenhum envio externo nasce na R01.
   `integration_produce=false` e `integration_consume=false`;
 - gate da preparação: 13 arquivos/78 testes, build e auditoria com zero
   vulnerabilidades;
-- deploy e piloto ainda não executados: a capacidade continua desligada por
-  padrão e nenhum merge na `main` ocorreu nesta preparação.
+- PR #22 integrado à `main` no commit `ee45409` em `2026-07-28`; os workflows
+  produtivos CI `30375727777`, Database `30375724497`, CodeQL `30375724638`,
+  Terraform `30375724512` e Deploy database `30375724371` concluíram com
+  sucesso;
+- deployment Vercel concluído e validado pelo smoke automático
+  `30375783530`; a repetição manual
+  `APP_URL=https://deutime.app npm run smoke:production` também passou;
+- `integration_produce` e `integration_consume` foram confirmados `false` em
+  produção. A migration não insere flags de time, portanto `event_control`
+  permanece desligada por padrão;
+- o deploy inerte foi concluído, mas o piloto ainda não foi iniciado: falta
+  selecionar um único time com owner ou admin identificado e consentimento.
