@@ -1,6 +1,6 @@
 ---
 id: R01
-status: active
+status: completed
 outcome: "Permitir editar, remarcar e cancelar eventos com horário correto e efeitos previsíveis sobre pessoas, links e notificações."
 depends_on:
   - R00
@@ -8,7 +8,7 @@ baseline:
   - BASE-SERIES
   - BASE-ATTENDANCE
   - BASE-MATCH-REPORT
-verified_at: 0466d04
+verified_at: b486b67
 decisions: []
 invariants:
   - INV-MOBILE-WHATSAPP-FIRST
@@ -422,3 +422,29 @@ Nenhum envio externo nasce na R01.
 - a validação visual autenticada ficou pendente porque a sessão usada para a
   verificação não estava autenticada no DeuTime. O redirecionamento para login
   funcionou corretamente; nenhuma credencial foi solicitada ou manipulada.
+
+## Evidência do CP6 — piloto concluído
+
+- um operador técnico temporário foi criado exclusivamente para a validação,
+  recebeu papel `manager` somente no `Demo Society` e confirmou que `/`
+  autenticada redireciona para `/app/demo-society`;
+- o evento piloto anterior apareceu no histórico como cancelado, com a
+  mensagem explícita de preservação de presenças, times montados e súmula;
+- o fluxo novo exibiu o fuso autoritativo `America/Sao_Paulo`, criou o evento
+  de demonstração às `20:00`, remarcou a ocorrência para `20:30` e confirmou o
+  cancelamento sem exclusão física;
+- a inspeção pós-operação encontrou `status=cancelled`,
+  `schedule_version=3`, três comandos, três mudanças e zero divergências entre
+  resultado e efeitos persistidos;
+- somente o `Demo Society` permaneceu com `event_control` habilitada e
+  `integration_produce`/`integration_consume` continuaram desligadas;
+- o viewport móvel `390×844`, teclado e controles acessíveis já validados no
+  CP4 permanecem sobre os mesmos entrypoints; depois dessa evidência houve
+  apenas o hotfix de resolução de sessão, sem alteração da interface de
+  eventos;
+- o operador temporário foi deslogado e perdeu o vínculo com o time. A conta
+  foi bloqueada até `2036` em vez de excluída porque os comandos e eventos
+  preservam o ator por integridade e auditoria;
+- o smoke produtivo somente leitura passou após a jornada. Todos os critérios
+  de aceite estão evidenciados, o fallback segue disponível pela flag do time
+  e a R01 encerra com checkpoint limpo.
