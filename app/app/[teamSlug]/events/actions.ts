@@ -2,6 +2,7 @@
 
 import { requireUser } from "@/lib/auth/dal";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
+import { reportEventControlFailure } from "@/lib/observability/event-control";
 import { createClient } from "@/lib/supabase/server";
 import {
   attendanceUpdateSchema,
@@ -124,6 +125,10 @@ export async function createEvent(
       : data;
 
   if (error || !eventId) {
+    if (!("startsAtIso" in parsed.data)) {
+      reportEventControlFailure("create", error);
+    }
+
     return {
       attempt,
       message:
@@ -223,6 +228,10 @@ export async function updateEvent(
       : data;
 
   if (error || !updatedCount) {
+    if (!("startsAtIso" in parsed.data)) {
+      reportEventControlFailure("update", error);
+    }
+
     let message =
       "Não foi possível salvar o evento. Confira sua permissão e tente novamente.";
 
@@ -293,6 +302,8 @@ export async function cancelEvent(
   });
 
   if (error || !data?.affected_count) {
+    reportEventControlFailure("cancel", error);
+
     let message =
       "Não foi possível cancelar o evento. Confira sua permissão e tente novamente.";
 
@@ -365,6 +376,8 @@ export async function extendEventSeries(
   );
 
   if (error || !data?.affected_count) {
+    reportEventControlFailure("extend_series", error);
+
     return {
       attempt,
       message:

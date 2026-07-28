@@ -358,3 +358,22 @@ Nenhum envio externo nasce na R01.
   `npm run security:audit` encontrou zero vulnerabilidades;
 - viewport móvel 390×844 sem overflow, campo e ação principal com 48 px,
   descrição acessível do limite e fluxo local completo de 3 para 5 ocorrências.
+
+## Preparação do CP5 — deploy inerte
+
+- baseline produtiva registrada antes da integração: commit `6551bdb`, GitHub
+  deployment `5632906132`, criado em `2026-07-28T02:04:58Z`;
+- checks da baseline `quality`, `database`, `dependency-review`, CodeQL,
+  `terraform-check`, Supabase Preview e smoke estavam verdes;
+- smoke anônimo somente leitura repetido em `2026-07-28`: `/` e `/auth/login`
+  retornaram HTML com sucesso em `https://deutime.app`;
+- logs estruturados `event_control_operation` distinguem rejeição esperada de
+  falha operacional sem incluir time, evento, ator ou PII;
+- runbook do piloto define seleção de uma única coorte, ativação/desativação
+  auditada, consultas de integridade, limites de alerta, fallback e rollback;
+- ensaio local de recuperação concluiu com `event_control=false`,
+  `integration_produce=false` e `integration_consume=false`;
+- gate da preparação: 13 arquivos/78 testes, build e auditoria com zero
+  vulnerabilidades;
+- deploy e piloto ainda não executados: a capacidade continua desligada por
+  padrão e nenhum merge na `main` ocorreu nesta preparação.
