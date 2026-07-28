@@ -121,14 +121,16 @@ Uma série não é a partida. No MVP, a criação materializa de 2 a 52 ocorrên
 - mensagens são comandos idempotentes na outbox, não chamadas diretas no fluxo do usuário;
 - todo item possui status, tentativas, disponibilidade e chave de deduplicação;
 - a URL canônica, a capability e a sessão descritas a seguir são arquitetura alvo da R02, ainda não comportamento implementado;
-- a URL canônica do evento será pública e estável; o link personalizado acrescentará uma credencial opaca, reutilizável, armazenada somente como hash e limitada ao atleta e evento;
+- a URL canônica `/e/{public_id}` usa identificador aleatório e imutável, independente do slug e da chave interna; o GET anônimo publica somente time, contexto esportivo, horário/fuso e estado, sem local exato, presença ou atleta;
+- o link personalizado acrescentará uma credencial opaca, reutilizável, armazenada somente como hash e limitada ao atleta e evento;
+- um BID administrativo ainda sem `user_id` pode receber essa capability limitada; somente OTP pelo telefone verificado reivindica a identidade e preserva o mesmo `athlete_id`;
 - a primeira abertura criará uma capability duradoura do evento; ela não poderá ser trocada diretamente por uma sessão global do usuário;
 - uma sessão completa de identidade será duradoura e rotativa no aparelho, mas exigirá OTP uma vez ou uma sessão anterior já verificada;
 - credencial, capability e sessão permanecerão revogáveis, não ampliarão o vínculo atual e poderão exigir reidentificação diante de revogação ou risco;
 - após a troca, o segredo será removido da barra de endereço e bloqueado em Open Graph, analytics, logs controlados pela aplicação e `Referer`; a visibilidade do link ao provedor de WhatsApp fará parte do threat model e do DPA;
 - templates e webhooks do provedor ficam atrás de adaptadores, evitando acoplamento do domínio à Meta ou a um BSP.
 
-O contrato canônico está em [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md). A R00 fechou o transporte inicial como fragmento removido e trocado por `POST` same-origin em uma página mínima, antes de terceiros. O ADR define ameaças, renovação, limite absoluto, revogação e recuperação; a R02 deve provar o comportamento em Android/iPhone, navegador interno e padrão. “Duradouro” descreve a experiência normal sem login repetido; não significa segredo eterno ou autorização fora da fase do evento.
+Os contratos canônicos estão em [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md), [`DEC-EVENT-PUBLIC-MINIMUM`](decisions/DEC-EVENT-PUBLIC-MINIMUM.md) e [`DEC-UNCLAIMED-IDENTITY`](decisions/DEC-UNCLAIMED-IDENTITY.md). A R00 fechou o transporte inicial como fragmento removido e trocado por `POST` same-origin em uma página mínima, antes de terceiros. Os ADRs definem projeção anônima, ameaças, identidade não reivindicada, renovação, limite absoluto, revogação e recuperação; a R02 deve provar o comportamento em Android/iPhone, navegador interno e padrão. “Duradouro” descreve a experiência normal sem login repetido; não significa segredo eterno ou autorização fora da fase do evento.
 
 ## Fronteiras de implementação
 

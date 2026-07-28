@@ -16,6 +16,12 @@ integrações externas, credencial duradoura e ações públicas sensíveis só 
 ser validadas localmente e permanecem desligadas em produção. Produção aceita
 apenas expansão inerte, smoke somente leitura e ativação manual reversível.
 
+Na R02, página pública do evento, troca de capability e escrita de presença
+possuem controles independentes. A expansão de `public_id` e das tabelas de
+acesso pode chegar inerte à produção; sem staging, troca e escrita permanecem
+desligadas até os gates locais e uma decisão explícita de piloto. Em incidente,
+desligue primeiro troca/escrita e preserve a URL pública informativa.
+
 ## Bootstrap local
 
 1. Instale Node.js 24, npm 11 e Docker Desktop.

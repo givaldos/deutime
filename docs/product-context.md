@@ -32,6 +32,8 @@ Alterar uma invariante exige decisão explícita, atualização do roadmap, thre
 ## Decisões aceitas
 
 - [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md): link personalizado reutilizável cria uma capability duradoura e rotativa limitada ao atleta e evento; uma sessão completa de identidade só nasce de OTP ou de aparelho já verificado e permanece duradoura. Ambos são revogáveis e as permissões são recalculadas por fase e vínculo.
+- [`DEC-EVENT-PUBLIC-MINIMUM`](decisions/DEC-EVENT-PUBLIC-MINIMUM.md): evento usa `public_id` aleatório e imutável em `/e/{public_id}`; o GET anônimo publica somente contexto esportivo mínimo, sem local exato, presença ou identidade de atleta.
+- [`DEC-UNCLAIMED-IDENTITY`](decisions/DEC-UNCLAIMED-IDENTITY.md): atleta administrativo sem `user_id` pode responder por capability limitada ao atleta-evento; somente OTP reivindica a identidade e preserva o mesmo `athlete_id`.
 - `DEC-FIXED-SHIRTS`: camisas têm identidade permanente, enquanto o elenco pode ser redistribuído a cada rodada.
 - `DEC-WHATSAPP-BEFORE-AUTO-SPLIT`: confirmação confiável pelo WhatsApp precede a divisão automática como prioridade de produto.
 - `DEC-PLAYER-EVALUATION`: características não formam ranking, podem ser revisadas pelo atleta e um peso de equilíbrio permanece reservado à diretoria na experiência comum.
@@ -46,10 +48,8 @@ Alterar uma invariante exige decisão explícita, atualização do roadmap, thre
 ## Decisões bloqueadoras
 
 - `DEC-EVENT-MATCH` — `open`: definir `evento → partida`, múltiplos confrontos, equipes, escalações, lances e placares antes de R04/R07.
-- `DEC-EVENT-PUBLIC-MINIMUM` — `open`: definir a projeção anônima mínima do evento e o identificador público antes de R02.
 - `DEC-PUBLIC-PRIVACY` — `open`: definir matriz pública/identificada para nome, foto, escalação, comentários e resultado antes de R04.
 - `DEC-WHATSAPP-PROVIDER` — `open`: selecionar o provedor das mensagens operacionais e validar templates, entrega, leitura e webhook antes de R03; o provedor pode ser diferente do Twilio já usado pelo Supabase para OTP.
-- `DEC-UNCLAIMED-IDENTITY` — `open`: definir acesso de atleta cadastrado pela diretoria e ainda não reivindicado antes de R02/R05.
 - `DEC-CONVERSATION-LIFETIME` — `open`: definir duração de escrita e renovação de acesso da conversa antes de R06.
 - `DEC-ANONYMOUS-RETENTION` — `open`: definir descarte de recibos/cédulas e retenção de comentários antes de R05/R06.
 - `DEC-BALANCE-OBJECTIVE` — `open`: definir restrições, preferências e medida de equilíbrio antes de R08.
