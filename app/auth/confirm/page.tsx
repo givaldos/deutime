@@ -10,11 +10,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  isValidEmailTokenHash,
+  isValidPkceAuthCode,
+} from "@/lib/auth/email-callbacks";
 import { safeInternalPath } from "@/lib/security/redirects";
 import { redirect } from "next/navigation";
-
-const TOKEN_HASH_PATTERN = /^[A-Za-z0-9_-]{32,256}$/;
-const AUTH_CODE_PATTERN = /^[A-Za-z0-9._~-]{16,512}$/;
 
 type ConfirmPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -31,7 +32,7 @@ export default async function ConfirmPage({ searchParams }: ConfirmPageProps) {
   const code = firstValue(params.code);
   const next = safeInternalPath(firstValue(params.next) ?? null);
 
-  if (!tokenHash && !type && code && AUTH_CODE_PATTERN.test(code)) {
+  if (!tokenHash && !type && isValidPkceAuthCode(code)) {
     return (
       <AuthShell>
         <CompletePkceConfirmation nextPath={next} />
@@ -39,7 +40,7 @@ export default async function ConfirmPage({ searchParams }: ConfirmPageProps) {
     );
   }
 
-  if (!tokenHash || !TOKEN_HASH_PATTERN.test(tokenHash) || type !== "email") {
+  if (!isValidEmailTokenHash(tokenHash) || type !== "email") {
     redirect("/auth/error");
   }
 
