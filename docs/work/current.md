@@ -1,35 +1,32 @@
 ---
-release: R01
-work_package: CP6-R01
-scope: event_control
-branch_or_commit: "codex/r01-close-pilot"
+release: R02
+work_package: WP-R02-01
+scope: public_event_database_contract
+branch_or_commit: "codex/r02-cp0-decisions"
 checkpoint: idle
 status: completed
-completed_ac:
-  - "AC-R01-01"
-  - "AC-R01-02"
-  - "AC-R01-03"
-  - "AC-R01-04"
-  - "AC-R01-05"
-  - "AC-R01-06"
-  - "AC-R01-07"
+completed_ac: []
 dirty_files: []
 tests:
-  - "produção autenticada — raiz redirecionou para /app/demo-society"
-  - "criação às 20:00, remarcação para 20:30 e cancelamento — ok"
-  - "integridade — versão 3, 3 comandos, 3 mudanças e 0 divergências"
-  - "rollout — 1 time habilitado e integrações externas desligadas"
-  - "operador temporário — vínculo removido e conta bloqueada"
-  - "APP_URL=https://deutime.app npm run smoke:production — ok"
+  - "npm run db:reset — ok"
+  - "npm run db:lint — sem erro novo; 2 avisos preexistentes em create_event_as_staff"
+  - "npm run db:test — 17 arquivos, 379 testes, PASS"
+  - "npm run db:types — tipos atualizados"
+  - "npm run migrations:check -- d1cd5b2 — ok"
+  - "npm run verify — lint, tipos, 82 testes e build aprovados"
 blocker: null
-next_action: "Abrir o CP0 da R02 e fechar as decisões DEC-EVENT-PUBLIC-MINIMUM e DEC-UNCLAIMED-IDENTITY antes de implementar."
+next_action: "Abrir o CP2 de WP-R02-01 e implementar a rota /e/{public_id} atrás de public_event_page, tolerando banco N−1 e preservando a agenda atual."
 ---
 
 # Trabalho atual
 
-A R01 foi concluída após o piloto autenticado no `Demo Society`. Criação,
-remarcação, cancelamento, histórico, fuso autoritativo, integridade
-transacional, fallback e controles operacionais foram confirmados. O único
-operador técnico criado para a validação não possui mais vínculo e está
-bloqueado; o registro permanece apenas para preservar a trilha auditável dos
-comandos de demonstração.
+O CP1 de `WP-R02-01` definiu e implementou a expansão de banco: três flags
+independentes da R02, `events.public_id` gerado e imutável e a projeção
+`public_event_directory` fechada por `public_event_page`. A agenda pública
+existente foi preservada para compatibilidade com o app atual.
+
+O pgTAP novo cobre geração, unicidade, imutabilidade, contrato exato de campos,
+grants somente leitura, flag desligada, perfil privado, estados cancelado e
+concluído e compatibilidade da view legada. O gate `VAL-DB` passou; os dois
+avisos do lint já existiam em `create_event_as_staff` e não pertencem a esta
+fatia. A próxima ação é implementar a rota consumidora no CP2.

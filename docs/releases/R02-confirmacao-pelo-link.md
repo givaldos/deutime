@@ -1,6 +1,6 @@
 ---
 id: R02
-status: draft
+status: active
 outcome: "Permitir confirmar e acompanhar um evento pelo mesmo link do WhatsApp, com acesso persistente e revogável."
 depends_on:
   - R00
@@ -9,7 +9,7 @@ baseline:
   - BASE-IDENTITY
   - BASE-ATTENDANCE
   - BASE-PUBLIC
-verified_at: 77aed23
+verified_at: d1cd5b2
 decisions:
   - DEC-PERSISTENT-ACCESS
   - DEC-EVENT-PUBLIC-MINIMUM
@@ -70,7 +70,21 @@ Ficam fora desta release worker de WhatsApp, escalação, súmula pública, vota
 - `supabase/tests/005_player_identity.test.sql`
 - `supabase/tests/006_public_team_schedule.test.sql`
 
-Esses caminhos foram conferidos em `77aed23` e devem ser revalidados no CP0.
+Esses caminhos foram revalidados em `d1cd5b2` durante o CP0.
+
+## Contratos fechados no CP0
+
+- [`DEC-EVENT-PUBLIC-MINIMUM`](../decisions/DEC-EVENT-PUBLIC-MINIMUM.md)
+  define `events.public_id` imutável, a rota `/e/{public_id}`, a projeção
+  anônima e a migração em duas fases para retirar o UUID interno da agenda;
+- [`DEC-UNCLAIMED-IDENTITY`](../decisions/DEC-UNCLAIMED-IDENTITY.md) permite
+  confirmação pelo BID administrativo sem criar identidade global e preserva o
+  mesmo `athlete_id` quando o telefone for reivindicado por OTP;
+- [`DEC-PERSISTENT-ACCESS`](../decisions/DEC-PERSISTENT-ACCESS.md) continua
+  sendo o contrato de transporte, capability, sessão, expiração e revogação;
+- o primeiro incremento implementável é a expansão inerte de banco de
+  `WP-R02-01`: `public_id`, projeção pública e testes, sem ativar rota ou escrita
+  em produção.
 
 ## Pacotes de trabalho
 
@@ -82,6 +96,51 @@ Esses caminhos foram conferidos em `77aed23` e devem ser revalidados no CP0.
 | `WP-R02-04` — Risco, metadata e dispositivos | `AC-R02-06` a `09` | nova rota, headers, Open Graph contextual e suíte E2E | `VAL-LINK`, `VAL-PUBLIC` |
 
 `WP-R02-01` é uma vertical publicável por compartilhamento manual e pode entrar em piloto depois de `DEC-EVENT-PUBLIC-MINIMUM`, sem esperar capability ou RSVP. Os demais WPs usam flags próprias e preservam essa página como fallback.
+
+## Contrato de `WP-R02-01` — CP1
+
+### Dados e compatibilidade
+
+- `events.public_id uuid not null default gen_random_uuid()` é único, imutável e
+  preenchido para ocorrências existentes;
+- `public_event_directory` é a nova projeção anônima por `public_id`; não expõe
+  `events.id`, `team_id`, slug, local, chamada, presença, prazo ou auditoria;
+- `public_team_upcoming_events` permanece inalterada nesta expansão para o app
+  N−1; a retirada de `event_id` ocorrerá somente depois da migração do consumidor;
+- evento agendado, cancelado ou concluído permanece consultável pelo mesmo
+  `public_id`; o estado publicado é o estado persistido em `events.status`;
+- o contrato é somente leitura e não introduz RPC nem evento de domínio.
+
+### Permissões e ativação
+
+- `anon` e `authenticated` recebem somente `SELECT` na projeção;
+- tabelas base preservam RLS e grants atuais; a view não publica identificadores
+  internos nem PII;
+- as flags `public_event_page`, `event_capability_exchange` e
+  `event_capability_rsvp` são independentes e nascem ausentes/desligadas;
+- somente times com `public_event_page = true` entram na projeção, inclusive
+  quando o perfil do time é privado; `teams.is_public` continua restrito ao
+  diretório do time;
+- esta expansão não habilita time, rota, capability ou escrita em produção.
+
+### Ordem de deploy
+
+1. publicar as labels do enum;
+2. publicar `public_id`, trigger de imutabilidade, projeção e grants;
+3. gerar tipos e validar banco;
+4. somente no CP2 publicar a rota consumidora compatível com banco N e N−1;
+5. ativar manualmente um time apenas no piloto, preservando a agenda atual.
+
+### Evidência do CP1
+
+- `npm run db:reset` — expansão e seed aplicados;
+- `npm run db:test` — 17 arquivos e 379 testes aprovados;
+- `npm run db:lint` — sem erro novo; permanecem dois avisos preexistentes de
+  variável sombreada/não usada em `create_event_as_staff`;
+- `npm run db:types` — `events.public_id`, `public_event_directory` e as três
+  flags refletidas em `lib/database.types.ts`;
+- `npm run migrations:check -- d1cd5b2` — somente migrations novas.
+- `npm run verify` — lint, tipos, 82 testes Vitest e build aprovados.
 
 ## Critérios de aceite
 

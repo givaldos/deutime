@@ -83,6 +83,19 @@ OTP. Os detalhes, ameaças e critérios de teste estão no ADR canônico.
 
 A credencial reconhece a elegibilidade no evento; ela não concede por si só sessão global, comentário, voto, papel administrativo nem acesso depois que o vínculo ou a fase deixarem de permitir a ação.
 
+O identificador de `/e/{public_id}` não é credencial. Conforme
+[`DEC-EVENT-PUBLIC-MINIMUM`](decisions/DEC-EVENT-PUBLIC-MINIMUM.md), o GET
+anônimo omite endereço do local, chamada, atletas, presença e prazo interno,
+usa `noindex`, `no-referrer` e não autoriza escrita. A credencial personalizada
+existe somente no fragmento e é trocada antes de carregar terceiros.
+
+Conforme
+[`DEC-UNCLAIMED-IDENTITY`](decisions/DEC-UNCLAIMED-IDENTITY.md), um atleta
+administrativo sem `user_id` pode responder somente pelo escopo atleta-evento.
+Essa capability não cria identidade; a reivindicação exige OTP no telefone
+verificado pelo Auth, preserva o `athlete_id` e revoga/rotaciona acessos emitidos
+antes da reivindicação. Conflito ou ambiguidade falha de forma fechada.
+
 ## Checklist antes de produção
 
 - [ ] domínio e URLs de callback definitivos configurados;

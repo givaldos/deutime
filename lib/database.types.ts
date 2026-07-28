@@ -612,6 +612,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["event_kind"]
           opponent_name: string | null
           organization_mode: Database["public"]["Enums"]["organization_mode"]
+          public_id: string
           schedule_version: number
           series_id: string | null
           series_position: number | null
@@ -635,6 +636,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["event_kind"]
           opponent_name?: string | null
           organization_mode?: Database["public"]["Enums"]["organization_mode"]
+          public_id?: string
           schedule_version?: number
           series_id?: string | null
           series_position?: number | null
@@ -658,6 +660,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["event_kind"]
           opponent_name?: string | null
           organization_mode?: Database["public"]["Enums"]["organization_mode"]
+          public_id?: string
           schedule_version?: number
           series_id?: string | null
           series_position?: number | null
@@ -1413,6 +1416,21 @@ export type Database = {
         }
         Relationships: []
       }
+      public_event_directory: {
+        Row: {
+          ends_at: string | null
+          kind: Database["public"]["Enums"]["event_kind"] | null
+          opponent_name: string | null
+          public_id: string | null
+          sport_format: Database["public"]["Enums"]["sport_format"] | null
+          starts_at: string | null
+          status: Database["public"]["Enums"]["event_status"] | null
+          team_name: string | null
+          team_timezone: string | null
+          title: string | null
+        }
+        Relationships: []
+      }
       public_player_directory: {
         Row: {
           bio: string | null
@@ -1934,6 +1952,9 @@ export type Database = {
         | "comments"
         | "team_division"
         | "event_control"
+        | "public_event_page"
+        | "event_capability_exchange"
+        | "event_capability_rsvp"
       lineup_slot_kind: "starter" | "substitute"
       match_incident_kind: "goal" | "yellow_card" | "red_card"
       membership_status: "invited" | "active" | "suspended"
@@ -2122,6 +2143,9 @@ export const Constants = {
         "comments",
         "team_division",
         "event_control",
+        "public_event_page",
+        "event_capability_exchange",
+        "event_capability_rsvp",
       ],
       lineup_slot_kind: ["starter", "substitute"],
       match_incident_kind: ["goal", "yellow_card", "red_card"],
