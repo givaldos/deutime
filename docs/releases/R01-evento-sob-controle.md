@@ -385,5 +385,26 @@ Nenhum envio externo nasce na R01.
 - `integration_produce` e `integration_consume` foram confirmados `false` em
   produção. A migration não insere flags de time, portanto `event_control`
   permanece desligada por padrão;
-- o deploy inerte foi concluído, mas o piloto ainda não foi iniciado: falta
-  selecionar um único time com owner ou admin identificado e consentimento.
+- o deploy inerte foi concluído sem habilitar coorte automaticamente.
+
+## Evidência inicial do CP5 — piloto controlado
+
+- `Demo Society` (`demo-society`) foi escolhido entre os times de demonstração
+  como coorte mínima, com um único operador owner/admin ativo;
+- `event_control` foi habilitada pela RPC `set_team_feature_flag`, executada
+  sob a identidade do operador; a linha resultante e `audit_logs` confirmaram
+  `enabled=true` e auditoria presente;
+- a criação futura de um evento de treinamento foi repetida com o mesmo
+  `request_id`; persistiu um único comando `create` e uma única mudança;
+- o cancelamento da ocorrência também foi repetido com o mesmo `request_id`;
+  o evento terminou `cancelled`, com `cancelled_at`, `schedule_version=2`, dois
+  comandos e duas mudanças no total;
+- a consulta pós-operação encontrou um evento, dois comandos nas últimas 24
+  horas, zero divergências de integridade e apenas um time com a capacidade
+  habilitada;
+- `integration_produce` e `integration_consume` permaneceram `false`; nenhum
+  WhatsApp, e-mail, push ou outro efeito externo foi produzido;
+- o smoke somente leitura passou antes e depois da jornada;
+- a validação visual autenticada ficou pendente porque a sessão usada para a
+  verificação não estava autenticada no DeuTime. O redirecionamento para login
+  funcionou corretamente; nenhuma credencial foi solicitada ou manipulada.
