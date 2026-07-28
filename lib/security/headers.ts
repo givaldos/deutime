@@ -23,9 +23,10 @@ export function buildContentSecurityPolicy(nonce: string, isDevelopment: boolean
 export function applySecurityHeaders(
   response: NextResponse,
   contentSecurityPolicy: string,
+  pathname = "/",
 ) {
   response.headers.set("Content-Security-Policy", contentSecurityPolicy);
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Referrer-Policy", referrerPolicyForPath(pathname));
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set(
@@ -33,6 +34,11 @@ export function applySecurityHeaders(
     "camera=(), microphone=(), geolocation=(), browsing-topics=()",
   );
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+
+  if (isPublicEventPath(pathname)) {
+    response.headers.set("Cache-Control", "private, no-store, max-age=0");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  }
 
   if (process.env.NODE_ENV === "production") {
     response.headers.set(
@@ -42,4 +48,18 @@ export function applySecurityHeaders(
   }
 
   return response;
+}
+
+export function isPublicEventPath(pathname: string) {
+  return pathname === "/e" || pathname.startsWith("/e/");
+}
+
+export function referrerPolicyForPath(pathname: string) {
+  return pathname === "/auth/confirm" ||
+    pathname === "/auth/recovery" ||
+    pathname === "/auth/update-password" ||
+    pathname.startsWith("/invite/") ||
+    isPublicEventPath(pathname)
+    ? "no-referrer"
+    : "strict-origin-when-cross-origin";
 }

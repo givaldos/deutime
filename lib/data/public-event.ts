@@ -1,0 +1,74 @@
+import "server-only";
+
+import {
+  isPublicEventContractUnavailable,
+  isPublicEventId,
+} from "@/lib/features/public-event/presentation";
+import { createClient } from "@/lib/supabase/server";
+import { cache } from "react";
+
+export type PublicEvent = {
+  public_id: string;
+  team_name: string;
+  team_timezone: string;
+  title: string;
+  kind:
+    | "weekly_match"
+    | "championship"
+    | "friendly"
+    | "tournament"
+    | "training"
+    | "other";
+  sport_format: "field" | "society" | "futsal";
+  starts_at: string;
+  ends_at: string;
+  opponent_name: string | null;
+  status: "scheduled" | "cancelled" | "completed";
+};
+
+export const getPublicEvent = cache(
+  async (publicId: string): Promise<PublicEvent | null> => {
+    if (!isPublicEventId(publicId)) return null;
+
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("public_event_directory")
+      .select(
+        "public_id, team_name, team_timezone, title, kind, sport_format, starts_at, ends_at, opponent_name, status",
+      )
+      .eq("public_id", publicId)
+      .maybeSingle();
+
+    if (error) {
+      if (isPublicEventContractUnavailable(error)) return null;
+      throw new Error("Não foi possível carregar o evento público.");
+    }
+
+    if (
+      !data?.public_id ||
+      !data.team_name ||
+      !data.team_timezone ||
+      !data.title ||
+      !data.kind ||
+      !data.sport_format ||
+      !data.starts_at ||
+      !data.ends_at ||
+      !data.status
+    ) {
+      return null;
+    }
+
+    return {
+      public_id: data.public_id,
+      team_name: data.team_name,
+      team_timezone: data.team_timezone,
+      title: data.title,
+      kind: data.kind,
+      sport_format: data.sport_format,
+      starts_at: data.starts_at,
+      ends_at: data.ends_at,
+      opponent_name: data.opponent_name,
+      status: data.status,
+    };
+  },
+);

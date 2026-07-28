@@ -142,10 +142,36 @@ Esses caminhos foram revalidados em `d1cd5b2` durante o CP0.
 - `npm run migrations:check -- d1cd5b2` — somente migrations novas.
 - `npm run verify` — lint, tipos, 82 testes Vitest e build aprovados.
 
+## Caminho fino de `WP-R02-01` — CP2
+
+- `/e/{public_id}` consulta exclusivamente `public_event_directory` e responde
+  404 para UUID inválido, flag desligada, evento ausente ou contrato de banco
+  N−1 ainda indisponível;
+- a página mobile exibe time, título, tipo, formato, data, horário no fuso
+  autoritativo, adversário opcional e estado agendado/cancelado/concluído;
+- a metadata usa a mesma projeção, URL canônica limpa, `noindex` e `nofollow`;
+- `/e/*` recebe `no-referrer`, `private, no-store` e `X-Robots-Tag`;
+- GTM e seu fallback `noscript` não são renderizados em abertura inicial de
+  `/e/*`; analytics permanece nas demais páginas;
+- o CTA leva à agenda autenticada existente. Capability e RSVP pelo link
+  continuam explicitamente fora desta fatia e com flags desligadas.
+
+### Evidência do CP2
+
+- Vitest focado — 8 testes de apresentação, compatibilidade e headers;
+- inspeção anônima em 390 × 844 — sem overflow e com CTA de 48 px;
+- evento seed com flag local — 200, conteúdo e metadata contextual corretos;
+- evento seed sem flag — 404;
+- HTML de `/e/*` — sem recurso do Google Tag Manager;
+- build de produção local — `Cache-Control: private, no-store, max-age=0`,
+  `Referrer-Policy: no-referrer` e `X-Robots-Tag: noindex, nofollow, noarchive`;
+- `npm run verify` — 14 arquivos, 88 testes e build aprovados;
+- `npm run security:audit` — zero vulnerabilidades.
+
 ## Critérios de aceite
 
-- [ ] `AC-R02-01` — URL pública estável não depende do slug mutável do time.
-- [ ] `AC-R02-02` — Visitante sem credencial vê somente a projeção pública mínima.
+- [x] `AC-R02-01` — URL pública estável não depende do slug mutável do time.
+- [x] `AC-R02-02` — Visitante sem credencial vê somente a projeção pública mínima.
 - [ ] `AC-R02-03` — Link válido abre a resposta atual diretamente e pode ser reutilizado até revogação.
 - [ ] `AC-R02-04` — Primeira abertura cria capability duradoura limitada ao evento; aparelho com identidade já verificada mantém a sessão completa sem novo OTP.
 - [ ] `AC-R02-05` — Fechamento bloqueia apenas alteração de presença, não a consulta autorizada.
@@ -153,7 +179,7 @@ Esses caminhos foram revalidados em `d1cd5b2` durante o CP0.
 - [ ] `AC-R02-07` — Link encaminhado, replay, concorrência e tentativa cross-tenant não criam sessão global nem ampliam o acesso além daquele evento.
 - [ ] `AC-R02-08` — Depois da troca, o segredo não aparece na URL limpa, OG, analytics, logs controlados pela aplicação, histórico desnecessário ou `Referer`; visibilidade inevitável ao provedor é documentada no threat model e no DPA.
 - [ ] `AC-R02-09` — Fluxo passa em Android, iPhone, navegador interno e navegador padrão, inclusive retorno em outro dia.
-- [ ] `AC-R02-10` — Evento cancelado permanece informativo e não aceita resposta.
+- [x] `AC-R02-10` — Evento cancelado permanece informativo e não aceita resposta.
 
 ## Riscos e controles
 
