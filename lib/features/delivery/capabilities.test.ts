@@ -3,6 +3,7 @@ import {
   canConsumeExternalCommands,
   canProduceExternalCommands,
   failClosedLookup,
+  featureKeys,
 } from "./capabilities";
 
 describe("controles de entrega", () => {
@@ -36,5 +37,14 @@ describe("controles de entrega", () => {
     await expect(canProduceExternalCommands(lookup)).resolves.toBe(true);
     await expect(canConsumeExternalCommands(lookup)).resolves.toBe(false);
   });
-});
 
+  it("reconhece as flags independentes da confirmação por link", () => {
+    expect(featureKeys).toEqual(
+      expect.arrayContaining([
+        "public_event_page",
+        "event_capability_exchange",
+        "event_capability_rsvp",
+      ]),
+    );
+  });
+});

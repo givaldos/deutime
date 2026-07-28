@@ -6,6 +6,9 @@ export const featureKeys = [
   "comments",
   "team_division",
   "event_control",
+  "public_event_page",
+  "event_capability_exchange",
+  "event_capability_rsvp",
 ] as const;
 
 export type FeatureKey = (typeof featureKeys)[number];
