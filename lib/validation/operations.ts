@@ -14,6 +14,13 @@ const optionalInteger = (minimum: number, maximum: number) =>
     z.coerce.number().int().min(minimum).max(maximum).optional(),
   );
 
+const databaseUuidSchema = z
+  .string()
+  .regex(
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    "Identificador inválido.",
+  );
+
 const birthDateSchema = z.preprocess(
   (value) => (value === "" ? undefined : value),
   z
@@ -192,6 +199,17 @@ export const legacyUpdateEventSchema = eventFieldsSchema
 export const updateEventSchema = eventFieldsSchema
   .and(civilStartsAtSchema)
   .and(updateIdentitySchema);
+
+export const cancelEventSchema = z.object({
+  teamId: databaseUuidSchema,
+  teamSlug: z.string().regex(TEAM_SLUG_PATTERN),
+  eventId: databaseUuidSchema,
+  requestId: z.string().uuid(),
+  cancelScope: z.enum(["single_event", "this_and_future"]),
+  confirmation: z.literal("confirmed", {
+    error: "Confirme que entende os efeitos do cancelamento.",
+  }),
+});
 
 export const attendanceUpdateSchema = z.object({
   teamSlug: z.string().regex(TEAM_SLUG_PATTERN),

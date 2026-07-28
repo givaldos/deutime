@@ -251,10 +251,10 @@ Nenhum envio externo nasce na R01.
 ## Critérios de aceite
 
 - [x] `AC-R01-01` — A mesma data local resulta no mesmo instante independentemente do fuso do aparelho.
-- [ ] `AC-R01-02` — Cancelamento preserva registro, presença histórica e súmula existente.
-- [ ] `AC-R01-03` — Editar/remarcar informa claramente o alcance antes de confirmar.
+- [x] `AC-R01-02` — Cancelamento preserva registro, presença histórica e súmula existente.
+- [x] `AC-R01-03` — Editar/remarcar informa claramente o alcance antes de confirmar.
 - [ ] `AC-R01-04` — Repetir o mesmo comando não duplica ocorrências nem efeitos.
-- [ ] `AC-R01-05` — Comandos futuros de notificação podem identificar cancelamento ou novo horário sem heurística.
+- [x] `AC-R01-05` — Comandos futuros de notificação podem identificar cancelamento ou novo horário sem heurística.
 - [x] `AC-R01-06` — Fluxos passam em viewport móvel, teclado e leitor de tela.
 - [x] `AC-R01-07` — pgTAP cobre papel permitido, negado e tentativa cross-tenant.
 
@@ -319,3 +319,23 @@ Nenhum envio externo nasce na R01.
 - viewport móvel 390×844 sem overflow horizontal, controles rotulados,
   descrição de fuso associada, alvo principal de 48 px e navegação por teclado
   preservada.
+
+## Evidência do CP3 — WP-R01-02
+
+- migration forward-only `event_cancellation` adiciona a RPC transacional de
+  cancelamento soft com escopos “somente esta” e “esta e futuras”;
+- o comando preserva evento, presenças, times montados e súmula, encerra a série
+  quando aplicável e cancela somente entregas pendentes ou falhas da outbox;
+- ledger idempotente rejeita reutilização divergente do `request_id`, replay
+  igual não duplica efeitos e cada ocorrência recebe uma mudança explícita
+  `cancelled`;
+- Action permanece fina, consulta `event_control` em fail-closed e a interface
+  exige confirmação destrutiva explícita antes de enviar;
+- pgTAP completo: 15 arquivos, 331 testes, incluindo owner, cross-tenant,
+  flag desligada, replay, série, retenção histórica e efeitos na outbox;
+- `npm run verify`: lint, typecheck e 73 testes passaram; build de produção
+  passou com acesso às fontes externas;
+- `npm run security:audit`: nenhuma vulnerabilidade encontrada;
+- viewport móvel 390×844 sem overflow horizontal, botão principal de 48 px,
+  confirmação obrigatória e estado cancelado previsível; teste local preservou
+  as 28 presenças do evento do seed e retirou o formulário após o comando.

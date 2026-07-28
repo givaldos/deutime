@@ -1491,6 +1491,21 @@ export type Database = {
         }
         Returns: string
       }
+      cancel_event_as_staff: {
+        Args: {
+          cancel_scope: string
+          request_id: string
+          requested_event_id: string
+          requested_team_id: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       complete_verified_athlete_registration: {
         Args: {
           accepts_privacy_terms: boolean

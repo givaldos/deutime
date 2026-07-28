@@ -5,6 +5,7 @@ import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   attendanceUpdateSchema,
+  cancelEventSchema,
   createEventSchema,
   deleteMatchIncidentSchema,
   legacyCreateEventSchema,
@@ -24,6 +25,12 @@ export type CreateEventState = {
 
 export type MatchActionState = {
   outcome?: "success" | "error";
+  message?: string;
+  errors?: Record<string, string[] | undefined>;
+};
+
+export type EventCancellationState = {
+  attempt?: number;
   message?: string;
   errors?: Record<string, string[] | undefined>;
 };
@@ -231,6 +238,77 @@ export async function updateEvent(
   revalidatePath(`/t/${parsed.data.teamSlug}`);
   redirect(
     `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}?updated=${parsed.data.editScope}`,
+  );
+}
+
+export async function cancelEvent(
+  previousState: EventCancellationState,
+  formData: FormData,
+): Promise<EventCancellationState> {
+  await requireUser();
+  const attempt = (previousState.attempt ?? 0) + 1;
+  const parsed = cancelEventSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    eventId: formData.get("eventId"),
+    requestId: formData.get("requestId"),
+    cancelScope: formData.get("cancelScope"),
+    confirmation: formData.get("confirmation"),
+  });
+
+  if (!parsed.success) {
+    const errors = parsed.error.flatten().fieldErrors;
+    return {
+      attempt,
+      message:
+        Object.values(errors)
+          .flatMap((fieldErrors) => fieldErrors ?? [])
+          .find(Boolean) ?? "Revise a confirmação do cancelamento.",
+      errors,
+    };
+  }
+
+  if (
+    !(await isTeamFeatureEnabled(parsed.data.teamId, "event_control"))
+  ) {
+    return {
+      attempt,
+      message: "O controle de cancelamento ainda não está disponível para este time.",
+    };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("cancel_event_as_staff", {
+    requested_team_id: parsed.data.teamId,
+    requested_event_id: parsed.data.eventId,
+    request_id: parsed.data.requestId,
+    cancel_scope: parsed.data.cancelScope,
+  });
+
+  if (error || !data?.affected_count) {
+    let message =
+      "Não foi possível cancelar o evento. Confira sua permissão e tente novamente.";
+
+    if (error?.code === "55000") {
+      message = "Somente eventos futuros e ainda agendados podem ser cancelados.";
+    } else if (error?.code === "22023") {
+      message = "O alcance do cancelamento não é válido para este evento.";
+    }
+
+    return { attempt, message };
+  }
+
+  revalidatePath(`/app/${parsed.data.teamSlug}`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/events`);
+  revalidatePath(
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}`,
+  );
+  revalidatePath(`/t/${parsed.data.teamSlug}`);
+  revalidatePath("/me");
+  revalidatePath("/me/agenda");
+  revalidatePath(`/me/agenda/${parsed.data.eventId}`);
+  redirect(
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}?cancelled=${parsed.data.cancelScope}`,
   );
 }
 
