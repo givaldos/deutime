@@ -273,6 +273,20 @@ Nenhum envio externo nasce na R01.
 - validar datas em pelo menos dois fusos de aparelho para o mesmo fuso do time;
 - testar ocorrência isolada, “esta e futuras”, retry e evento já encerrado;
 
+### Incidente de produção durante o piloto
+
+- em `2026-07-28`, uma requisição autenticada para `/` respondeu `500` porque a
+  resolução do destino da sessão tratava qualquer erro na consulta auxiliar de
+  perfil de atleta como falha fatal;
+- o hotfix passou a consultar primeiro o vínculo administrativo e não depende
+  do perfil de atleta quando esse vínculo existe;
+- falhas ou exceções nas consultas de classificação agora geram o evento
+  estruturado `session_destination_lookup` e usam `/app` como fallback seguro,
+  sem registrar identidade ou outro dado pessoal;
+- evidências locais: teste focado com 8 casos; lint, tipos e 13 arquivos com 82
+  testes pelo gate `npm run verify`; build de produção repetido com acesso às
+  fontes externas; e `npm run security:audit` com zero vulnerabilidades.
+
 ## Rollout, fallback e rollback
 
 - ativar por time após backfill/validação de fuso;
