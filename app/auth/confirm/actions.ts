@@ -1,10 +1,9 @@
 "use server";
 
+import { isValidEmailTokenHash } from "@/lib/auth/email-callbacks";
 import { safeInternalPath } from "@/lib/security/redirects";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-
-const TOKEN_HASH_PATTERN = /^[A-Za-z0-9_-]{32,256}$/;
 
 function readFormValue(formData: FormData, name: string) {
   const value = formData.get(name);
@@ -16,7 +15,7 @@ export async function confirmEmail(formData: FormData) {
   const type = readFormValue(formData, "type");
   const next = safeInternalPath(readFormValue(formData, "next"));
 
-  if (!tokenHash || !TOKEN_HASH_PATTERN.test(tokenHash) || type !== "email") {
+  if (!isValidEmailTokenHash(tokenHash) || type !== "email") {
     redirect("/auth/error");
   }
 
