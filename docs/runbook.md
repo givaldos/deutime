@@ -161,6 +161,95 @@ localmente:
 Anexe ao pacote da release os IDs das execuções, deployment promovido, horários
 e resultado. Sem essa evidência, o ensaio de rollback não está concluído.
 
+### Piloto de `event_control` — R01
+
+O deploy da R01 deve chegar com `event_control` desligada para todos os times.
+Antes de escolher o piloto, confirme no SQL Editor de produção:
+
+```sql
+select team_id, enabled, updated_at
+from public.team_feature_flags
+where feature = 'event_control'
+order by updated_at desc;
+```
+
+O resultado esperado logo após o deploy inerte é nenhuma linha habilitada. O
+smoke anônimo deve passar antes de qualquer ativação. Se app e banco saírem em
+ordem diferente, o app trata ausência da RPC/enum como capacidade desligada e
+o schema novo é somente aditivo para a aplicação anterior.
+
+Escolha um único time com owner identificado e consentimento para o piloto.
+Confirme primeiro que o ator continua owner ou admin ativo:
+
+```sql
+select membership.team_id, membership.user_id, membership.role
+from public.team_memberships membership
+where membership.team_id = '<UUID_DO_TIME_PILOTO>'::uuid
+  and membership.user_id = '<UUID_DO_OPERADOR>'::uuid
+  and membership.status = 'active'
+  and membership.role in ('owner', 'admin');
+```
+
+No SQL Editor, a ativação manual usa a RPC auditada, nunca `update` direto:
+
+```sql
+begin;
+set local role authenticated;
+select set_config(
+  'request.jwt.claim.sub',
+  '<UUID_DO_OPERADOR>',
+  true
+);
+select public.set_team_feature_flag(
+  '<UUID_DO_TIME_PILOTO>'::uuid,
+  'event_control',
+  true
+);
+commit;
+```
+
+Durante o piloto, os logs da Vercel usam o evento
+`event_control_operation`. `outcome=rejected` representa regra de domínio ou
+autorização esperada; `outcome=failed` representa falha operacional. O banco
+fornece a métrica de sucesso sem PII:
+
+```sql
+select
+  command.kind,
+  count(*) as comandos,
+  max(command.created_at) as ultimo_comando
+from public.event_commands command
+where command.team_id = '<UUID_DO_TIME_PILOTO>'::uuid
+  and command.created_at >= now() - interval '24 hours'
+group by command.kind
+order by command.kind;
+
+select
+  command.id,
+  command.kind,
+  (command.result ->> 'affected_count')::integer as efeitos_esperados,
+  count(change.id)::integer as mudancas_registradas
+from public.event_commands command
+left join public.event_changes change on change.command_id = command.id
+where command.team_id = '<UUID_DO_TIME_PILOTO>'::uuid
+  and command.created_at >= now() - interval '24 hours'
+group by command.id
+having command.result is null
+  or count(change.id) <> (command.result ->> 'affected_count')::integer;
+```
+
+Interrompa imediatamente se o smoke falhar, surgir qualquer
+`outcome=failed`, a segunda consulta retornar linha ou houver fato histórico
+reescrito. Três rejeições da mesma operação em 15 minutos pausam a ampliação
+para investigação. Para desligar o piloto, repita a chamada auditada acima com
+`false`; confirme que a UI nova desapareceu e que criação/edição legadas
+continuam utilizáveis. `integration_produce` e `integration_consume` permanecem
+`false`, pois a R01 não envia mensagens.
+
+O rollback da aplicação promove o deployment produtivo bom registrado antes do
+merge. As migrations da R01 não são revertidas: a flag desligada torna a
+expansão inerte e eventual correção de banco é forward-only.
+
 ## Primeira ativação do repositório
 
 O ruleset referencia checks que só existem depois que os workflows executarem ao menos uma vez. Para o primeiro bootstrap:

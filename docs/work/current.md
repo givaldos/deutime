@@ -1,46 +1,41 @@
 ---
 release: R01
-work_package: WP-R01-01
+work_package: CP5-R01
 scope: event_control
-branch_or_commit: "codex/r01-event-control-wp01"
-checkpoint: CP2
-status: complete
+branch_or_commit: "codex/r01-series-extension"
+checkpoint: CP5
+status: in_progress
 completed_ac:
   - "AC-R01-01"
+  - "AC-R01-02"
+  - "AC-R01-03"
+  - "AC-R01-04"
+  - "AC-R01-05"
   - "AC-R01-06"
   - "AC-R01-07"
 dirty_files:
-  - "app/app/[teamSlug]/events/[eventId]/edit/page.tsx"
   - "app/app/[teamSlug]/events/actions.ts"
-  - "app/app/[teamSlug]/events/new/page.tsx"
-  - "components/admin-event-form.tsx"
   - "docs/releases/R01-evento-sob-controle.md"
+  - "docs/runbook.md"
   - "docs/work/current.md"
-  - "lib/database.types.ts"
-  - "lib/features/delivery/capabilities.ts"
-  - "lib/validation/operations.test.ts"
-  - "lib/validation/operations.ts"
-  - "supabase/migrations/202607270002_event_control_feature.sql"
-  - "supabase/migrations/202607270003_event_control_contract.sql"
-  - "supabase/tests/006_public_team_schedule.test.sql"
-  - "supabase/tests/014_event_control.test.sql"
+  - "lib/observability/event-control.test.ts"
+  - "lib/observability/event-control.ts"
 tests:
-  - "npx supabase db reset — migrations e seed aplicados"
-  - "npm run db:test — 14 arquivos, 306 testes"
-  - "npm run db:lint — sem regressão; aviso legado em create_event_as_staff"
-  - "npm run lint — ok"
-  - "npm run typecheck — ok"
-  - "npm test — 11 arquivos, 65 testes"
-  - "npm run build — ok com rede para Google Fonts"
-  - "viewport 390x844 — sem overflow, labels/descrições e teclado verificados"
-blocker: null
-next_action: "Revisar e integrar WP-R01-01; depois iniciar WP-R01-02 com cancelamento soft e remarcação completa."
+  - "APP_URL=https://deutime.app npm run smoke:production — ok"
+  - "baseline 6551bdb — checks produtivos verdes"
+  - "npm run verify — 13 arquivos/78 testes e build"
+  - "npm run security:audit — 0 vulnerabilidades"
+  - "ensaio local — event_control e kill switches terminaram false"
+  - "PR #22 aberto — checks automatizados devem ser confirmados antes do merge"
+blocker: "Deploy exige integração na main; piloto exige selecionar um time real e seu owner/admin após o smoke pós-deploy."
+next_action: "Confirmar todos os checks e obter autorização explícita para o merge do PR #22; depois acompanhar os deploys de banco e Vercel e executar o smoke antes de selecionar o piloto."
 ---
 
 # Trabalho atual
 
-WP-R01-01 concluiu o caminho fino do CP2. A expansão permanece inerte até a
-flag ser habilitada por time; criação e edição v2 usam horário civil
-autoritativo, replay idempotente e mudanças versionadas. O fluxo legado segue
-intacto com a capacidade desligada. O próximo pacote implementa cancelamento
-soft e completa os efeitos transacionais de remarcação.
+O CP5 está preparado no PR #22, mas ainda não foi promovido. A baseline
+produtiva, o smoke somente leitura, a telemetria sem PII, as consultas de
+integridade e o rollback estão documentados. A capacidade continua desligada
+por padrão. Após todos os checks e a autorização explícita, o próximo passo é
+integrar a branch na `main`, acompanhar os deploys e repetir o smoke; a escolha
+e ativação de um único time piloto ocorre somente depois.

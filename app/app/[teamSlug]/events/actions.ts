@@ -2,11 +2,14 @@
 
 import { requireUser } from "@/lib/auth/dal";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
+import { reportEventControlFailure } from "@/lib/observability/event-control";
 import { createClient } from "@/lib/supabase/server";
 import {
   attendanceUpdateSchema,
+  cancelEventSchema,
   createEventSchema,
   deleteMatchIncidentSchema,
+  extendEventSeriesSchema,
   legacyCreateEventSchema,
   legacyUpdateEventSchema,
   matchIncidentSchema,
@@ -24,6 +27,18 @@ export type CreateEventState = {
 
 export type MatchActionState = {
   outcome?: "success" | "error";
+  message?: string;
+  errors?: Record<string, string[] | undefined>;
+};
+
+export type EventCancellationState = {
+  attempt?: number;
+  message?: string;
+  errors?: Record<string, string[] | undefined>;
+};
+
+export type EventSeriesExtensionState = {
+  attempt?: number;
   message?: string;
   errors?: Record<string, string[] | undefined>;
 };
@@ -110,6 +125,10 @@ export async function createEvent(
       : data;
 
   if (error || !eventId) {
+    if (!("startsAtIso" in parsed.data)) {
+      reportEventControlFailure("create", error);
+    }
+
     return {
       attempt,
       message:
@@ -209,6 +228,10 @@ export async function updateEvent(
       : data;
 
   if (error || !updatedCount) {
+    if (!("startsAtIso" in parsed.data)) {
+      reportEventControlFailure("update", error);
+    }
+
     let message =
       "Não foi possível salvar o evento. Confira sua permissão e tente novamente.";
 
@@ -234,6 +257,149 @@ export async function updateEvent(
   );
 }
 
+export async function cancelEvent(
+  previousState: EventCancellationState,
+  formData: FormData,
+): Promise<EventCancellationState> {
+  await requireUser();
+  const attempt = (previousState.attempt ?? 0) + 1;
+  const parsed = cancelEventSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    eventId: formData.get("eventId"),
+    requestId: formData.get("requestId"),
+    cancelScope: formData.get("cancelScope"),
+    confirmation: formData.get("confirmation"),
+  });
+
+  if (!parsed.success) {
+    const errors = parsed.error.flatten().fieldErrors;
+    return {
+      attempt,
+      message:
+        Object.values(errors)
+          .flatMap((fieldErrors) => fieldErrors ?? [])
+          .find(Boolean) ?? "Revise a confirmação do cancelamento.",
+      errors,
+    };
+  }
+
+  if (
+    !(await isTeamFeatureEnabled(parsed.data.teamId, "event_control"))
+  ) {
+    return {
+      attempt,
+      message: "O controle de cancelamento ainda não está disponível para este time.",
+    };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("cancel_event_as_staff", {
+    requested_team_id: parsed.data.teamId,
+    requested_event_id: parsed.data.eventId,
+    request_id: parsed.data.requestId,
+    cancel_scope: parsed.data.cancelScope,
+  });
+
+  if (error || !data?.affected_count) {
+    reportEventControlFailure("cancel", error);
+
+    let message =
+      "Não foi possível cancelar o evento. Confira sua permissão e tente novamente.";
+
+    if (error?.code === "55000") {
+      message = "Somente eventos futuros e ainda agendados podem ser cancelados.";
+    } else if (error?.code === "22023") {
+      message = "O alcance do cancelamento não é válido para este evento.";
+    }
+
+    return { attempt, message };
+  }
+
+  revalidatePath(`/app/${parsed.data.teamSlug}`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/events`);
+  revalidatePath(
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}`,
+  );
+  revalidatePath(`/t/${parsed.data.teamSlug}`);
+  revalidatePath("/me");
+  revalidatePath("/me/agenda");
+  revalidatePath(`/me/agenda/${parsed.data.eventId}`);
+  redirect(
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}?cancelled=${parsed.data.cancelScope}`,
+  );
+}
+
+export async function extendEventSeries(
+  previousState: EventSeriesExtensionState,
+  formData: FormData,
+): Promise<EventSeriesExtensionState> {
+  await requireUser();
+  const attempt = (previousState.attempt ?? 0) + 1;
+  const parsed = extendEventSeriesSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    eventId: formData.get("eventId"),
+    seriesId: formData.get("seriesId"),
+    requestId: formData.get("requestId"),
+    additionalOccurrences: formData.get("additionalOccurrences"),
+  });
+
+  if (!parsed.success) {
+    const errors = parsed.error.flatten().fieldErrors;
+    return {
+      attempt,
+      message:
+        Object.values(errors)
+          .flatMap((fieldErrors) => fieldErrors ?? [])
+          .find(Boolean) ?? "Revise a quantidade de novas ocorrências.",
+      errors,
+    };
+  }
+
+  if (!(await isTeamFeatureEnabled(parsed.data.teamId, "event_control"))) {
+    return {
+      attempt,
+      message: "A extensão de séries ainda não está disponível para este time.",
+    };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc(
+    "extend_event_series_as_staff",
+    {
+      requested_team_id: parsed.data.teamId,
+      requested_series_id: parsed.data.seriesId,
+      request_id: parsed.data.requestId,
+      additional_occurrences: parsed.data.additionalOccurrences,
+    },
+  );
+
+  if (error || !data?.affected_count) {
+    reportEventControlFailure("extend_series", error);
+
+    return {
+      attempt,
+      message:
+        error?.code === "55000"
+          ? "Esta série não pode ser estendida ou já atingiu o limite de 52 ocorrências."
+          : "Não foi possível estender a série. Confira sua permissão e tente novamente.",
+    };
+  }
+
+  revalidatePath(`/app/${parsed.data.teamSlug}`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/events`);
+  revalidatePath(
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}`,
+  );
+  revalidatePath(`/t/${parsed.data.teamSlug}`);
+  revalidatePath("/me");
+  revalidatePath("/me/agenda");
+  redirect(
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}?extended=${parsed.data.additionalOccurrences}`,
+  );
+}
+
 export async function setEventAttendance(formData: FormData) {
   await requireUser();
   const parsed = attendanceUpdateSchema.safeParse({
@@ -242,7 +408,7 @@ export async function setEventAttendance(formData: FormData) {
     athleteId: formData.get("athleteId"),
     status: formData.get("status"),
   });
-  if (!parsed.success) return;
+  if (!parsed.success) redirect("/app");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("set_event_attendance_as_staff", {
@@ -250,10 +416,17 @@ export async function setEventAttendance(formData: FormData) {
     requested_athlete_id: parsed.data.athleteId,
     next_status: parsed.data.status,
   });
-  if (error) return;
+  if (error) {
+    redirect(
+      `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}?attendance=error`,
+    );
+  }
 
   revalidatePath(`/app/${parsed.data.teamSlug}/events`);
   revalidatePath(`/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}`);
+  redirect(
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}?attendance=updated`,
+  );
 }
 
 export async function saveMatchReport(
@@ -379,13 +552,21 @@ export async function deleteMatchIncident(formData: FormData) {
     eventId: formData.get("eventId"),
     incidentId: formData.get("incidentId"),
   });
-  if (!parsed.success) return;
+  if (!parsed.success) redirect("/app");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("delete_match_incident_as_staff", {
     requested_incident_id: parsed.data.incidentId,
   });
-  if (!error) revalidateMatchPages(parsed.data.teamSlug, parsed.data.eventId);
+  if (error) {
+    redirect(
+      `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}/match?incidentError=1`,
+    );
+  }
+  revalidateMatchPages(parsed.data.teamSlug, parsed.data.eventId);
+  redirect(
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}/match?incident=deleted`,
+  );
 }
 
 function revalidateMatchPages(teamSlug: string, eventId: string) {

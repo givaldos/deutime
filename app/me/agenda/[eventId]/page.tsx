@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   ArrowLeft,
   BadgeCheck,
+  Ban,
   Goal,
   Radio,
   ShieldAlert,
@@ -48,7 +49,7 @@ export default async function PlayerMatchPage({
     (link) =>
       link.team_id === event?.team_id && link.athlete_status === "active",
   );
-  if (!event || !teamLink || event.status === "cancelled") notFound();
+  if (!event || !teamLink) notFound();
 
   const [{ data: report }, { data: incidents }, { data: squads }] =
     await Promise.all([
@@ -100,6 +101,7 @@ export default async function PlayerMatchPage({
   const sideALabel = report?.side_a_label ?? squads?.[0]?.name ?? "Time A";
   const sideBLabel = report?.side_b_label ?? squads?.[1]?.name ?? "Time B";
   const finalized = Boolean(report?.finalized_at);
+  const cancelled = event.status === "cancelled";
   const started =
     new Date(event.starts_at).valueOf() <= new Date().valueOf();
   const live = started && !finalized && event.status === "scheduled";
@@ -114,7 +116,11 @@ export default async function PlayerMatchPage({
         >
           <ArrowLeft className="size-4" aria-hidden /> Voltar à agenda
         </Link>
-        {live ? (
+        {cancelled ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-2 text-xs font-bold text-red-700">
+            <Ban className="size-4" aria-hidden /> Cancelado
+          </span>
+        ) : live ? (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-2 text-xs font-bold text-red-700">
             <Radio className="size-4 animate-pulse" aria-hidden /> Ao vivo
           </span>
@@ -124,6 +130,16 @@ export default async function PlayerMatchPage({
           </span>
         ) : null}
       </div>
+
+      {cancelled ? (
+        <div
+          role="status"
+          className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-950"
+        >
+          Este evento foi cancelado. A data, as confirmações e qualquer súmula
+          já registrada continuam preservadas para consulta.
+        </div>
+      ) : null}
 
       <section className="relative overflow-hidden rounded-[2rem] bg-grass text-white shadow-float">
         <div className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-emerald-500/20 blur-3xl" />

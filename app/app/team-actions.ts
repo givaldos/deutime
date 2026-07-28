@@ -5,6 +5,7 @@ import { getAppUrl } from "@/lib/env/server";
 import { createClient } from "@/lib/supabase/server";
 import { createInvitationSchema } from "@/lib/validation/onboarding";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
 export type CreateInvitationState = {
@@ -74,11 +75,18 @@ export async function revokeTeamInvitation(formData: FormData) {
     invitationId: formData.get("invitationId"),
     teamSlug: formData.get("teamSlug"),
   });
-  if (!parsed.success) return;
+  if (!parsed.success) redirect("/app");
 
   const supabase = await createClient();
-  await supabase.rpc("revoke_team_invitation", {
+  const { error } = await supabase.rpc("revoke_team_invitation", {
     requested_invitation_id: parsed.data.invitationId,
   });
+  if (error) {
+    redirect(
+      `/app/${parsed.data.teamSlug}/settings?invitation=revoke-error`,
+    );
+  }
   revalidatePath(`/app/${parsed.data.teamSlug}`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/settings`);
+  redirect(`/app/${parsed.data.teamSlug}/settings?invitation=revoked`);
 }

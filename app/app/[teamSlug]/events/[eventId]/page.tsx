@@ -1,9 +1,13 @@
 import { setEventAttendance } from "@/app/app/[teamSlug]/events/actions";
+import { EventCancelForm } from "@/components/event-cancel-form";
+import { EventSeriesExtensionForm } from "@/components/event-series-extension-form";
+import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Button } from "@/components/ui/button";
 import { AppContainer } from "@/components/ui/app-shell";
 import { TeamAppHeader } from "@/components/team-app-header";
 import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { requireUser } from "@/lib/auth/dal";
+import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   ArrowLeft,
@@ -45,7 +49,13 @@ export default async function EventDetailPage({
   searchParams,
 }: {
   params: Promise<{ teamSlug: string; eventId: string }>;
-  searchParams: Promise<{ created?: string; updated?: string }>;
+  searchParams: Promise<{
+    created?: string;
+    updated?: string;
+    attendance?: string;
+    cancelled?: string;
+    extended?: string;
+  }>;
 }) {
   const user = await requireUser();
   const { teamSlug, eventId } = await params;
@@ -67,12 +77,29 @@ export default async function EventDetailPage({
       .maybeSingle(),
     supabase
       .from("events")
-      .select("id, title, kind, organization_mode, sport_format, starts_at, ends_at, attendance_deadline, status, opponent_name, venue_id")
+      .select("id, series_id, title, kind, organization_mode, sport_format, starts_at, ends_at, attendance_deadline, status, opponent_name, venue_id, cancelled_at")
       .eq("id", eventId)
       .eq("team_id", team.id)
       .maybeSingle(),
   ]);
   if (!membership || !event) notFound();
+
+  const [{ data: series }, { count: seriesOccurrenceCount }] =
+    event.series_id
+      ? await Promise.all([
+          supabase
+            .from("event_series")
+            .select("id, is_active")
+            .eq("id", event.series_id)
+            .eq("team_id", team.id)
+            .maybeSingle(),
+          supabase
+            .from("events")
+            .select("id", { count: "exact", head: true })
+            .eq("series_id", event.series_id)
+            .eq("team_id", team.id),
+        ])
+      : [{ data: null }, { count: 0 }];
 
   const [{ data: athletes }, { data: attendance }, { data: venue }] = await Promise.all([
     supabase
@@ -112,6 +139,18 @@ export default async function EventDetailPage({
   const isScheduled = event.status === "scheduled";
   const isEditable =
     isScheduled && new Date(event.starts_at).valueOf() > new Date().valueOf();
+  const eventControlEnabled =
+    isEditable && (await isTeamFeatureEnabled(team.id, "event_control"));
+  const currentSeriesOccurrences = seriesOccurrenceCount ?? 0;
+  const maxAdditionalOccurrences = Math.max(
+    0,
+    52 - currentSeriesOccurrences,
+  );
+  const canExtendSeries =
+    eventControlEnabled &&
+    Boolean(event.series_id) &&
+    Boolean(series?.is_active) &&
+    maxAdditionalOccurrences > 0;
 
   return (
     <main className="app-canvas pb-24">
@@ -130,6 +169,53 @@ export default async function EventDetailPage({
             {query.updated === "this_and_future"
               ? "Evento e próximas ocorrências atualizados. Exceções individuais foram preservadas."
               : "Esta ocorrência foi atualizada sem alterar as demais."}
+          </div>
+        )}
+
+        {event.status === "cancelled" && (
+          <div
+            role="status"
+            className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-950"
+          >
+            <X className="mt-0.5 size-5 shrink-0" aria-hidden />
+            <span>
+              {query.cancelled === "this_and_future"
+                ? "Esta ocorrência e as próximas foram canceladas. A série foi encerrada."
+                : "Evento cancelado."}{" "}
+              Presenças, times montados e súmula foram preservados.
+              {event.cancelled_at
+                ? ` Cancelamento registrado em ${new Intl.DateTimeFormat("pt-BR", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                    timeZone: team.timezone,
+                  }).format(new Date(event.cancelled_at))}.`
+                : null}
+            </span>
+          </div>
+        )}
+
+        {query.extended && Number(query.extended) > 0 && (
+          <div
+            role="status"
+            className="flex items-center gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm font-medium text-sky-950"
+          >
+            <BadgeCheck className="size-5 shrink-0" aria-hidden />
+            {Number(query.extended) === 1
+              ? "Uma nova data foi adicionada à série."
+              : `${Number(query.extended)} novas datas foram adicionadas à série.`}
+          </div>
+        )}
+
+        {query.attendance === "updated" && (
+          <div role="status" className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950">
+            <BadgeCheck className="size-5 shrink-0" aria-hidden />
+            Presença atualizada.
+          </div>
+        )}
+
+        {query.attendance === "error" && (
+          <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
+            Não foi possível atualizar a presença. Tente novamente.
           </div>
         )}
 
@@ -158,6 +244,14 @@ export default async function EventDetailPage({
         <section className="relative overflow-hidden rounded-[2rem] bg-grass p-6 text-white shadow-float sm:p-8">
           <div className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-emerald-500/20 blur-3xl" />
           <div className="relative flex flex-wrap items-center gap-2 text-xs font-semibold text-emerald-200">
+            {event.status === "cancelled" ? (
+              <>
+                <span className="rounded-full bg-red-500/20 px-2 py-1 text-red-100">
+                  Cancelado
+                </span>
+                <span>·</span>
+              </>
+            ) : null}
             <span>{kindLabels[event.kind]}</span><span>·</span>
             <span>{event.sport_format === "field" ? "Campo" : event.sport_format === "futsal" ? "Futsal" : "Society"}</span><span>·</span>
             <span>{event.organization_mode === "split_teams" ? "Dividir times" : "Time único"}</span>
@@ -217,9 +311,17 @@ export default async function EventDetailPage({
                             <input type="hidden" name="eventId" value={event.id} />
                             <input type="hidden" name="athleteId" value={athlete.id} />
                             <input type="hidden" name="status" value={status as string} />
-                            <button type="submit" disabled={disabled} data-active={athlete.response.status === status} aria-label={`${label} — ${athlete.preferred_name || athlete.full_name}`} className={`flex min-h-12 w-full touch-manipulation flex-col items-center justify-center rounded-xl border border-slate-200 text-[10px] font-bold text-slate-500 transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${activeClass}`}>
+                            <AsyncSubmitButton
+                              pendingLabel={`Salvando resposta: ${label as string}`}
+                              iconOnly
+                              variant="outline"
+                              disabled={disabled}
+                              data-active={athlete.response.status === status}
+                              aria-label={`${label} — ${athlete.preferred_name || athlete.full_name}`}
+                              className={`flex min-h-12 w-full touch-manipulation flex-col items-center justify-center rounded-xl border border-slate-200 text-[10px] font-bold text-slate-500 transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${activeClass}`}
+                            >
                               <StatusIcon className="mb-0.5 size-4" aria-hidden /> {label as string}
-                            </button>
+                            </AsyncSubmitButton>
                           </form>
                         );
                       })}
@@ -245,6 +347,28 @@ export default async function EventDetailPage({
           {confirmed.length > 0 && <div className="mt-4 flex flex-wrap gap-2">{confirmed.map((athlete) => <span key={athlete.id} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-emerald-900 shadow-sm">{athlete.preferred_name || athlete.full_name}</span>)}</div>}
           <div className="mt-5 flex items-start gap-2 rounded-2xl bg-white/70 p-3 text-xs leading-5 text-emerald-900"><ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden /> A aprovação do vínculo e a confirmação da presença continuam sendo exigidas pelo sistema.</div>
         </section>
+
+        {canExtendSeries && event.series_id ? (
+          <EventSeriesExtensionForm
+            teamId={team.id}
+            teamSlug={team.slug}
+            eventId={event.id}
+            seriesId={event.series_id}
+            currentOccurrences={currentSeriesOccurrences}
+            maxAdditionalOccurrences={maxAdditionalOccurrences}
+            initialRequestId={crypto.randomUUID()}
+          />
+        ) : null}
+
+        {eventControlEnabled ? (
+          <EventCancelForm
+            teamId={team.id}
+            teamSlug={team.slug}
+            eventId={event.id}
+            hasSeries={Boolean(event.series_id)}
+            initialRequestId={crypto.randomUUID()}
+          />
+        ) : null}
       </AppContainer>
       <TeamBottomNav teamSlug={team.slug} active="events" nextEventId={event.id} />
     </main>

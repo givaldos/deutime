@@ -2,7 +2,7 @@ import { confirmEmail } from "@/app/auth/confirm/actions";
 import { ClearConfirmationUrl } from "@/app/auth/confirm/clear-confirmation-url";
 import { CompletePkceConfirmation } from "@/app/auth/confirm/complete-pkce-confirmation";
 import { AuthShell } from "@/components/auth-shell";
-import { Button } from "@/components/ui/button";
+import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import {
   Card,
   CardContent,
@@ -62,9 +62,9 @@ export default async function ConfirmPage({ searchParams }: ConfirmPageProps) {
               <input type="hidden" name="token_hash" value={tokenHash} />
               <input type="hidden" name="type" value="email" />
               <input type="hidden" name="next" value={next} />
-              <Button type="submit" className="w-full">
+              <AsyncSubmitButton pendingLabel="Confirmando..." className="w-full">
                 Confirmar e-mail
-              </Button>
+              </AsyncSubmitButton>
             </form>
           </CardContent>
         </Card>

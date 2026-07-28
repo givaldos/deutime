@@ -4,6 +4,7 @@ import {
 } from "@/app/app/[teamSlug]/athletes/actions";
 import { AthleteRemoveButton } from "@/components/athlete-remove-button";
 import { Button } from "@/components/ui/button";
+import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { AppContainer, PageHeader } from "@/components/ui/app-shell";
 import { TeamAppHeader } from "@/components/team-app-header";
 import { TeamBottomNav } from "@/components/team-bottom-nav";
@@ -43,6 +44,10 @@ export default async function AthletesPage({
     updated?: string;
     removed?: string;
     removeError?: string;
+    reviewed?: string;
+    reviewError?: string;
+    availability?: string;
+    availabilityError?: string;
     view?: string;
   }>;
 }) {
@@ -154,6 +159,43 @@ export default async function AthletesPage({
           </div>
         )}
 
+        {(query.reviewed === "approve" || query.reviewed === "reject") && (
+          <div
+            role="status"
+            className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950"
+          >
+            <BadgeCheck className="size-5 shrink-0" aria-hidden />
+            {query.reviewed === "approve"
+              ? "Atleta confirmado e incluído no elenco."
+              : "Solicitação de vínculo rejeitada."}
+          </div>
+        )}
+
+        {query.reviewError === "1" && (
+          <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
+            Não foi possível concluir a análise do atleta. Tente novamente.
+          </div>
+        )}
+
+        {(query.availability === "active" ||
+          query.availability === "inactive") && (
+          <div
+            role="status"
+            className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950"
+          >
+            <BadgeCheck className="size-5 shrink-0" aria-hidden />
+            {query.availability === "active"
+              ? "Atleta reativado."
+              : "Atleta marcado como inativo."}
+          </div>
+        )}
+
+        {query.availabilityError === "1" && (
+          <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
+            Não foi possível alterar a disponibilidade do atleta.
+          </div>
+        )}
+
         <PageHeader
           eyebrow="BID do time"
           title="Atletas"
@@ -222,13 +264,13 @@ export default async function AthletesPage({
                         <input type="hidden" name="athleteId" value={athlete.id} />
                         <input type="hidden" name="teamSlug" value={team.slug} />
                         <input type="hidden" name="decision" value="reject" />
-                        <Button type="submit" variant="outline" className="h-11 w-full rounded-xl"><X aria-hidden /> Rejeitar</Button>
+                        <AsyncSubmitButton pendingLabel="Rejeitando..." variant="outline" className="h-11 w-full rounded-xl"><X aria-hidden /> Rejeitar</AsyncSubmitButton>
                       </form>
                       <form action={reviewAthlete}>
                         <input type="hidden" name="athleteId" value={athlete.id} />
                         <input type="hidden" name="teamSlug" value={team.slug} />
                         <input type="hidden" name="decision" value="approve" />
-                        <Button type="submit" className="h-11 w-full rounded-xl bg-emerald-700 hover:bg-emerald-800"><Check aria-hidden /> Aprovar</Button>
+                        <AsyncSubmitButton pendingLabel="Confirmando..." className="h-11 w-full rounded-xl bg-emerald-700 hover:bg-emerald-800"><Check aria-hidden /> Aprovar</AsyncSubmitButton>
                       </form>
                     </div>
                   </article>
@@ -288,9 +330,9 @@ export default async function AthletesPage({
                         <input type="hidden" name="athleteId" value={athlete.id} />
                         <input type="hidden" name="teamSlug" value={team.slug} />
                         <input type="hidden" name="status" value={athlete.status === "active" ? "inactive" : "active"} />
-                        <Button type="submit" size="sm" variant="ghost" className="h-10 w-full rounded-xl text-slate-600">
+                        <AsyncSubmitButton pendingLabel={athlete.status === "active" ? "Atualizando..." : "Reativando..."} size="sm" variant="ghost" className="h-10 w-full rounded-xl text-slate-600">
                           {athlete.status === "active" ? <><Ban aria-hidden /> Marcar como inativo</> : <><Check aria-hidden /> Reativar atleta</>}
-                        </Button>
+                        </AsyncSubmitButton>
                       </form>
                     )}
                   </article>

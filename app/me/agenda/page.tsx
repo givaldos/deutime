@@ -1,9 +1,11 @@
 import { respondToEventAsPlayer } from "@/app/me/actions";
 import { AppContainer, PageHeader } from "@/components/ui/app-shell";
+import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import {
   ArrowRight,
+  BadgeCheck,
   CalendarDays,
   Check,
   CircleHelp,
@@ -31,8 +33,13 @@ const responseStyles = {
   waitlist: "bg-slate-100 text-slate-600",
 };
 
-export default async function PlayerAgendaPage() {
+export default async function PlayerAgendaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ attendance?: string }>;
+}) {
   await requireUser();
+  const query = await searchParams;
   const supabase = await createClient();
   const { data: links, error: linksError } = await supabase.rpc(
     "list_my_player_team_links",
@@ -103,6 +110,19 @@ export default async function PlayerAgendaPage() {
 
   return (
     <AppContainer narrow>
+      {query.attendance === "updated" ? (
+        <div role="status" className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950">
+          <BadgeCheck className="size-5 shrink-0" aria-hidden />
+          Sua resposta foi atualizada.
+        </div>
+      ) : null}
+
+      {query.attendance === "error" ? (
+        <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
+          Não foi possível salvar sua resposta. Tente novamente.
+        </div>
+      ) : null}
+
       <PageHeader
         eyebrow="Seus compromissos"
         title="Agenda"
@@ -212,8 +232,10 @@ export default async function PlayerAgendaPage() {
                       <form key={status} action={respondToEventAsPlayer}>
                         <input type="hidden" name="eventId" value={event.id} />
                         <input type="hidden" name="status" value={status} />
-                        <button
-                          type="submit"
+                        <AsyncSubmitButton
+                          pendingLabel={`Salvando resposta: ${label}`}
+                          iconOnly
+                          variant="outline"
                           disabled={deadlineClosed}
                           data-active={currentStatus === status}
                           aria-label={`${label} — ${event.title}`}
@@ -221,7 +243,7 @@ export default async function PlayerAgendaPage() {
                         >
                           <Icon className="size-4" aria-hidden />
                           {label}
-                        </button>
+                        </AsyncSubmitButton>
                       </form>
                     ))}
                   </div>

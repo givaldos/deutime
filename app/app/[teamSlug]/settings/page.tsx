@@ -5,6 +5,7 @@ import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { TeamMediaManager } from "@/components/team-media-manager";
 import { TeamSettingsForm } from "@/components/team-settings-form";
 import { AppContainer } from "@/components/ui/app-shell";
+import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
@@ -23,7 +24,7 @@ export default async function TeamSettingsPage({
   searchParams,
 }: {
   params: Promise<{ teamSlug: string }>;
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ saved?: string; invitation?: string }>;
 }) {
   const user = await requireUser();
   const [{ teamSlug }, query] = await Promise.all([params, searchParams]);
@@ -131,6 +132,19 @@ export default async function TeamSettingsPage({
           </div>
         ) : null}
 
+        {query.invitation === "revoked" ? (
+          <div role="status" className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950">
+            <BadgeCheck className="size-5 shrink-0" aria-hidden />
+            Convite revogado.
+          </div>
+        ) : null}
+
+        {query.invitation === "revoke-error" ? (
+          <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
+            Não foi possível revogar o convite. Tente novamente.
+          </div>
+        ) : null}
+
         <section className="app-surface p-5 sm:p-7">
           <div className="mb-6">
             <p className="app-kicker">Visual</p>
@@ -226,7 +240,7 @@ export default async function TeamSettingsPage({
                     <form action={revokeTeamInvitation}>
                       <input type="hidden" name="invitationId" value={invitation.id} />
                       <input type="hidden" name="teamSlug" value={team.slug} />
-                      <Button type="submit" size="sm" variant="ghost">Revogar</Button>
+                      <AsyncSubmitButton pendingLabel="Revogando..." size="sm" variant="ghost">Revogar</AsyncSubmitButton>
                     </form>
                   </li>
                 ))}

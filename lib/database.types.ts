@@ -1491,6 +1491,21 @@ export type Database = {
         }
         Returns: string
       }
+      cancel_event_as_staff: {
+        Args: {
+          cancel_scope: string
+          request_id: string
+          requested_event_id: string
+          requested_team_id: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       complete_verified_athlete_registration: {
         Args: {
           accepts_privacy_terms: boolean
@@ -1588,6 +1603,21 @@ export type Database = {
           requested_team_id: string
         }
         Returns: boolean
+      }
+      extend_event_series_as_staff: {
+        Args: {
+          additional_occurrences: number
+          request_id: string
+          requested_series_id: string
+          requested_team_id: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       get_my_player_statistics: {
         Args: never

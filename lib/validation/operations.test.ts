@@ -1,6 +1,8 @@
 import {
+  cancelEventSchema,
   createAthleteSchema,
   createEventSchema,
+  extendEventSeriesSchema,
   legacyCreateEventSchema,
   matchIncidentSchema,
   matchReportSchema,
@@ -184,6 +186,56 @@ describe("operational validation", () => {
     expect(
       updateEventSchema.safeParse({ ...base, editScope: "entire_series" })
         .success,
+    ).toBe(false);
+  });
+
+  it("requires an explicit supported event cancellation scope", () => {
+    const base = {
+      teamId: "10000000-0000-0000-0000-000000000002",
+      teamSlug: "racha-do-bairro",
+      eventId: "40000000-0000-0000-0000-000000000002",
+      requestId: "33333333-3333-4333-8333-333333333333",
+      cancelScope: "single_event",
+      confirmation: "confirmed",
+    };
+
+    expect(cancelEventSchema.safeParse(base).success).toBe(true);
+    expect(
+      cancelEventSchema.safeParse({
+        ...base,
+        cancelScope: "entire_series",
+      }).success,
+    ).toBe(false);
+    expect(
+      cancelEventSchema.safeParse({
+        ...base,
+        confirmation: undefined,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("validates a bounded event series extension", () => {
+    const base = {
+      teamId: "10000000-0000-0000-0000-000000000002",
+      teamSlug: "racha-do-bairro",
+      eventId: "40000000-0000-0000-0000-000000000002",
+      seriesId: "50000000-0000-0000-0000-000000000002",
+      requestId: "33333333-3333-4333-8333-333333333334",
+      additionalOccurrences: "4",
+    };
+
+    expect(extendEventSeriesSchema.parse(base).additionalOccurrences).toBe(4);
+    expect(
+      extendEventSeriesSchema.safeParse({
+        ...base,
+        additionalOccurrences: "0",
+      }).success,
+    ).toBe(false);
+    expect(
+      extendEventSeriesSchema.safeParse({
+        ...base,
+        additionalOccurrences: "53",
+      }).success,
     ).toBe(false);
   });
 
