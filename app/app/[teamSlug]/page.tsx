@@ -84,7 +84,7 @@ export default async function TeamDashboardPage({
   searchParams,
 }: {
   params: Promise<{ teamSlug: string }>;
-  searchParams: Promise<{ created?: string }>;
+  searchParams: Promise<{ created?: string; invite?: string }>;
 }) {
   const user = await requireUser();
   const [{ teamSlug }, query] = await Promise.all([params, searchParams]);
@@ -228,6 +228,13 @@ export default async function TeamDashboardPage({
       />
 
       <AppContainer className="space-y-5 pb-8 sm:space-y-7">
+        {query.invite === "accepted" ? (
+          <div role="status" className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950">
+            <BadgeCheck className="size-5 shrink-0" aria-hidden />
+            Convite aceito. Você já pode administrar este time.
+          </div>
+        ) : null}
+
         {query.created === "1" ? (
           <section className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950">
             <BadgeCheck className="mt-0.5 size-5 shrink-0" aria-hidden />

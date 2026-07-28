@@ -26,8 +26,10 @@ async function respond(formData: FormData, response: "accept" | "decline") {
   if (error) redirect("/app?invite=unavailable");
 
   revalidatePath("/app");
-  if (response === "accept" && teamSlug) redirect(`/app/${teamSlug}`);
-  redirect("/app");
+  if (response === "accept" && teamSlug) {
+    redirect(`/app/${teamSlug}?invite=accepted`);
+  }
+  redirect("/app?invite=declined");
 }
 
 export async function acceptTeamInvitation(formData: FormData) {

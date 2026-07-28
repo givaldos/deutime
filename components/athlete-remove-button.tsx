@@ -1,7 +1,7 @@
 "use client";
 
 import { removeAthlete } from "@/app/app/[teamSlug]/athletes/actions";
-import { Button } from "@/components/ui/button";
+import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Trash2 } from "lucide-react";
 
 export function AthleteRemoveButton({
@@ -28,14 +28,14 @@ export function AthleteRemoveButton({
     >
       <input type="hidden" name="athleteId" value={athleteId} />
       <input type="hidden" name="teamSlug" value={teamSlug} />
-      <Button
-        type="submit"
+      <AsyncSubmitButton
+        pendingLabel="Removendo..."
         size="sm"
         variant="ghost"
         className="h-10 w-full rounded-xl text-red-700 hover:bg-red-50 hover:text-red-800"
       >
         <Trash2 aria-hidden /> Remover
-      </Button>
+      </AsyncSubmitButton>
     </form>
   );
 }

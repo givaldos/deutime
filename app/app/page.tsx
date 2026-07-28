@@ -3,6 +3,7 @@ import {
   declineTeamInvitation,
 } from "@/app/app/invitation-actions";
 import { BrandMark } from "@/components/brand-mark";
+import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/logout-button";
 import { requireUser } from "@/lib/auth/dal";
@@ -81,6 +82,12 @@ export default async function AppIndexPage({
           </p>
         )}
 
+        {query.invite === "declined" && (
+          <p role="status" className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950">
+            Convite recusado.
+          </p>
+        )}
+
         {pendingInvitations.length ? (
           <>
             <section>
@@ -115,13 +122,13 @@ export default async function AppIndexPage({
                   <div className="mt-5 grid grid-cols-[1fr_auto] gap-2">
                     <form action={acceptTeamInvitation}>
                       <input type="hidden" name="invitationId" value={invitation.invitation_id} />
-                      <Button type="submit" className="h-11 w-full rounded-xl bg-emerald-700 hover:bg-emerald-800">
+                      <AsyncSubmitButton pendingLabel="Aceitando..." className="h-11 w-full rounded-xl bg-emerald-700 hover:bg-emerald-800">
                         Aceitar e entrar <ArrowRight aria-hidden />
-                      </Button>
+                      </AsyncSubmitButton>
                     </form>
                     <form action={declineTeamInvitation}>
                       <input type="hidden" name="invitationId" value={invitation.invitation_id} />
-                      <Button type="submit" variant="ghost" className="h-11 rounded-xl">Recusar</Button>
+                      <AsyncSubmitButton pendingLabel="Recusando..." variant="ghost" className="h-11 rounded-xl">Recusar</AsyncSubmitButton>
                     </form>
                   </div>
                 </article>

@@ -242,7 +242,7 @@ export async function setEventAttendance(formData: FormData) {
     athleteId: formData.get("athleteId"),
     status: formData.get("status"),
   });
-  if (!parsed.success) return;
+  if (!parsed.success) redirect("/app");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("set_event_attendance_as_staff", {
@@ -250,10 +250,17 @@ export async function setEventAttendance(formData: FormData) {
     requested_athlete_id: parsed.data.athleteId,
     next_status: parsed.data.status,
   });
-  if (error) return;
+  if (error) {
+    redirect(
+      `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}?attendance=error`,
+    );
+  }
 
   revalidatePath(`/app/${parsed.data.teamSlug}/events`);
   revalidatePath(`/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}`);
+  redirect(
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}?attendance=updated`,
+  );
 }
 
 export async function saveMatchReport(
@@ -379,13 +386,21 @@ export async function deleteMatchIncident(formData: FormData) {
     eventId: formData.get("eventId"),
     incidentId: formData.get("incidentId"),
   });
-  if (!parsed.success) return;
+  if (!parsed.success) redirect("/app");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("delete_match_incident_as_staff", {
     requested_incident_id: parsed.data.incidentId,
   });
-  if (!error) revalidateMatchPages(parsed.data.teamSlug, parsed.data.eventId);
+  if (error) {
+    redirect(
+      `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}/match?incidentError=1`,
+    );
+  }
+  revalidateMatchPages(parsed.data.teamSlug, parsed.data.eventId);
+  redirect(
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}/match?incident=deleted`,
+  );
 }
 
 function revalidateMatchPages(teamSlug: string, eventId: string) {

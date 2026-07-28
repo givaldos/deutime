@@ -3,7 +3,7 @@ import {
   MatchIncidentForm,
   MatchScoreForm,
 } from "@/components/admin-match-report";
-import { Button } from "@/components/ui/button";
+import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { AppContainer } from "@/components/ui/app-shell";
 import { TeamAppHeader } from "@/components/team-app-header";
 import { requireUser } from "@/lib/auth/dal";
@@ -35,11 +35,16 @@ const kindLabels = {
 
 export default async function MatchReportPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ teamSlug: string; eventId: string }>;
+  searchParams: Promise<{ incident?: string; incidentError?: string }>;
 }) {
   const user = await requireUser();
-  const { teamSlug, eventId } = await params;
+  const [{ teamSlug, eventId }, query] = await Promise.all([
+    params,
+    searchParams,
+  ]);
   const supabase = await createClient();
   const [{ data: team }, { data: teams }] = await Promise.all([
     supabase
@@ -145,6 +150,20 @@ export default async function MatchReportPage({
     <main className="app-canvas pb-24">
       <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
       <AppContainer>
+        {query.incident === "deleted" ? (
+          <div role="status" className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950">
+            <BadgeCheck className="size-5 shrink-0" aria-hidden />
+            Lance excluído.
+          </div>
+        ) : null}
+
+        {query.incidentError === "1" ? (
+          <div role="alert" className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
+            <ShieldAlert className="size-5 shrink-0" aria-hidden />
+            Não foi possível excluir o lance.
+          </div>
+        ) : null}
+
         <div className="flex items-center justify-between gap-3">
           <Link
             href={`/app/${team.slug}/events/${event.id}`}
@@ -351,15 +370,16 @@ export default async function MatchReportPage({
                         name="incidentId"
                         value={incident.id}
                       />
-                      <Button
-                        type="submit"
+                      <AsyncSubmitButton
+                        pendingLabel="Excluindo lance..."
+                        iconOnly
                         size="icon"
                         variant="ghost"
                         aria-label={`Excluir lance de ${athleteName}`}
                         className="text-slate-400 hover:text-red-600"
                       >
                         <Trash2 aria-hidden />
-                      </Button>
+                      </AsyncSubmitButton>
                     </form>
                   </article>
                 );

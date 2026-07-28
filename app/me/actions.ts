@@ -186,15 +186,17 @@ export async function respondToEventAsPlayer(formData: FormData) {
     eventId: formData.get("eventId"),
     status: formData.get("status"),
   });
-  if (!parsed.success) return;
+  if (!parsed.success) redirect("/me/agenda?attendance=error");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("respond_to_event_as_player", {
     requested_event_id: parsed.data.eventId,
     response_status: parsed.data.status,
   });
-  if (!error) {
-    revalidatePath("/me");
-    revalidatePath("/me/agenda");
+  if (error) {
+    redirect("/me/agenda?attendance=error");
   }
+  revalidatePath("/me");
+  revalidatePath("/me/agenda");
+  redirect("/me/agenda?attendance=updated");
 }

@@ -1,4 +1,5 @@
 import { setEventAttendance } from "@/app/app/[teamSlug]/events/actions";
+import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Button } from "@/components/ui/button";
 import { AppContainer } from "@/components/ui/app-shell";
 import { TeamAppHeader } from "@/components/team-app-header";
@@ -45,7 +46,11 @@ export default async function EventDetailPage({
   searchParams,
 }: {
   params: Promise<{ teamSlug: string; eventId: string }>;
-  searchParams: Promise<{ created?: string; updated?: string }>;
+  searchParams: Promise<{
+    created?: string;
+    updated?: string;
+    attendance?: string;
+  }>;
 }) {
   const user = await requireUser();
   const { teamSlug, eventId } = await params;
@@ -133,6 +138,19 @@ export default async function EventDetailPage({
           </div>
         )}
 
+        {query.attendance === "updated" && (
+          <div role="status" className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950">
+            <BadgeCheck className="size-5 shrink-0" aria-hidden />
+            Presença atualizada.
+          </div>
+        )}
+
+        {query.attendance === "error" && (
+          <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
+            Não foi possível atualizar a presença. Tente novamente.
+          </div>
+        )}
+
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link href={`/app/${team.slug}/events`} className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-slate-600 hover:text-emerald-800">
             <ArrowLeft className="size-4" aria-hidden /> Voltar à agenda
@@ -217,9 +235,17 @@ export default async function EventDetailPage({
                             <input type="hidden" name="eventId" value={event.id} />
                             <input type="hidden" name="athleteId" value={athlete.id} />
                             <input type="hidden" name="status" value={status as string} />
-                            <button type="submit" disabled={disabled} data-active={athlete.response.status === status} aria-label={`${label} — ${athlete.preferred_name || athlete.full_name}`} className={`flex min-h-12 w-full touch-manipulation flex-col items-center justify-center rounded-xl border border-slate-200 text-[10px] font-bold text-slate-500 transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${activeClass}`}>
+                            <AsyncSubmitButton
+                              pendingLabel={`Salvando resposta: ${label as string}`}
+                              iconOnly
+                              variant="outline"
+                              disabled={disabled}
+                              data-active={athlete.response.status === status}
+                              aria-label={`${label} — ${athlete.preferred_name || athlete.full_name}`}
+                              className={`flex min-h-12 w-full touch-manipulation flex-col items-center justify-center rounded-xl border border-slate-200 text-[10px] font-bold text-slate-500 transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${activeClass}`}
+                            >
                               <StatusIcon className="mb-0.5 size-4" aria-hidden /> {label as string}
-                            </button>
+                            </AsyncSubmitButton>
                           </form>
                         );
                       })}

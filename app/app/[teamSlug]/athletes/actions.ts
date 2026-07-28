@@ -78,18 +78,25 @@ export async function reviewAthlete(formData: FormData) {
     teamSlug: formData.get("teamSlug"),
     decision: formData.get("decision"),
   });
-  if (!parsed.success) return;
+  if (!parsed.success) redirect("/app");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("review_athlete_registration", {
     requested_athlete_id: parsed.data.athleteId,
     decision: parsed.data.decision,
   });
-  if (error) return;
+  if (error) {
+    redirect(
+      `/app/${parsed.data.teamSlug}/athletes?reviewError=1`,
+    );
+  }
 
   revalidatePath(`/app/${parsed.data.teamSlug}`);
   revalidatePath(`/app/${parsed.data.teamSlug}/athletes`);
   revalidatePath(`/app/${parsed.data.teamSlug}/events`);
+  redirect(
+    `/app/${parsed.data.teamSlug}/athletes?reviewed=${parsed.data.decision}`,
+  );
 }
 
 export async function setAthleteAvailability(formData: FormData) {
@@ -99,17 +106,24 @@ export async function setAthleteAvailability(formData: FormData) {
     teamSlug: formData.get("teamSlug"),
     status: formData.get("status"),
   });
-  if (!parsed.success) return;
+  if (!parsed.success) redirect("/app");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("set_athlete_availability", {
     requested_athlete_id: parsed.data.athleteId,
     next_status: parsed.data.status,
   });
-  if (error) return;
+  if (error) {
+    redirect(
+      `/app/${parsed.data.teamSlug}/athletes?availabilityError=1`,
+    );
+  }
 
   revalidatePath(`/app/${parsed.data.teamSlug}`);
   revalidatePath(`/app/${parsed.data.teamSlug}/athletes`);
+  redirect(
+    `/app/${parsed.data.teamSlug}/athletes?availability=${parsed.data.status}`,
+  );
 }
 
 export async function updateAthlete(

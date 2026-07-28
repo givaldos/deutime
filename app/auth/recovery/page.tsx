@@ -4,7 +4,7 @@ import {
 } from "@/app/auth/recovery/actions";
 import { ClearConfirmationUrl } from "@/app/auth/confirm/clear-confirmation-url";
 import { AuthShell } from "@/components/auth-shell";
-import { Button } from "@/components/ui/button";
+import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   isValidEmailTokenHash,
@@ -64,7 +64,7 @@ export default async function PasswordRecoveryPage({
                   <input type="hidden" name="type" value="recovery" />
                 </>
               )}
-              <Button type="submit" className="w-full">Continuar com segurança</Button>
+              <AsyncSubmitButton pendingLabel="Validando..." className="w-full">Continuar com segurança</AsyncSubmitButton>
             </form>
           </CardContent>
         </Card>
