@@ -1,19 +1,22 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 27 de julho de 2026.
+> Atualizado em 28 de julho de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
+
+**Legenda:** ✅ concluído · 🟡 em execução ou fundação parcial · ⚪ não iniciado
 
 ## Passado — base comprovada
 
 O produto já possui:
 
-- SaaS multi-time com RLS, PII separada, CI, pgTAP e infraestrutura como código;
-- identidade global para atletas reivindicados e vínculo independente por time;
-- onboarding, convites, BID, agenda avulsa/recorrente e confirmação autenticada;
-- súmula administrativa com placar, lances, encerramento e correções auditadas;
-- página pública do time, perfil público consentido e mídia privada;
-- OTP no WhatsApp e outbox como fundação, ainda sem automação operacional.
+- ✅ SaaS multi-time com RLS, PII separada, CI, pgTAP e infraestrutura como código;
+- ✅ identidade global para atletas reivindicados e vínculo independente por time;
+- ✅ onboarding, convites, BID, agenda avulsa/recorrente e confirmação autenticada;
+- ✅ súmula administrativa com placar, lances, encerramento e correções auditadas;
+- ✅ página pública do time, perfil público consentido e mídia privada;
+- ✅ perfil pessoal editável, incluindo foto global com recorte, troca, remoção e exibição pública consentida;
+- 🟡 OTP no WhatsApp e outbox estão prontos como fundação, ainda sem automação operacional.
 
 O padrão técnico comprovado é uma fatia vertical: UI mobile → Server Action fina → RPC transacional → autorização/RLS → testes e auditoria. Os fatos exatos possuem IDs `BASE-*` no contexto canônico.
 
@@ -21,26 +24,26 @@ O padrão técnico comprovado é uma fatia vertical: UI mobile → Server Action
 
 | Release | Estado | Resultado | Pacote |
 |---|---|---|---|
-| **R00 — Fundação de entrega** | `discovery` | Ativação controlada, deploy compatível, staging e smoke test; é uma release habilitadora. | [Abrir](releases/R00-fundacao-de-entrega.md) |
-| **R01 — Evento sob controle** | `draft` | Fuso correto e cancelamento/remarcação com histórico preservado. | [Abrir](releases/R01-evento-sob-controle.md) |
-| **R02 — Confirmação pelo link** | `draft` | Mesmo link, acesso persistente, SIM/NÃO/TALVEZ e compartilhamento manual pelo WhatsApp. | [Abrir](releases/R02-confirmacao-pelo-link.md) |
+| **R00 — Fundação de entrega** | ✅ `done` | Ativação controlada, deploy compatível e smoke test para o fluxo local + produção do MVP. | [Abrir](releases/R00-fundacao-de-entrega.md) |
+| **R01 — Evento sob controle** | ✅ `done` | Fuso correto e cancelamento/remarcação com histórico preservado. | [Abrir](releases/R01-evento-sob-controle.md) |
+| **R02 — Confirmação pelo link** | 🟡 `active` | URL pública e compartilhamento manual concluídos; capability duradoura e SIM/NÃO/TALVEZ pelo link ainda estão em execução. | [Abrir](releases/R02-confirmacao-pelo-link.md) |
 
-Ordem recomendada para uma única frente: **R00 → R01 → R02**. Pacotes de descoberta podem fechar decisões da release consumidora, mas implementação não começa com decisão que altere schema, autorização ou contrato público ainda aberta.
+R00 e R01 estão concluídas. A frente atual é a R02. Pacotes de descoberta podem fechar decisões da release consumidora, mas implementação não começa com decisão que altere schema, autorização ou contrato público ainda aberta.
 
-A R02 só passa a `ready` depois de `DEC-EVENT-PUBLIC-MINIMUM` e `DEC-UNCLAIMED-IDENTITY`; o threat model de `DEC-PERSISTENT-ACCESS` é produzido na R00.
+Na R02, `WP-R02-01` e os critérios `AC-R02-01`, `AC-R02-02` e `AC-R02-10` estão concluídos. Os contratos de `DEC-EVENT-PUBLIC-MINIMUM`, `DEC-UNCLAIMED-IDENTITY` e `DEC-PERSISTENT-ACCESS` já foram fechados; faltam capability, sessão persistente, resposta pelo link, revogação e validação móvel completa.
 
 ## Futuro — releases verticais
 
-| Release | Resultado autossuficiente | Depende de | Decisão antes de promover | Fallback |
-|---|---|---|---|---|
-| **R03 — WhatsApp ponta a ponta** | Uma chamada real, consentida e observável, com worker, retry e webhook. | R01, R02 | `DEC-WHATSAPP-PROVIDER` | Compartilhamento manual |
-| **R04 — Partida e pós-jogo básico** | Partida mínima, encerramento, presença real e súmula pública/identificada. | R02 | `DEC-EVENT-MATCH`, `DEC-PUBLIC-PRIVACY` | Súmula administrativa |
-| **R05 — Craque da Galera** | Voto único anônimo, candidatos presentes e resultado agregado. | R04 | `DEC-ANONYMOUS-RETENTION` | Súmula sem votação |
-| **R06 — Conversa da súmula** | Comentários identificados, respostas, denúncia e moderação. | R02, R04 | `DEC-CONVERSATION-LIFETIME`, `DEC-ANONYMOUS-RETENTION` | Súmula somente leitura |
-| **R07 — Times manuais compartilháveis** | Divisão acessível, publicação e imagem pelo mesmo link. | R02 | `DEC-EVENT-MATCH` | Lista de confirmados |
-| **R08 — Divisão automática** | Sugestão reproduzível, ajustável e explicável. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Divisão manual |
-| **R09 — Camisas, temporadas e tabela** | Camisas, resultados transacionais, tabela e histórico. | R04, R07 | — | Histórico por partida |
-| **R10 — Reconhecimento** | Pontos positivos, Craques e perfis consentidos. | R04, R05 | — | Estatísticas básicas |
+| Release | Estado | Resultado autossuficiente | Depende de | Decisão antes de promover | Fallback |
+|---|---|---|---|---|---|
+| **R03 — WhatsApp ponta a ponta** | ⚪ `não iniciado` | Uma chamada real, consentida e observável, com worker, retry e webhook. | R01, R02 | `DEC-WHATSAPP-PROVIDER` | Compartilhamento manual |
+| **R04 — Partida e pós-jogo básico** | ⚪ `não iniciado` | Partida mínima, encerramento, presença real e súmula pública/identificada. | R02 | `DEC-EVENT-MATCH`, `DEC-PUBLIC-PRIVACY` | Súmula administrativa |
+| **R05 — Craque da Galera** | ⚪ `não iniciado` | Voto único anônimo, candidatos presentes e resultado agregado. | R04 | `DEC-ANONYMOUS-RETENTION` | Súmula sem votação |
+| **R06 — Conversa da súmula** | ⚪ `não iniciado` | Comentários identificados, respostas, denúncia e moderação. | R02, R04 | `DEC-CONVERSATION-LIFETIME`, `DEC-ANONYMOUS-RETENTION` | Súmula somente leitura |
+| **R07 — Times manuais compartilháveis** | ⚪ `não iniciado` | Divisão acessível, publicação e imagem pelo mesmo link. | R02 | `DEC-EVENT-MATCH` | Lista de confirmados |
+| **R08 — Divisão automática** | ⚪ `não iniciado` | Sugestão reproduzível, ajustável e explicável. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Divisão manual |
+| **R09 — Camisas, temporadas e tabela** | ⚪ `não iniciado` | Camisas, resultados transacionais, tabela e histórico. | R04, R07 | — | Histórico por partida |
+| **R10 — Reconhecimento** | ⚪ `não iniciado` | Pontos positivos, Craques e perfis consentidos. | R04, R05 | — | Estatísticas básicas |
 
 Depois da R02, R03, R04 e R07 são trilhas independentes. R05 e R06 não esperam divisão automática nem tabela.
 
