@@ -2,7 +2,7 @@
 release: R01
 work_package: CP5-R01
 scope: event_control
-branch_or_commit: "ee45409"
+branch_or_commit: "1cb1640"
 checkpoint: CP5
 status: in_progress
 completed_ac:
@@ -30,15 +30,17 @@ tests:
   - "PR #22 integrado — CI, Database, CodeQL, Terraform e Deploy database verdes"
   - "smoke automático 30375783530 e repetição manual em produção — ok"
   - "produção — integration_produce=false e integration_consume=false"
-blocker: "O piloto exige selecionar um time real, confirmar owner/admin ativo e obter consentimento antes de habilitar event_control."
-next_action: "Selecionar um único time piloto e seu owner/admin; confirmar a flag desligada no SQL Editor e só então executar a ativação auditada descrita no runbook."
+  - "piloto Demo Society — event_control=true com auditoria confirmada"
+  - "criação e cancelamento com replay — 2 comandos, 2 mudanças e 0 divergências"
+  - "smoke pós-operação — ok; integrações externas permaneceram desligadas"
+blocker: "Falta o operador entrar no DeuTime e confirmar visualmente, em viewport móvel, a jornada habilitada do Demo Society."
+next_action: "O operador autentica em https://deutime.app, abre o Demo Society no celular e confirma que criação/edição usam o fluxo novo e que o evento de demonstração aparece cancelado."
 ---
 
 # Trabalho atual
 
-O deploy inerte do CP5 foi concluído na `main`: aplicação, banco, checks e
-smokes estão verdes, e os kill switches permanecem desligados. A capacidade
-`event_control` continua desligada por padrão. O CP5 permanece em andamento
-até que um único time piloto seja escolhido, seu owner/admin ativo e
-consentimento sejam confirmados e a ativação auditada seja acompanhada pelas
-métricas e critérios de interrupção do runbook.
+O piloto técnico está ativo somente no `Demo Society`. A ativação auditada,
+os replays de criação e cancelamento, a integridade transacional, os kill
+switches e os smokes foram validados em produção. O CP5 permanece em andamento
+até o operador confirmar visualmente a jornada autenticada no celular; os
+demais times continuam com `event_control` desligada.
