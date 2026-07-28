@@ -1604,6 +1604,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      extend_event_series_as_staff: {
+        Args: {
+          additional_occurrences: number
+          request_id: string
+          requested_series_id: string
+          requested_team_id: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_my_player_statistics: {
         Args: never
         Returns: {

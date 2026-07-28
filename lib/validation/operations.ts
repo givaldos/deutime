@@ -211,6 +211,19 @@ export const cancelEventSchema = z.object({
   }),
 });
 
+export const extendEventSeriesSchema = z.object({
+  teamId: databaseUuidSchema,
+  teamSlug: z.string().regex(TEAM_SLUG_PATTERN),
+  eventId: databaseUuidSchema,
+  seriesId: databaseUuidSchema,
+  requestId: z.string().uuid(),
+  additionalOccurrences: z.coerce
+    .number()
+    .int()
+    .min(1, "Adicione pelo menos uma nova ocorrência.")
+    .max(52, "Uma série pode ter no máximo 52 ocorrências."),
+});
+
 export const attendanceUpdateSchema = z.object({
   teamSlug: z.string().regex(TEAM_SLUG_PATTERN),
   eventId: z.string().uuid(),

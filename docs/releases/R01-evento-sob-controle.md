@@ -253,7 +253,7 @@ Nenhum envio externo nasce na R01.
 - [x] `AC-R01-01` — A mesma data local resulta no mesmo instante independentemente do fuso do aparelho.
 - [x] `AC-R01-02` — Cancelamento preserva registro, presença histórica e súmula existente.
 - [x] `AC-R01-03` — Editar/remarcar informa claramente o alcance antes de confirmar.
-- [ ] `AC-R01-04` — Repetir o mesmo comando não duplica ocorrências nem efeitos.
+- [x] `AC-R01-04` — Repetir o mesmo comando não duplica ocorrências nem efeitos.
 - [x] `AC-R01-05` — Comandos futuros de notificação podem identificar cancelamento ou novo horário sem heurística.
 - [x] `AC-R01-06` — Fluxos passam em viewport móvel, teclado e leitor de tela.
 - [x] `AC-R01-07` — pgTAP cobre papel permitido, negado e tentativa cross-tenant.
@@ -339,3 +339,22 @@ Nenhum envio externo nasce na R01.
 - viewport móvel 390×844 sem overflow horizontal, botão principal de 48 px,
   confirmação obrigatória e estado cancelado previsível; teste local preservou
   as 28 presenças do evento do seed e retirou o formulário após o comando.
+
+## Evidência do CP4 — WP-R01-03
+
+- migration forward-only `series_extension` adiciona a RPC transacional
+  `extend_event_series_as_staff`, limitada a séries ativas e futuras;
+- extensão usa `ends_on`, `local_start_time` e timezone autoritativos da série,
+  preserva a hora civil através de DST e cria posições contíguas únicas;
+- cada nova ocorrência nasce com chamada pendente para o elenco ativo,
+  `event_change` do tipo `series_extended` e auditoria única do comando;
+- o ledger devolve replay persistido sem duplicar ocorrência, mudança ou
+  auditoria e rejeita o mesmo `request_id` com quantidade divergente;
+- limite total de 52, série inativa, flag desligada e cross-tenant falham no
+  banco; owner e manager ativos passam;
+- pgTAP completo: 16 arquivos, 359 testes; lint sem novo aviso e apenas a
+  advertência legada de `create_event_as_staff`;
+- `npm run verify`: lint, typecheck, 74 testes e build de produção passaram;
+  `npm run security:audit` encontrou zero vulnerabilidades;
+- viewport móvel 390×844 sem overflow, campo e ação principal com 48 px,
+  descrição acessível do limite e fluxo local completo de 3 para 5 ocorrências.

@@ -8,6 +8,7 @@ import {
   cancelEventSchema,
   createEventSchema,
   deleteMatchIncidentSchema,
+  extendEventSeriesSchema,
   legacyCreateEventSchema,
   legacyUpdateEventSchema,
   matchIncidentSchema,
@@ -30,6 +31,12 @@ export type MatchActionState = {
 };
 
 export type EventCancellationState = {
+  attempt?: number;
+  message?: string;
+  errors?: Record<string, string[] | undefined>;
+};
+
+export type EventSeriesExtensionState = {
   attempt?: number;
   message?: string;
   errors?: Record<string, string[] | undefined>;
@@ -309,6 +316,74 @@ export async function cancelEvent(
   revalidatePath(`/me/agenda/${parsed.data.eventId}`);
   redirect(
     `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}?cancelled=${parsed.data.cancelScope}`,
+  );
+}
+
+export async function extendEventSeries(
+  previousState: EventSeriesExtensionState,
+  formData: FormData,
+): Promise<EventSeriesExtensionState> {
+  await requireUser();
+  const attempt = (previousState.attempt ?? 0) + 1;
+  const parsed = extendEventSeriesSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    eventId: formData.get("eventId"),
+    seriesId: formData.get("seriesId"),
+    requestId: formData.get("requestId"),
+    additionalOccurrences: formData.get("additionalOccurrences"),
+  });
+
+  if (!parsed.success) {
+    const errors = parsed.error.flatten().fieldErrors;
+    return {
+      attempt,
+      message:
+        Object.values(errors)
+          .flatMap((fieldErrors) => fieldErrors ?? [])
+          .find(Boolean) ?? "Revise a quantidade de novas ocorrências.",
+      errors,
+    };
+  }
+
+  if (!(await isTeamFeatureEnabled(parsed.data.teamId, "event_control"))) {
+    return {
+      attempt,
+      message: "A extensão de séries ainda não está disponível para este time.",
+    };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc(
+    "extend_event_series_as_staff",
+    {
+      requested_team_id: parsed.data.teamId,
+      requested_series_id: parsed.data.seriesId,
+      request_id: parsed.data.requestId,
+      additional_occurrences: parsed.data.additionalOccurrences,
+    },
+  );
+
+  if (error || !data?.affected_count) {
+    return {
+      attempt,
+      message:
+        error?.code === "55000"
+          ? "Esta série não pode ser estendida ou já atingiu o limite de 52 ocorrências."
+          : "Não foi possível estender a série. Confira sua permissão e tente novamente.",
+    };
+  }
+
+  revalidatePath(`/app/${parsed.data.teamSlug}`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/events`);
+  revalidatePath(
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}`,
+  );
+  revalidatePath(`/t/${parsed.data.teamSlug}`);
+  revalidatePath("/me");
+  revalidatePath("/me/agenda");
+  redirect(
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}?extended=${parsed.data.additionalOccurrences}`,
   );
 }
 

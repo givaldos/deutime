@@ -1,5 +1,6 @@
 import { setEventAttendance } from "@/app/app/[teamSlug]/events/actions";
 import { EventCancelForm } from "@/components/event-cancel-form";
+import { EventSeriesExtensionForm } from "@/components/event-series-extension-form";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Button } from "@/components/ui/button";
 import { AppContainer } from "@/components/ui/app-shell";
@@ -53,6 +54,7 @@ export default async function EventDetailPage({
     updated?: string;
     attendance?: string;
     cancelled?: string;
+    extended?: string;
   }>;
 }) {
   const user = await requireUser();
@@ -81,6 +83,23 @@ export default async function EventDetailPage({
       .maybeSingle(),
   ]);
   if (!membership || !event) notFound();
+
+  const [{ data: series }, { count: seriesOccurrenceCount }] =
+    event.series_id
+      ? await Promise.all([
+          supabase
+            .from("event_series")
+            .select("id, is_active")
+            .eq("id", event.series_id)
+            .eq("team_id", team.id)
+            .maybeSingle(),
+          supabase
+            .from("events")
+            .select("id", { count: "exact", head: true })
+            .eq("series_id", event.series_id)
+            .eq("team_id", team.id),
+        ])
+      : [{ data: null }, { count: 0 }];
 
   const [{ data: athletes }, { data: attendance }, { data: venue }] = await Promise.all([
     supabase
@@ -122,6 +141,16 @@ export default async function EventDetailPage({
     isScheduled && new Date(event.starts_at).valueOf() > new Date().valueOf();
   const eventControlEnabled =
     isEditable && (await isTeamFeatureEnabled(team.id, "event_control"));
+  const currentSeriesOccurrences = seriesOccurrenceCount ?? 0;
+  const maxAdditionalOccurrences = Math.max(
+    0,
+    52 - currentSeriesOccurrences,
+  );
+  const canExtendSeries =
+    eventControlEnabled &&
+    Boolean(event.series_id) &&
+    Boolean(series?.is_active) &&
+    maxAdditionalOccurrences > 0;
 
   return (
     <main className="app-canvas pb-24">
@@ -162,6 +191,18 @@ export default async function EventDetailPage({
                   }).format(new Date(event.cancelled_at))}.`
                 : null}
             </span>
+          </div>
+        )}
+
+        {query.extended && Number(query.extended) > 0 && (
+          <div
+            role="status"
+            className="flex items-center gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm font-medium text-sky-950"
+          >
+            <BadgeCheck className="size-5 shrink-0" aria-hidden />
+            {Number(query.extended) === 1
+              ? "Uma nova data foi adicionada à série."
+              : `${Number(query.extended)} novas datas foram adicionadas à série.`}
           </div>
         )}
 
@@ -306,6 +347,18 @@ export default async function EventDetailPage({
           {confirmed.length > 0 && <div className="mt-4 flex flex-wrap gap-2">{confirmed.map((athlete) => <span key={athlete.id} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-emerald-900 shadow-sm">{athlete.preferred_name || athlete.full_name}</span>)}</div>}
           <div className="mt-5 flex items-start gap-2 rounded-2xl bg-white/70 p-3 text-xs leading-5 text-emerald-900"><ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden /> A aprovação do vínculo e a confirmação da presença continuam sendo exigidas pelo sistema.</div>
         </section>
+
+        {canExtendSeries && event.series_id ? (
+          <EventSeriesExtensionForm
+            teamId={team.id}
+            teamSlug={team.slug}
+            eventId={event.id}
+            seriesId={event.series_id}
+            currentOccurrences={currentSeriesOccurrences}
+            maxAdditionalOccurrences={maxAdditionalOccurrences}
+            initialRequestId={crypto.randomUUID()}
+          />
+        ) : null}
 
         {eventControlEnabled ? (
           <EventCancelForm
