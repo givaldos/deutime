@@ -1,6 +1,6 @@
 import "server-only";
 
-import { resolveDashboardDestination } from "@/lib/auth/destination";
+import { resolveDashboardDestinationFromLookups } from "@/lib/auth/destination";
 import { createClient } from "@/lib/supabase/server";
 import { cache } from "react";
 import { redirect } from "next/navigation";
@@ -12,31 +12,40 @@ export const getSessionDestination = cache(async () => {
 
   if (error || typeof userId !== "string") return null;
 
-  const [
-    { data: membership, error: membershipError },
-    { data: playerProfile, error: playerProfileError },
-  ] = await Promise.all([
-    supabase
-      .from("team_memberships")
-      .select("team_id")
-      .eq("user_id", userId)
-      .eq("status", "active")
-      .limit(1)
-      .maybeSingle(),
-    supabase
-      .from("player_profiles")
-      .select("user_id")
-      .eq("user_id", userId)
-      .maybeSingle(),
-  ]);
+  return resolveDashboardDestinationFromLookups({
+    lookupActiveTeamMembership: async () => {
+      const { data: membership, error: membershipError } = await supabase
+        .from("team_memberships")
+        .select("team_id")
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
 
-  if (membershipError || playerProfileError) {
-    throw new Error("Não foi possível determinar o destino da sessão.");
-  }
+      return {
+        exists: Boolean(membership),
+        failed: Boolean(membershipError),
+      };
+    },
+    lookupPlayerProfile: async () => {
+      const { data: playerProfile, error: playerProfileError } = await supabase
+        .from("player_profiles")
+        .select("user_id")
+        .eq("user_id", userId)
+        .maybeSingle();
 
-  return resolveDashboardDestination({
-    hasActiveTeamMembership: Boolean(membership),
-    hasPlayerProfile: Boolean(playerProfile),
+      return {
+        exists: Boolean(playerProfile),
+        failed: Boolean(playerProfileError),
+      };
+    },
+    reportFailure: (lookup) => {
+      console.error(JSON.stringify({
+        event: "session_destination_lookup",
+        lookup,
+        outcome: "failed",
+      }));
+    },
   });
 });
 
