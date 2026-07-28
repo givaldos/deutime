@@ -168,6 +168,29 @@ Esses caminhos foram revalidados em `d1cd5b2` durante o CP0.
 - `npm run verify` — 14 arquivos, 88 testes e build aprovados;
 - `npm run security:audit` — zero vulnerabilidades.
 
+## Distribuição manual de `WP-R02-01` — CP3
+
+- o detalhe interno do evento consulta `events.public_id` somente depois de
+  validar sessão, vínculo ativo e isolamento pelo `team_id`;
+- organizadores veem “Copiar link público” apenas quando
+  `public_event_page = true` para o time;
+- o endereço copiado usa a origem canônica de `APP_URL`, preserva o UUID
+  estável e não inclui identificadores internos;
+- a interface oferece retorno acessível de sucesso ou falha e orienta o uso no
+  WhatsApp; capability e RSVP continuam fora desta fatia.
+
+### Evidência da distribuição manual
+
+- Vitest focado — 9 testes de flags, apresentação, compatibilidade e headers;
+- detalhe autenticado em 390 × 844 — cartão visível sem overflow quando a flag
+  local está ativa;
+- cópia real — área de transferência recebeu a URL canônica e a interface
+  anunciou “Pronto para colar no WhatsApp”;
+- flag local desligada — cartão e botão ausentes no mesmo evento;
+- `npm run lint`, `npm run typecheck`, 14 arquivos/89 testes e build de
+  produção aprovados;
+- `npm run security:audit` — zero vulnerabilidades.
+
 ## Critérios de aceite
 
 - [x] `AC-R02-01` — URL pública estável não depende do slug mutável do time.

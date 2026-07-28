@@ -1,12 +1,14 @@
 import { setEventAttendance } from "@/app/app/[teamSlug]/events/actions";
 import { EventCancelForm } from "@/components/event-cancel-form";
 import { EventSeriesExtensionForm } from "@/components/event-series-extension-form";
+import { PublicEventLinkCard } from "@/components/public-event-link-card";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Button } from "@/components/ui/button";
 import { AppContainer } from "@/components/ui/app-shell";
 import { TeamAppHeader } from "@/components/team-app-header";
 import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { requireUser } from "@/lib/auth/dal";
+import { getAppUrl } from "@/lib/env/server";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -77,7 +79,7 @@ export default async function EventDetailPage({
       .maybeSingle(),
     supabase
       .from("events")
-      .select("id, series_id, title, kind, organization_mode, sport_format, starts_at, ends_at, attendance_deadline, status, opponent_name, venue_id, cancelled_at")
+      .select("id, public_id, series_id, title, kind, organization_mode, sport_format, starts_at, ends_at, attendance_deadline, status, opponent_name, venue_id, cancelled_at")
       .eq("id", eventId)
       .eq("team_id", team.id)
       .maybeSingle(),
@@ -141,6 +143,13 @@ export default async function EventDetailPage({
     isScheduled && new Date(event.starts_at).valueOf() > new Date().valueOf();
   const eventControlEnabled =
     isEditable && (await isTeamFeatureEnabled(team.id, "event_control"));
+  const publicEventPageEnabled = await isTeamFeatureEnabled(
+    team.id,
+    "public_event_page",
+  );
+  const publicEventUrl = publicEventPageEnabled
+    ? new URL(`/e/${event.public_id}`, getAppUrl()).toString()
+    : null;
   const currentSeriesOccurrences = seriesOccurrenceCount ?? 0;
   const maxAdditionalOccurrences = Math.max(
     0,
@@ -264,6 +273,10 @@ export default async function EventDetailPage({
             {venue && <p className="flex items-start gap-2"><MapPin className="mt-0.5 size-4 shrink-0 text-emerald-300" aria-hidden /> <span>{venue.name}{venue.address ? <small className="block text-emerald-200">{venue.address}</small> : null}</span></p>}
           </div>
         </section>
+
+        {publicEventUrl ? (
+          <PublicEventLinkCard publicUrl={publicEventUrl} />
+        ) : null}
 
         <section className="grid grid-cols-4 gap-2">
           {[
