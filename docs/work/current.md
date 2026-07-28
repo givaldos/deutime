@@ -26,14 +26,16 @@ tests:
   - "npm run verify — 13 arquivos/78 testes e build"
   - "npm run security:audit — 0 vulnerabilidades"
   - "ensaio local — event_control e kill switches terminaram false"
+  - "PR #22 aberto — checks automatizados devem ser confirmados antes do merge"
 blocker: "Deploy exige integração na main; piloto exige selecionar um time real e seu owner/admin após o smoke pós-deploy."
-next_action: "Validar telemetria, abrir PR para main e aguardar checks; após revisão, fazer merge inerte e executar smoke antes de selecionar o piloto."
+next_action: "Confirmar todos os checks e obter autorização explícita para o merge do PR #22; depois acompanhar os deploys de banco e Vercel e executar o smoke antes de selecionar o piloto."
 ---
 
 # Trabalho atual
 
-O CP5 está preparado, mas ainda não foi promovido. A baseline produtiva, o
-smoke somente leitura, a telemetria sem PII, as consultas de integridade e o
-rollback estão documentados. A capacidade continua desligada por padrão. O
-próximo passo é integrar a branch na `main`, aguardar todos os checks e repetir
-o smoke; a escolha e ativação de um único time piloto ocorre somente depois.
+O CP5 está preparado no PR #22, mas ainda não foi promovido. A baseline
+produtiva, o smoke somente leitura, a telemetria sem PII, as consultas de
+integridade e o rollback estão documentados. A capacidade continua desligada
+por padrão. Após todos os checks e a autorização explícita, o próximo passo é
+integrar a branch na `main`, acompanhar os deploys e repetir o smoke; a escolha
+e ativação de um único time piloto ocorre somente depois.
