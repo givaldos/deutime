@@ -211,6 +211,104 @@ aplicação:
 - próxima ação concreta: CP1 com modelo de dados, assinaturas das RPCs, contrato
   do cookie, matriz RLS/pgTAP e ordem de deploy.
 
+## Contrato de `WP-R02-02` — CP1
+
+### Modelo de dados e estados
+
+- `event_access_credentials` liga time, evento e atleta presente na chamada,
+  persiste somente SHA-256 do segredo de 256 bits e mantém emissão, expiração,
+  rotação e revogação auditáveis;
+- existe no máximo uma credencial não revogada por atleta/evento. Nova emissão
+  revoga a anterior e suas capabilities sob advisory lock;
+- `event_capability_sessions` inventaria cada navegador que trocou a credencial,
+  também somente por hash, com inatividade de até 30 dias e limite absoluto na
+  expiração da credencial;
+- `verified_device_sessions` projeta o `session_id` verificado pelo Supabase,
+  sem copiar access ou refresh token, com 30 dias de inatividade, 180 dias
+  absolutos e tombstone após revogação;
+- credencial transita entre ativa, expirada ou revogada; capability entre ativa,
+  expirada por inatividade, expirada absoluta ou revogada; aparelho entre
+  reconhecido, expirado, ausente no Auth ou revogado;
+- inativação e mudança de `athletes.user_id`, inclusive reivindicação por OTP,
+  revogam credenciais e capabilities ainda ativas. Remoção da chamada ou do
+  vínculo também retira o acesso pelas FKs e pela revalidação.
+
+### Permissões e RPCs
+
+- as três tabelas usam RLS sem policy cliente e não concedem acesso direto a
+  `anon` ou `authenticated`;
+- `issue_event_access_credential` e
+  `revoke_event_access_credential` exigem owner/admin do mesmo time; emissão
+  exige evento futuro e agendado, atleta ativo na chamada, telefone normalizado
+  e aceite de privacidade;
+- `exchange_event_access_credential` aceita `anon` ou `authenticated`, compara
+  hashes em tempo constante dentro do evento e só funciona com
+  `public_event_page`, `event_capability_exchange` do time e o controle global
+  `event_capability_exchange` ativos;
+- `resolve_event_capability` retorna somente `public_id`, nome do atleta,
+  presença, fase, possibilidade derivada de resposta e expiração. IDs internos
+  de time, evento e atleta não entram no retorno;
+- `register_or_touch_verified_device_session` exige `auth.uid()`, claim
+  `session_id` e a linha correspondente em `auth.sessions`; um tombstone,
+  expiração ou sessão ausente falha fechado;
+- `revoke_verified_device_session` alcança apenas aparelho da própria identidade
+  e `revoke_all_my_verified_device_sessions` aplica a revogação própria global;
+- nenhum contrato deste CP escreve `event_attendance`. A possibilidade retornada
+  por leitura continua falsa enquanto `event_capability_rsvp` estiver desligada.
+
+### Contrato HTTP e cookie do consumidor CP2
+
+- o bootstrap de `/e/{public_id}` lê apenas `#c`, remove o fragmento com
+  `history.replaceState` e envia `{ credential }` por JSON para
+  `POST /e/{public_id}/access`;
+- origem inválida falha `403`; credencial, escopo ou gate inválido falha com
+  resposta genérica sem distinguir a causa; sucesso responde `204`, sem devolver
+  o segredo da capability ao JavaScript;
+- o Route Handler instala `dt_event_access` com o segredo retornado pela RPC,
+  `HttpOnly`, `Secure`, `SameSite=Lax`, sem `Domain`, com
+  `Path=/e/{public_id}` e `Max-Age` limitado pela expiração;
+- reload e visitas sem fragmento resolvem o cookie server-side. Ausência, erro,
+  expiração ou revogação removem o cookie e preservam a página pública e o CTA
+  para a agenda autenticada;
+- `GET`, metadata, preview e unfurl não chamam a troca; respostas continuam
+  `private, no-store`, `no-referrer`, sem GTM e sem segredo em log ou erro.
+
+### Auditoria, eventos e compatibilidade
+
+- emissão e revogação de credencial e revogação de aparelhos usam `audit_logs`
+  apenas com IDs não secretos, resultado e motivo; troca e leitura mantêm
+  contadores/último uso nas próprias linhas sem registrar segredo ou telefone;
+- CP1 não emite evento de domínio nem integração externa. R03 poderá consumir a
+  emissão, e `WP-R02-03` adicionará a escrita transacional de RSVP sem mudar o
+  formato da capability;
+- `202607290001` publica somente o novo valor do enum e
+  `202607290002` publica controle desligado, tabelas, RLS, RPCs e trigger. O app
+  N−1 ignora toda a expansão;
+- o consumidor CP2 deve tratar função/tabela ausente no banco N−1 como feature
+  indisponível e voltar à página pública. Banco N tolera app N−1, e nenhum gate
+  é ativado automaticamente em qualquer ordem de deploy;
+- rollback desliga primeiro o controle global, depois a flag do time. As linhas
+  permanecem para auditoria; nenhuma contração é necessária durante o MVP.
+
+### Evidência do CP1
+
+- `npm run db:reset` — 29 migrations e seed aplicados do zero;
+- `npm run db:test` — 18 arquivos e 426 testes aprovados, incluindo 47 cenários
+  novos de RLS, grants, emissão, troca, replay, cross-tenant, consentimento,
+  reivindicação, revogação e tombstone;
+- `npm run db:lint` — sem aviso novo depois da correção do helper criptográfico;
+  permanecem dois avisos preexistentes em `create_event_as_staff`;
+- `npm run db:types` — tabelas, enum e sete RPCs públicas refletidos em
+  `lib/database.types.ts`;
+- lint, typecheck e 16 arquivos/101 testes Vitest aprovados; build de produção
+  aprovado separadamente com acesso às Google Fonts;
+- `npm run security:audit` — zero vulnerabilidades;
+- `npm run migrations:check -- f1ce627` — histórico preservado e somente as
+  duas expansões novas adicionadas;
+- nenhum controle ou flag foi ativado e não houve mutação do banco remoto;
+- próxima ação concreta: CP2 com bootstrap, Route Handler, cookie path-scoped,
+  DAL da sessão verificada e leitura autorizada mobile atrás dos dois gates.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade
