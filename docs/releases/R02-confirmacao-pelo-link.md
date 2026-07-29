@@ -309,6 +309,51 @@ aplicação:
 - próxima ação concreta: CP2 com bootstrap, Route Handler, cookie path-scoped,
   DAL da sessão verificada e leitura autorizada mobile atrás dos dois gates.
 
+## Caminho fino de `WP-R02-02` — CP2
+
+- `/e/{public_id}#c={credencial}` agora possui bootstrap client-side mínimo:
+  aceita somente o parâmetro `c`, remove o fragmento imediatamente e envia a
+  credencial uma única vez por JSON para o endpoint same-origin;
+- `POST /e/{public_id}/access` valida UUID, origem, contexto de navegação, tipo e
+  tamanho do corpo. O sucesso responde `204` e instala `dt_event_access` como
+  `HttpOnly`, `Secure`, `SameSite=Lax`, sem `Domain` e restrito ao caminho do
+  evento; o endpoint não oferece `GET`;
+- o DAL server-side resolve primeiro a capability do evento e, quando ela não
+  existe, tenta a sessão Supabase verificada. A leitura retorna somente nome,
+  presença, fase, capacidade derivada de resposta e expiração, sem IDs internos;
+- a migration forward-only `202607290003_verified_event_access.sql` acrescenta
+  a resolução do evento para uma sessão Auth verificada. Ela registra/toca o
+  aparelho, confere `auth.sessions`, inventário, tombstone, prazos, vínculo do
+  atleta, chamada e os gates antes de retornar o contexto mínimo;
+- capability inválida, expirada, revogada, gate desligado, banco N−1 ou erro
+  esperado falham fechado e preservam a página pública. Cookie inválido é
+  descartado por `DELETE` same-origin no mesmo escopo;
+- o contexto reconhecido é mobile-first e somente leitura: apresenta atleta e
+  confirmação atual, mas nenhum controle `SIM`/`NÃO`/`TALVEZ`. A escrita de
+  presença continua integralmente fora deste pacote;
+- metadata, preview, unfurl e o `GET` público não executam a troca. Não foi
+  adicionada dependência de terceiros, log de segredo ou ativação automática.
+
+### Evidência do CP2
+
+- `npm run db:reset` — 30 migrations e seed aplicados do zero;
+- `npm run db:test` — 19 arquivos e 440 testes aprovados; o novo arquivo pgTAP
+  cobre 14 cenários positivos, negativos, de expiração, revogação e isolamento;
+- `npm run db:lint` — nenhum aviso novo; permanecem os dois avisos preexistentes
+  em `create_event_as_staff`;
+- `npm run db:types` e `npm run migrations:check -- 8937255` aprovados;
+- `npm run verify` — lint, typecheck, 19 arquivos/118 testes Vitest e build de
+  produção aprovados;
+- `npm run security:audit` — zero vulnerabilidades;
+- teste HTTP local confirmou página pública `200`, troca `204`, retorno
+  reconhecido `200`, origem externa `403`, `GET` da troca `405`, fallback
+  público, ausência de RSVP e atributos/escopo do cookie;
+- o navegador isolado não alcançou o servidor local; a matriz de navegadores e
+  aparelhos permanece deliberadamente no CP4;
+- nenhum controle ou flag foi ativado e não houve mutação do banco remoto;
+- próxima ação concreta: CP3 de robustez, cobrindo abuso, concorrência,
+  privacidade, cancelamento e recuperação sem habilitar RSVP.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade

@@ -1,6 +1,12 @@
 import { BrandMark } from "@/components/brand-mark";
+import { EventAccessBootstrap } from "@/components/event-access-bootstrap";
 import { Button } from "@/components/ui/button";
+import {
+  type EventAccessContext,
+  getEventAccessContext,
+} from "@/lib/data/event-access";
 import { getPublicEvent } from "@/lib/data/public-event";
+import { attendanceStatusLabels } from "@/lib/features/event-access/contract";
 import {
   formatPublicEventDate,
   formatPublicEventTime,
@@ -117,6 +123,7 @@ export default async function PublicEventPage({
 
   const event = await getPublicEvent(publicId);
   if (!event) notFound();
+  const access = await getEventAccessContext(publicId);
 
   const status = publicEventStatusPresentation[event.status];
   const style = statusStyles[status.tone];
@@ -174,6 +181,11 @@ export default async function PublicEventPage({
         data-testid="public-event-content"
         className="relative z-10 mx-auto -mt-8 max-w-xl space-y-4 px-4"
       >
+        <EventAccessBootstrap
+          accessPath={`/e/${publicId}/access`}
+          clearInvalidCookie={access.clearInvalidCookie}
+        />
+
         <section className="app-surface overflow-hidden" aria-labelledby="event-date">
           <div className="grid grid-cols-[5.25rem_minmax(0,1fr)]">
             <div className="grid place-items-center bg-lime px-3 py-5 text-center text-grass">
@@ -242,31 +254,67 @@ export default async function PublicEventPage({
           </div>
         </section>
 
-        <section className="rounded-[1.5rem] bg-grass p-6 text-white shadow-[0_18px_45px_-28px_rgba(2,20,14,.7)]">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-300">
-            Área do atleta
-          </p>
-          <h2 className="mt-2 text-xl font-black">
-            Suas confirmações continuam na agenda
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
-            A resposta direta por este link será liberada em uma próxima etapa.
-          </p>
-          <Button
-            asChild
-            className="mt-5 min-h-12 w-full rounded-xl bg-white font-black text-grass hover:bg-emerald-50"
-          >
-            <Link href="/me/agenda">
-              <LogIn aria-hidden /> Abrir minha agenda
-            </Link>
-          </Button>
-        </section>
+        {access.context ? (
+          <RecognizedEventAccess context={access.context} />
+        ) : (
+          <section className="rounded-[1.5rem] bg-grass p-6 text-white shadow-[0_18px_45px_-28px_rgba(2,20,14,.7)]">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-300">
+              Área do atleta
+            </p>
+            <h2 className="mt-2 text-xl font-black">
+              Suas confirmações continuam na agenda
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-slate-300">
+              A resposta direta por este link será liberada em uma próxima
+              etapa.
+            </p>
+            <Button
+              asChild
+              className="mt-5 min-h-12 w-full rounded-xl bg-white font-black text-grass hover:bg-emerald-50"
+            >
+              <Link href="/me/agenda">
+                <LogIn aria-hidden /> Abrir minha agenda
+              </Link>
+            </Button>
+          </section>
+        )}
 
         <p className="px-3 pt-2 text-center text-xs leading-5 text-slate-500">
-          Este endereço identifica o evento, mas não concede acesso a dados
-          privados do time ou dos atletas.
+          {access.context
+            ? "Seu acesso está limitado a este atleta e evento."
+            : "Este endereço identifica o evento, mas não concede acesso a dados privados do time ou dos atletas."}
         </p>
       </div>
     </main>
+  );
+}
+
+function RecognizedEventAccess({ context }: { context: EventAccessContext }) {
+  return (
+    <section className="rounded-[1.5rem] border border-emerald-200 bg-emerald-50 p-6 shadow-[0_18px_45px_-32px_rgba(2,80,54,.45)]">
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-800">
+        Acesso reconhecido
+      </p>
+      <h2 className="mt-2 text-xl font-black text-grass">
+        Olá, {context.athleteDisplayName}
+      </h2>
+      <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-emerald-100">
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          Sua confirmação
+        </p>
+        <p className="mt-1 font-black text-slate-900">
+          {attendanceStatusLabels[context.attendanceStatus]}
+        </p>
+      </div>
+      <p className="mt-4 flex items-start gap-2 text-sm leading-6 text-emerald-950">
+        <ShieldCheck className="mt-1 size-4 shrink-0 text-emerald-700" aria-hidden />
+        {context.source === "verified_session"
+          ? "Este aparelho já foi verificado. Você não precisa repetir o código para consultar este evento."
+          : "Este acesso vale somente para você neste evento e pode ser revogado pelo time."}
+      </p>
+      <p className="mt-3 text-sm leading-6 text-slate-600">
+        A resposta direta por este link será liberada na próxima etapa.
+      </p>
+    </section>
   );
 }

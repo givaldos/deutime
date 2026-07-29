@@ -1,38 +1,37 @@
 ---
 release: R02
 work_package: WP-R02-02
-scope: capability_and_persistent_session_contract
-branch_or_commit: "codex/r02-capability-session-contract"
+scope: capability_access_path
+branch_or_commit: "codex/r02-capability-access-path"
 checkpoint: idle
 status: completed
 completed_ac: []
 dirty_files: []
 tests:
-  - "npm run db:reset — 29 migrations e seed aplicados do zero"
-  - "npm run db:test — 18 arquivos e 426 testes aprovados"
-  - "018_event_capability_contract — 47 cenários positivos, negativos e cross-tenant"
+  - "npm run db:reset — 30 migrations e seed aplicados do zero"
+  - "npm run db:test — 19 arquivos e 440 testes aprovados"
+  - "019_verified_event_access — 14 cenários positivos, negativos, revogação, expiração e cross-tenant"
   - "npm run db:lint — sem aviso novo; dois avisos preexistentes em create_event_as_staff"
-  - "npm run db:types — tabelas, enum e sete RPCs públicas refletidos"
-  - "Lint, typecheck, 16 arquivos/101 testes Vitest e build de produção aprovados"
+  - "npm run db:types e npm run migrations:check -- 8937255 aprovados"
+  - "npm run verify — lint, typecheck, 19 arquivos/118 testes Vitest e build aprovados"
   - "npm run security:audit — zero vulnerabilidades"
-  - "npm run migrations:check -- f1ce627 — somente duas expansões novas"
+  - "HTTP local — público 200, troca 204, reconhecido 200, cross-origin 403 e GET da troca 405"
 blocker: null
-next_action: "Executar o CP2 de WP-R02-02: implementar bootstrap, POST same-origin, cookie path-scoped, DAL de sessão verificada e leitura autorizada mobile atrás dos gates."
+next_action: "Executar o CP3 de WP-R02-02: robustez contra abuso e concorrência, privacidade, cancelamento e recuperação operacional, mantendo RSVP e todos os gates desligados."
 ---
 
 # Trabalho atual
 
-O CP1 de `WP-R02-02` publicou localmente uma expansão inerte em duas migrations:
-primeiro o valor do controle global, depois credenciais, capabilities, inventário
-de sessões verificadas, RLS, RPCs transacionais e revogação automática.
+O CP2 de `WP-R02-02` implementou o caminho fino de acesso personalizado. O
+fragmento é removido antes da troca same-origin, o endpoint instala cookie opaco
+e restrito ao evento, e o DAL server-side resolve capability ou sessão Supabase
+verificada sem expor IDs internos.
 
-Credenciais e cookies são aleatórios de 256 bits e somente seus hashes chegam ao
-banco. A resolução recalcula vínculo, chamada, identidade, fase e gates. Sessões
-Supabase existentes entram no inventário apenas quando `auth.uid()`,
-`session_id` e `auth.sessions` convergem; tombstones impedem autorregistro após
-revogação.
+A migration forward-only `202607290003_verified_event_access.sql` completou o
+caminho da sessão verificada com inventário, `auth.sessions`, tombstone, prazos,
+vínculo, chamada e gates recalculados. A página reconhecida continua somente
+leitura e não oferece RSVP.
 
-Ainda não existe consumidor HTTP/cookie e nenhuma escrita de presença foi
-adicionada. Não houve ativação ou mutação remota; os gates permanecem
-desligados. A próxima ação é o CP2 mobile atrás de flag, mantendo RSVP em
-`WP-R02-03`.
+Nenhum controle ou flag foi ativado e não houve mutação remota. O CP3 deve
+endurecer abuso, concorrência, privacidade, cancelamento e recuperação; a matriz
+real de navegadores e aparelhos permanece no CP4.

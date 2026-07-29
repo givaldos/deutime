@@ -3,10 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   getPublicEvent: vi.fn(),
+  getEventAccessContext: vi.fn(),
 }));
 
 vi.mock("@/lib/data/public-event", () => ({
   getPublicEvent: mocks.getPublicEvent,
+}));
+vi.mock("@/lib/data/event-access", () => ({
+  getEventAccessContext: mocks.getEventAccessContext,
 }));
 vi.mock("next/navigation", () => ({
   notFound: () => {
@@ -37,6 +41,11 @@ function props(id = publicId) {
 describe("public event route", () => {
   beforeEach(() => {
     mocks.getPublicEvent.mockReset();
+    mocks.getEventAccessContext.mockReset();
+    mocks.getEventAccessContext.mockResolvedValue({
+      context: null,
+      clearInvalidCookie: false,
+    });
   });
 
   it("uses the same 404 for invalid, absent and flag-filtered events", async () => {
@@ -119,5 +128,55 @@ describe("public event route", () => {
     expect(html).toContain('data-testid="public-event-content"');
     expect(html).toContain("relative z-10");
     expect(html).toContain("-mt-8");
+    expect(html).toContain('data-testid="event-access-bootstrap"');
+  });
+
+  it("shows only the recognized athlete context from a capability", async () => {
+    mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
+    mocks.getEventAccessContext.mockResolvedValue({
+      context: {
+        publicId,
+        athleteDisplayName: "Sem Conta",
+        attendanceStatus: "pending",
+        eventStatus: "scheduled",
+        canRespond: false,
+        expiresAt: "2026-08-20T12:00:00.000Z",
+        source: "capability",
+      },
+      clearInvalidCookie: false,
+    });
+
+    const html = renderToStaticMarkup(await PublicEventPage(props()));
+
+    expect(html).toContain("Olá, Sem Conta");
+    expect(html).toContain("Aguardando resposta");
+    expect(html).toContain("vale somente para você neste evento");
+    expect(html).not.toContain("SIM");
+    expect(html).not.toContain("NÃO");
+    expect(html).not.toContain("TALVEZ");
+    expect(html).not.toContain("team_id");
+    expect(html).not.toContain("event_id");
+  });
+
+  it("recognizes a verified device without asking for another OTP", async () => {
+    mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
+    mocks.getEventAccessContext.mockResolvedValue({
+      context: {
+        publicId,
+        athleteDisplayName: "Atleta Verificado",
+        attendanceStatus: "confirmed",
+        eventStatus: "scheduled",
+        canRespond: false,
+        expiresAt: "2026-12-01T12:00:00.000Z",
+        source: "verified_session",
+      },
+      clearInvalidCookie: true,
+    });
+
+    const html = renderToStaticMarkup(await PublicEventPage(props()));
+
+    expect(html).toContain("Olá, Atleta Verificado");
+    expect(html).toContain("Confirmado");
+    expect(html).toContain("não precisa repetir o código");
   });
 });
