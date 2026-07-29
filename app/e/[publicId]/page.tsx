@@ -132,13 +132,16 @@ export default async function PublicEventPage({
 
   return (
     <main className="min-h-svh bg-[#f5f4ef] pb-10 text-graphite">
-      <header className="relative overflow-hidden bg-grass px-5 pb-24 pt-6 text-white">
+      <header
+        data-testid="public-event-header"
+        className="relative overflow-hidden bg-grass px-5 pb-14 pt-5 text-white sm:pb-16 sm:pt-6"
+      >
         <div className="pointer-events-none absolute -right-24 -top-28 size-72 rounded-full bg-emerald-400/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-lime/10 blur-3xl" />
         <div className="relative mx-auto max-w-xl">
           <BrandMark inverted />
 
-          <div className="mt-12 flex items-start gap-4">
+          <div className="mt-7 flex items-start gap-3 sm:mt-10 sm:gap-4">
             <span
               className={`grid size-12 shrink-0 place-items-center rounded-2xl ${style.icon}`}
             >
@@ -148,13 +151,13 @@ export default async function PublicEventPage({
               <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-300">
                 {event.team_name}
               </p>
-              <h1 className="mt-2 text-4xl font-black leading-[0.98] tracking-[-0.05em] sm:text-5xl">
+              <h1 className="mt-2 break-words text-3xl font-black leading-none tracking-[-0.05em] sm:text-5xl">
                 {event.title}
               </h1>
             </div>
           </div>
 
-          <div className="mt-7 flex flex-wrap items-center gap-2">
+          <div className="mt-5 flex flex-wrap items-center gap-2 sm:mt-7">
             <span
               className={`rounded-full px-3 py-1.5 text-xs font-black ${style.badge}`}
             >
@@ -167,7 +170,10 @@ export default async function PublicEventPage({
         </div>
       </header>
 
-      <div className="mx-auto -mt-14 max-w-xl space-y-4 px-4">
+      <div
+        data-testid="public-event-content"
+        className="relative z-10 mx-auto -mt-8 max-w-xl space-y-4 px-4"
+      >
         <section className="app-surface overflow-hidden" aria-labelledby="event-date">
           <div className="grid grid-cols-[5.25rem_minmax(0,1fr)]">
             <div className="grid place-items-center bg-lime px-3 py-5 text-center text-grass">

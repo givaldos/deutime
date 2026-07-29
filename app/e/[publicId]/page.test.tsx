@@ -108,4 +108,16 @@ describe("public event route", () => {
     expect(html).not.toContain("team_id");
     expect(html).not.toContain("event_id");
   });
+
+  it("keeps the event summary above the compact mobile header", async () => {
+    mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
+
+    const html = renderToStaticMarkup(await PublicEventPage(props()));
+
+    expect(html).toContain('data-testid="public-event-header"');
+    expect(html).toContain("pb-14 pt-5");
+    expect(html).toContain('data-testid="public-event-content"');
+    expect(html).toContain("relative z-10");
+    expect(html).toContain("-mt-8");
+  });
 });

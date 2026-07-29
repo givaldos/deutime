@@ -239,6 +239,21 @@ Esses caminhos foram revalidados em `d1cd5b2` durante o CP0.
 - capability, sessão persistente e RSVP de R02 permanecem desligados e fora
   desta coorte.
 
+### Correção visual durante o piloto
+
+- em `390 × 844`, o header produtivo ocupava aproximadamente `328 px` e o
+  cartão da agenda começava `56 px` antes do fim dele, ficando parcialmente
+  encoberto pela camada verde;
+- o header mobile recebeu espaçamentos menores e título de `3xl`; o resumo do
+  evento passou a usar camada explícita acima do header e sobreposição reduzida
+  de `32 px`;
+- o teste da rota passou a proteger o header compacto e o `z-index` do conteúdo;
+- teste focado com 6 casos, lint, typecheck e build de produção passaram; CI,
+  Database, CodeQL, dependency review, Terraform e preview Vercel do PR também
+  ficaram verdes;
+- a página pública, projeção anônima, flags, headers de privacidade e fallback
+  não foram alterados.
+
 ## Critérios de aceite
 
 - [x] `AC-R02-01` — URL pública estável não depende do slug mutável do time.
