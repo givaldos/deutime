@@ -1,27 +1,27 @@
 ---
 release: R02
-work_package: WP-R02-02
-scope: capability_pilot_readiness
-branch_or_commit: "codex/r02-pilot-readiness"
+work_package: WP-R02-03
+scope: capability_rsvp_ready
+branch_or_commit: "codex/r02-rsvp-ready"
 checkpoint: idle
-status: awaiting_manual_validation
+status: ready
 completed_ac: []
 dirty_files: []
 tests:
   - "npm run verify — lint, typecheck, 21 arquivos/124 testes Vitest e build aprovados"
   - "npm run security:audit — zero vulnerabilidades"
-  - "APP_URL=https://deutime.app SMOKE_PUBLIC_EVENT_ID=<UUID_DEMO> npm run smoke:production — página pública e endpoint somente leitura aprovados"
-blocker: "Falta executar a matriz em aparelhos físicos Android e iPhone no navegador real do WhatsApp."
-next_action: "Abrir o link público pelo WhatsApp em Android e iPhone; confirmar layout, retorno, cópia/compartilhamento e remoção do fragmento. Só depois escolher explicitamente a coorte do piloto, mantendo RSVP e gates desligados até essa decisão."
+blocker: null
+next_action: "Executar CP1 de WP-R02-03: definir a RPC transacional de resposta por acesso reconhecido, lock, atribuição de responded_by, auditoria, grants/RLS, pgTAP e compatibilidade N/N−1, mantendo event_capability_rsvp desligada."
 ---
 
 # Trabalho atual
 
-O CP5 foi preparado sem antecipar a ativação: o workflow de produção agora usa
-o UUID público de um evento de demonstração para verificar página, política de
-cache/referência/indexação e a rejeição de `GET` no endpoint de troca. O smoke
-real passou e nenhuma chave privilegiada ou escrita foi introduzida.
+O CP0 de `WP-R02-03` fechou a jornada SIM/NÃO/TALVEZ, inclusive a precedência
+entre capability e sessão verificada, a atribuição segura de `responded_by`, os
+estados somente leitura e a matriz negativa/cross-tenant. A confirmação
+autenticada atual permanece como fallback.
 
-O checkpoint está ocioso e os gates continuam desligados. CP4 ainda depende da
-evidência em aparelhos físicos Android e iPhone no navegador real do WhatsApp;
-CP5 depende disso e da escolha explícita da coorte antes de qualquer piloto.
+O checkpoint está ocioso e pronto para CP1. A implementação pode avançar
+localmente com `event_capability_rsvp` desligada; qualquer ativação em produção
+continua condicionada à validação física e operacional pendente de
+`WP-R02-02`.
