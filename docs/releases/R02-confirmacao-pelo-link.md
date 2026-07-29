@@ -354,6 +354,47 @@ aplicação:
 - próxima ação concreta: CP3 de robustez, cobrindo abuso, concorrência,
   privacidade, cancelamento e recuperação sem habilitar RSVP.
 
+## Robustez de `WP-R02-02` — CP3
+
+- o Route Handler agora aceita somente o media type exato `application/json`,
+  limita o corpo declarado ou transmitido a 1 KiB medido em bytes e rejeita
+  objetos ambíguos ou com campos extras antes de chamar o banco;
+- todas as respostas da troca preservam `no-store`, `no-referrer` e `nosniff` e
+  passam a declarar CSP fechada, bloqueio de frame e
+  `Cross-Origin-Resource-Policy: same-origin`;
+- a migration forward-only `202607290004_event_capability_robustness.sql`
+  instala uma cota no ponto único de inserção. Cada credencial preserva no
+  máximo oito capabilities ativas e 32 registros recentes;
+- a RPC de troca já serializa concorrentes pelo lock da linha da credencial. O
+  trigger revoga o overflow antes da nova inserção e poda somente itens
+  revogados ou expirados, sem alterar o escopo autorizado;
+- cancelamento preserva o contexto mínimo para informar o estado do evento,
+  mas deriva `can_respond = false`. Controle global ou flag do time desligados
+  falham fechado sem destruir a capability, permitindo recuperação operacional
+  no mesmo escopo;
+- credencial, capability, IP, token Auth e telefone continuam fora de logs e
+  auditoria. O limite usa apenas o identificador interno da credencial e não
+  introduz rastreamento do navegador;
+- nenhuma escrita de presença, dependência externa ou ativação de gate foi
+  adicionada.
+
+### Evidência do CP3
+
+- `npm run db:reset` — 31 migrations e seed aplicados do zero;
+- `npm run db:test` — 20 arquivos e 456 testes aprovados;
+- `020_event_capability_robustness` — 16 cenários aprovados, incluindo lock e 40
+  replays, cota ativa/histórica, privacidade, cancelamento, kill switch e
+  recuperação;
+- `npm run db:lint` — nenhum aviso novo; permanecem os dois avisos preexistentes
+  em `create_event_as_staff`;
+- `npm run db:types` e `npm run migrations:check -- 9426857` aprovados;
+- `npm run verify` — lint, typecheck, 19 arquivos/119 testes Vitest e build de
+  produção aprovados;
+- `npm run security:audit` — zero vulnerabilidades;
+- nenhum controle ou flag foi ativado durante a entrega;
+- próxima ação concreta: CP4 de experiência, verificando acessibilidade, Android,
+  iPhone, navegador interno e compartilhamento real pelo WhatsApp.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade
