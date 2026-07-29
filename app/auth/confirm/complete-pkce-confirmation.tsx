@@ -29,8 +29,8 @@ export function CompletePkceConfirmation({
         if (!active) return;
 
         if (session) {
-          router.replace(nextPath);
           router.refresh();
+          router.replace(nextPath);
           return;
         }
       } catch {

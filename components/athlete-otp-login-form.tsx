@@ -88,7 +88,6 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
         return;
       }
       router.replace(nextPath);
-      router.refresh();
     } catch {
       setError("Não foi possível confirmar o código agora.");
     } finally {

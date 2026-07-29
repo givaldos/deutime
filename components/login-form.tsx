@@ -44,8 +44,8 @@ export function LoginForm({
         options: { captchaToken },
       });
       if (error) throw error;
-      router.replace(nextPath);
       router.refresh();
+      router.replace(nextPath);
     } catch {
       resetTurnstile();
       setError("E-mail ou senha inválidos.");
