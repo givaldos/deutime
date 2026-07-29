@@ -1942,6 +1942,17 @@ export type Database = {
         }
         Returns: string
       }
+      resolve_event_access_for_verified_session: {
+        Args: { requested_public_id: string }
+        Returns: {
+          athlete_display_name: string
+          attendance_status: Database["public"]["Enums"]["attendance_status"]
+          can_respond: boolean
+          capability_expires_at: string
+          event_status: Database["public"]["Enums"]["event_status"]
+          public_id: string
+        }[]
+      }
       resolve_event_capability: {
         Args: {
           requested_capability_secret: string
