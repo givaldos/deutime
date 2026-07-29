@@ -806,6 +806,20 @@ continua usando `respond_to_event_as_player`.
 - a página pública, projeção anônima, flags, headers de privacidade e fallback
   não foram alterados.
 
+### Consistência visual do perfil público
+
+- `/p/{handle}` passou a reutilizar a hierarquia visual mobile da página pública
+  do evento: marca, identidade e estado no header compacto; conteúdo em camada
+  explícita acima do fundo e sobreposição limitada a `32 px`;
+- foto, nome, identificador e selo de verificação permanecem visíveis no
+  resumo; biografia, estatísticas e posições foram separadas em superfícies
+  equivalentes às de `/e/{public_id}`;
+- contrato de dados, projeção pública, autorização e informações exibidas não
+  foram alterados;
+- teste de rota protege a composição compacta, o `z-index`, a sobreposição e a
+  permanência das informações públicas;
+- Vitest focado com 11 casos, lint, typecheck e build de produção passaram.
+
 ## Critérios de aceite
 
 - [x] `AC-R02-01` — URL pública estável não depende do slug mutável do time.
