@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => {
     rpcResults: Record<
       string,
       {
-        data: Array<Record<string, unknown>> | null;
+        data: unknown;
         error: { code?: string; message?: string } | null;
       }
     >;
@@ -48,6 +48,7 @@ vi.mock("next/headers", () => ({
 import {
   exchangeEventAccessCredential,
   getEventAccessContext,
+  respondToEventFromAccess,
 } from "./event-access";
 
 const publicId = "b4000000-0000-4000-8000-000000000001";
@@ -165,6 +166,77 @@ describe("event access data boundary", () => {
       exchangeEventAccessCredential(publicId, secret),
     ).resolves.toBeNull();
     expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+
+  it("responds with the path-scoped capability without exposing it to the client", async () => {
+    mocks.state.cookie = capabilitySecret;
+    mocks.state.rpcResults.respond_to_event_from_access = {
+      data: "confirmed",
+      error: null,
+    };
+
+    await expect(
+      respondToEventFromAccess(publicId, "confirmed"),
+    ).resolves.toEqual({ outcome: "success", status: "confirmed" });
+    expect(mocks.rpc).toHaveBeenCalledWith("respond_to_event_from_access", {
+      requested_public_id: publicId,
+      response_status: "confirmed",
+      requested_capability_secret: capabilitySecret,
+    });
+  });
+
+  it("delegates without a capability when a verified session is the fallback", async () => {
+    mocks.state.rpcResults.respond_to_event_from_access = {
+      data: "maybe",
+      error: null,
+    };
+
+    await expect(respondToEventFromAccess(publicId, "maybe")).resolves.toEqual({
+      outcome: "success",
+      status: "maybe",
+    });
+    expect(mocks.rpc).toHaveBeenCalledWith("respond_to_event_from_access", {
+      requested_public_id: publicId,
+      response_status: "maybe",
+    });
+  });
+
+  it("fails closed before cookies for an invalid response request", async () => {
+    await expect(
+      respondToEventFromAccess("../evento", "confirmed"),
+    ).resolves.toEqual({ outcome: "unavailable" });
+    expect(mocks.cookies).not.toHaveBeenCalled();
+    expect(mocks.createClient).not.toHaveBeenCalled();
+  });
+
+  it("treats an N-1 response RPC as read-only fallback", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.state.rpcResults.respond_to_event_from_access = {
+      data: null,
+      error: { code: "PGRST202", message: "schema cache" },
+    };
+
+    await expect(
+      respondToEventFromAccess(publicId, "declined"),
+    ).resolves.toEqual({ outcome: "unavailable" });
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+
+  it("redacts the capability from unexpected response logs", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.state.cookie = capabilitySecret;
+    mocks.state.rpcResults.respond_to_event_from_access = {
+      data: null,
+      error: { code: "XX000", message: `failure ${capabilitySecret}` },
+    };
+
+    await expect(
+      respondToEventFromAccess(publicId, "declined"),
+    ).resolves.toEqual({ outcome: "error" });
+    expect(errorSpy).toHaveBeenCalledOnce();
+    expect(errorSpy.mock.calls.flat().join(" ")).not.toContain(capabilitySecret);
     errorSpy.mockRestore();
   });
 });
