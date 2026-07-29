@@ -1,35 +1,32 @@
 ---
 release: R02
 work_package: WP-R02-02
-scope: capability_robustness
-branch_or_commit: "codex/r02-capability-robustness"
+scope: capability_experience
+branch_or_commit: "codex/r02-capability-experience"
 checkpoint: idle
-status: completed
+status: awaiting_manual_validation
 completed_ac: []
 dirty_files: []
 tests:
-  - "npm run db:reset — 31 migrations e seed aplicados do zero"
-  - "npm run db:test — 20 arquivos e 456 testes aprovados"
-  - "020_event_capability_robustness — 16 cenários; lock, 40 replays, cotas, privacidade, cancelamento e recuperação"
-  - "npm run db:lint — sem aviso novo; dois avisos preexistentes em create_event_as_staff"
-  - "npm run db:types e npm run migrations:check -- 9426857 aprovados"
-  - "npm run verify — lint, typecheck, 19 arquivos/119 testes Vitest e build aprovados"
+  - "npm run verify — lint, typecheck, 20 arquivos/120 testes Vitest e build aprovados"
   - "npm run security:audit — zero vulnerabilidades"
-blocker: null
-next_action: "Executar o CP4 de WP-R02-02: acessibilidade, Android, iPhone, navegador interno e compartilhamento real pelo WhatsApp, mantendo RSVP e gates desligados."
+  - "Chrome 360x800 e 390x844 — sem overflow; alvo da marca 44px e CTA 48px"
+  - "Navegador interno — fragmento removido, URL limpa e fallback acessível"
+blocker: "Falta executar a matriz em aparelhos físicos Android e iPhone no navegador real do WhatsApp."
+next_action: "Após publicar a correção, abrir o link público pelo WhatsApp em Android e iPhone; confirmar layout, retorno, cópia/compartilhamento e remoção do fragmento, mantendo RSVP e gates desligados."
 ---
 
 # Trabalho atual
 
-O CP3 de `WP-R02-02` endureceu o caminho personalizado sem mudar seu escopo. O
-endpoint limita corpo por bytes, exige JSON exato, rejeita campos extras e
-responde com headers fechados para cache, origem, frame e conteúdo.
+O CP4 corrigiu o alvo tátil da marca para 44 px e adicionou foco de teclado
+explícito. Viewports de 360×800 e 390×844 passaram sem overflow, inclusive com
+título longo, e a estrutura semântica permaneceu consistente.
 
-A migration forward-only `202607290004_event_capability_robustness.sql` limita
-cada credencial a oito capabilities ativas e 32 registros recentes. Replays
-continuam isolados e serializados; overflow é revogado e histórico antigo só é
-podado depois de revogação ou expiração.
+Em produção, primeira abertura e fragmento ambíguo removeram `#c`, limparam a
+URL e mantiveram o fallback público acessível. O caminho também foi exercitado
+em navegador interno controlado, sem ativar gate ou criar capability válida.
 
-Cancelamento, kill switch e recuperação no mesmo escopo foram provados sem
-expor segredos ou habilitar RSVP. Nenhum gate foi ativado. O CP4 deve validar a
-experiência real em Android, iPhone, acessibilidade e navegador do WhatsApp.
+O checkpoint está ocioso, mas CP4 não está concluído: falta a evidência em
+aparelhos físicos Android e iPhone dentro do navegador real do WhatsApp. A
+próxima ação é publicar esta correção e executar a matriz manual nesses dois
+aparelhos.
