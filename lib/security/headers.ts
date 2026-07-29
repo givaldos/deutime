@@ -54,6 +54,10 @@ export function isPublicEventPath(pathname: string) {
   return pathname === "/e" || pathname.startsWith("/e/");
 }
 
+export function shouldLoadThirdPartyAnalytics(pathname: string) {
+  return !isPublicEventPath(pathname);
+}
+
 export function referrerPolicyForPath(pathname: string) {
   return pathname === "/auth/confirm" ||
     pathname === "/auth/recovery" ||
