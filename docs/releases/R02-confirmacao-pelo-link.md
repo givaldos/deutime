@@ -459,6 +459,109 @@ aplicação:
   concluído: faltam a matriz física de CP4, a escolha explícita da coorte e a
   observação real do piloto.
 
+## Ready de `WP-R02-03` — CP0
+
+### Resultado demonstrável
+
+O atleta com acesso reconhecido abre `/e/{public_id}`, vê sua resposta atual e
+altera para SIM, NÃO ou TALVEZ sem sair da página. A mudança pode ser repetida
+enquanto evento, prazo, chamada, vínculo e gates permitirem. Após fechamento,
+início, cancelamento ou conclusão, o contexto autorizado e a resposta atual
+continuam visíveis, mas os controles ficam indisponíveis e nenhuma escrita
+ocorre.
+
+O mesmo resultado atende tanto a capability limitada de atleta não reivindicado
+quanto a sessão Supabase inventariada de atleta reivindicado. A confirmação
+autenticada existente em `/me/agenda` e `/t/{slug}` permanece como fallback e
+continua usando `respond_to_event_as_player`.
+
+### Dependências e decisões
+
+- `WP-R02-01` fornece a URL pública estável e `WP-R02-02` fornece a resolução
+  server-side do atleta-evento por capability ou sessão verificada;
+- `DEC-REPEATABLE-RSVP` preserva alterações sucessivas enquanto a janela estiver
+  aberta. `event_attendance` continua sendo a única fonte da resposta;
+- `DEC-UNCLAIMED-IDENTITY` permite a escrita pela capability sem criar usuário,
+  perfil ou sessão global. Reivindicação posterior preserva o mesmo
+  `athlete_id` e sua resposta;
+- `DEC-PERSISTENT-ACCESS` exige que vínculo, fase, prazo, chamada e revogação
+  sejam recalculados na própria mutação; estado renderizado no cliente nunca
+  autoriza a escrita;
+- CP1 e o caminho fino local podem avançar com os gates desligados. Ativação
+  produtiva depende das pendências físicas e operacionais de `WP-R02-02`.
+
+### Fronteira de identidade e escrita
+
+- o formulário envia somente `public_id` e um status entre `confirmed`,
+  `declined` e `maybe`. Não aceita `team_id`, `event_id`, `athlete_id`,
+  `responded_by`, segredo ou origem declarada pelo cliente;
+- a Server Action valida e delega. Uma RPC transacional separada deriva o
+  escopo do cookie `HttpOnly` ou da sessão verificada, trava a linha de presença
+  e revalida os dois gates de acesso, a flag `event_capability_rsvp`, atleta
+  ativo, chamada existente, evento agendado e futuro e prazo aberto;
+- quando cookie e sessão verificada coexistirem, a capability válida exibida
+  continua sendo o escopo da jornada. A sessão só é fallback se a capability
+  estiver ausente ou inválida; a RPC repete essa precedência para evitar
+  diferença entre leitura e escrita;
+- `responded_by` recebe o usuário verificado somente quando ele for o
+  `user_id` atual do mesmo `athlete_id`. Link encaminhado para outro usuário
+  mantém `responded_by` nulo e não associa identidade alheia ao atleta;
+- retry da mesma resposta converge para o mesmo estado. Alteração posterior é
+  permitida, atualiza `responded_at` e não cria linha, identidade ou resposta
+  paralela;
+- falha, gate desligado, expiração, revogação, cross-evento ou cross-tenant
+  retornam mensagem genérica e preservam a página pública. Nenhum caso revela
+  se atleta, chamada, capability ou sessão existem.
+
+### Estados, riscos e recuperação
+
+- somente `confirmed`, `declined` e `maybe` são aceitos. `pending` e
+  `waitlisted` não podem ser produzidos por esta jornada;
+- evento `cancelled` ou `completed`, horário iniciado ou prazo encerrado bloqueia
+  mutação, mas não a consulta já autorizada; isso preserva `AC-R02-05` e
+  `AC-R02-10`;
+- concorrência entre respostas, revogação, fechamento e reivindicação será
+  serializada no banco. O resultado nunca atravessa atleta, evento ou time;
+- logs e auditoria podem registrar IDs internos não secretos, fonte efetiva e
+  resultado, mas nunca cookie, credencial, telefone, token Auth ou conteúdo do
+  link;
+- desligar `event_capability_rsvp` remove somente os controles de resposta. Em
+  incidente de credencial, o controle global `event_capability_exchange`
+  também corta resolução e escrita, preservando URL pública e confirmação
+  autenticada legada;
+- ficam fora deste pacote envio pelo WhatsApp, RSVP administrativo, comentários,
+  votos, escalação e qualquer refatoração ampla das Actions existentes.
+
+### Entry points e matriz mínima
+
+- consumidor: `app/e/[publicId]/page.tsx`, nova Server Action estreita e
+  `lib/data/event-access.ts`;
+- contratos preservados: `app/me/actions.ts`, `app/t/[slug]/actions.ts` e
+  `respond_to_event_as_player`;
+- expansão forward-only: nova RPC de resposta por acesso reconhecido, tipos e
+  pgTAP; nenhuma alteração retroativa nas migrations aplicadas;
+- validar capability reivindicada e não reivindicada, sessão verificada,
+  repetição e mudança de status; negar status inválido, cookie fixado, link
+  encaminhado com atribuição falsa, revogado, expirado, prazo fechado, evento
+  iniciado/cancelado/concluído, atleta inativo, fora da chamada, outro evento,
+  outro time e gates desligados;
+- provar concorrência entre resposta/revogação/reivindicação, grants mínimos,
+  ausência de escrita direta e ausência de segredo/PII em auditoria.
+
+### Evidência do CP0
+
+- baseline `BASE-ATTENDANCE`, decisões `DEC-REPEATABLE-RSVP`,
+  `DEC-UNCLAIMED-IDENTITY` e `DEC-PERSISTENT-ACCESS` confrontadas com a RPC
+  autenticada existente e com os resolvers de `WP-R02-02`;
+- resultado, dependências, escopo, precedência de identidade, estados de falha,
+  riscos, fallback, rollback, entry points e matriz mínima estão fechados;
+- `npm run verify` — lint, typecheck, 21 arquivos/124 testes Vitest e build de
+  produção aprovados;
+- `npm run security:audit` — zero vulnerabilidades;
+- não houve alteração de banco, aplicação, flag ou produção;
+- próxima ação concreta: CP1 com assinatura da RPC, lock, atribuição de
+  `responded_by`, auditoria, matriz RLS/pgTAP e compatibilidade N/N−1.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade
