@@ -285,6 +285,79 @@ export type Database = {
           },
         ]
       }
+      event_access_credentials: {
+        Row: {
+          athlete_id: string
+          athlete_user_id_at_issue: string | null
+          created_at: string
+          event_id: string
+          exchange_count: number
+          expires_at: string
+          id: string
+          issued_by: string
+          last_exchanged_at: string | null
+          revocation_reason: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          secret_hash: string
+          team_id: string
+        }
+        Insert: {
+          athlete_id: string
+          athlete_user_id_at_issue?: string | null
+          created_at?: string
+          event_id: string
+          exchange_count?: number
+          expires_at: string
+          id?: string
+          issued_by: string
+          last_exchanged_at?: string | null
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          secret_hash: string
+          team_id: string
+        }
+        Update: {
+          athlete_id?: string
+          athlete_user_id_at_issue?: string | null
+          created_at?: string
+          event_id?: string
+          exchange_count?: number
+          expires_at?: string
+          id?: string
+          issued_by?: string
+          last_exchanged_at?: string | null
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          secret_hash?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_access_credentials_athlete_id_team_id_fkey"
+            columns: ["athlete_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_access_credentials_event_id_athlete_id_fkey"
+            columns: ["event_id", "athlete_id"]
+            isOneToOne: false
+            referencedRelation: "event_attendance"
+            referencedColumns: ["event_id", "athlete_id"]
+          },
+          {
+            foreignKeyName: "event_access_credentials_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
       event_attendance: {
         Row: {
           athlete_id: string
@@ -329,6 +402,83 @@ export type Database = {
           },
           {
             foreignKeyName: "event_attendance_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
+      event_capability_sessions: {
+        Row: {
+          absolute_expires_at: string
+          athlete_id: string
+          athlete_user_id_at_issue: string | null
+          created_at: string
+          credential_id: string
+          event_id: string
+          id: string
+          idle_expires_at: string
+          last_seen_at: string
+          revocation_reason: string | null
+          revoked_at: string | null
+          secret_hash: string
+          team_id: string
+        }
+        Insert: {
+          absolute_expires_at: string
+          athlete_id: string
+          athlete_user_id_at_issue?: string | null
+          created_at?: string
+          credential_id: string
+          event_id: string
+          id?: string
+          idle_expires_at: string
+          last_seen_at?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          secret_hash: string
+          team_id: string
+        }
+        Update: {
+          absolute_expires_at?: string
+          athlete_id?: string
+          athlete_user_id_at_issue?: string | null
+          created_at?: string
+          credential_id?: string
+          event_id?: string
+          id?: string
+          idle_expires_at?: string
+          last_seen_at?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          secret_hash?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_capability_sessions_athlete_id_team_id_fkey"
+            columns: ["athlete_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_capability_sessions_credential_id_fkey"
+            columns: ["credential_id"]
+            isOneToOne: false
+            referencedRelation: "event_access_credentials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_capability_sessions_event_id_athlete_id_fkey"
+            columns: ["event_id", "athlete_id"]
+            isOneToOne: false
+            referencedRelation: "event_attendance"
+            referencedColumns: ["event_id", "athlete_id"]
+          },
+          {
+            foreignKeyName: "event_capability_sessions_event_id_team_id_fkey"
             columns: ["event_id", "team_id"]
             isOneToOne: false
             referencedRelation: "events"
@@ -1402,6 +1552,42 @@ export type Database = {
           },
         ]
       }
+      verified_device_sessions: {
+        Row: {
+          absolute_expires_at: string
+          auth_session_id: string
+          first_seen_at: string
+          idle_expires_at: string
+          last_seen_at: string
+          revocation_reason: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          user_id: string
+        }
+        Insert: {
+          absolute_expires_at?: string
+          auth_session_id: string
+          first_seen_at?: string
+          idle_expires_at?: string
+          last_seen_at?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          user_id: string
+        }
+        Update: {
+          absolute_expires_at?: string
+          auth_session_id?: string
+          first_seen_at?: string
+          idle_expires_at?: string
+          last_seen_at?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       public_athlete_directory: {
@@ -1622,6 +1808,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      exchange_event_access_credential: {
+        Args: {
+          requested_credential_secret: string
+          requested_public_id: string
+        }
+        Returns: {
+          capability_expires_at: string
+          capability_secret: string
+        }[]
+      }
       extend_event_series_as_staff: {
         Args: {
           additional_occurrences: number
@@ -1679,6 +1875,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      issue_event_access_credential: {
+        Args: { requested_athlete_id: string; requested_event_id: string }
+        Returns: {
+          credential_id: string
+          credential_secret: string
+          expires_at: string
+          public_id: string
+        }[]
+      }
       list_my_player_team_links: {
         Args: never
         Returns: {
@@ -1702,6 +1907,14 @@ export type Database = {
           invited_role: Database["public"]["Enums"]["team_role"]
           team_name: string
           team_slug: string
+        }[]
+      }
+      register_or_touch_verified_device_session: {
+        Args: never
+        Returns: {
+          absolute_expires_at: string
+          auth_session_id: string
+          idle_expires_at: string
         }[]
       }
       remove_athlete_from_team: {
@@ -1729,6 +1942,20 @@ export type Database = {
         }
         Returns: string
       }
+      resolve_event_capability: {
+        Args: {
+          requested_capability_secret: string
+          requested_public_id: string
+        }
+        Returns: {
+          athlete_display_name: string
+          attendance_status: Database["public"]["Enums"]["attendance_status"]
+          can_respond: boolean
+          capability_expires_at: string
+          event_status: Database["public"]["Enums"]["event_status"]
+          public_id: string
+        }[]
+      }
       respond_to_event_as_player: {
         Args: {
           requested_event_id: string
@@ -1744,8 +1971,20 @@ export type Database = {
         Args: { decision: string; requested_athlete_id: string }
         Returns: Database["public"]["Enums"]["athlete_status"]
       }
+      revoke_all_my_verified_device_sessions: {
+        Args: { requested_reason?: string }
+        Returns: number
+      }
+      revoke_event_access_credential: {
+        Args: { requested_credential_id: string; requested_reason?: string }
+        Returns: boolean
+      }
       revoke_team_invitation: {
         Args: { requested_invitation_id: string }
+        Returns: boolean
+      }
+      revoke_verified_device_session: {
+        Args: { requested_reason?: string; requested_session_id: string }
         Returns: boolean
       }
       save_match_report_as_staff: {
@@ -1962,7 +2201,10 @@ export type Database = {
       message_status: "pending" | "processing" | "sent" | "failed" | "cancelled"
       organization_mode: "single_squad" | "split_teams"
       registration_source: "admin" | "public_form" | "import"
-      runtime_control_key: "integration_produce" | "integration_consume"
+      runtime_control_key:
+        | "integration_produce"
+        | "integration_consume"
+        | "event_capability_exchange"
       sport_format: "field" | "society" | "futsal"
       team_invitation_status:
         | "pending"
@@ -2154,7 +2396,11 @@ export const Constants = {
       message_status: ["pending", "processing", "sent", "failed", "cancelled"],
       organization_mode: ["single_squad", "split_teams"],
       registration_source: ["admin", "public_form", "import"],
-      runtime_control_key: ["integration_produce", "integration_consume"],
+      runtime_control_key: [
+        "integration_produce",
+        "integration_consume",
+        "event_capability_exchange",
+      ],
       sport_format: ["field", "society", "futsal"],
       team_invitation_status: [
         "pending",
