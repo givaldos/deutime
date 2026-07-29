@@ -1,8 +1,8 @@
 ---
 release: R02
 work_package: WP-R02-01
-scope: public_event_anonymous_regressions
-branch_or_commit: "codex/r02-public-event-regressions"
+scope: public_event_manual_pilot
+branch_or_commit: "codex/r02-public-event-pilot"
 checkpoint: idle
 status: completed
 completed_ac:
@@ -13,21 +13,23 @@ dirty_files:
   - "app/p/[handle]/page.tsx (preexistente, fora do escopo)"
   - "docs/roadmap.md (preexistente, fora do escopo)"
 tests:
-  - "Vitest focado — 3 arquivos e 15 testes aprovados"
-  - "npm run lint — aprovado"
-  - "npm run typecheck — aprovado"
-  - "Vitest completo — 16 arquivos e 100 testes aprovados"
-  - "npm run build — aprovado"
-  - "npm run security:audit — 0 vulnerabilidades"
+  - "Baseline anônima antes da ativação — 404"
+  - "Smoke com flag ativa — 200, projeção mínima e headers de privacidade aprovados"
+  - "Rollback pela RPC — flag false e 404 aprovados"
+  - "Restauração do piloto — 200 e exatamente um public_event_page ativo"
+  - "Runtime controls — 0 ativos"
+  - "Auditoria preservada — 18 entradas por expansão repetida do retorno composto; prevenção adicionada ao backlog"
 blocker: null
-next_action: "Selecionar o time piloto, ativar public_event_page somente nele e executar smoke anônimo com um public_id real."
+next_action: "Abrir o CP0 de WP-R02-02 e fechar o contrato mínimo de capability e sessão persistente antes de implementar escrita ou RSVP."
 ---
 
 # Trabalho atual
 
-O CP3 de `WP-R02-01` automatizou a fronteira anônima da página pública. Os
-testes cobrem 404 indistinguível, compatibilidade com banco N−1, estados
-informativos, metadata não indexável, projeção mínima e ausência de terceiros.
+O CP5 de `WP-R02-01` concluiu o piloto manual da página pública em produção.
+`Demo Campo` é a única coorte com `public_event_page=true`; o evento
+`Copa do Mundo` responde em
+`/e/fdf577af-5cc4-489f-81cb-65fac548167b`.
 
-A vertical está pronta para seleção do time piloto. A ativação continua manual,
-por time, e não liga capability nem RSVP.
+O rollback foi exercitado e restaurado, os controles globais seguem desligados
+e capability/RSVP não foram ativados. A próxima fatia é `WP-R02-02`, começando
+por CP0 antes de qualquer implementação.
