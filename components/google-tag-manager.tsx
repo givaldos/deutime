@@ -1,6 +1,6 @@
 "use client";
 
-import { isPublicEventPath } from "@/lib/security/headers";
+import { shouldLoadThirdPartyAnalytics } from "@/lib/security/headers";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 
@@ -8,7 +8,7 @@ const GOOGLE_TAG_MANAGER_ID = "GTM-TPJZMDD3";
 
 export function GoogleTagManager() {
   const pathname = usePathname();
-  if (isPublicEventPath(pathname)) return null;
+  if (!shouldLoadThirdPartyAnalytics(pathname)) return null;
 
   return (
     <>

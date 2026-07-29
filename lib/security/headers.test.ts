@@ -4,6 +4,7 @@ import {
   buildContentSecurityPolicy,
   isPublicEventPath,
   referrerPolicyForPath,
+  shouldLoadThirdPartyAnalytics,
 } from "./headers";
 
 describe("content security policy", () => {
@@ -49,5 +50,16 @@ describe("route security headers", () => {
   it("preserves no-referrer on existing credential routes", () => {
     expect(referrerPolicyForPath("/auth/confirm")).toBe("no-referrer");
     expect(referrerPolicyForPath("/invite/opaque-token")).toBe("no-referrer");
+  });
+
+  it("blocks third-party analytics only on the initial public-event journey", () => {
+    expect(
+      shouldLoadThirdPartyAnalytics(
+        "/e/b4000000-0000-4000-8000-000000000001",
+      ),
+    ).toBe(false);
+    expect(shouldLoadThirdPartyAnalytics("/e")).toBe(false);
+    expect(shouldLoadThirdPartyAnalytics("/t/time-publico")).toBe(true);
+    expect(shouldLoadThirdPartyAnalytics("/app/time/events")).toBe(true);
   });
 });

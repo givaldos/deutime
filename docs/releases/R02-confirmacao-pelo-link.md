@@ -191,6 +191,28 @@ Esses caminhos foram revalidados em `d1cd5b2` durante o CP0.
   produção aprovados;
 - `npm run security:audit` — zero vulnerabilidades.
 
+## Regressões anônimas de `WP-R02-01` — CP3
+
+- a rota retorna o mesmo 404 para UUID inválido, evento ausente e linha
+  filtrada pela flag, sem permitir enumeração;
+- a fronteira de dados trata contrato ausente no banco N−1 como indisponível,
+  mas não oculta falhas reais de autorização ou infraestrutura;
+- eventos cancelados e encerrados permanecem informativos e sem resposta
+  mutável;
+- metadata contextual mantém URL canônica, `noindex`, `nofollow` e não publica
+  o adversário;
+- a consulta continua limitada a `public_event_directory`, sem `team_id`,
+  `event_id`, local ou presença;
+- a política usada pelo GTM impede analytics de terceiros em `/e` e `/e/*`,
+  preservando-o nas demais jornadas.
+
+### Evidência das regressões anônimas
+
+- Vitest focado — 3 arquivos e 15 testes aprovados;
+- `npm run verify` — lint, tipos e 16 arquivos/100 testes aprovados; o build
+  exigiu apenas acesso de rede às fontes Google e passou separadamente;
+- `npm run security:audit` — zero vulnerabilidades.
+
 ## Critérios de aceite
 
 - [x] `AC-R02-01` — URL pública estável não depende do slug mutável do time.
