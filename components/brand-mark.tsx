@@ -18,7 +18,7 @@ export function BrandMark({
       href={href}
       aria-label="DeuTime"
       className={cn(
-        "group inline-flex shrink-0 items-center rounded-xl focus-visible:ring-offset-white",
+        "group inline-flex min-h-11 min-w-11 shrink-0 items-center rounded-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-lime/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white",
         className,
       )}
     >

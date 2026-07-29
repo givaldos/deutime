@@ -395,6 +395,42 @@ aplicação:
 - próxima ação concreta: CP4 de experiência, verificando acessibilidade, Android,
   iPhone, navegador interno e compartilhamento real pelo WhatsApp.
 
+## Experiência de `WP-R02-02` — CP4 parcial
+
+- a página pública foi verificada em viewports Chrome de 360×800 e 390×844,
+  cobrindo tamanhos usuais de Android e iPhone. Não houve rolagem horizontal,
+  corte do título, sobreposição indevida do conteúdo ou CTA menor que 48 px;
+- título longo e quebra em duas linhas também foram exercitados localmente. O
+  card de data continua sobreposto ao header de forma intencional e legível;
+- a árvore acessível preserva um `main`, um `h1`, progressão para `h2`, região
+  nomeada pela data, link nomeado para a marca e status `aria-live=polite`;
+- a auditoria encontrou o link da marca com somente 37 px de altura. O
+  `BrandMark` agora garante alvo mínimo de 44×44 px e foco de teclado explícito;
+- a primeira abertura em produção com fragmento canônico removeu `#c` da URL
+  antes do fallback. Fragmento com parâmetro extra também foi removido e
+  rejeitado com mensagem genérica, sem perder o evento público;
+- o mesmo fallback foi exercitado no navegador interno controlado. Os logs
+  capturados pelo navegador não exibiram a credencial usada no teste;
+- nenhum gate foi ativado e nenhuma capability válida foi criada em produção.
+
+### Evidência e pendência do CP4
+
+- `npm run verify` — lint, typecheck, 20 arquivos/120 testes Vitest e build de
+  produção aprovados;
+- `npm run security:audit` — zero vulnerabilidades;
+- Chrome 360×800 — largura do documento 360 px, logo 44 px e conteúdo sem
+  overflow;
+- Chrome 390×844 — largura do documento 390 px, logo 44 px, foco visível e CTA
+  principal de 48 px;
+- produção e navegador interno — fragmento removido, URL limpa e fallback
+  público acessível;
+- ainda falta evidência em aparelhos físicos Android e iPhone dentro do
+  navegador real do WhatsApp, inclusive copiar/colar o link público. Emulação
+  de viewport ou outro navegador interno não será registrada como substituta;
+- CP4 permanece aberto até essa matriz manual ser executada. A próxima ação é
+  testar a URL pública em WhatsApp Android e iPhone, confirmar layout, retorno,
+  cópia/compartilhamento e remoção do fragmento, sem habilitar os gates.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade
