@@ -1,12 +1,12 @@
 import { BrandMark } from "@/components/brand-mark";
 import { EventAccessBootstrap } from "@/components/event-access-bootstrap";
+import { EventAccessAttendance } from "@/components/event-access-attendance";
 import { Button } from "@/components/ui/button";
 import {
   type EventAccessContext,
   getEventAccessContext,
 } from "@/lib/data/event-access";
 import { getPublicEvent } from "@/lib/data/public-event";
-import { attendanceStatusLabels } from "@/lib/features/event-access/contract";
 import {
   formatPublicEventDate,
   formatPublicEventTime,
@@ -298,22 +298,16 @@ function RecognizedEventAccess({ context }: { context: EventAccessContext }) {
       <h2 className="mt-2 text-xl font-black text-grass">
         Olá, {context.athleteDisplayName}
       </h2>
-      <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-emerald-100">
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-          Sua confirmação
-        </p>
-        <p className="mt-1 font-black text-slate-900">
-          {attendanceStatusLabels[context.attendanceStatus]}
-        </p>
-      </div>
+      <EventAccessAttendance
+        publicId={context.publicId}
+        currentStatus={context.attendanceStatus}
+        canRespond={context.canRespond}
+      />
       <p className="mt-4 flex items-start gap-2 text-sm leading-6 text-emerald-950">
         <ShieldCheck className="mt-1 size-4 shrink-0 text-emerald-700" aria-hidden />
         {context.source === "verified_session"
           ? "Este aparelho já foi verificado. Você não precisa repetir o código para consultar este evento."
           : "Este acesso vale somente para você neste evento e pode ser revogado pelo time."}
-      </p>
-      <p className="mt-3 text-sm leading-6 text-slate-600">
-        A resposta direta por este link será liberada na próxima etapa.
       </p>
     </section>
   );

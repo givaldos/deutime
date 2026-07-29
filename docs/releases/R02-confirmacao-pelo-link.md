@@ -649,6 +649,61 @@ continua usando `respond_to_event_as_player`.
 - próxima ação concreta: CP2 com Server Action estreita e controles
   SIM/NÃO/TALVEZ na página reconhecida, tolerando banco N−1.
 
+## Caminho fino de `WP-R02-03` — CP2
+
+### Jornada e fronteiras
+
+- a página reconhecida renderiza SIM, NÃO e TALVEZ somente quando
+  `can_respond=true`, valor derivado server-side pelos gates de página, troca e
+  RSVP, controle global, chamada, vínculo, fase e prazo;
+- o formulário envia exclusivamente `publicId` e um status permitido. A Server
+  Action valida esses dois valores e delega ao DAL; não aceita time, evento
+  interno, atleta, origem, ator ou segredo;
+- o DAL lê a capability apenas do cookie `HttpOnly` com escopo do evento. Sem
+  cookie válido, a mesma chamada permite que a RPC use a sessão Supabase
+  verificada como fallback;
+- sucesso atualiza o estado anunciado na própria página e revalida somente a
+  URL pública. Retry e alteração sucessiva continuam convergindo na linha única
+  protegida pelo contrato CP1;
+- função ausente no banco N−1, gate fechado ou acesso não mais válido convertem
+  a interface em somente leitura, preservam a resposta atual e exibem o CTA
+  para `/me/agenda`. Falha transitória mantém os controles para nova tentativa;
+- mensagens de falha não distinguem capability, atleta, chamada, time ou gate.
+  Logs estruturados registram somente fronteira, resultado e código; segredo e
+  mensagem bruta do provedor não são emitidos.
+
+### Interface e fallback
+
+- os três alvos possuem `56 px` de altura em `390 × 844`, estado selecionado
+  com `aria-pressed`, bloqueio durante envio e retorno em região viva;
+- a resposta reconhecida permanece visível quando o evento fecha ou a flag é
+  desligada; somente os controles mutáveis desaparecem;
+- a página pública anônima, o bootstrap de troca, a confirmação autenticada
+  legada e o banco não foram alterados nesta fatia;
+- `event_capability_rsvp` continua desligada em produção. O teste físico usou
+  apenas uma coorte fictícia no Supabase local e terminou com a flag local
+  desligada.
+
+### Evidência do CP2
+
+- Vitest focado — contratos, DAL, Action, componente e rota pública aprovados;
+- `npm run db:reset` — 30 migrations e seed aplicados do zero;
+- `npm run db:test` — 21 arquivos e 494 testes pgTAP aprovados;
+- `npm run db:lint` — nenhum aviso novo; permanecem dois avisos preexistentes
+  em `create_event_as_staff`;
+- `npm run db:types` — contrato gerado permaneceu sem diferença;
+- `npm run migrations:check -- 64a8bc0` — histórico preservado;
+- teste físico local em `390 × 844` — sem overflow horizontal, botões de
+  `56 px`, troca segura da credencial e respostas Confirmado → Não vou → Talvez;
+- banco local após duas mutações — uma linha de presença, `status=maybe`,
+  `source=web`, `responded_by` nulo para capability não reivindicada e duas
+  auditorias sem o segredo;
+- flag local desligada — resposta Talvez preservada, controles ausentes e CTA
+  para a agenda;
+- `npm run verify` — lint, typecheck, 24 arquivos/144 testes Vitest e build de
+  produção aprovados;
+- `npm run security:audit` — zero vulnerabilidades.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade
