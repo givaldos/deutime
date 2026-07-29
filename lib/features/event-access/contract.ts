@@ -4,6 +4,14 @@ export const EVENT_ACCESS_COOKIE_NAME = "dt_event_access";
 
 const accessSecretPattern = /^[A-Za-z0-9_-]{43}$/;
 
+export const eventResponseStatuses = [
+  "confirmed",
+  "declined",
+  "maybe",
+] as const;
+
+export type EventResponseStatus = (typeof eventResponseStatuses)[number];
+
 export const attendanceStatusLabels = {
   pending: "Aguardando resposta",
   confirmed: "Confirmado",
@@ -11,6 +19,15 @@ export const attendanceStatusLabels = {
   maybe: "Talvez",
   waitlist: "Na lista de espera",
 } as const;
+
+export function isEventResponseStatus(
+  candidate: unknown,
+): candidate is EventResponseStatus {
+  return (
+    typeof candidate === "string" &&
+    eventResponseStatuses.some((status) => status === candidate)
+  );
+}
 
 export function isEventAccessSecret(candidate: unknown): candidate is string {
   return typeof candidate === "string" && accessSecretPattern.test(candidate);

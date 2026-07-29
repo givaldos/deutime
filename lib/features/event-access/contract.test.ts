@@ -4,6 +4,7 @@ import {
   EVENT_ACCESS_COOKIE_NAME,
   eventAccessCookiePath,
   isEventAccessSecret,
+  isEventResponseStatus,
   readEventAccessFragment,
 } from "./contract";
 
@@ -48,5 +49,14 @@ describe("event access browser contract", () => {
     expect(EVENT_ACCESS_COOKIE_NAME).toBe("dt_event_access");
     expect(eventAccessCookiePath(publicId)).toBe(`/e/${publicId}`);
     expect(eventAccessCookiePath("../outro")).toBe("/e");
+  });
+
+  it("accepts only the three public RSVP responses", () => {
+    expect(isEventResponseStatus("confirmed")).toBe(true);
+    expect(isEventResponseStatus("declined")).toBe(true);
+    expect(isEventResponseStatus("maybe")).toBe(true);
+    expect(isEventResponseStatus("pending")).toBe(false);
+    expect(isEventResponseStatus("waitlist")).toBe(false);
+    expect(isEventResponseStatus("confirmed ")).toBe(false);
   });
 });

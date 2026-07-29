@@ -3,7 +3,9 @@ import "server-only";
 import type { Database } from "@/lib/database.types";
 import {
   EVENT_ACCESS_COOKIE_NAME,
+  type EventResponseStatus,
   isEventAccessSecret,
+  isEventResponseStatus,
 } from "@/lib/features/event-access/contract";
 import { isPublicEventId } from "@/lib/features/public-event/presentation";
 import { createClient } from "@/lib/supabase/server";
@@ -26,6 +28,11 @@ export type EventAccessResolution = {
   context: EventAccessContext | null;
   clearInvalidCookie: boolean;
 };
+
+export type EventResponseResult =
+  | { outcome: "success"; status: EventResponseStatus }
+  | { outcome: "unavailable" }
+  | { outcome: "error" };
 
 type AccessRow = {
   public_id: string;
@@ -123,6 +130,45 @@ export async function getEventAccessContext(
   return { context: null, clearInvalidCookie: hasCookie };
 }
 
+export async function respondToEventFromAccess(
+  publicId: string,
+  status: EventResponseStatus,
+): Promise<EventResponseResult> {
+  if (!isPublicEventId(publicId) || !isEventResponseStatus(status)) {
+    return { outcome: "unavailable" };
+  }
+
+  const cookieStore = await cookies();
+  const cookieSecret =
+    cookieStore.get(EVENT_ACCESS_COOKIE_NAME)?.value ?? null;
+  const supabase = await createClient();
+  const args: Database["public"]["Functions"]["respond_to_event_from_access"]["Args"] =
+    {
+      requested_public_id: publicId,
+      response_status: status,
+      ...(isEventAccessSecret(cookieSecret)
+        ? { requested_capability_secret: cookieSecret }
+        : {}),
+    };
+  const { data, error } = await supabase.rpc(
+    "respond_to_event_from_access",
+    args,
+  );
+
+  if (error) {
+    if (isUnavailableResponseFailure(error)) {
+      return { outcome: "unavailable" };
+    }
+
+    reportUnexpectedAccessFailure("respond", error);
+    return { outcome: "error" };
+  }
+
+  return data === status
+    ? { outcome: "success", status }
+    : { outcome: "error" };
+}
+
 function normalizeAccessRow(
   candidate: AccessRow | null | undefined,
   source: EventAccessContext["source"],
@@ -186,5 +232,27 @@ function isExpectedAccessFailure(error: { code?: string; message?: string }) {
     message.includes("acesso ao evento") ||
     message.includes("sessão verificada") ||
     message.includes("schema cache")
+  );
+}
+
+function isUnavailableResponseFailure(error: {
+  code?: string;
+  message?: string;
+}) {
+  if (
+    error.code === "22023" ||
+    error.code === "42501" ||
+    error.code === "42883" ||
+    error.code === "PGRST202" ||
+    error.code === "PGRST204"
+  ) {
+    return true;
+  }
+
+  const message = error.message?.toLowerCase() ?? "";
+  return (
+    message.includes("resposta ao evento indisponível") ||
+    message.includes("schema cache") ||
+    message.includes("respond_to_event_from_access")
   );
 }

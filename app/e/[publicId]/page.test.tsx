@@ -179,4 +179,31 @@ describe("public event route", () => {
     expect(html).toContain("Confirmado");
     expect(html).toContain("não precisa repetir o código");
   });
+
+  it("shows the three RSVP controls only when every response gate is open", async () => {
+    mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
+    mocks.getEventAccessContext.mockResolvedValue({
+      context: {
+        publicId,
+        athleteDisplayName: "Atleta Liberado",
+        attendanceStatus: "pending",
+        eventStatus: "scheduled",
+        canRespond: true,
+        expiresAt: "2026-12-01T12:00:00.000Z",
+        source: "capability",
+      },
+      clearInvalidCookie: false,
+    });
+
+    const html = renderToStaticMarkup(await PublicEventPage(props()));
+
+    expect(html).toContain("SIM");
+    expect(html).toContain("NÃO");
+    expect(html).toContain("TALVEZ");
+    expect(html).toContain('name="publicId"');
+    expect(html).not.toContain("capabilitySecret");
+    expect(html).not.toContain("athleteId");
+    expect(html).not.toContain("teamId");
+    expect(html).not.toContain("eventId");
+  });
 });
