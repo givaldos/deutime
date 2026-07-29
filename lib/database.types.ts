@@ -1974,6 +1974,14 @@ export type Database = {
         }
         Returns: Database["public"]["Enums"]["attendance_status"]
       }
+      respond_to_event_from_access: {
+        Args: {
+          requested_capability_secret?: string
+          requested_public_id: string
+          response_status: Database["public"]["Enums"]["attendance_status"]
+        }
+        Returns: Database["public"]["Enums"]["attendance_status"]
+      }
       respond_to_team_invitation: {
         Args: { invitation_response: string; requested_invitation_id: string }
         Returns: string
