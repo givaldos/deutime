@@ -60,10 +60,44 @@ describe("event credential exchange route", () => {
       postRequest({ credential }, { "content-type": "text/plain" }),
       context,
     );
+    const misleadingType = await POST(
+      postRequest(
+        { credential },
+        { "content-type": "application/json-malicious" },
+      ),
+      context,
+    );
     const malformed = await POST(postRequest({ credential: "curto" }), context);
 
     expect(wrongType.status).toBe(415);
+    expect(misleadingType.status).toBe(415);
     expect(malformed.status).toBe(404);
+    expect(mocks.exchangeEventAccessCredential).not.toHaveBeenCalled();
+  });
+
+  it("bounds chunked bodies and rejects ambiguous JSON objects", async () => {
+    const oversized = new NextRequest(endpoint, {
+      method: "POST",
+      headers: {
+        origin: "https://deutime.app",
+        "sec-fetch-site": "same-origin",
+        "content-type": "application/json; charset=utf-8",
+      },
+      body: JSON.stringify({
+        credential,
+        padding: "á".repeat(1024),
+      }),
+    });
+    oversized.headers.delete("content-length");
+
+    const extraField = await POST(
+      postRequest({ credential, redirect: "https://example.test" }),
+      context,
+    );
+    const oversizedResponse = await POST(oversized, context);
+
+    expect(extraField.status).toBe(404);
+    expect(oversizedResponse.status).toBe(404);
     expect(mocks.exchangeEventAccessCredential).not.toHaveBeenCalled();
   });
 
@@ -84,6 +118,12 @@ describe("event credential exchange route", () => {
     expect(setCookie).toContain("SameSite=lax");
     expect(setCookie).toContain(`Path=/e/${publicId}`);
     expect(response.headers.get("cache-control")).toContain("no-store");
+    expect(response.headers.get("content-security-policy")).toContain(
+      "default-src 'none'",
+    );
+    expect(response.headers.get("cross-origin-resource-policy")).toBe(
+      "same-origin",
+    );
   });
 
   it("uses the same generic absence for an invalid or disabled exchange", async () => {

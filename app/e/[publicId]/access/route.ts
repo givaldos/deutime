@@ -12,6 +12,7 @@ type RouteContext = {
 };
 
 const genericFailure = { message: "Acesso indisponível." };
+const maxRequestBodyBytes = 1024;
 
 export async function POST(request: NextRequest, context: RouteContext) {
   const { publicId } = await context.params;
@@ -26,19 +27,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     return json(genericFailure, 415);
   }
 
-  const contentLength = Number(request.headers.get("content-length") ?? "0");
-  if (Number.isFinite(contentLength) && contentLength > 1024) {
-    return unavailable();
-  }
-
-  const body = await request.json().catch(() => null);
-  const credential =
-    body &&
-    typeof body === "object" &&
-    "credential" in body &&
-    isEventAccessSecret(body.credential)
-      ? body.credential
-      : null;
+  const credential = await readCredential(request);
 
   if (!credential) {
     return unavailable();
@@ -110,12 +99,49 @@ function isSameOrigin(request: NextRequest) {
 }
 
 function isJsonRequest(request: NextRequest) {
-  return (
-    request.headers
-      .get("content-type")
-      ?.toLowerCase()
-      .startsWith("application/json") ?? false
-  );
+  const mediaType = request.headers
+    .get("content-type")
+    ?.split(";")
+    .at(0)
+    ?.trim()
+    .toLowerCase();
+  return mediaType === "application/json";
+}
+
+async function readCredential(request: NextRequest) {
+  const declaredLength = request.headers.get("content-length");
+  if (
+    declaredLength !== null &&
+    (!/^\d+$/.test(declaredLength) ||
+      Number(declaredLength) > maxRequestBodyBytes)
+  ) {
+    return null;
+  }
+
+  const rawBody = await request.text().catch(() => null);
+  if (
+    rawBody === null ||
+    new TextEncoder().encode(rawBody).byteLength > maxRequestBodyBytes
+  ) {
+    return null;
+  }
+
+  const body = parseJsonObject(rawBody);
+  if (!body || Object.keys(body).length !== 1) return null;
+  return isEventAccessSecret(body.credential) ? body.credential : null;
+}
+
+function parseJsonObject(rawBody: string): Record<string, unknown> | null {
+  try {
+    const parsed: unknown = JSON.parse(rawBody);
+    return parsed !== null &&
+      typeof parsed === "object" &&
+      !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 function unavailable() {
@@ -132,7 +158,10 @@ function json(body: typeof genericFailure, status: number) {
 function noStoreHeaders() {
   return {
     "Cache-Control": "private, no-store, max-age=0",
+    "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
+    "Cross-Origin-Resource-Policy": "same-origin",
     "Referrer-Policy": "no-referrer",
     "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
   };
 }

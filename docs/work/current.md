@@ -1,37 +1,35 @@
 ---
 release: R02
 work_package: WP-R02-02
-scope: capability_access_path
-branch_or_commit: "codex/r02-capability-access-path"
+scope: capability_robustness
+branch_or_commit: "codex/r02-capability-robustness"
 checkpoint: idle
 status: completed
 completed_ac: []
 dirty_files: []
 tests:
-  - "npm run db:reset — 30 migrations e seed aplicados do zero"
-  - "npm run db:test — 19 arquivos e 440 testes aprovados"
-  - "019_verified_event_access — 14 cenários positivos, negativos, revogação, expiração e cross-tenant"
+  - "npm run db:reset — 31 migrations e seed aplicados do zero"
+  - "npm run db:test — 20 arquivos e 456 testes aprovados"
+  - "020_event_capability_robustness — 16 cenários; lock, 40 replays, cotas, privacidade, cancelamento e recuperação"
   - "npm run db:lint — sem aviso novo; dois avisos preexistentes em create_event_as_staff"
-  - "npm run db:types e npm run migrations:check -- 8937255 aprovados"
-  - "npm run verify — lint, typecheck, 19 arquivos/118 testes Vitest e build aprovados"
+  - "npm run db:types e npm run migrations:check -- 9426857 aprovados"
+  - "npm run verify — lint, typecheck, 19 arquivos/119 testes Vitest e build aprovados"
   - "npm run security:audit — zero vulnerabilidades"
-  - "HTTP local — público 200, troca 204, reconhecido 200, cross-origin 403 e GET da troca 405"
 blocker: null
-next_action: "Executar o CP3 de WP-R02-02: robustez contra abuso e concorrência, privacidade, cancelamento e recuperação operacional, mantendo RSVP e todos os gates desligados."
+next_action: "Executar o CP4 de WP-R02-02: acessibilidade, Android, iPhone, navegador interno e compartilhamento real pelo WhatsApp, mantendo RSVP e gates desligados."
 ---
 
 # Trabalho atual
 
-O CP2 de `WP-R02-02` implementou o caminho fino de acesso personalizado. O
-fragmento é removido antes da troca same-origin, o endpoint instala cookie opaco
-e restrito ao evento, e o DAL server-side resolve capability ou sessão Supabase
-verificada sem expor IDs internos.
+O CP3 de `WP-R02-02` endureceu o caminho personalizado sem mudar seu escopo. O
+endpoint limita corpo por bytes, exige JSON exato, rejeita campos extras e
+responde com headers fechados para cache, origem, frame e conteúdo.
 
-A migration forward-only `202607290003_verified_event_access.sql` completou o
-caminho da sessão verificada com inventário, `auth.sessions`, tombstone, prazos,
-vínculo, chamada e gates recalculados. A página reconhecida continua somente
-leitura e não oferece RSVP.
+A migration forward-only `202607290004_event_capability_robustness.sql` limita
+cada credencial a oito capabilities ativas e 32 registros recentes. Replays
+continuam isolados e serializados; overflow é revogado e histórico antigo só é
+podado depois de revogação ou expiração.
 
-Nenhum controle ou flag foi ativado e não houve mutação remota. O CP3 deve
-endurecer abuso, concorrência, privacidade, cancelamento e recuperação; a matriz
-real de navegadores e aparelhos permanece no CP4.
+Cancelamento, kill switch e recuperação no mesmo escopo foram provados sem
+expor segredos ou habilitar RSVP. Nenhum gate foi ativado. O CP4 deve validar a
+experiência real em Android, iPhone, acessibilidade e navegador do WhatsApp.
