@@ -14,6 +14,7 @@ describe("content security policy", () => {
     expect(policy).toContain("script-src 'self' 'nonce-development-nonce' 'strict-dynamic' 'unsafe-eval'");
     expect(policy).toContain("style-src 'self' 'unsafe-inline'");
     expect(policy).not.toContain("style-src 'self' 'nonce-development-nonce'");
+    expect(policy).not.toContain("sha256-");
     expect(policy).toContain(
       "img-src 'self' blob: data: https://*.supabase.co http://127.0.0.1:54321 http://localhost:54321",
     );
@@ -26,7 +27,7 @@ describe("content security policy", () => {
     const policy = buildContentSecurityPolicy("production-nonce", false);
 
     expect(policy).toContain("script-src 'self' 'nonce-production-nonce' 'strict-dynamic'");
-    expect(policy).toContain("style-src 'self' 'nonce-production-nonce'");
+    expect(policy).toContain("style-src 'self' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=' 'nonce-production-nonce'");
     expect(policy).not.toContain("'unsafe-inline'");
     expect(policy).not.toContain("'unsafe-eval'");
     expect(policy).not.toContain("http://127.0.0.1:54321");
