@@ -9,7 +9,7 @@ baseline:
   - BASE-IDENTITY
   - BASE-ATTENDANCE
   - BASE-PUBLIC
-verified_at: d1cd5b2
+verified_at: 86a38b9
 decisions:
   - DEC-PERSISTENT-ACCESS
   - DEC-EVENT-PUBLIC-MINIMUM
@@ -96,6 +96,120 @@ Esses caminhos foram revalidados em `d1cd5b2` durante o CP0.
 | `WP-R02-04` — Risco, metadata e dispositivos | `AC-R02-06` a `09` | nova rota, headers, Open Graph contextual e suíte E2E | `VAL-LINK`, `VAL-PUBLIC` |
 
 `WP-R02-01` é uma vertical publicável por compartilhamento manual e pode entrar em piloto depois de `DEC-EVENT-PUBLIC-MINIMUM`, sem esperar capability ou RSVP. Os demais WPs usam flags próprias e preservam essa página como fallback.
+
+## Ready de `WP-R02-02` — CP0
+
+### Resultado demonstrável
+
+Um link personalizado no formato `/e/{public_id}#c={credencial}` abre a mesma
+página pública, remove o segredo da barra e o troca por `POST` same-origin por
+um cookie opaco, `HttpOnly`, `Secure`, `SameSite=Lax` e restrito ao caminho do
+evento. Reaberturas no mesmo navegador recuperam somente o contexto autorizado
+daquele atleta e evento. Um aparelho com sessão Supabase já verificada é
+reconhecido sem novo OTP; atleta ainda não reivindicado recebe somente a
+capability do evento. Revogação, expiração ou kill switch retornam ao conteúdo
+público ou à agenda autenticada sem escrever RSVP.
+
+### Fronteira de confiança e transporte
+
+- o fragmento nunca chega no `GET`, em redirects, metadata, analytics ou
+  `Referer`; um bootstrap mínimo o remove com `history.replaceState` antes de
+  chamar o endpoint de troca;
+- o `GET /e/{public_id}` nunca cria sessão. A troca ocorre somente por
+  `POST /e/{public_id}/access`, com origem e tipo de conteúdo validados;
+- credencial e cookie são segredos aleatórios de 256 bits codificados em
+  base64url. O banco persiste somente SHA-256, e logs/auditoria registram apenas
+  IDs não secretos, resultado e código de motivo;
+- o cookie não autoriza sozinho. Cada leitura protegida recalcula credencial,
+  capability, atleta ativo, presença no evento, time, fase, expiração, revogação,
+  flag do time e controle global;
+- troca repetida ou concorrente converge para o mesmo escopo sem ampliar
+  permissões. Encaminhar o link pode criar outra capability igualmente estreita,
+  risco aceito e mitigado por inventário, expiração e revogação;
+- nenhuma dependência de terceiros é carregada na abertura ou troca do link.
+
+### Identidade verificada, inventário e revogação
+
+- `session_id` do JWT verificado pelo Supabase é o identificador autoritativo da
+  sessão por aparelho; tokens e refresh tokens não são copiados para tabelas da
+  aplicação;
+- o primeiro acesso protegido de R02 por uma sessão existente registra, de forma
+  idempotente, seu par `user_id`/`session_id` no inventário. Uma marca de
+  revogação permanece como tombstone e impede que o mesmo JWT se autorregistre
+  novamente;
+- a autorização sensível exige claims válidas, `session_id` pertencente ao
+  usuário, sessão ainda existente em `auth.sessions`, inventário ativo e prazos
+  de inatividade e validade absoluta respeitados;
+- revogar o item do inventário remove imediatamente as permissões de R02 mesmo
+  durante a validade do access token. Encerrar o refresh da sessão Supabase é
+  executado quando houver API documentada e JWT da própria sessão; revogação
+  global permanece o fallback operacional;
+- não haverá `DELETE` direto em `auth.sessions` nem promessa de revogação remota
+  individual que a API pública do Supabase não ofereça. A sessão existente fora
+  das superfícies de R02 permanece compatível nesta fatia;
+- capability de atleta não reivindicado não cria usuário, login ou identidade
+  global. Reivindicação posterior por OTP preserva `athlete_id` e revoga ou
+  rotaciona credenciais anteriores.
+
+Essa separação considera que o access token continua válido até `exp` mesmo
+depois de sign-out, enquanto a existência de `session_id` em `auth.sessions`
+pode ser exigida em operações sensíveis. Referências revalidadas no CP0:
+[sessões](https://supabase.com/docs/guides/auth/sessions),
+[campos do JWT](https://supabase.com/docs/guides/auth/jwt-fields) e
+[sign-out](https://supabase.com/docs/guides/auth/signout).
+
+### Dados, entry points e ativação previstos para CP1
+
+- expansão forward-only para credenciais de evento, capabilities, inventário de
+  sessões verificadas, revogações/tombstones e auditoria sem segredos;
+- RPCs transacionais e `security definer` mínimos para emitir/trocar, resolver e
+  revogar acesso; todas recebem identidade do contexto verificado e recalculam
+  isolamento por time;
+- bootstrap em `/e/[publicId]`, Route Handler
+  `/e/[publicId]/access`, DAL dedicado à sessão verificada e integração limitada
+  nas superfícies protegidas de R02;
+- `event_capability_exchange` continua como flag por time e ganha controle
+  global homônimo, ambos ausentes/desligados por padrão. Credenciais podem ser
+  preparadas inertes; nenhuma troca funciona enquanto os dois gates não
+  estiverem ativos;
+- `event_capability_rsvp` permanece desligada e toda escrita de
+  `event_attendance` pertence a `WP-R02-03`;
+- banco N deve tolerar app N−1, e app N deve cair na página pública ou agenda
+  atual diante de banco N−1, flag desligada, sessão incompatível ou falha da
+  troca.
+
+### Escopo e matriz mínima de aceitação
+
+Inclui emissão interna, troca, leitura autorizada, persistência no navegador,
+inventário, expiração, revogação, kill switch, auditoria e fallback. Não inclui
+envio por WhatsApp, RSVP, comentários, votos, escalação, identidade global sem
+OTP nem migração geral das rotas autenticadas atuais.
+
+O CP2 somente pode iniciar depois de o CP1 provar com pgTAP e testes de
+aplicação:
+
+- sessão verificada reconhecida por `session_id` e capability sem usuário para
+  atleta não reivindicado;
+- negação para revogado, expirado, tombstoned, outro evento, outro atleta e
+  outro time;
+- ausência de troca em `GET`, preview ou unfurl; rejeição de origem e conteúdo
+  inválidos no `POST`;
+- fragmento removido, cookie path-scoped e ausência de segredo em URL, logs,
+  erros, analytics e auditoria;
+- concorrência/replay idempotentes, limites temporais e desligamento pelos dois
+  gates;
+- compatibilidade nas duas ordens de deploy e fallback sem escrita de presença.
+
+### Evidência do CP0
+
+- decisões `DEC-PERSISTENT-ACCESS` e `DEC-UNCLAIMED-IDENTITY` confrontadas com
+  DAL, proxy, cookies Supabase, RPC atual de resposta e vínculo de atleta;
+- contrato oficial de sessões Supabase revalidado em 29/07/2026;
+- resultado, dependências, fronteiras, riscos, estados de falha, entry points,
+  compatibilidade e critérios mínimos estão fechados;
+- não houve alteração de banco, ativação de flag ou mutação em produção;
+- próxima ação concreta: CP1 com modelo de dados, assinaturas das RPCs, contrato
+  do cookie, matriz RLS/pgTAP e ordem de deploy.
 
 ## Contrato de `WP-R02-01` — CP1
 

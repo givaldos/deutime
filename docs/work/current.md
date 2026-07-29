@@ -1,34 +1,32 @@
 ---
 release: R02
-work_package: WP-R02-01
-scope: public_event_mobile_header_hotfix
-branch_or_commit: "codex/r02-public-event-mobile-header"
+work_package: WP-R02-02
+scope: capability_and_persistent_session_ready
+branch_or_commit: "codex/r02-capability-session-cp0"
 checkpoint: idle
 status: completed
-completed_ac:
-  - "AC-R02-01"
-  - "AC-R02-02"
-  - "AC-R02-10"
-dirty_files:
-  - "app/p/[handle]/page.tsx (preexistente, fora do escopo)"
-  - "docs/roadmap.md (preexistente, fora do escopo)"
+completed_ac: []
+dirty_files: []
 tests:
-  - "Reprodução produtiva em 390×844 — header ~328 px e agenda parcialmente encoberta"
-  - "Vitest focado — 1 arquivo e 6 testes aprovados"
-  - "npm run lint — aprovado"
-  - "npm run typecheck — aprovado"
-  - "npm run build — aprovado"
-  - "PR — quality, Database, CodeQL, dependency review, Terraform e Vercel aprovados"
+  - "Definition of Ready de WP-R02-02 revisada contra as decisões aceitas e os entrypoints atuais"
+  - "Contrato oficial de sessões, session_id e sign-out do Supabase revalidado em 29/07/2026"
+  - "Matriz mínima de capability, sessão verificada, revogação, replay, isolamento e compatibilidade registrada"
 blocker: null
-next_action: "Abrir o CP0 de WP-R02-02 e fechar o contrato mínimo de capability e sessão persistente antes de implementar escrita ou RSVP."
+next_action: "Executar o CP1 de WP-R02-02: fechar modelo de dados, RPCs, cookie, RLS/pgTAP e ordem de deploy forward-only."
 ---
 
 # Trabalho atual
 
-O hotfix do piloto de `WP-R02-01` compactou o header mobile da página pública e
-colocou o cartão da agenda em uma camada explícita acima dele. A alteração é
-somente visual e mantém o contrato anônimo existente.
+O CP0 de `WP-R02-02` fechou o contrato mínimo de capability por atleta/evento e
+de sessão verificada por aparelho. O link usa fragmento, troca por `POST`
+same-origin e cookie opaco restrito ao evento; nenhuma abertura por `GET` cria
+sessão.
 
-`Demo Campo` continua como única coorte com `public_event_page=true`; capability
-e RSVP permanecem desligados. A próxima fatia continua sendo `WP-R02-02`,
-começando por CP0 antes de qualquer implementação.
+Sessões Supabase existentes serão inventariadas pelo `session_id` verificado
+somente nas superfícies de R02. A revogação própria bloqueia imediatamente essas
+permissões sem depender da expiração do JWT, e uma tombstone evita
+autorregistro posterior da mesma sessão.
+
+Não houve migration, código consumidor, ativação ou mutação de produção.
+`event_capability_exchange` e `event_capability_rsvp` permanecem desligadas. A
+próxima ação é o CP1 forward-only; RSVP continua reservado a `WP-R02-03`.
