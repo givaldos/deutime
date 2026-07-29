@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useCallback } from "react";
 
 declare global {
   interface Window {
@@ -22,43 +22,35 @@ export function TurnstileWidget({
   nonce?: string;
   action: string;
 }) {
-  const containerId = "cf-turnstile-" + useId().replace(/:/g, "");
+  const id = useId();
+  const containerId = `cf-turnstile-${id.replace(/:/g, "")}`;
   const widgetId = useRef<string | undefined>(undefined);
-  // scriptReady flips to true when the <Script> onLoad fires OR when
-  // window.turnstile already exists at mount time (cached script).
-  const [scriptReady, setScriptReady] = useState(false);
 
-  // On mount, check if the script was already loaded by a previous page visit.
-  useEffect(() => {
-    if (window.turnstile) setScriptReady(true);
-  }, []);
-
-  // Render / re-render whenever the script becomes ready or action changes.
-  useEffect(() => {
-    if (!siteKey || !scriptReady) return;
-
-    const container = document.getElementById(containerId);
-    if (!container || !window.turnstile) return;
-
-    // Remove any previous widget in this container.
-    if (widgetId.current !== undefined) {
+  const removeWidget = useCallback(() => {
+    if (widgetId.current !== undefined && window.turnstile) {
       try { window.turnstile.remove(widgetId.current); } catch { /* ignore */ }
       widgetId.current = undefined;
     }
+  }, []);
 
+  const renderWidget = useCallback(() => {
+    if (!siteKey || !window.turnstile) return;
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    removeWidget();
     widgetId.current = window.turnstile.render(container, {
       sitekey: siteKey,
       action,
       theme: "light",
     });
+  }, [siteKey, action, containerId, removeWidget]);
 
-    return () => {
-      if (widgetId.current !== undefined && window.turnstile) {
-        try { window.turnstile.remove(widgetId.current); } catch { /* ignore */ }
-        widgetId.current = undefined;
-      }
-    };
-  }, [siteKey, action, containerId, scriptReady]);
+  // If the script is already present when this component mounts (SPA navigation
+  // or browser-cached script), render immediately.
+  useEffect(() => {
+    if (window.turnstile) renderWidget();
+    return removeWidget;
+  }, [renderWidget, removeWidget]);
 
   if (!siteKey) return null;
 
@@ -68,7 +60,7 @@ export function TurnstileWidget({
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         strategy="afterInteractive"
         nonce={nonce}
-        onLoad={() => setScriptReady(true)}
+        onLoad={renderWidget}
       />
       <div id={containerId} />
     </>
