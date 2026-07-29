@@ -4,12 +4,7 @@ import { getPublicPlayer } from "@/lib/data/public-player";
 import { BrandMark } from "@/components/brand-mark";
 import {
   BadgeCheck,
-  Goal,
-  Handshake,
-  ShieldAlert,
   ShieldCheck,
-  Square,
-  Trophy,
   UserRound,
 } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -37,24 +32,27 @@ export default async function PublicPlayerPage({
     ? (player.positions as unknown as PublicPosition[])
     : [];
   const statisticItems = [
-    [player.statistics.matches_played, "Partidas", Trophy, "text-slate-600"],
-    [player.statistics.goals, "Gols", Goal, "text-emerald-700"],
-    [player.statistics.assists, "Assistências", Handshake, "text-sky-700"],
-    [player.statistics.yellow_cards, "Amarelos", Square, "text-amber-500"],
-    [player.statistics.red_cards, "Vermelhos", ShieldAlert, "text-red-600"],
+    [player.statistics.matches_played, "Partidas"],
+    [player.statistics.goals, "Gols"],
+    [player.statistics.assists, "Assist."],
+    [player.statistics.yellow_cards, "Amarelos"],
+    [player.statistics.red_cards, "Vermelhos"],
   ] as const;
 
   return (
-    <main className="min-h-svh bg-[#f5f4ef] pb-10 text-graphite">
-      <header className="relative overflow-hidden bg-grass px-5 pb-24 pt-6 text-white">
-        <div className="pointer-events-none absolute -right-24 -top-28 size-72 rounded-full bg-emerald-400/15 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-lime/10 blur-3xl" />
-
+    <main className="min-h-svh bg-[#f7f7f4] pb-10 text-graphite">
+      <header className="relative h-36 overflow-hidden bg-grass px-5 pt-6 text-white sm:h-40">
+        <div className="pointer-events-none absolute -right-20 -top-28 size-64 rounded-full bg-emerald-400/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 left-10 size-56 rounded-full bg-lime/10 blur-3xl" />
         <div className="relative mx-auto max-w-xl">
           <BrandMark inverted />
+        </div>
+      </header>
 
-          <div className="mt-12 flex items-center gap-5">
-            <div className="grid size-28 shrink-0 place-items-center overflow-hidden rounded-[2rem] bg-white/10 text-emerald-100 shadow-2xl ring-1 ring-white/15">
+      <div className="mx-auto max-w-xl px-4">
+        <section className="-mt-14 rounded-[1.75rem] border border-slate-200/80 bg-white px-5 pb-1 shadow-[0_18px_50px_-34px_rgba(7,35,24,.55)]">
+          <div className="flex items-end justify-between gap-4">
+            <div className="grid size-28 shrink-0 place-items-center overflow-hidden rounded-full border-4 border-white bg-emerald-50 text-emerald-800 shadow-md">
               {player.photo_url ? (
                 <img
                   src={player.photo_url}
@@ -65,48 +63,51 @@ export default async function PublicPlayerPage({
                 <UserRound className="size-11" aria-hidden />
               )}
             </div>
+            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
+              <BadgeCheck className="size-4" aria-hidden />
+              Verificado
+            </div>
+          </div>
 
-            <div className="min-w-0">
-              <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-emerald-300">
-                <BadgeCheck className="size-4 shrink-0" aria-hidden />
-                Perfil verificado
-              </p>
-              <h1 className="mt-2 break-words text-4xl font-black leading-[0.98] tracking-[-0.05em] sm:text-5xl">
-                {player.preferred_name || player.display_name}
-              </h1>
+          <div className="pb-5 pt-4">
+            <h1 className="break-words text-3xl font-black leading-none tracking-[-0.045em] sm:text-4xl">
+              {player.preferred_name || player.display_name}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+              <span className="font-medium text-slate-500">
+                @{player.handle}
+              </span>
               {player.preferred_name ? (
-                <p className="mt-2 truncate text-sm text-emerald-100">
-                  {player.display_name}
-                </p>
+                <>
+                  <span className="text-slate-300" aria-hidden>
+                    ·
+                  </span>
+                  <span className="text-slate-600">{player.display_name}</span>
+                </>
               ) : null}
             </div>
-          </div>
-        </div>
-      </header>
 
-      <div className="mx-auto -mt-14 max-w-xl space-y-4 px-4">
-        <section className="app-surface p-5" aria-labelledby="player-statistics">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="app-kicker">Jogos encerrados</p>
-              <h2 id="player-statistics" className="mt-1 text-lg font-black">
-                Estatísticas
-              </h2>
-            </div>
-            <Trophy className="size-5 text-emerald-700" aria-hidden />
+            <p className="mt-4 whitespace-pre-wrap text-[0.9375rem] leading-6 text-slate-700">
+              {player.bio ||
+                "Este atleta ainda não adicionou uma apresentação."}
+            </p>
+
+            <p className="mt-4 flex items-center gap-2 text-xs font-semibold text-emerald-700">
+              <ShieldCheck className="size-4 shrink-0" aria-hidden />
+              Informações publicadas pelo atleta
+            </p>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
-            {statisticItems.map(([value, label, StatIcon, color], index) => (
-              <div
-                key={label}
-                className={`rounded-2xl bg-slate-50 p-3 text-center ${
-                  index === 0 ? "col-span-2 sm:col-span-1" : ""
-                }`}
-              >
-                <StatIcon className={`mx-auto size-4 ${color}`} aria-hidden />
-                <p className="mt-2 text-xl font-black">{value}</p>
-                <p className="mt-0.5 text-[0.6875rem] font-semibold text-slate-500">
+          <div
+            className="grid grid-cols-5 border-t border-slate-100"
+            aria-label="Estatísticas em jogos encerrados"
+          >
+            {statisticItems.map(([value, label]) => (
+              <div key={label} className="min-w-0 px-1 py-4 text-center">
+                <p className="text-lg font-black leading-none text-slate-900">
+                  {value}
+                </p>
+                <p className="mt-1.5 truncate text-[0.625rem] font-bold uppercase tracking-tight text-slate-400 sm:text-[0.6875rem]">
                   {label}
                 </p>
               </div>
@@ -114,29 +115,23 @@ export default async function PublicPlayerPage({
           </div>
         </section>
 
-        <section className="app-surface p-6">
-          <div className="flex items-center gap-2 text-xs font-bold text-emerald-700">
-            <ShieldCheck className="size-4 shrink-0" aria-hidden />
-            Publicado pelo próprio atleta
+        <section className="mt-4 rounded-[1.5rem] border border-slate-200/80 bg-white p-5 shadow-[0_12px_35px_-30px_rgba(7,35,24,.5)]">
+          <div>
+            <p className="text-[0.6875rem] font-black uppercase tracking-[0.16em] text-emerald-700">
+              Meu futebol
+            </p>
+            <h2 className="mt-1 text-lg font-black">Posições preferenciais</h2>
           </div>
-          <h2 className="mt-5 text-lg font-black">Sobre meu futebol</h2>
-          <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">
-            {player.bio ||
-              "Este atleta ainda não adicionou uma apresentação."}
-          </p>
-        </section>
 
-        <section className="app-surface p-6">
-          <h2 className="text-lg font-black">Posições preferenciais</h2>
           {positions.length ? (
-            <div className="mt-4 space-y-4">
+            <div className="mt-4 space-y-5">
               {(["field", "society", "futsal"] as const).map((format) => {
                 const items = positions
                   .filter((position) => position.sport_format === format)
                   .sort((a, b) => a.priority - b.priority);
 
                 return items.length ? (
-                  <div key={format} className="rounded-2xl bg-slate-50 p-4">
+                  <div key={format}>
                     <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
                       {formatLabels[format]}
                     </p>
@@ -144,7 +139,7 @@ export default async function PublicPlayerPage({
                       {items.map((position) => (
                         <span
                           key={position.code}
-                          className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-emerald-800 shadow-sm ring-1 ring-slate-200"
+                          className="rounded-full bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-900 ring-1 ring-emerald-100"
                         >
                           {position.priority}. {position.label}
                         </span>
@@ -161,7 +156,7 @@ export default async function PublicPlayerPage({
           )}
         </section>
 
-        <p className="px-3 pt-2 text-center text-xs leading-5 text-slate-500">
+        <p className="px-3 pt-5 text-center text-xs leading-5 text-slate-500">
           Este perfil mostra somente as informações que o atleta escolheu
           publicar.
         </p>

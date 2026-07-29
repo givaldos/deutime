@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 28 de julho de 2026.
+> Atualizado em 29 de julho de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -42,10 +42,20 @@ Na R02, `WP-R02-01` e os critérios `AC-R02-01`, `AC-R02-02` e `AC-R02-10` estã
 | **R06 — Conversa da súmula** | ⚪ `não iniciado` | Comentários identificados, respostas, denúncia e moderação. | R02, R04 | `DEC-CONVERSATION-LIFETIME`, `DEC-ANONYMOUS-RETENTION` | Súmula somente leitura |
 | **R07 — Times manuais compartilháveis** | ⚪ `não iniciado` | Divisão acessível, publicação e imagem pelo mesmo link. | R02 | `DEC-EVENT-MATCH` | Lista de confirmados |
 | **R08 — Divisão automática** | ⚪ `não iniciado` | Sugestão reproduzível, ajustável e explicável. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Divisão manual |
-| **R09 — Camisas, temporadas e tabela** | ⚪ `não iniciado` | Camisas, resultados transacionais, tabela e histórico. | R04, R07 | — | Histórico por partida |
+| **R09 — Campeonatos, camisas e tabela** | ⚪ `não iniciado` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento e histórico. | R04, R07 | `DEC-EVENT-MATCH` e modelo de campeonato | Histórico por partida |
 | **R10 — Reconhecimento** | ⚪ `não iniciado` | Pontos positivos, Craques e perfis consentidos. | R04, R05 | — | Estatísticas básicas |
 
 Depois da R02, R03, R04 e R07 são trilhas independentes. R05 e R06 não esperam divisão automática nem tabela.
+
+Na R09, uma pessoa administradora autorizada poderá criar e configurar o campeonato em um dos formatos:
+
+- **pontos corridos**, com classificação por pontos e critérios de desempate;
+- **fase de grupos + mata-mata**, com classificação por grupo e avanço para o chaveamento;
+- **mata-mata**, com confrontos eliminatórios desde a primeira fase.
+
+O campeonato será associado às partidas, não diretamente ao evento. Assim, um evento poderá conter um ou mais confrontos, cada um ligado à fase ou rodada correta, enquanto amistosos continuarão existindo sem campeonato. Encerramentos e correções de súmula deverão atualizar classificação, grupos ou chaveamento de forma transacional e auditável.
+
+Antes de promover a R09, a descoberta deverá fechar os participantes aceitos, configuração de pontuação e desempate, geração ou edição de confrontos, tratamento de empate no mata-mata e publicação mobile-first compartilhável pelo WhatsApp.
 
 Revogação administrativa, “Minha conta”, e-mails e diretório público serão promovidos do catálogo como releases independentes; não bloqueiam artificialmente o ciclo principal.
 
@@ -76,7 +86,7 @@ flowchart LR
     R04 --> R06["R06 Conversa"]
     R03 --> R08["R08 Divisão automática"]
     R07 --> R08
-    R04 --> R09["R09 Temporadas"]
+    R04 --> R09["R09 Campeonatos"]
     R07 --> R09
     R05 --> R10["R10 Reconhecimento"]
 ```
