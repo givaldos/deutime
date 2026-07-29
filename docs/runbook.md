@@ -135,6 +135,13 @@ teste faz somente `GET` nas jornadas públicas `/` e `/auth/login`, exige HTML e
 não envia identificador pessoal. A mesma verificação pode ser despachada
 manualmente no workflow `Smoke`.
 
+Quando `SMOKE_PUBLIC_EVENT_ID` estiver definido no Environment `production`, o
+mesmo comando também verifica `/e/{public_id}` e o bloqueio de `GET` em
+`/e/{public_id}/access`. Essa extensão continua anônima e somente leitura:
+confirma HTML, `no-store`, `no-referrer`, `noindex`, `nosniff` e resposta `405`
+do endpoint de troca. Use apenas um evento público sintético ou de demonstração,
+sem nome, telefone ou outra PII na configuração do GitHub.
+
 Matriz obrigatória para uma expansão:
 
 | Estado | Banco N−1 | Banco N |
