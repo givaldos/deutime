@@ -507,6 +507,9 @@ Este é um trabalho contínuo e não espera os Marcos 1 a 6 terminarem.
 - [ ] Configurar backup/PITR e ensaiar restauração com evidência.
 - [ ] Atualizar Actions ainda baseadas em Node.js 20 quando os mantenedores
   publicarem versões compatíveis, sem habilitar runtime inseguro.
+- [ ] Criar comando operacional versionado para alterar flags por time com uma
+  única invocação da RPC, validar a cardinalidade da auditoria e impedir a
+  expansão repetida de retornos compostos no SQL Editor.
 
 ### 7.2 Produto e análise
 

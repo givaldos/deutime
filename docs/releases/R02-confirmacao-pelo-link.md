@@ -213,6 +213,32 @@ Esses caminhos foram revalidados em `d1cd5b2` durante o CP0.
   exigiu apenas acesso de rede às fontes Google e passou separadamente;
 - `npm run security:audit` — zero vulnerabilidades.
 
+## Evidência do CP5 — piloto de `WP-R02-01`
+
+- `Demo Campo` (`demo-campo`) foi selecionado como única coorte da página
+  pública por possuir o evento futuro e agendado `Copa do Mundo`;
+- `public_event_page` foi habilitada pela RPC `set_team_feature_flag`, executada
+  sob a identidade do owner/admin ativo do time; a auditoria da própria RPC
+  permaneceu como trilha da ativação;
+- a expansão do retorno composto no SQL Editor repetiu a chamada idempotente
+  seis vezes por etapa, gerando 18 registros de auditoria no total
+  (`true`, `false`, `true`); o histórico foi preservado, o estado convergiu e a
+  prevenção dessa repetição ficou registrada no backlog técnico;
+- antes da ativação, `/e/fdf577af-5cc4-489f-81cb-65fac548167b` respondeu `404`;
+  com a flag ativa, respondeu `200` e exibiu somente `Copa do Mundo` e
+  `Demo Campo` da projeção pública;
+- a resposta anônima confirmou `private, no-store`, `no-referrer`,
+  `noindex`, ausência do Google Tag Manager e ausência de identificadores
+  internos, local, atleta ou presença;
+- o rollback foi exercitado pela mesma RPC: a flag desligada restaurou `404`;
+  após a reativação, o smoke final retornou `200` novamente;
+- o estado final possui um único time com `public_event_page=true`
+  (`Demo Campo`) e nenhum runtime control ativo;
+- `event_control=true` em `Demo Society` é uma capacidade independente,
+  preexistente desde o piloto R01, e não foi alterada nesta operação;
+- capability, sessão persistente e RSVP de R02 permanecem desligados e fora
+  desta coorte.
+
 ## Critérios de aceite
 
 - [x] `AC-R02-01` — URL pública estável não depende do slug mutável do time.
