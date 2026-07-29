@@ -431,6 +431,34 @@ aplicação:
   testar a URL pública em WhatsApp Android e iPhone, confirmar layout, retorno,
   cópia/compartilhamento e remoção do fragmento, sem habilitar os gates.
 
+## Preparação operacional de `WP-R02-02` — CP5 parcial
+
+- o smoke produtivo continua estritamente anônimo e somente leitura, mas agora
+  aceita `SMOKE_PUBLIC_EVENT_ID` para cobrir a página do evento e o endpoint de
+  troca sem enviar credencial;
+- a página precisa responder HTML com `no-store`, `no-referrer` e `noindex`. O
+  endpoint `/access` precisa rejeitar `GET` com `405`, preservar `no-referrer`
+  e declarar `nosniff`;
+- o UUID do evento de demonstração foi registrado como variável não secreta no
+  Environment `production`; nenhum identificador interno, atleta, telefone ou
+  chave privilegiada foi adicionado ao workflow;
+- a ausência da variável mantém o smoke mínimo anterior, evitando quebrar
+  instalações locais ou a aplicação N−1. Valor não canônico falha antes de
+  qualquer requisição;
+- falha dessa jornada torna o check `smoke-production-readonly` vermelho e
+  impede ativação ou ampliação do piloto. O fallback permanece a página pública
+  e o rollback operacional continua sendo desligar primeiro
+  `event_capability_exchange` global e depois a flag do time, sem contração de
+  banco;
+- o comando com `APP_URL=https://deutime.app` e o evento de demonstração passou
+  antes do merge, incluindo a rejeição `405`;
+- `npm run verify` — lint, typecheck, 21 arquivos/124 testes Vitest e build de
+  produção aprovados;
+- `npm run security:audit` — zero vulnerabilidades;
+- nenhum gate foi ativado, nenhuma escrita foi feita em produção e CP5 não está
+  concluído: faltam a matriz física de CP4, a escolha explícita da coorte e a
+  observação real do piloto.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade
