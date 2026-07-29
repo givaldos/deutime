@@ -395,7 +395,7 @@ aplicação:
 - próxima ação concreta: CP4 de experiência, verificando acessibilidade, Android,
   iPhone, navegador interno e compartilhamento real pelo WhatsApp.
 
-## Experiência de `WP-R02-02` — CP4 parcial
+## Experiência de `WP-R02-02` — CP4 concluído
 
 - a página pública foi verificada em viewports Chrome de 360×800 e 390×844,
   cobrindo tamanhos usuais de Android e iPhone. Não houve rolagem horizontal,
@@ -411,9 +411,15 @@ aplicação:
   rejeitado com mensagem genérica, sem perder o evento público;
 - o mesmo fallback foi exercitado no navegador interno controlado. Os logs
   capturados pelo navegador não exibiram a credencial usada no teste;
+- em 29/07/2026, a URL pública foi enviada manualmente pelo WhatsApp e
+  validada em aparelhos físicos Android e iPhone, tanto no navegador interno
+  quanto no Chrome/Safari. Layout, retorno à conversa, reabertura,
+  cópia/compartilhamento e abertura no navegador padrão foram confirmados;
+- o link com fragmento sintético também foi aberto fisicamente e `#c` sumiu da
+  URL, preservando a página pública e o fallback genérico;
 - nenhum gate foi ativado e nenhuma capability válida foi criada em produção.
 
-### Evidência e pendência do CP4
+### Evidência do CP4
 
 - `npm run verify` — lint, typecheck, 20 arquivos/120 testes Vitest e build de
   produção aprovados;
@@ -424,12 +430,15 @@ aplicação:
   principal de 48 px;
 - produção e navegador interno — fragmento removido, URL limpa e fallback
   público acessível;
-- ainda falta evidência em aparelhos físicos Android e iPhone dentro do
-  navegador real do WhatsApp, inclusive copiar/colar o link público. Emulação
-  de viewport ou outro navegador interno não será registrada como substituta;
-- CP4 permanece aberto até essa matriz manual ser executada. A próxima ação é
-  testar a URL pública em WhatsApp Android e iPhone, confirmar layout, retorno,
-  cópia/compartilhamento e remoção do fragmento, sem habilitar os gates.
+- Android físico — WhatsApp e Chrome aprovados, sem sobreposição ou perda de
+  navegação;
+- iPhone físico — WhatsApp e Safari aprovados, sem sobreposição ou perda de
+  navegação;
+- cópia, compartilhamento, retorno à conversa, reabertura e remoção do
+  fragmento foram confirmados pelo operador;
+- CP4 está concluído sem habilitar gates. O retorno com capability válida após
+  intervalo de outro dia continua pertencendo a `AC-R02-09`/`WP-R02-04` e não
+  foi inferido deste teste visual com fragmento sintético.
 
 ## Preparação operacional de `WP-R02-02` — CP5 parcial
 
@@ -456,8 +465,8 @@ aplicação:
   produção aprovados;
 - `npm run security:audit` — zero vulnerabilidades;
 - nenhum gate foi ativado, nenhuma escrita foi feita em produção e CP5 não está
-  concluído: faltam a matriz física de CP4, a escolha explícita da coorte e a
-  observação real do piloto.
+  concluído: faltam a escolha explícita da coorte e a observação real do
+  piloto.
 
 ## Ready de `WP-R02-03` — CP0
 
