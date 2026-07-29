@@ -571,6 +571,84 @@ continua usando `respond_to_event_as_player`.
 - próxima ação concreta: CP1 com assinatura da RPC, lock, atribuição de
   `responded_by`, auditoria, matriz RLS/pgTAP e compatibilidade N/N−1.
 
+## Contrato de `WP-R02-03` — CP1
+
+### Modelo, identidade e transação
+
+- `event_attendance` permanece a única fonte de resposta; nenhuma tabela,
+  identidade convidada ou estado paralelo foi criado;
+- `respond_to_event_from_access(public_id, status, capability_secret?)` aceita
+  somente o UUID público, `confirmed`/`declined`/`maybe` e o segredo obtido
+  server-side do cookie `HttpOnly`;
+- a RPC tenta primeiro uma capability válida. Somente capability ausente,
+  inválida, expirada ou revogada permite fallback para a sessão Supabase
+  verificada e inventariada;
+- a consulta trava capability, credencial, evento, atleta, presença, inventário
+  e gates relevantes. Antes do `UPDATE`, recalcula tenant, chamada, vínculo
+  ativo, evento agendado/futuro, prazo, expirações, revogações,
+  `public_event_page`, `event_capability_exchange`, controle global e
+  `event_capability_rsvp`;
+- retry converge na mesma linha `(event_id, athlete_id)` e mudanças sucessivas
+  continuam permitidas enquanto a janela estiver aberta. `source` permanece
+  `web` e `responded_at` acompanha a última resposta válida;
+- `responded_by` recebe o usuário somente quando a sessão verificada pertence ao
+  mesmo `athlete_id`. Uma capability encaminhada preserva precedência, atualiza
+  somente seu atleta e mantém `responded_by` nulo.
+
+### Permissões e auditoria
+
+- `anon` e `authenticated` recebem apenas `EXECUTE` na nova RPC; nenhum papel
+  cliente ganha `UPDATE` direto em `event_attendance` ou leitura das tabelas de
+  segredo/inventário;
+- status fora de SIM/NÃO/TALVEZ falha `22023`. Acesso, tenant, gate, vínculo,
+  prazo, fase, expiração e revogação inválidos compartilham o erro genérico
+  `42501`, sem confirmar a existência do atleta ou da capability;
+- a auditoria explícita registra status, fonte efetiva e UUID não secreto da
+  capability, quando aplicável. Cookie, credencial, telefone e token Auth ficam
+  fora;
+- `private.current_audit_actor()` permite à RPC sobrescrever apenas o ator da
+  auditoria genérica durante a mutação. O comportamento anterior permanece
+  idêntico fora desse escopo e o override é restaurado antes do retorno;
+- o teste de link encaminhado prova que nem `responded_by`, nem a auditoria
+  explícita, nem o trigger genérico atribuem a resposta ao usuário logado de
+  outro atleta.
+
+### Compatibilidade, fallback e rollback
+
+- `202607290005_event_capability_rsvp_contract.sql` é uma expansão forward-only
+  de funções e grants. Banco N tolera app N−1, que nunca chama a RPC;
+- o consumidor CP2 deve tratar função ausente no banco N−1 como feature
+  indisponível e manter a página reconhecida somente leitura com CTA para
+  `/me/agenda`;
+- `event_capability_rsvp` continua ausente/desligada para todos os times e a
+  migration não altera `runtime_controls`, flags ou dados remotos;
+- desligar somente `event_capability_rsvp` interrompe a escrita nova e preserva
+  leitura/capability. Incidente de credencial também pode desligar o controle
+  global `event_capability_exchange`;
+- a confirmação autenticada existente por `respond_to_event_as_player` foi
+  revalidada e mantém autorização, resposta e auditoria anteriores;
+- rollback de app não exige contração; eventual correção de banco será outra
+  migration forward-only.
+
+### Evidência do CP1
+
+- `npm run db:reset` — 30 migrations e seed aplicados do zero;
+- `npm run db:test` — 21 arquivos e 494 testes aprovados; o novo arquivo cobre
+  38 cenários de grants, gates, capability reivindicada/não reivindicada,
+  sessão verificada, encaminhamento, repetição, cross-tenant, expiração,
+  revogação, prazo, cancelamento, auditoria e fallback legado;
+- `npm run db:lint` — nenhum aviso novo; permanecem os dois avisos preexistentes
+  de variável sombreada/não usada em `create_event_as_staff`;
+- `npm run db:types` — nova RPC refletida em `lib/database.types.ts`;
+- `npm run migrations:check -- 50a6a08` — histórico preservado e somente a
+  expansão `202607290005` adicionada;
+- `npm run verify` — lint, typecheck, 21 arquivos/124 testes Vitest e build de
+  produção aprovados;
+- `npm run security:audit` — zero vulnerabilidades;
+- nenhum gate foi ativado e nenhum banco remoto foi alterado;
+- próxima ação concreta: CP2 com Server Action estreita e controles
+  SIM/NÃO/TALVEZ na página reconhecida, tolerando banco N−1.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade
