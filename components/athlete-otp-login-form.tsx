@@ -36,6 +36,7 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [stage, setStage] = useState<"phone" | "otp">("phone");
+  const [otpRequestCount, setOtpRequestCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const router = useRouter();
@@ -123,7 +124,7 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
               <p className="text-xs text-slate-500">Para números do Brasil, o +55 é automático.</p>
             </div>
             {error ? <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-            <TurnstileWidget siteKey={siteKey} nonce={nonce} action="athlete_login" />
+            <TurnstileWidget key={otpRequestCount} siteKey={siteKey} nonce={nonce} action="athlete_login" />
             {!siteKey && process.env.NODE_ENV === "production" ? <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900">Login temporariamente indisponível.</p> : null}
             <Button type="submit" className="h-12 w-full rounded-xl bg-emerald-700 hover:bg-emerald-800" disabled={pending || (!siteKey && process.env.NODE_ENV === "production")}>
               {pending ? <LoaderCircle className="animate-spin" aria-hidden /> : <MessageCircle aria-hidden />}
@@ -159,6 +160,7 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
               className="inline-flex min-h-11 w-full items-center justify-center gap-2 text-sm text-slate-600"
               onClick={() => {
                 setStage("phone");
+                setOtpRequestCount((c) => c + 1);
                 setOtp("");
                 setError(null);
               }}
