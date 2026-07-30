@@ -87,7 +87,7 @@ describe("public event RSVP action", () => {
       message:
         "Sua resposta não pode ser alterada por este link agora. Consulte a agenda para continuar.",
     });
-    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+    expect(mocks.revalidatePath).toHaveBeenCalledWith(`/e/${publicId}`);
   });
 
   it("allows retry after an unexpected transient failure", async () => {

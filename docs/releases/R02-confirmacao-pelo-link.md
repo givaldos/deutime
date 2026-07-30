@@ -704,6 +704,54 @@ continua usando `respond_to_event_as_player`.
   produção aprovados;
 - `npm run security:audit` — zero vulnerabilidades.
 
+## Robustez de `WP-R02-03` — CP3
+
+### Estado obsoleto e concorrência
+
+- uma mutação recusada por revogação, expiração, fechamento, gate ou contrato
+  N−1 agora revalida imediatamente `/e/{public_id}` antes de devolver o
+  fallback. Se o acesso deixou de existir, nome, resposta e controles
+  reconhecidos saem da árvore renderizada; se somente a escrita fechou, a
+  resposta atual permanece em modo somente leitura;
+- o componente é identificado por `public_id`, resposta persistida e
+  `can_respond`. Mudança concorrente em outra aba, revogação ou fechamento
+  remonta o estado local com os valores autoritativos recebidos do servidor,
+  sem preservar seleção anterior da Action;
+- durante envio, o `fieldset` inteiro fica indisponível. A RPC continua
+  serializando respostas concorrentes na linha única de presença; retry e
+  mudança sucessiva preservam a regra de última mutação transacionada;
+- capability encaminhada mantém precedência mesmo quando há outra conta
+  verificada no navegador. O cliente nunca lê identidade ou segredo, e a
+  atribuição falsa continua bloqueada pelo contrato CP1.
+
+### Acessibilidade, falhas e observabilidade
+
+- SIM, NÃO e TALVEZ estão agrupados em `fieldset` com legenda acessível, estado
+  em `aria-pressed`, foco visível, `aria-busy` durante envio e retornos
+  atômicos em regiões vivas;
+- falha transitória preserva os controles para retry; falha fechada troca para
+  o CTA da agenda sem distinguir atleta, capability, chamada, time ou gate;
+- códigos externos entram no log somente quando respeitam uma allowlist curta
+  de caracteres e tamanho. Valor inesperado vira `unknown`; mensagem bruta,
+  cookie, telefone e credencial permanecem ausentes;
+- retorno da RPC diferente do status solicitado é tratado como quebra de
+  contrato, não atualiza a seleção e gera somente o evento redigido
+  `respond_result/invalid_result`.
+
+### Evidência do CP3
+
+- Vitest focado — 4 arquivos/37 testes de DAL, Action, componente e rota;
+- cenários do consumidor — capability revogada e expirada, banco N−1,
+  fechamento/cancelamento, contexto removido, link encaminhado sobre outra
+  sessão, código externo malformado e retorno divergente da RPC;
+- `npm run verify` — lint, typecheck, 24 arquivos/151 testes Vitest e build de
+  produção aprovados;
+- `npm run security:audit` — zero vulnerabilidades;
+- nenhuma migration, grant, flag ou dado remoto foi alterado;
+- a repetição física local de revogação não foi usada como evidência porque o
+  Docker Desktop não iniciou; o teste CP2 de 390 × 844 permanece válido e o
+  banco será revalidado pelo workflow Database da PR.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade
