@@ -37,6 +37,7 @@ export async function respondToPublicEventFromAccess(
   const result = await respondToEventFromAccess(publicId, status);
 
   if (result.outcome === "unavailable") {
+    revalidatePath(`/e/${publicId}`);
     return {
       outcome: "unavailable",
       message:

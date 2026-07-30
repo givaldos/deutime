@@ -202,6 +202,28 @@ describe("event access data boundary", () => {
     });
   });
 
+  it("keeps a forwarded capability ahead of another verified account", async () => {
+    mocks.state.cookie = capabilitySecret;
+    mocks.state.claims = {
+      data: { claims: { sub: "another-user" } },
+      error: null,
+    };
+    mocks.state.rpcResults.respond_to_event_from_access = {
+      data: "declined",
+      error: null,
+    };
+
+    await expect(
+      respondToEventFromAccess(publicId, "declined"),
+    ).resolves.toEqual({ outcome: "success", status: "declined" });
+    expect(mocks.rpc).toHaveBeenCalledWith("respond_to_event_from_access", {
+      requested_public_id: publicId,
+      response_status: "declined",
+      requested_capability_secret: capabilitySecret,
+    });
+    expect(mocks.getClaims).not.toHaveBeenCalled();
+  });
+
   it("fails closed before cookies for an invalid response request", async () => {
     await expect(
       respondToEventFromAccess("../evento", "confirmed"),
@@ -237,6 +259,70 @@ describe("event access data boundary", () => {
     ).resolves.toEqual({ outcome: "error" });
     expect(errorSpy).toHaveBeenCalledOnce();
     expect(errorSpy.mock.calls.flat().join(" ")).not.toContain(capabilitySecret);
+    errorSpy.mockRestore();
+  });
+
+  it("allows only a bounded provider code in structured logs", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.state.rpcResults.respond_to_event_from_access = {
+      data: null,
+      error: {
+        code: capabilitySecret,
+        message: "unexpected",
+      },
+    };
+
+    await expect(
+      respondToEventFromAccess(publicId, "maybe"),
+    ).resolves.toEqual({ outcome: "error" });
+    expect(errorSpy).toHaveBeenCalledWith(
+      JSON.stringify({
+        event: "event_access_boundary",
+        boundary: "respond",
+        outcome: "failed",
+        code: "unknown",
+      }),
+    );
+    expect(errorSpy.mock.calls.flat().join(" ")).not.toContain(capabilitySecret);
+    errorSpy.mockRestore();
+  });
+
+  it("reports a redacted contract mismatch without accepting stale status", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.state.rpcResults.respond_to_event_from_access = {
+      data: "confirmed",
+      error: null,
+    };
+
+    await expect(
+      respondToEventFromAccess(publicId, "maybe"),
+    ).resolves.toEqual({ outcome: "error" });
+    expect(errorSpy).toHaveBeenCalledWith(
+      JSON.stringify({
+        event: "event_access_boundary",
+        boundary: "respond_result",
+        outcome: "failed",
+        code: "invalid_result",
+      }),
+    );
+    errorSpy.mockRestore();
+  });
+
+  it.each([
+    ["revoked capability", "42501", "Resposta ao evento indisponível"],
+    ["missing N-1 contract", "PGRST202", "schema cache"],
+  ])("fails %s closed without noisy logs", async (_case, code, message) => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.state.cookie = capabilitySecret;
+    mocks.state.rpcResults.respond_to_event_from_access = {
+      data: null,
+      error: { code, message },
+    };
+
+    await expect(
+      respondToEventFromAccess(publicId, "confirmed"),
+    ).resolves.toEqual({ outcome: "unavailable" });
+    expect(errorSpy).not.toHaveBeenCalled();
     errorSpy.mockRestore();
   });
 });

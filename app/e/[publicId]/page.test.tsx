@@ -206,4 +206,46 @@ describe("public event route", () => {
     expect(html).not.toContain("teamId");
     expect(html).not.toContain("eventId");
   });
+
+  it("keeps the current response but removes controls after event closure", async () => {
+    mocks.getPublicEvent.mockResolvedValue({
+      ...scheduledEvent,
+      status: "cancelled",
+    });
+    mocks.getEventAccessContext.mockResolvedValue({
+      context: {
+        publicId,
+        athleteDisplayName: "Atleta Reconhecido",
+        attendanceStatus: "maybe",
+        eventStatus: "cancelled",
+        canRespond: false,
+        expiresAt: "2026-12-01T12:00:00.000Z",
+        source: "capability",
+      },
+      clearInvalidCookie: false,
+    });
+
+    const html = renderToStaticMarkup(await PublicEventPage(props()));
+
+    expect(html).toContain("Olá, Atleta Reconhecido");
+    expect(html).toContain("Talvez");
+    expect(html).toContain("Sua resposta atual continua visível");
+    expect(html).toContain('href="/me/agenda"');
+    expect(html).not.toContain('name="status"');
+  });
+
+  it("removes recognized athlete data when revocation invalidates the context", async () => {
+    mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
+    mocks.getEventAccessContext.mockResolvedValue({
+      context: null,
+      clearInvalidCookie: true,
+    });
+
+    const html = renderToStaticMarkup(await PublicEventPage(props()));
+
+    expect(html).not.toContain("Acesso reconhecido");
+    expect(html).not.toContain("Sua confirmação");
+    expect(html).not.toContain('name="status"');
+    expect(html).toContain("Suas confirmações continuam na agenda");
+  });
 });

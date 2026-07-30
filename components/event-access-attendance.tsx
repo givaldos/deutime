@@ -15,7 +15,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useId } from "react";
 
 type AttendanceStatus =
   | "pending"
@@ -67,48 +67,61 @@ export function EventAccessAttendance({
     respondToPublicEventFromAccess,
     initialState,
   );
+  const statusId = useId();
+  const feedbackId = useId();
   const selectedStatus = state.status ?? currentStatus;
   const responseEnabled = canRespond && state.outcome !== "unavailable";
 
   return (
-    <div className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-emerald-100">
+    <div
+      className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-emerald-100"
+      aria-busy={pending}
+    >
       <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
         Sua confirmação
       </p>
       <p
+        id={statusId}
         className="mt-1 font-black text-slate-900"
         aria-live="polite"
+        aria-atomic="true"
       >
         {attendanceStatusLabels[selectedStatus]}
       </p>
 
       {responseEnabled ? (
-        <form action={action} className="mt-4">
+        <form
+          action={action}
+          className="mt-4"
+          aria-describedby={state.message ? `${statusId} ${feedbackId}` : statusId}
+        >
           <input type="hidden" name="publicId" value={publicId} />
-          <div
-            className="grid grid-cols-3 gap-2"
-            aria-label="Responder presença"
-          >
-            {responseOptions.map(({ status, label, Icon, active }) => (
-              <button
-                key={status}
-                type="submit"
-                name="status"
-                value={status}
-                disabled={pending}
-                aria-pressed={selectedStatus === status}
-                data-active={selectedStatus === status}
-                className={`flex min-h-14 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-1 text-xs font-black text-slate-700 transition hover:border-emerald-400 disabled:cursor-wait disabled:opacity-50 ${active}`}
-              >
-                <Icon className="size-4" aria-hidden />
-                {label}
-              </button>
-            ))}
-          </div>
+          <fieldset disabled={pending}>
+            <legend className="sr-only">
+              Responder presença neste evento
+            </legend>
+            <div className="grid grid-cols-3 gap-2">
+              {responseOptions.map(({ status, label, Icon, active }) => (
+                <button
+                  key={status}
+                  type="submit"
+                  name="status"
+                  value={status}
+                  aria-pressed={selectedStatus === status}
+                  data-active={selectedStatus === status}
+                  className={`flex min-h-14 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-1 text-xs font-black text-slate-700 transition hover:border-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-50 ${active}`}
+                >
+                  <Icon className="size-4" aria-hidden />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
           {pending ? (
             <p
               role="status"
               className="mt-3 flex items-center gap-2 text-xs font-semibold text-emerald-800"
+              aria-live="polite"
             >
               <LoaderCircle className="size-4 animate-spin" aria-hidden />
               Salvando sua resposta…
@@ -124,7 +137,10 @@ export function EventAccessAttendance({
 
       {state.message ? (
         <p
+          id={feedbackId}
           role={state.outcome === "error" ? "alert" : "status"}
+          aria-live={state.outcome === "error" ? "assertive" : "polite"}
+          aria-atomic="true"
           className={`mt-3 rounded-xl px-3 py-2 text-xs font-semibold ${
             state.outcome === "success"
               ? "bg-emerald-50 text-emerald-800"
@@ -140,7 +156,7 @@ export function EventAccessAttendance({
       {!responseEnabled ? (
         <Link
           href="/me/agenda"
-          className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-grass px-4 text-sm font-black text-white transition hover:bg-emerald-900"
+          className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-grass px-4 text-sm font-black text-white transition hover:bg-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
         >
           Abrir minha agenda
         </Link>

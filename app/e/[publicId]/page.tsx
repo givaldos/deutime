@@ -299,6 +299,7 @@ function RecognizedEventAccess({ context }: { context: EventAccessContext }) {
         Olá, {context.athleteDisplayName}
       </h2>
       <EventAccessAttendance
+        key={`${context.publicId}:${context.attendanceStatus}:${context.canRespond}`}
         publicId={context.publicId}
         currentStatus={context.attendanceStatus}
         canRespond={context.canRespond}

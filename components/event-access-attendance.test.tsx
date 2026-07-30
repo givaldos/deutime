@@ -28,6 +28,11 @@ describe("event access attendance", () => {
     expect(html).toContain("NÃO");
     expect(html).toContain("TALVEZ");
     expect(html).toContain("min-h-14");
+    expect(html).toContain("<fieldset");
+    expect(html).toContain("Responder presença neste evento");
+    expect(html).toContain('aria-pressed="false"');
+    expect(html).toContain('aria-busy="false"');
+    expect(html).toContain("focus-visible:ring-2");
     expect(html).not.toContain("capability");
     expect(html).not.toContain("secret");
     expect(html).not.toContain("teamId");
@@ -47,6 +52,7 @@ describe("event access attendance", () => {
     expect(html).toContain("Confirmado");
     expect(html).toContain("Sua resposta atual continua visível");
     expect(html).toContain('href="/me/agenda"');
+    expect(html).toContain("focus-visible:ring-2");
     expect(html).not.toContain('name="status"');
   });
 });

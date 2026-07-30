@@ -164,9 +164,14 @@ export async function respondToEventFromAccess(
     return { outcome: "error" };
   }
 
-  return data === status
-    ? { outcome: "success", status }
-    : { outcome: "error" };
+  if (data !== status) {
+    reportUnexpectedAccessFailure("respond_result", {
+      code: "invalid_result",
+    });
+    return { outcome: "error" };
+  }
+
+  return { outcome: "success", status };
 }
 
 function normalizeAccessRow(
@@ -211,9 +216,15 @@ function reportUnexpectedAccessFailure(
       event: "event_access_boundary",
       boundary,
       outcome: "failed",
-      code: error.code ?? "unknown",
+      code: safeAccessErrorCode(error.code),
     }),
   );
+}
+
+function safeAccessErrorCode(candidate: string | undefined) {
+  return candidate && /^[A-Za-z0-9_]{1,32}$/.test(candidate)
+    ? candidate
+    : "unknown";
 }
 
 function isExpectedAccessFailure(error: { code?: string; message?: string }) {
