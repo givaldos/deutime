@@ -2,19 +2,14 @@
 release: R02
 work_package: WP-R02-03
 scope: capability_rsvp_ui
-branch_or_commit: "codex/r02-rsvp-experience"
-checkpoint: CP5
-status: operational_probe_ready_for_deploy
-completed_ac: []
+branch_or_commit: "codex/r02-rsvp-pilot-evidence"
+checkpoint: idle
+status: operational_pilot_complete_physical_pending
+completed_ac:
+  - "AC-R02-03"
+  - "AC-R02-06"
 dirty_files:
   - "docs/releases/R02-confirmacao-pelo-link.md"
-  - "lib/database.types.ts"
-  - "package.json"
-  - "scripts/rsvp-pilot-health.d.mts"
-  - "scripts/rsvp-pilot-health.mjs"
-  - "scripts/rsvp-pilot-health.test.ts"
-  - "supabase/migrations/202607300001_event_capability_pilot_health.sql"
-  - "supabase/tests/022_event_capability_pilot_health.test.sql"
   - "docs/work/current.md"
 tests:
   - "Vitest focado — contratos, DAL, Action, componente e rota pública aprovados"
@@ -41,8 +36,13 @@ tests:
   - "npm run migrations:check -- e23767a — aprovado"
   - "npm run verify — lint, typecheck, 25 arquivos/155 testes e build aprovados"
   - "npm run security:audit — zero vulnerabilidades"
-blocker: null
-next_action: "Integrar a sonda operacional, executar contra a coorte Demo Campo em produção e exercitar o rollback/rearme do gate RSVP; a validação física de CP4 continua pendente."
+  - "produção — migration aplicada pelo Deploy database"
+  - "sonda de produção — 3 gates ativos, 1 credencial, 3 capabilities, 4 criações, 1 revogação e 3 RSVPs/24h"
+  - "rollback RSVP — resposta preservada, controles removidos e fallback para a agenda"
+  - "rearme RSVP — controles restaurados sem nova credencial e 3 gates ativos ao final"
+  - "PR #52 e follow-up #53 — todos os checks aprovados"
+blocker: "Confirmação física do operador em Android e iPhone, no navegador interno do WhatsApp e no navegador padrão."
+next_action: "Receber a validação física do link já entregue para concluir o CP4; o CP5 operacional está exercitado e saudável."
 ---
 
 # Trabalho atual
@@ -59,5 +59,7 @@ WhatsApp e navegador padrão antes de encerrar o CP4.
 
 Enquanto essa evidência física aguarda, o CP5 ganhou uma sonda operacional
 agregada, exclusiva de `service_role`, e um comando fail-closed para observar
-gates, capabilities, revogações e RSVPs sem PII ou segredos. A alteração local
-do usuário em `docs/roadmap.md` permanece separada.
+gates, capabilities, revogações e RSVPs sem PII ou segredos. A sonda foi
+publicada e observou a coorte real; rollback e rearme do RSVP foram exercitados
+sem perder o acesso reconhecido. A alteração local do usuário em
+`docs/roadmap.md` permanece separada.
