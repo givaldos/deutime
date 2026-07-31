@@ -1,8 +1,8 @@
 ---
 release: R03
-work_package: WP-R03-01
-scope: whatsapp_enqueue_claim_database
-branch_or_commit: "918bc51"
+work_package: WP-R03-02
+scope: whatsapp_adapter_worker_dry_run
+branch_or_commit: "a40cceb"
 checkpoint: idle
 status: ready_for_review
 completed_ac:
@@ -10,41 +10,56 @@ completed_ac:
   - "AC-R03-02"
   - "AC-R03-03"
   - "AC-R03-04"
+  - "AC-R03-07"
 dirty_files:
-  - "supabase/migrations/202607310001_whatsapp_dispatch_contract.sql"
-  - "supabase/tests/023_whatsapp_dispatch_contract.test.sql"
+  - ".env.example"
+  - "app/api/internal/whatsapp/worker/route.ts"
+  - "app/api/internal/whatsapp/worker/route.test.ts"
+  - "lib/features/delivery/dispatch-contract.ts"
+  - "lib/features/delivery/dispatch-contract.test.ts"
+  - "lib/features/delivery/twilio-adapter.ts"
+  - "lib/features/delivery/twilio-adapter.test.ts"
+  - "lib/features/delivery/whatsapp-worker.ts"
+  - "lib/features/delivery/whatsapp-worker.test.ts"
+  - "lib/features/delivery/worker-auth.ts"
+  - "lib/features/delivery/worker-auth.test.ts"
+  - "lib/features/delivery/supabase-delivery-repository.ts"
+  - "supabase/migrations/202607310002_whatsapp_worker_dry_run.sql"
+  - "supabase/tests/024_whatsapp_worker_dry_run.test.sql"
   - "lib/database.types.ts"
   - "docs/releases/R03-whatsapp-ponta-a-ponta.md"
-  - "docs/releases/README.md"
+  - "docs/architecture.md"
+  - "docs/security.md"
   - "docs/work/current.md"
 tests:
-  - "npm run db:reset — schema recomposto e seed concluído"
-  - "npm run db:test — 23 arquivos e 570 testes aprovados"
+  - "23 testes focados — contrato, Twilio, worker, autenticação e Route Handler"
+  - "npm run db:reset — schema recomposto com a migration 002"
+  - "npm run db:test — 24 arquivos e 580 testes aprovados"
   - "npm run db:lint — nenhum alerta novo; aviso legado em create_event_as_staff"
-  - "npm run verify — lint, typecheck e 158 testes aprovados; build aprovado com rede"
+  - "npm run verify — lint, typecheck e 176 testes aprovados; build aprovado com rede"
 blocker: null
-next_action: "Implementar WP-R03-02 com adapter provider-neutral e worker em dry-run, sem habilitar whatsapp_delivery, integration_produce ou integration_consume."
+next_action: "Implementar WP-R03-03: callback X-Twilio-Signature, endpoint de status e operação redigida; manter o executor sem modo live."
 ---
 
 # Trabalho atual
 
-`WP-R03-01` está implementado como expansão forward-only e inerte. A outbox
-possui versão da intenção, lease, barreira de efeito, classe de falha e revisão
-manual. Tentativas e eventos normalizados nasceram com RLS e sem grants diretos
-ao cliente.
+`WP-R03-02` entrega o caminho fino do worker sem efeito externo. O executor
+interno exige bearer forte, falha fechado com `integration_consume` desligado e
+está fixo em dry-run. Nesse modo, usa o claim real e o libera antes da barreira,
+sem preparar credencial e sem chamar adapter.
 
-As RPCs cobrem enqueue administrativo, claim concorrente, preparo que emite o
-segredo uma única vez, ack, nack, callback idempotente e recuperação de lease.
-Somente o hash da credencial e do token de callback é persistido. Resultado
-ambíguo depois da barreira nunca volta ao claim automático.
+O worker provider-neutral já coordena prepare/ack/nack para testes do caminho
+live, mas nenhum entrypoint o expõe. O adapter Twilio usa Content API, callback
+por token opaco e classificação segura de resposta; nenhuma variável Twilio é
+lida nesta fatia.
 
-O pgTAP validou dedupe, elegibilidade, opt-out entre enqueue/preparo,
-cross-tenant, replay, callback fora de ordem, rejeição transitória e recuperação
-antes/depois do efeito. A aplicação compilou contra os tipos regenerados.
+A RPC `release_notification_claim` restaura estado e tentativas apenas antes de
+`effect_started_at`. Depois da barreira ela falha, preservando a recuperação
+manual definida no ADR.
 
 Nenhum efeito externo foi executado. `whatsapp_delivery`,
 `integration_produce` e `integration_consume` continuam desligados. A próxima
-fatia é o adapter provider-neutral e o worker em dry-run.
+fatia é callback assinado e operação redigida; o modo live permanece fechado.
 
 As alterações locais do usuário em `docs/backlog.md` e `docs/roadmap.md`
 permanecem separadas.
