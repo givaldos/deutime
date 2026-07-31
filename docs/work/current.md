@@ -2,13 +2,15 @@
 release: R02
 work_package: WP-R02-03
 scope: capability_rsvp_ui
-branch_or_commit: "codex/r02-rsvp-pilot-evidence"
-checkpoint: idle
-status: operational_pilot_complete_physical_pending
+branch_or_commit: "codex/r02-rsvp-confirmation-first"
+checkpoint: CP4
+status: confirmation_first_ready_for_physical_retest
 completed_ac:
   - "AC-R02-03"
   - "AC-R02-06"
 dirty_files:
+  - "app/e/[publicId]/page.tsx"
+  - "app/e/[publicId]/page.test.tsx"
   - "docs/releases/R02-confirmacao-pelo-link.md"
   - "docs/work/current.md"
 tests:
@@ -41,8 +43,13 @@ tests:
   - "rollback RSVP — resposta preservada, controles removidos e fallback para a agenda"
   - "rearme RSVP — controles restaurados sem nova credencial e 3 gates ativos ao final"
   - "PR #52 e follow-up #53 — todos os checks aprovados"
-blocker: "Confirmação física do operador em Android e iPhone, no navegador interno do WhatsApp e no navegador padrão."
-next_action: "Receber a validação física do link já entregue para concluir o CP4; o CP5 operacional está exercitado e saudável."
+  - "feedback físico — confirmação promovida ao primeiro cartão após o cabeçalho"
+  - "Vitest focado — 2 arquivos/13 testes aprovados"
+  - "npm run typecheck — aprovado"
+  - "inspeção local — acesso reconhecido e SIM/NÃO/TALVEZ aparecem antes da data e dos detalhes"
+  - "npm run verify — lint, typecheck e 25 arquivos/155 testes aprovados; build repetido com rede e aprovado"
+blocker: "Reteste físico do cartão de confirmação no topo em Android e iPhone, no navegador interno do WhatsApp e no navegador padrão."
+next_action: "Publicar o ajuste e repetir o link físico para confirmar que a resposta aparece sem rolagem antes de encerrar o CP4."
 ---
 
 # Trabalho atual
@@ -56,6 +63,13 @@ A credencial inicial foi revogada e o aparelho caiu imediatamente no fallback
 público. Uma nova credencial recuperou o acesso e está copiada para o teste
 físico. Falta o operador confirmar Android, iPhone, navegador interno do
 WhatsApp e navegador padrão antes de encerrar o CP4.
+
+O primeiro teste físico encontrou uma barreira de usabilidade: a confirmação
+ficava abaixo dos cartões de data e detalhes e exigia rolagem. O cartão
+reconhecido agora é o primeiro bloco após o cabeçalho, expondo nome, resposta
+atual e SIM/NÃO/TALVEZ de imediato. O fallback anônimo continua abaixo dos
+detalhes. A correção passou no teste estrutural e na inspeção local e aguarda
+reteste físico após publicação.
 
 Enquanto essa evidência física aguarda, o CP5 ganhou uma sonda operacional
 agregada, exclusiva de `service_role`, e um comando fail-closed para observar
