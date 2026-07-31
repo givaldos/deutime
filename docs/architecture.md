@@ -132,6 +132,11 @@ Uma série não é a partida. No MVP, a criação materializa de 2 a 52 ocorrên
   usa Twilio Programmable Messaging + Content API como primeiro adapter
   operacional; templates, envio e webhooks permanecem atrás da fronteira
   provider-neutral, separados do Twilio usado pelo Supabase Auth para OTP.
+- [`DEC-WHATSAPP-DISPATCH-SAFETY`](decisions/DEC-WHATSAPP-DISPATCH-SAFETY.md)
+  impede que o worker persista o segredo personalizado: uma RPC transacional o
+  emite somente ao preparar a tentativa e grava a barreira antes do efeito
+  externo. Falha anterior pode repetir; resultado incerto posterior exige
+  reconciliação manual e não participa de claim automático.
 
 Os contratos canônicos estão em [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md), [`DEC-EVENT-PUBLIC-MINIMUM`](decisions/DEC-EVENT-PUBLIC-MINIMUM.md) e [`DEC-UNCLAIMED-IDENTITY`](decisions/DEC-UNCLAIMED-IDENTITY.md). A R00 fechou o transporte inicial como fragmento removido e trocado por `POST` same-origin em uma página mínima, antes de terceiros. Os ADRs definem projeção anônima, ameaças, identidade não reivindicada, renovação, limite absoluto, revogação e recuperação; a R02 deve provar o comportamento em Android/iPhone, navegador interno e padrão. “Duradouro” descreve a experiência normal sem login repetido; não significa segredo eterno ou autorização fora da fase do evento.
 
