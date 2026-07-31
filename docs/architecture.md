@@ -128,7 +128,10 @@ Uma série não é a partida. No MVP, a criação materializa de 2 a 52 ocorrên
 - uma sessão completa de identidade será duradoura e rotativa no aparelho, mas exigirá OTP uma vez ou uma sessão anterior já verificada;
 - credencial, capability e sessão permanecerão revogáveis, não ampliarão o vínculo atual e poderão exigir reidentificação diante de revogação ou risco;
 - após a troca, o segredo será removido da barra de endereço e bloqueado em Open Graph, analytics, logs controlados pela aplicação e `Referer`; a visibilidade do link ao provedor de WhatsApp fará parte do threat model e do DPA;
-- templates e webhooks do provedor ficam atrás de adaptadores, evitando acoplamento do domínio à Meta ou a um BSP.
+- conforme [`DEC-WHATSAPP-PROVIDER`](decisions/DEC-WHATSAPP-PROVIDER.md), R03
+  usa Twilio Programmable Messaging + Content API como primeiro adapter
+  operacional; templates, envio e webhooks permanecem atrás da fronteira
+  provider-neutral, separados do Twilio usado pelo Supabase Auth para OTP.
 
 Os contratos canônicos estão em [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md), [`DEC-EVENT-PUBLIC-MINIMUM`](decisions/DEC-EVENT-PUBLIC-MINIMUM.md) e [`DEC-UNCLAIMED-IDENTITY`](decisions/DEC-UNCLAIMED-IDENTITY.md). A R00 fechou o transporte inicial como fragmento removido e trocado por `POST` same-origin em uma página mínima, antes de terceiros. Os ADRs definem projeção anônima, ameaças, identidade não reivindicada, renovação, limite absoluto, revogação e recuperação; a R02 deve provar o comportamento em Android/iPhone, navegador interno e padrão. “Duradouro” descreve a experiência normal sem login repetido; não significa segredo eterno ou autorização fora da fase do evento.
 

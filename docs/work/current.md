@@ -1,36 +1,37 @@
 ---
-release: R02
-work_package: WP-R02-04
-scope: event_link_temporal_return
-branch_or_commit: "22660a5"
+release: R03
+work_package: DP-R03-01
+scope: whatsapp_provider_decision
+branch_or_commit: "3d0b1b1"
 checkpoint: idle
-status: ready_for_temporal_validation
+status: ready_for_review
 completed_ac:
-  - "Android — WhatsApp interno, navegador padrão e reabertura aprovados"
-  - "iPhone — WhatsApp interno, navegador padrão e reabertura aprovados"
-  - "RSVP Sim permaneceu autoritativo nos dois aparelhos"
+  - "AC-R03-01"
 dirty_files:
-  - "docs/releases/R02-confirmacao-pelo-link.md"
+  - "docs/decisions/DEC-WHATSAPP-PROVIDER.md"
+  - "docs/releases/R03-whatsapp-ponta-a-ponta.md"
+  - "docs/product-context.md"
+  - "docs/releases/README.md"
+  - "docs/architecture.md"
+  - "docs/security.md"
   - "docs/work/current.md"
 tests:
-  - "Produção — link personalizado novo trocado com sucesso"
-  - "Produção — resposta Sim registrada"
-  - "Produção — fechar e reabrir preservou Sim em Android e iPhone"
-  - "Produção — navegador padrão preservou contexto em Android e iPhone"
+  - "Documentação oficial Twilio — templates, Sandbox, status, webhooks, assinatura e sender revisados"
+  - "Contrato confrontado com notification_outbox, communication_consents e kill switches existentes"
 blocker: null
-next_action: "Em outro dia, reabrir a mensagem original nos dois aparelhos e confirmar que o evento ainda reconhece Neymar com resposta Sim; então concluir AC-R02-09 e a R02."
+next_action: "Revisar e integrar DP-R03-01; implementação de WP-R03-01 aguarda a validação temporal final de AC-R02-09."
 ---
 
 # Trabalho atual
 
-A matriz física imediata do link personalizado passou em Android e iPhone. A
-credencial nova reconheceu Neymar, registrou “Sim” e manteve a resposta ao
-fechar e reabrir pelo WhatsApp e ao abrir no navegador padrão. O reteste também
-confirmou que o RSVP aparece no topo sem exigir rolagem.
+`DEC-WHATSAPP-PROVIDER` seleciona Twilio Programmable Messaging + Content API
+para as mensagens operacionais da R03. O adapter permanece provider-neutral e
+separado do Twilio usado pelo Supabase Auth para OTP. Sandbox é somente demo;
+produção real exige sender próprio, template aprovado e callbacks assinados.
 
-A única pendência de aceite da R02 é temporal: em outro dia, abrir novamente a
-mensagem original nos dois aparelhos e confirmar que o evento continua
-reconhecendo Neymar e exibindo “Sim”. Nenhum segredo do link foi registrado na
-documentação.
+O pacote R03 foi criado em `discovery`. Nenhuma migration, integração, template,
+flag ou efeito externo foi produzido. A implementação aguarda o retorno em
+outro dia de `AC-R02-09`; enquanto isso, a decisão pode ser revisada e integrada
+sem alterar o comportamento da R02.
 
 A alteração local do usuário em `docs/roadmap.md` permanece separada.

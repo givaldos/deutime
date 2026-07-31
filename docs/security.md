@@ -96,7 +96,7 @@ Essa capability não cria identidade; a reivindicação exige OTP no telefone
 verificado pelo Auth, preserva o `athlete_id` e revoga/rotaciona acessos emitidos
 antes da reivindicação. Conflito ou ambiguidade falha de forma fechada.
 
-### Registro do fornecedor no piloto R02
+### Registro do fornecedor nos pilotos R02/R03
 
 Revisado em 31/07/2026 para o piloto com dados demo:
 
@@ -109,6 +109,13 @@ Revisado em 31/07/2026 para o piloto com dados demo:
 | Minimização do MVP | mensagem contém somente texto operacional, URL pública do evento e credencial atleta-evento. Não enviar nascimento, posição, resposta atual, escalação, endereço privado, observação ou outro dado sensível. |
 | Aplicação | o GET, metadata e preview recebem somente a URL pública limpa; a aplicação remove o fragmento antes da jornada, não registra o segredo e permite revogação individual/global. Essas proteções limitam o impacto, mas não apagam a exposição ocorrida no envio. |
 | Piloto e produção real | o piloto permanece restrito a pessoas e dados demo. Antes de usar atletas reais, o responsável pelo tratamento deve confirmar base legal/consentimento, entidade contratante da conta, retenção configurada, termos vigentes e avisos de mudança de suboperadores. |
+
+Na R03, callbacks de status e entrada aceitam somente `POST` com
+`X-Twilio-Signature` validado pela biblioteca oficial contra a URL pública
+exata. Message SID e estado normalizado podem ser persistidos; Auth Token,
+telefone, corpo completo e link personalizado não entram em logs ou auditoria.
+O Sandbox continua proibido para atletas reais e não substitui sender próprio
+nem template aprovado.
 
 Este registro documenta o fluxo e as salvaguardas técnicas; não substitui a
 avaliação jurídica do controlador nem permite declarar anonimato contra o
