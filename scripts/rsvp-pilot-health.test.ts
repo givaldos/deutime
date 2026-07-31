@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { runRsvpPilotHealth } from "./rsvp-pilot-health.mjs";
 
-const teamId = "cb7f51bd-45c9-460a-969d-6bc7f70ee035";
+const teamId = "10000000-0000-0000-0000-000000000001";
 
 const healthyPayload = {
   observed_at: "2026-07-30T23:30:00.000Z",
