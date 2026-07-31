@@ -2120,6 +2120,10 @@ export type Database = {
           idle_expires_at: string
         }[]
       }
+      release_notification_claim: {
+        Args: { requested_lease_token: string; requested_outbox_id: string }
+        Returns: boolean
+      }
       remove_athlete_from_team: {
         Args: { requested_athlete_id: string }
         Returns: {

@@ -10,7 +10,7 @@ baseline:
   - BASE-ATTENDANCE
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "918bc51"
+verified_at: "a40cceb"
 decisions:
   - DEC-WHATSAPP-PROVIDER
   - DEC-WHATSAPP-DISPATCH-SAFETY
@@ -183,7 +183,7 @@ resultado ambíguo após a barreira fica `failed` e `requires_review = true`.
 - [x] `AC-R03-04` — Claims concorrentes não executam a mesma intenção; retry anterior ao efeito é seguro e resultado ambíguo nunca é reenviado automaticamente.
 - [ ] `AC-R03-05` — Callback com assinatura e token válidos atualiza somente a tentativa vinculada; inválido, repetido, fora de ordem e cross-tenant falham fechado.
 - [ ] `AC-R03-06` — Template aprovado contém contexto mínimo e o link personalizado, sem resposta, PII extra ou endereço privado.
-- [ ] `AC-R03-07` — Kill switches de produzir e consumir funcionam independentemente e preservam a distribuição manual.
+- [x] `AC-R03-07` — Kill switches de produzir e consumir funcionam independentemente e preservam a distribuição manual.
 - [ ] `AC-R03-08` — Operação observa pendente, aceito, enviado, entregue, lido e falho sem registrar telefone, corpo ou credencial.
 - [ ] `AC-R03-09` — Sandbox passa com dados demo em Android e iPhone; sender próprio e template ficam aprovados antes de atletas reais.
 - [ ] `AC-R03-10` — Cancelamento, remarcação, opt-out e remoção impedem novos envios incompatíveis sem reescrever histórico.
@@ -266,3 +266,26 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
 - nenhuma chamada externa, template ou flag foi ativada;
 - próxima ação: implementar `WP-R03-02` com adapter e worker em dry-run,
   consumindo as RPCs sem habilitar efeitos externos.
+
+### `WP-R03-02` — CP2
+
+- contrato provider-neutral valida a saída da RPC e monta o link R02 no
+  fragmento `#c=`, sem incluir segredo em resumo ou telemetria;
+- adapter Twilio traduz template/variáveis para Programmable Messaging, aceita
+  somente SID válido e classifica rejeição transitória, permanente e resultado
+  ambíguo sem persistir corpo de erro;
+- worker coordena recovery, claim, prepare, adapter, ack e nack por dependências
+  injetadas; falha incerta depois do preparo fica para recuperação ambígua;
+- executor `POST /api/internal/whatsapp/worker` exige bearer server-only,
+  respeita `integration_consume` e está codificado exclusivamente em dry-run;
+- `release_notification_claim` desfaz somente claim anterior à barreira e
+  restaura o contador, permitindo exercitar fila sem credencial ou envio;
+- 23 testes focados cobrem contrato, adapter, timeout/rejeição, worker, bearer e
+  executor; o pgTAP adiciona 10 casos de grants, liberação e barreira;
+- banco recomposto, 24 arquivos e 580 pgTAPs passaram; lint, typecheck, 176
+  testes Vitest e build passaram;
+- nenhuma configuração Twilio foi lida e nenhuma chamada externa foi feita;
+  `whatsapp_delivery`, `integration_produce` e `integration_consume` continuam
+  desligados;
+- próxima ação: implementar `WP-R03-03` com callback assinado, endpoint de
+  status e visão operacional redigida antes de expor qualquer modo live.
