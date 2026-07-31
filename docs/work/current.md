@@ -1,35 +1,36 @@
 ---
 release: R02
 work_package: WP-R02-04
-scope: event_link_physical_devices
-branch_or_commit: "b01a7c1"
+scope: event_link_temporal_return
+branch_or_commit: "22660a5"
 checkpoint: idle
-status: ready_for_physical_validation
+status: ready_for_temporal_validation
 completed_ac:
-  - "hotfix de primeiro acesso pelo WhatsApp validado em aparelho físico"
-  - "cadastro, espera, aprovação e login posterior aprovados"
+  - "Android — WhatsApp interno, navegador padrão e reabertura aprovados"
+  - "iPhone — WhatsApp interno, navegador padrão e reabertura aprovados"
+  - "RSVP Sim permaneceu autoritativo nos dois aparelhos"
 dirty_files:
   - "docs/releases/R02-confirmacao-pelo-link.md"
   - "docs/work/current.md"
 tests:
-  - "Produção — cadastro com OTP concluído"
-  - "Produção — vínculo aguardou aprovação administrativa"
-  - "Produção — login posterior pelo mesmo WhatsApp aprovado sem otp_disabled"
-  - "Smoke de produção somente leitura — aprovado"
+  - "Produção — link personalizado novo trocado com sucesso"
+  - "Produção — resposta Sim registrada"
+  - "Produção — fechar e reabrir preservou Sim em Android e iPhone"
+  - "Produção — navegador padrão preservou contexto em Android e iPhone"
 blocker: null
-next_action: "Repetir o link personalizado do evento em Android e iPhone, no navegador interno e no padrão, incluindo fechar/reabrir, para concluir AC-R02-09."
+next_action: "Em outro dia, reabrir a mensagem original nos dois aparelhos e confirmar que o evento ainda reconhece Neymar com resposta Sim; então concluir AC-R02-09 e a R02."
 ---
 
 # Trabalho atual
 
-O hotfix de primeiro acesso está publicado e validado fisicamente. Um telefone
-novo concluiu o OTP pelo cadastro público, permaneceu aguardando a aprovação do
-time e, depois de aprovado, fez login pelo mesmo WhatsApp sem `otp_disabled`.
+A matriz física imediata do link personalizado passou em Android e iPhone. A
+credencial nova reconheceu Neymar, registrou “Sim” e manteve a resposta ao
+fechar e reabrir pelo WhatsApp e ao abrir no navegador padrão. O reteste também
+confirmou que o RSVP aparece no topo sem exigir rolagem.
 
-A única pendência de aceite da R02 continua sendo `AC-R02-09`. O link
-personalizado do evento precisa ser repetido em Android e iPhone, tanto no
-navegador interno do WhatsApp quanto no navegador padrão. O teste deve confirmar
-que o RSVP aparece no topo, a URL fica limpa, a resposta persiste ao fechar e
-reabrir e o retorno posterior mantém o mesmo contexto.
+A única pendência de aceite da R02 é temporal: em outro dia, abrir novamente a
+mensagem original nos dois aparelhos e confirmar que o evento continua
+reconhecendo Neymar e exibindo “Sim”. Nenhum segredo do link foi registrado na
+documentação.
 
 A alteração local do usuário em `docs/roadmap.md` permanece separada.
