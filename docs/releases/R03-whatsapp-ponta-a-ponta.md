@@ -1,7 +1,7 @@
 ---
 id: R03
 type: vertical
-status: discovery
+status: active
 outcome: "Enviar uma chamada real pelo WhatsApp, com consentimento, retry, entrega observável e retorno pelo link estável do evento."
 depends_on:
   - R01
@@ -10,7 +10,7 @@ baseline:
   - BASE-ATTENDANCE
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "3d0b1b1"
+verified_at: "918bc51"
 decisions:
   - DEC-WHATSAPP-PROVIDER
   - DEC-WHATSAPP-DISPATCH-SAFETY
@@ -178,9 +178,9 @@ resultado ambíguo após a barreira fica `failed` e `requires_review = true`.
 ## Critérios de aceite
 
 - [x] `AC-R03-01` — Provedor e fronteira do adapter estão decididos sem acoplar o domínio à Twilio.
-- [ ] `AC-R03-02` — Um comando de chamada nasce atomicamente e possui dedupe estável por evento, atleta, versão da agenda e versão do template.
-- [ ] `AC-R03-03` — Somente atleta ativo, com telefone e consentimento vigente, entra na outbox do próprio time.
-- [ ] `AC-R03-04` — Claims concorrentes não executam a mesma intenção; retry anterior ao efeito é seguro e resultado ambíguo nunca é reenviado automaticamente.
+- [x] `AC-R03-02` — Um comando de chamada nasce atomicamente e possui dedupe estável por evento, atleta, versão da agenda e versão do template.
+- [x] `AC-R03-03` — Somente atleta ativo, com telefone e consentimento vigente, entra na outbox do próprio time.
+- [x] `AC-R03-04` — Claims concorrentes não executam a mesma intenção; retry anterior ao efeito é seguro e resultado ambíguo nunca é reenviado automaticamente.
 - [ ] `AC-R03-05` — Callback com assinatura e token válidos atualiza somente a tentativa vinculada; inválido, repetido, fora de ordem e cross-tenant falham fechado.
 - [ ] `AC-R03-06` — Template aprovado contém contexto mínimo e o link personalizado, sem resposta, PII extra ou endereço privado.
 - [ ] `AC-R03-07` — Kill switches de produzir e consumir funcionam independentemente e preservam a distribuição manual.
@@ -253,6 +253,16 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
   depois dela exige revisão manual;
 - permissões, estados, revalidações, concorrência, compatibilidade N/N−1 e
   cancelamento/remarcação estão definidos;
-- nenhuma migration, chamada externa, template ou flag foi alterada;
-- próxima ação: implementar a expansão forward-only e os pgTAPs de
-  `WP-R03-01`, sem ativar produção ou consumo.
+- a expansão foi implementada em
+  `202607310001_whatsapp_dispatch_contract.sql`, sem ativar flag ou controle;
+- `023_whatsapp_dispatch_contract.test.sql` cobre 60 casos de RLS, grants,
+  elegibilidade, cross-tenant, dedupe, claim, segredo, replay, reorder, nack,
+  opt-out e recuperação anterior/posterior ao efeito;
+- banco recomposto integralmente; 23 arquivos e 570 testes pgTAP passaram;
+- tipos foram regenerados e `npm run verify` passou após o build repetir com
+  acesso às fontes externas;
+- `db:lint` não apresentou alerta novo; permanece apenas o aviso legado de
+  variável sombreada em `create_event_as_staff`;
+- nenhuma chamada externa, template ou flag foi ativada;
+- próxima ação: implementar `WP-R03-02` com adapter e worker em dry-run,
+  consumindo as RPCs sem habilitar efeitos externos.
