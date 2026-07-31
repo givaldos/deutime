@@ -19,7 +19,7 @@ Cada arquivo desta pasta é o contexto autossuficiente de uma release prestes a 
 | [R00 — Fundação de entrega](R00-fundacao-de-entrega.md) | `done` | Fundação local + produção validada; melhorias não bloqueadoras estão no backlog técnico |
 | [R01 — Evento sob controle](R01-evento-sob-controle.md) | `ready` | CP0 concluído; próximo passo é fechar o contrato técnico de fuso, comandos e versão |
 | [R02 — Confirmação pelo link](R02-confirmacao-pelo-link.md) | `draft` | Entrega o primeiro ciclo WhatsApp-first sem automação |
-| [R03 — WhatsApp ponta a ponta](R03-whatsapp-ponta-a-ponta.md) | `discovery` | Fecha o provedor e prepara chamada real com worker, retry e callback |
+| [R03 — WhatsApp ponta a ponta](R03-whatsapp-ponta-a-ponta.md) | `active` | Outbox segura pronta; próximo passo é adapter e worker em dry-run |
 
 R04 em diante só recebe arquivo próprio quando a release anterior estabilizar seus contratos. Ao promover uma delas, adicione-a também ao dropdown do template de issue. Isso evita abrir trabalho sem pacote, reduz especificação prematura e limita o contexto mantido.
 

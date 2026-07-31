@@ -1039,6 +1039,101 @@ export type Database = {
           },
         ]
       }
+      notification_delivery_attempts: {
+        Row: {
+          attempt_number: number
+          callback_token_hash: string
+          completed_at: string | null
+          delivery_status: string
+          id: string
+          outbox_id: string
+          provider_error_code: string | null
+          provider_message_id: string | null
+          started_at: string
+          team_id: string
+        }
+        Insert: {
+          attempt_number: number
+          callback_token_hash: string
+          completed_at?: string | null
+          delivery_status?: string
+          id?: string
+          outbox_id: string
+          provider_error_code?: string | null
+          provider_message_id?: string | null
+          started_at?: string
+          team_id: string
+        }
+        Update: {
+          attempt_number?: number
+          callback_token_hash?: string
+          completed_at?: string | null
+          delivery_status?: string
+          id?: string
+          outbox_id?: string
+          provider_error_code?: string | null
+          provider_message_id?: string | null
+          started_at?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_delivery_attempts_outbox_id_team_id_fkey"
+            columns: ["outbox_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "notification_outbox"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
+      notification_delivery_events: {
+        Row: {
+          attempt_id: string
+          delivery_status: string
+          id: number
+          outbox_id: string
+          provider_error_code: string | null
+          provider_message_id: string | null
+          received_at: string
+          team_id: string
+        }
+        Insert: {
+          attempt_id: string
+          delivery_status: string
+          id?: never
+          outbox_id: string
+          provider_error_code?: string | null
+          provider_message_id?: string | null
+          received_at?: string
+          team_id: string
+        }
+        Update: {
+          attempt_id?: string
+          delivery_status?: string
+          id?: never
+          outbox_id?: string
+          provider_error_code?: string | null
+          provider_message_id?: string | null
+          received_at?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_delivery_events_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: false
+            referencedRelation: "notification_delivery_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_delivery_events_outbox_id_team_id_fkey"
+            columns: ["outbox_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "notification_outbox"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
       notification_outbox: {
         Row: {
           athlete_id: string | null
@@ -1047,16 +1142,24 @@ export type Database = {
           channel: Database["public"]["Enums"]["message_channel"]
           created_at: string
           dedupe_key: string
+          effect_started_at: string | null
           event_id: string | null
+          failure_class: string | null
           id: string
+          intent_version: number
           last_error: string | null
+          lease_expires_at: string | null
+          lease_token: string | null
           payload: Json
           processed_at: string | null
           provider_message_id: string | null
           recipient: string
+          requested_by: string | null
+          requires_review: boolean
           status: Database["public"]["Enums"]["message_status"]
           team_id: string
           template_key: string
+          template_version: string
           updated_at: string
         }
         Insert: {
@@ -1066,16 +1169,24 @@ export type Database = {
           channel: Database["public"]["Enums"]["message_channel"]
           created_at?: string
           dedupe_key: string
+          effect_started_at?: string | null
           event_id?: string | null
+          failure_class?: string | null
           id?: string
+          intent_version?: number
           last_error?: string | null
+          lease_expires_at?: string | null
+          lease_token?: string | null
           payload?: Json
           processed_at?: string | null
           provider_message_id?: string | null
           recipient: string
+          requested_by?: string | null
+          requires_review?: boolean
           status?: Database["public"]["Enums"]["message_status"]
           team_id: string
           template_key: string
+          template_version?: string
           updated_at?: string
         }
         Update: {
@@ -1085,16 +1196,24 @@ export type Database = {
           channel?: Database["public"]["Enums"]["message_channel"]
           created_at?: string
           dedupe_key?: string
+          effect_started_at?: string | null
           event_id?: string | null
+          failure_class?: string | null
           id?: string
+          intent_version?: number
           last_error?: string | null
+          lease_expires_at?: string | null
+          lease_token?: string | null
           payload?: Json
           processed_at?: string | null
           provider_message_id?: string | null
           recipient?: string
+          requested_by?: string | null
+          requires_review?: boolean
           status?: Database["public"]["Enums"]["message_status"]
           team_id?: string
           template_key?: string
+          template_version?: string
           updated_at?: string
         }
         Relationships: [
@@ -1675,6 +1794,15 @@ export type Database = {
       }
     }
     Functions: {
+      ack_notification_sent: {
+        Args: {
+          requested_attempt_id: string
+          requested_lease_token: string
+          requested_outbox_id: string
+          requested_provider_message_id: string
+        }
+        Returns: boolean
+      }
       add_match_incident_as_staff: {
         Args: {
           incident_assist_athlete_id?: string
@@ -1709,6 +1837,14 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      claim_notification_batch: {
+        Args: { requested_lease_seconds?: number; requested_limit?: number }
+        Returns: {
+          attempt_number: number
+          lease_token: string
+          outbox_id: string
+        }[]
       }
       complete_verified_athlete_registration: {
         Args: {
@@ -1807,6 +1943,18 @@ export type Database = {
           requested_team_id: string
         }
         Returns: boolean
+      }
+      enqueue_event_whatsapp_call: {
+        Args: {
+          requested_event_id: string
+          requested_template_key: string
+          requested_template_version?: string
+        }
+        Returns: {
+          athlete_id: string
+          inserted: boolean
+          outbox_id: string
+        }[]
       }
       exchange_event_access_credential: {
         Args: {
@@ -1923,6 +2071,45 @@ export type Database = {
           invited_role: Database["public"]["Enums"]["team_role"]
           team_name: string
           team_slug: string
+        }[]
+      }
+      nack_notification: {
+        Args: {
+          requested_attempt_id: string
+          requested_error_code: string
+          requested_failure_class: string
+          requested_lease_token: string
+          requested_outbox_id: string
+        }
+        Returns: boolean
+      }
+      prepare_whatsapp_dispatch: {
+        Args: { requested_lease_token: string; requested_outbox_id: string }
+        Returns: {
+          attempt_id: string
+          callback_token: string
+          credential_secret: string
+          event_public_id: string
+          recipient: string
+          template_key: string
+          template_payload: Json
+          template_version: string
+        }[]
+      }
+      record_notification_callback: {
+        Args: {
+          requested_callback_token: string
+          requested_delivery_status: string
+          requested_error_code?: string
+          requested_provider_message_id: string
+        }
+        Returns: boolean
+      }
+      recover_expired_notification_leases: {
+        Args: never
+        Returns: {
+          review_count: number
+          safe_retry_count: number
         }[]
       }
       register_or_touch_verified_device_session: {
