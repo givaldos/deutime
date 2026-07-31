@@ -1833,6 +1833,22 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_event_capability_pilot_health: {
+        Args: { requested_team_id: string }
+        Returns: {
+          active_capability_sessions: number
+          active_credentials: number
+          capability_sessions_created_24h: number
+          capability_sessions_revoked_24h: number
+          global_exchange_enabled: boolean
+          last_exchange_at: string
+          last_rsvp_at: string
+          observed_at: string
+          rsvp_writes_24h: number
+          team_exchange_enabled: boolean
+          team_rsvp_enabled: boolean
+        }[]
+      }
       get_my_player_statistics: {
         Args: never
         Returns: {

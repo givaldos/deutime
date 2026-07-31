@@ -752,6 +752,60 @@ continua usando `respond_to_event_as_player`.
   Docker Desktop não iniciou; o teste CP2 de 390 × 844 permanece válido e o
   banco será revalidado pelo workflow Database da PR.
 
+## Experiência de `WP-R02-03` — CP4 em andamento
+
+- `Demo Campo` foi mantido como única coorte do piloto. O controle global
+  `event_capability_exchange` e as flags do time
+  `event_capability_exchange`/`event_capability_rsvp` foram habilitados pelas
+  RPCs auditadas; os demais times não foram alterados;
+- uma credencial estreita foi emitida para o único atleta demo elegível na
+  chamada. A primeira abertura removeu `#c` antes da troca e exibiu o contexto
+  reconhecido de Neymar sem manter o segredo na URL;
+- SIM, NÃO e TALVEZ foram persistidos em sequência em produção. Cada retorno
+  refletiu o valor autoritativo e a reabertura pela URL limpa preservou a última
+  resposta;
+- a árvore acessível expôs um único grupo “Responder presença neste evento”,
+  legenda, `aria-pressed` e ordem de tabulação marca → SIM → NÃO → TALVEZ. Os
+  três alvos mediram 56 px de altura;
+- a credencial usada no primeiro teste foi revogada pela RPC operacional. O
+  aparelho perdeu imediatamente nome, resposta e controles, voltando ao
+  fallback público sem revelar a causa;
+- uma nova credencial foi emitida e aberta como aparelho novo. O acesso foi
+  recuperado, a resposta “Talvez” reapareceu e a URL voltou a ficar limpa;
+- canonical e `og:url` permaneceram na URL pública sem fragmento. Os logs
+  capturados pelo navegador não continham a credencial;
+- o smoke produtivo somente leitura concluiu sem erro. A validação física da
+  credencial final em Android, iPhone, navegador interno do WhatsApp e
+  navegador padrão ainda depende da confirmação do operador e impede declarar
+  o CP4 concluído.
+
+## Preparação operacional de `WP-R02-03` — CP5
+
+- `get_event_capability_pilot_health(team_id)` oferece uma leitura agregada e
+  `security definer` somente para `service_role`. `anon` e `authenticated` não
+  recebem `EXECUTE`;
+- o contrato expõe os três gates, credenciais/capabilities ativas, sessões
+  criadas e revogadas em 24 horas, RSVPs em 24 horas e datas da última troca e
+  resposta. Nome, telefone, atleta, evento, sessão, hash, cookie e credencial
+  não entram no retorno;
+- time inexistente não produz linha e todas as contagens filtram
+  `requested_team_id`, incluindo auditoria. O teste cross-tenant prova que
+  métricas e flags de outra coorte não vazam;
+- `npm run pilot:rsvp:health` chama somente essa RPC, valida UUID e contrato,
+  redige o corpo de erro remoto e falha fechado quando
+  `EXPECT_RSVP_PILOT_ENABLED=true` e qualquer gate estiver desligado;
+- a migration é uma expansão aditiva, sem tabela, policy ou dado remoto novo.
+  O consumidor anterior e a ordem app/banco permanecem compatíveis;
+- `npm run db:reset` aplicou 31 migrations e o seed local;
+- `npm run db:test` aprovou 22 arquivos/510 testes pgTAP;
+- `npm run db:lint` preservou somente os dois avisos preexistentes de
+  `create_event_as_staff`; tipos foram regenerados com apenas a nova RPC;
+- `npm run migrations:check -- e23767a`, `npm run verify` (25 arquivos/155
+  testes) e `npm run security:audit` passaram;
+- após o deploy, a sonda deve observar a coorte real e o rollback operacional
+  deve desligar/religar o gate de RSVP sem contrair banco. A confirmação física
+  do CP4 continua pendente e não é inferida destas métricas.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade
