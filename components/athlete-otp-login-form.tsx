@@ -15,21 +15,16 @@ import {
   resetTurnstile,
   TurnstileWidget,
 } from "@/components/turnstile-widget";
+import {
+  athleteLoginAuthErrorMessage,
+  athleteRegistrationReturnPath,
+} from "@/lib/auth/athlete-otp-errors";
 import { createClient } from "@/lib/supabase/client";
 import { normalizePhone } from "@/lib/validation/phone";
 import { ArrowLeft, LoaderCircle, MessageCircle } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-function authErrorMessage(code?: string) {
-  if (code === "over_sms_send_rate_limit" || code === "over_request_rate_limit") {
-    return "Aguarde um minuto antes de solicitar outro código.";
-  }
-  if (code === "otp_expired" || code === "invalid_otp") {
-    return "Código inválido ou expirado.";
-  }
-  return "Não foi possível entrar. Confira o número usado no cadastro.";
-}
 
 export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { siteKey?: string; nonce?: string; nextPath?: string }) {
   const [phoneInput, setPhoneInput] = useState("");
@@ -38,8 +33,10 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
   const [stage, setStage] = useState<"phone" | "otp">("phone");
   const [otpRequestCount, setOtpRequestCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [needsRegistration, setNeedsRegistration] = useState(false);
   const [pending, setPending] = useState(false);
   const router = useRouter();
+  const registrationReturnPath = athleteRegistrationReturnPath(nextPath);
 
   async function requestOtp(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,6 +49,7 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
 
     setPending(true);
     setError(null);
+    setNeedsRegistration(false);
     try {
       const supabase = createClient();
       const { error: authError } = await supabase.auth.signInWithOtp({
@@ -60,7 +58,8 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
       });
       if (authError) {
         resetTurnstile();
-        setError(authErrorMessage(authError.code));
+        setNeedsRegistration(authError.code === "otp_disabled");
+        setError(athleteLoginAuthErrorMessage(authError.code));
         return;
       }
       setPhone(normalized);
@@ -84,7 +83,7 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
         type: "sms",
       });
       if (authError) {
-        setError(authErrorMessage(authError.code));
+        setError(athleteLoginAuthErrorMessage(authError.code));
         return;
       }
       router.replace(nextPath);
@@ -123,6 +122,13 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
               <p className="text-xs text-slate-500">Para números do Brasil, o +55 é automático.</p>
             </div>
             {error ? <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+            {needsRegistration && registrationReturnPath ? (
+              <Button asChild variant="outline" className="h-12 w-full rounded-xl">
+                <Link href={registrationReturnPath}>
+                  Voltar e fazer o primeiro acesso
+                </Link>
+              </Button>
+            ) : null}
             <TurnstileWidget key={otpRequestCount} siteKey={siteKey} nonce={nonce} action="athlete_login" />
             {!siteKey && process.env.NODE_ENV === "production" ? <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900">Login temporariamente indisponível.</p> : null}
             <Button type="submit" className="h-12 w-full rounded-xl bg-emerald-700 hover:bg-emerald-800" disabled={pending || (!siteKey && process.env.NODE_ENV === "production")}>
@@ -162,6 +168,7 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
                 setOtpRequestCount((c) => c + 1);
                 setOtp("");
                 setError(null);
+                setNeedsRegistration(false);
               }}
             >
               <ArrowLeft className="size-4" aria-hidden /> Corrigir número
