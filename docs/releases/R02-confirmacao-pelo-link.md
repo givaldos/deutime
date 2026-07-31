@@ -971,8 +971,13 @@ silenciosamente; o cadastro público segue como único caminho com
 O helper possui regressões para número sem identidade, limites, OTP inválido e
 restrição do retorno ao cadastro público. `npm run verify` aprovou lint,
 typecheck e 26 arquivos/158 testes; o build foi repetido com rede apenas para
-obter as fontes do Google e concluiu. A validação física permanece para depois
-do deploy.
+obter as fontes do Google e concluiu.
+
+Depois do deploy, o operador concluiu em aparelho físico o cadastro com OTP,
+viu o estado “Aguardando” até a aprovação administrativa e entrou novamente em
+`/auth/login` com o mesmo WhatsApp. O fluxo não repetiu `otp_disabled`. O
+hotfix fica validado; essa evidência não substitui a matriz Android/iPhone do
+link de evento exigida por `AC-R02-09`.
 
 ## Contrato de `WP-R02-01` — CP1
 

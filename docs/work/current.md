@@ -1,37 +1,35 @@
 ---
 release: R02
-work_package: hotfix-r02-whatsapp-login
-scope: whatsapp_first_access
-branch_or_commit: "main"
+work_package: WP-R02-04
+scope: event_link_physical_devices
+branch_or_commit: "b01a7c1"
 checkpoint: idle
-status: ready_for_deploy
+status: ready_for_physical_validation
 completed_ac:
-  - "diagnóstico de otp_disabled"
-  - "orientação de primeiro acesso"
+  - "hotfix de primeiro acesso pelo WhatsApp validado em aparelho físico"
+  - "cadastro, espera, aprovação e login posterior aprovados"
 dirty_files:
-  - "components/athlete-otp-login-form.tsx"
-  - "lib/auth/athlete-otp-errors.ts"
-  - "lib/auth/athlete-otp-errors.test.ts"
   - "docs/releases/R02-confirmacao-pelo-link.md"
   - "docs/work/current.md"
 tests:
-  - "Vitest focado — 1 arquivo/3 testes aprovados"
-  - "npm run verify — lint, typecheck e 26 arquivos/158 testes aprovados; build repetido com rede e aprovado"
+  - "Produção — cadastro com OTP concluído"
+  - "Produção — vínculo aguardou aprovação administrativa"
+  - "Produção — login posterior pelo mesmo WhatsApp aprovado sem otp_disabled"
+  - "Smoke de produção somente leitura — aprovado"
 blocker: null
-next_action: "Publicar a correção e validar em aparelho físico: primeiro acesso pelo cadastro público e login posterior pelo mesmo WhatsApp."
+next_action: "Repetir o link personalizado do evento em Android e iPhone, no navegador interno e no padrão, incluindo fechar/reabrir, para concluir AC-R02-09."
 ---
 
 # Trabalho atual
 
-O Auth produtivo foi conferido: cadastro global, provedor Phone, Twilio e
-confirmação de telefone estão habilitados. O erro `otp_disabled` observado em
-`/auth/login` corresponde a um telefone que ainda não possui identidade,
-enquanto a tela de login usa `shouldCreateUser: false`.
+O hotfix de primeiro acesso está publicado e validado fisicamente. Um telefone
+novo concluiu o OTP pelo cadastro público, permaneceu aguardando a aprovação do
+time e, depois de aprovado, fez login pelo mesmo WhatsApp sem `otp_disabled`.
 
-A interface agora orienta o primeiro acesso e, quando recebeu
-`next=/t/{slug}/cadastro`, oferece retorno direto para o cadastro público. O
-login não cria usuário novo; `/t/{slug}/cadastro?novo=1` continua responsável
-por cadastrar os dados, confirmar o WhatsApp e preservar o contrato de
-identidade do atleta.
+A única pendência de aceite da R02 continua sendo `AC-R02-09`. O link
+personalizado do evento precisa ser repetido em Android e iPhone, tanto no
+navegador interno do WhatsApp quanto no navegador padrão. O teste deve confirmar
+que o RSVP aparece no topo, a URL fica limpa, a resposta persiste ao fechar e
+reabrir e o retorno posterior mantém o mesmo contexto.
 
 A alteração local do usuário em `docs/roadmap.md` permanece separada.
