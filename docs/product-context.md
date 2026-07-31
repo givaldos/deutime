@@ -49,7 +49,7 @@ Alterar uma invariante exige decisão explícita, atualização do roadmap, thre
 
 - `DEC-EVENT-MATCH` — `open`: definir `evento → partida`, múltiplos confrontos, equipes, escalações, lances e placares antes de R04/R07.
 - `DEC-PUBLIC-PRIVACY` — `open`: definir matriz pública/identificada para nome, foto, escalação, comentários e resultado antes de R04.
-- `DEC-WHATSAPP-PROVIDER` — `open`: selecionar o provedor das mensagens operacionais e validar templates, entrega, leitura e webhook antes de R03; o provedor pode ser diferente do Twilio já usado pelo Supabase para OTP.
+- [`DEC-WHATSAPP-PROVIDER`](decisions/DEC-WHATSAPP-PROVIDER.md) — `accepted`: R03 usa Twilio Programmable Messaging + Content API atrás de adapter provider-neutral; OTP do Supabase permanece separado, Sandbox é somente demo e produção real exige sender próprio, template aprovado e webhook assinado.
 - `DEC-CONVERSATION-LIFETIME` — `open`: definir duração de escrita e renovação de acesso da conversa antes de R06.
 - `DEC-ANONYMOUS-RETENTION` — `open`: definir descarte de recibos/cédulas e retenção de comentários antes de R05/R06.
 - `DEC-BALANCE-OBJECTIVE` — `open`: definir restrições, preferências e medida de equilíbrio antes de R08.
