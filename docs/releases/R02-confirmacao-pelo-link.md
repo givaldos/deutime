@@ -802,9 +802,22 @@ continua usando `respond_to_event_as_player`.
   `create_event_as_staff`; tipos foram regenerados com apenas a nova RPC;
 - `npm run migrations:check -- e23767a`, `npm run verify` (25 arquivos/155
   testes) e `npm run security:audit` passaram;
-- após o deploy, a sonda deve observar a coorte real e o rollback operacional
-  deve desligar/religar o gate de RSVP sem contrair banco. A confirmação física
-  do CP4 continua pendente e não é inferida destas métricas.
+- a migration `202607300001_event_capability_pilot_health.sql` foi aplicada em
+  produção pelo workflow `Deploy database`. A primeira observação de
+  `Demo Campo` encontrou os três gates ativos, 1 credencial ativa, 3
+  capabilities ativas, 4 criações, 1 revogação e 3 RSVPs nas últimas 24 horas;
+- o primeiro uso do comando revelou que scripts Node não carregavam os arquivos
+  `.env` automaticamente. O follow-up carrega `.env`/`.env.local` quando
+  presentes, preserva variáveis explícitas e aceita também os UUIDs sintéticos
+  usados pelo seed; o fluxo completo passou contra o Supabase local;
+- o rollback estreito desligou somente `event_capability_rsvp`. O acesso
+  reconhecido e a resposta “Talvez” permaneceram visíveis, os três controles
+  desapareceram e o CTA para a agenda assumiu o fallback;
+- o rearme reativou a mesma flag e o reload restaurou SIM/NÃO/TALVEZ sem nova
+  credencial. A leitura final confirmou novamente os três gates ativos;
+- PRs `#52` e `#53`, CI, CodeQL, Database, dependency review, Terraform e
+  previews Vercel foram aprovados. A confirmação física do CP4 continua
+  pendente e não é inferida destas métricas.
 
 ## Contrato de `WP-R02-01` — CP1
 
@@ -981,10 +994,10 @@ continua usando `respond_to_event_as_player`.
 
 - [x] `AC-R02-01` — URL pública estável não depende do slug mutável do time.
 - [x] `AC-R02-02` — Visitante sem credencial vê somente a projeção pública mínima.
-- [ ] `AC-R02-03` — Link válido abre a resposta atual diretamente e pode ser reutilizado até revogação.
+- [x] `AC-R02-03` — Link válido abre a resposta atual diretamente e pode ser reutilizado até revogação.
 - [ ] `AC-R02-04` — Primeira abertura cria capability duradoura limitada ao evento; aparelho com identidade já verificada mantém a sessão completa sem novo OTP.
 - [ ] `AC-R02-05` — Fechamento bloqueia apenas alteração de presença, não a consulta autorizada.
-- [ ] `AC-R02-06` — Revogar aparelho, credencial ou vínculo remove imediatamente as permissões correspondentes.
+- [x] `AC-R02-06` — Revogar aparelho, credencial ou vínculo remove imediatamente as permissões correspondentes.
 - [ ] `AC-R02-07` — Link encaminhado, replay, concorrência e tentativa cross-tenant não criam sessão global nem ampliam o acesso além daquele evento.
 - [ ] `AC-R02-08` — Depois da troca, o segredo não aparece na URL limpa, OG, analytics, logs controlados pela aplicação, histórico desnecessário ou `Referer`; visibilidade inevitável ao provedor é documentada no threat model e no DPA.
 - [ ] `AC-R02-09` — Fluxo passa em Android, iPhone, navegador interno e navegador padrão, inclusive retorno em outro dia.
