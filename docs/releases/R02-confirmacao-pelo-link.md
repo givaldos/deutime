@@ -774,16 +774,18 @@ continua usando `respond_to_event_as_player`.
   recuperado, a resposta “Talvez” reapareceu e a URL voltou a ficar limpa;
 - canonical e `og:url` permaneceram na URL pública sem fragmento. Os logs
   capturados pelo navegador não continham a credencial;
-- o smoke produtivo somente leitura concluiu sem erro. A validação física da
-  credencial final em Android, iPhone, navegador interno do WhatsApp e
-  navegador padrão ainda depende da confirmação do operador e impede declarar
-  o CP4 concluído;
+- o smoke produtivo somente leitura concluiu sem erro. O reteste físico passou
+  em Android e iPhone: a primeira resposta “Sim”, o fechamento e a reabertura
+  pelo WhatsApp e a abertura no navegador padrão preservaram o contexto e a
+  resposta autoritativa;
 - o primeiro teste em aparelho físico revelou que a confirmação aparecia
   somente depois dos cartões de data e detalhes, exigindo rolagem. A correção
   promove o cartão reconhecido — nome, resposta atual e SIM/NÃO/TALVEZ — ao
   primeiro bloco após o cabeçalho, sem alterar a ordem do fallback anônimo. Um
-  teste de estrutura impede que a confirmação volte a ficar abaixo da data; o
-  ajuste aguarda reteste físico para encerrar o CP4.
+  teste de estrutura impede que a confirmação volte a ficar abaixo da data. O
+  reteste confirmou o RSVP no topo em ambos os aparelhos;
+- resta somente repetir o retorno em outro dia para encerrar o CP4 e
+  `AC-R02-09`; essa evidência temporal não pode ser substituída por emulação.
 
 ## Preparação operacional de `WP-R02-03` — CP5
 
@@ -849,15 +851,14 @@ navegador padrão, inclusive depois de fechar e reabrir o link.
   evento. O piloto comprovou URL limpa, metadata limpa, logs redigidos,
   rollback e rearme;
 - o teste físico encontrou somente a ordem tardia do cartão RSVP. A correção
-  foi publicada no PR `#55` e verificada em produção, mas ainda precisa de
-  confirmação no aparelho do operador;
+  publicada no PR `#55` foi confirmada em produção no Android e no iPhone;
 - falta consolidar a evidência de `AC-R02-04`, `05` e `07`, registrar no
   checklist do fornecedor que o provedor de WhatsApp vê necessariamente o link
   personalizado e concluir `AC-R02-08` sem prometer anonimato contra o
   provedor;
-- `AC-R02-09` permanece necessariamente manual: Android, iPhone, navegador
-  interno, navegador padrão e retorno posterior não podem ser inferidos de
-  emulação desktop.
+- a matriz imediata de `AC-R02-09` passou em Android, iPhone, navegador interno
+  e navegador padrão. Permanece somente o retorno em outro dia, que não pode
+  ser inferido de emulação desktop.
 
 ### Escopo, fronteiras e compatibilidade
 
