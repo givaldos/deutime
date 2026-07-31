@@ -825,6 +825,86 @@ continua usando `respond_to_event_as_player`.
   previews Vercel foram aprovados. A confirmação física do CP4 continua
   pendente e não é inferida destas métricas.
 
+## Ready de `WP-R02-04` — CP0
+
+### Resultado demonstrável
+
+O mesmo link personalizado abre com metadata pública limpa, remove a credencial
+antes da jornada, não a envia por `Referer`, cache, analytics ou recursos de
+terceiros e mantém o acesso limitado ao evento em replay, encaminhamento e
+retorno. Android e iPhone devem passar no navegador interno do WhatsApp e no
+navegador padrão, inclusive depois de fechar e reabrir o link.
+
+### Baseline comprovado e lacunas reais
+
+- `/e/{public_id}` já publica canonical e Open Graph somente com a projeção
+  pública mínima, responde `noindex`, `no-referrer` e `private, no-store` e não
+  carrega analytics de terceiros;
+- o bootstrap aceita somente `#c`, limpa o fragmento antes do `POST`
+  same-origin e nunca reflete a credencial no HTML ou em mensagens;
+- `/access` limita corpo e tipo, rejeita origem cruzada, devolve erro genérico e
+  instala cookie `Secure`, `HttpOnly`, `SameSite=Lax` restrito ao evento;
+- pgTAP e Vitest já cobrem replay, concorrência, encaminhamento, revogação,
+  expiração, cross-evento, cross-tenant, sessão verificada e fechamento do
+  evento. O piloto comprovou URL limpa, metadata limpa, logs redigidos,
+  rollback e rearme;
+- o teste físico encontrou somente a ordem tardia do cartão RSVP. A correção
+  foi publicada no PR `#55` e verificada em produção, mas ainda precisa de
+  confirmação no aparelho do operador;
+- falta consolidar a evidência de `AC-R02-04`, `05` e `07`, registrar no
+  checklist do fornecedor que o provedor de WhatsApp vê necessariamente o link
+  personalizado e concluir `AC-R02-08` sem prometer anonimato contra o
+  provedor;
+- `AC-R02-09` permanece necessariamente manual: Android, iPhone, navegador
+  interno, navegador padrão e retorno posterior não podem ser inferidos de
+  emulação desktop.
+
+### Escopo, fronteiras e compatibilidade
+
+- não há migration, tabela, RPC, flag, integração externa ou novo dado para
+  criar neste pacote; os contratos de `WP-R02-01` a `03` permanecem
+  autoritativos;
+- entram somente regressões de metadata/headers/transporte que ainda faltarem,
+  matriz de dispositivos, evidência do fornecedor e correções de experiência
+  encontradas no teste físico;
+- ficam fora automação de envio, template do WhatsApp, webhook, comentário,
+  voto, escalação, geolocalização, fingerprinting e coleta de user agent;
+- nenhuma evidência pode armazenar credencial, cookie, telefone ou identificador
+  de capability. Capturas usam URL limpa e dados demo;
+- app N continua compatível com banco N−1. Falha em metadata, capability ou
+  sessão cai na página pública ou agenda atual, sem escrita implícita;
+- o rollout continua restrito a `Demo Campo`; rollback usa as flags já
+  exercitadas e preserva URL pública e presença registrada.
+
+### Matriz mínima e gates
+
+| Cenário | Evidência automática | Evidência física |
+|---|---|---|
+| primeira abertura | fragmento limpo antes da troca; cookie restrito; nenhuma sessão global | WhatsApp interno em Android e iPhone |
+| retorno pelo endereço limpo | capability ou sessão verificada resolve o mesmo evento | fechar/reabrir no mesmo navegador e repetir em outro dia |
+| abrir no navegador padrão | mesmo contrato de URL, cookie e headers | “Abrir no navegador” em Android e iPhone |
+| link encaminhado/replay | escopo atleta-evento, concorrência e cross-tenant | aparelho novo continua limitado ao evento |
+| metadata/unfurl | canonical/OG limpos, GET sem troca e sem terceiros | preview não revela nome/resposta do atleta |
+| revogação/fechamento | autorização recalculada, resposta somente leitura e fallback | reload perde ação sem perder a página pública |
+
+O gate `VAL-LINK` exige as regressões focadas existentes e o banco completo
+somente se houver mudança em contrato persistido. `VAL-PUBLIC` exige teste da
+rota/metadata, headers, ausência de terceiros e smoke anônimo. A matriz física
+precisa registrar aparelho, sistema, superfície, primeira abertura, retorno e
+resultado, sem copiar o link secreto.
+
+### Evidência do CP0
+
+- `DEC-PERSISTENT-ACCESS`, `DEC-EVENT-PUBLIC-MINIMUM`, `docs/security.md`,
+  bootstrap, Route Handler, headers, metadata e suítes de capability foram
+  confrontados com o estado publicado;
+- resultado, fronteiras, riscos, dados proibidos, fallback, rollout, matriz de
+  dispositivos e perfis `VAL-LINK`/`VAL-PUBLIC` estão fechados;
+- não houve mudança de banco, gates, credenciais ou produção;
+- próxima ação concreta: CP1 documental e de regressão, consolidando a matriz
+  de evidências de `AC-R02-04`, `05`, `07` e `08` e o registro mínimo do
+  fornecedor antes do reteste físico de `AC-R02-09`.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade
