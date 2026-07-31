@@ -1,45 +1,37 @@
 ---
 release: R02
-work_package: WP-R02-04
-scope: risk_metadata_devices
-branch_or_commit: "codex/r02-risk-metadata-contract"
+work_package: hotfix-r02-whatsapp-login
+scope: whatsapp_first_access
+branch_or_commit: "main"
 checkpoint: idle
-status: ready_for_physical_validation
+status: ready_for_deploy
 completed_ac:
-  - "AC-R02-03"
-  - "AC-R02-04"
-  - "AC-R02-05"
-  - "AC-R02-06"
-  - "AC-R02-07"
-  - "AC-R02-08"
+  - "diagnóstico de otp_disabled"
+  - "orientação de primeiro acesso"
 dirty_files:
-  - "app/e/[publicId]/access/route.test.ts"
-  - "app/e/[publicId]/page.test.tsx"
+  - "components/athlete-otp-login-form.tsx"
+  - "lib/auth/athlete-otp-errors.ts"
+  - "lib/auth/athlete-otp-errors.test.ts"
   - "docs/releases/R02-confirmacao-pelo-link.md"
-  - "docs/security.md"
   - "docs/work/current.md"
 tests:
-  - "CP1 — matriz AC-R02-04/05/07/08 consolidada"
-  - "registro Twilio/WhatsApp — DPA, termos específicos, suboperadores, dados e gates mapeados"
-  - "Vitest focado — 4 arquivos/38 testes aprovados"
-  - "npm run typecheck — aprovado"
-  - "npm run verify — lint, typecheck e 25 arquivos/155 testes aprovados; build repetido com rede e aprovado"
+  - "Vitest focado — 1 arquivo/3 testes aprovados"
+  - "npm run verify — lint, typecheck e 26 arquivos/158 testes aprovados; build repetido com rede e aprovado"
 blocker: null
-next_action: "Integrar o CP1 e repetir a matriz física para concluir AC-R02-09."
+next_action: "Publicar a correção e validar em aparelho físico: primeiro acesso pelo cadastro público e login posterior pelo mesmo WhatsApp."
 ---
 
 # Trabalho atual
 
-O CP1 de `WP-R02-04` consolidou a evidência técnica de `AC-R02-04`, `05`, `07`
-e `08`. Duas regressões estreitas tornam explícito que metadata não consulta
-contexto privado e que a troca mantém os headers de isolamento sem refletir a
-credencial recebida.
+O Auth produtivo foi conferido: cadastro global, provedor Phone, Twilio e
+confirmação de telefone estão habilitados. O erro `otp_disabled` observado em
+`/auth/login` corresponde a um telefone que ainda não possui identidade,
+enquanto a tela de login usa `shouldCreateUser: false`.
 
-O registro do fornecedor mapeia Twilio/WhatsApp, conteúdo conhecido, DPA,
-termos específicos, suboperadores, minimização e gates antes de atletas reais.
-O produto deixa explícito que o provedor conhece o link personalizado; remover
-o fragmento protege a jornada posterior, não o envio já realizado.
+A interface agora orienta o primeiro acesso e, quando recebeu
+`next=/t/{slug}/cadastro`, oferece retorno direto para o cadastro público. O
+login não cria usuário novo; `/t/{slug}/cadastro?novo=1` continua responsável
+por cadastrar os dados, confirmar o WhatsApp e preservar o contrato de
+identidade do atleta.
 
-O reteste físico da correção que colocou o RSVP no topo continua necessário
-para `AC-R02-09`. A alteração local do usuário em `docs/roadmap.md` permanece
-separada.
+A alteração local do usuário em `docs/roadmap.md` permanece separada.

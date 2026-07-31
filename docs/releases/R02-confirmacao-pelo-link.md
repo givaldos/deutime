@@ -954,6 +954,26 @@ metadata pública e contexto privado ainda estava implícita.
 - próxima ação concreta: CP2/CP4 de dispositivos, repetindo a matriz física
   após a correção do RSVP no topo para concluir `AC-R02-09`.
 
+### Correção de primeiro acesso pelo WhatsApp
+
+Em 31/07/2026, o erro `otp_disabled` em `/auth/login` foi isolado de
+configuração do provedor: no projeto produtivo, cadastro global, Phone, Twilio
+e confirmação de telefone estavam habilitados. O erro ocorre quando o telefone
+ainda não possui identidade e o login, corretamente, usa
+`shouldCreateUser: false`.
+
+A tela passou a explicar que o número precisa fazer o primeiro acesso pelo
+cadastro público do time. Quando o login nasceu em `/t/{slug}/cadastro`, oferece
+retorno direto às opções de acesso. O login continua sem criar identidades
+silenciosamente; o cadastro público segue como único caminho com
+`shouldCreateUser: true`, coleta dos dados e confirmação do WhatsApp.
+
+O helper possui regressões para número sem identidade, limites, OTP inválido e
+restrição do retorno ao cadastro público. `npm run verify` aprovou lint,
+typecheck e 26 arquivos/158 testes; o build foi repetido com rede apenas para
+obter as fontes do Google e concluiu. A validação física permanece para depois
+do deploy.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade
