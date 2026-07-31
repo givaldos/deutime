@@ -2,9 +2,9 @@
 release: R02
 work_package: WP-R02-04
 scope: risk_metadata_devices
-branch_or_commit: "codex/r02-risk-metadata-ready"
-checkpoint: CP0
-status: ready
+branch_or_commit: "02c92ce"
+checkpoint: idle
+status: ready_for_cp1
 completed_ac:
   - "AC-R02-03"
   - "AC-R02-06"
@@ -14,6 +14,7 @@ dirty_files:
 tests:
   - "CP0 — decisões, segurança, bootstrap, rota, headers, metadata e suítes existentes inventariados"
   - "git diff --check — aprovado"
+  - "PR #56 — CI, CodeQL, Database, dependency review, Terraform, Vercel e smoke aprovados"
 blocker: null
 next_action: "Executar o CP1 de WP-R02-04: consolidar evidências de AC-R02-04/05/07/08, registrar exposição inevitável ao fornecedor e fechar regressões faltantes antes da matriz física."
 ---
