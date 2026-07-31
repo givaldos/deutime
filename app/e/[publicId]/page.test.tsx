@@ -197,6 +197,9 @@ describe("public event route", () => {
 
     const html = renderToStaticMarkup(await PublicEventPage(props()));
 
+    expect(html.indexOf('data-testid="recognized-event-access"')).toBeLessThan(
+      html.indexOf('id="event-date"'),
+    );
     expect(html).toContain("SIM");
     expect(html).toContain("NÃO");
     expect(html).toContain("TALVEZ");

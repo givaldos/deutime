@@ -777,7 +777,13 @@ continua usando `respond_to_event_as_player`.
 - o smoke produtivo somente leitura concluiu sem erro. A validação física da
   credencial final em Android, iPhone, navegador interno do WhatsApp e
   navegador padrão ainda depende da confirmação do operador e impede declarar
-  o CP4 concluído.
+  o CP4 concluído;
+- o primeiro teste em aparelho físico revelou que a confirmação aparecia
+  somente depois dos cartões de data e detalhes, exigindo rolagem. A correção
+  promove o cartão reconhecido — nome, resposta atual e SIM/NÃO/TALVEZ — ao
+  primeiro bloco após o cabeçalho, sem alterar a ordem do fallback anônimo. Um
+  teste de estrutura impede que a confirmação volte a ficar abaixo da data; o
+  ajuste aguarda reteste físico para encerrar o CP4.
 
 ## Preparação operacional de `WP-R02-03` — CP5
 

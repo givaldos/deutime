@@ -186,6 +186,10 @@ export default async function PublicEventPage({
           clearInvalidCookie={access.clearInvalidCookie}
         />
 
+        {access.context ? (
+          <RecognizedEventAccess context={access.context} />
+        ) : null}
+
         <section className="app-surface overflow-hidden" aria-labelledby="event-date">
           <div className="grid grid-cols-[5.25rem_minmax(0,1fr)]">
             <div className="grid place-items-center bg-lime px-3 py-5 text-center text-grass">
@@ -254,9 +258,7 @@ export default async function PublicEventPage({
           </div>
         </section>
 
-        {access.context ? (
-          <RecognizedEventAccess context={access.context} />
-        ) : (
+        {!access.context ? (
           <section className="rounded-[1.5rem] bg-grass p-6 text-white shadow-[0_18px_45px_-28px_rgba(2,20,14,.7)]">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-300">
               Área do atleta
@@ -277,7 +279,7 @@ export default async function PublicEventPage({
               </Link>
             </Button>
           </section>
-        )}
+        ) : null}
 
         <p className="px-3 pt-2 text-center text-xs leading-5 text-slate-500">
           {access.context
@@ -291,7 +293,10 @@ export default async function PublicEventPage({
 
 function RecognizedEventAccess({ context }: { context: EventAccessContext }) {
   return (
-    <section className="rounded-[1.5rem] border border-emerald-200 bg-emerald-50 p-6 shadow-[0_18px_45px_-32px_rgba(2,80,54,.45)]">
+    <section
+      data-testid="recognized-event-access"
+      className="rounded-[1.5rem] border border-emerald-200 bg-emerald-50 p-6 shadow-[0_18px_45px_-32px_rgba(2,80,54,.45)]"
+    >
       <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-800">
         Acesso reconhecido
       </p>
