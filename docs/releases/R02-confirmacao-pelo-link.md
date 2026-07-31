@@ -905,6 +905,55 @@ resultado, sem copiar o link secreto.
   de evidências de `AC-R02-04`, `05`, `07` e `08` e o registro mínimo do
   fornecedor antes do reteste físico de `AC-R02-09`.
 
+## Contrato de `WP-R02-04` — CP1
+
+Nenhum contrato persistido novo foi necessário. Este checkpoint consolidou as
+garantias já publicadas e acrescentou regressões estreitas onde a relação entre
+metadata pública e contexto privado ainda estava implícita.
+
+### Matriz de aceite e evidências
+
+| Critério | Garantia | Evidência |
+|---|---|---|
+| `AC-R02-04` | troca cria capability duradoura restrita ao evento; sessão Supabase verificada resolve o atleta do evento sem novo OTP e não atravessa chamada ou vínculo | `018_event_capability_contract`, `019_verified_event_access`, `event-access.test.ts` e teste da rota pública com aparelho verificado |
+| `AC-R02-05` | cancelamento/fechamento mantém contexto e resposta atuais, mas força `can_respond=false` e oferece a agenda como fallback | `020_event_capability_robustness`, `021_event_capability_rsvp_contract`, testes de `EventAccessAttendance` e da página pública |
+| `AC-R02-07` | replay serializa na credencial, limita sessões e histórico, encaminhamento permanece capability atleta-evento e cross-evento/cross-tenant falha fechado | `018_event_capability_contract`, `020_event_capability_robustness`, `021_event_capability_rsvp_contract` e `event-access.test.ts` |
+| `AC-R02-08` | fragmento é removido antes do POST; canonical/OG nunca consultam contexto privado; endpoint responde sem credencial, `no-store`, `no-referrer`, `nosniff` e cookie restrito; logs e auditoria são redigidos | testes de contrato, metadata, headers, Route Handler, DAL, smoke produtivo e registro do fornecedor em `docs/security.md` |
+
+### Exposição ao fornecedor
+
+- o DPA vigente da Twilio trata corpo, destinatário, logs e demais dados da
+  comunicação como dados do cliente e integra o acordo de uso. LGPD e
+  transferência internacional constam no instrumento;
+- os termos específicos da Twilio submetem WhatsApp Business Platform também
+  aos termos da WhatsApp LLC/Meta, e a lista vigente de suboperadores identifica
+  Meta no canal WhatsApp;
+- Twilio/Meta conhecem necessariamente o link completo enviado, inclusive o
+  fragmento. O produto não promete anonimato contra o canal; minimização,
+  capability estreita, expiração e revogação limitam o impacto depois do envio;
+- `docs/security.md` registra categorias, finalidade, minimização, salvaguardas
+  e gates para sair de dados demo. Antes de atletas reais, o controlador ainda
+  precisa confirmar consentimento/base legal, entidade contratante, retenção,
+  termos vigentes e avisos de suboperadores.
+
+### Regressões e compatibilidade
+
+- metadata agora prova que `generateMetadata` não consulta
+  `getEventAccessContext` e não incorpora nome ou presença privados mesmo se o
+  mock disponibilizar esse contexto;
+- a troca prova explicitamente `Referrer-Policy: no-referrer`,
+  `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` e ausência da
+  credencial de entrada em todos os headers;
+- não houve migration, mudança de RPC, dependência, variável, flag ou payload.
+  App N/banco N−1, fallback público e rollout do piloto permanecem inalterados;
+- Vitest focado aprovou 4 arquivos/38 testes. `npm run verify` aprovou lint,
+  typecheck e 25 arquivos/155 testes; o build foi repetido com rede apenas para
+  obter as fontes do Google e concluiu;
+- `AC-R02-04`, `05`, `07` e `08` ficam concluídos para o escopo demo da R02.
+  O uso com atletas reais continua sujeito aos gates gerais de privacidade;
+- próxima ação concreta: CP2/CP4 de dispositivos, repetindo a matriz física
+  após a correção do RSVP no topo para concluir `AC-R02-09`.
+
 ## Contrato de `WP-R02-01` — CP1
 
 ### Dados e compatibilidade
@@ -1081,11 +1130,11 @@ resultado, sem copiar o link secreto.
 - [x] `AC-R02-01` — URL pública estável não depende do slug mutável do time.
 - [x] `AC-R02-02` — Visitante sem credencial vê somente a projeção pública mínima.
 - [x] `AC-R02-03` — Link válido abre a resposta atual diretamente e pode ser reutilizado até revogação.
-- [ ] `AC-R02-04` — Primeira abertura cria capability duradoura limitada ao evento; aparelho com identidade já verificada mantém a sessão completa sem novo OTP.
-- [ ] `AC-R02-05` — Fechamento bloqueia apenas alteração de presença, não a consulta autorizada.
+- [x] `AC-R02-04` — Primeira abertura cria capability duradoura limitada ao evento; aparelho com identidade já verificada mantém a sessão completa sem novo OTP.
+- [x] `AC-R02-05` — Fechamento bloqueia apenas alteração de presença, não a consulta autorizada.
 - [x] `AC-R02-06` — Revogar aparelho, credencial ou vínculo remove imediatamente as permissões correspondentes.
-- [ ] `AC-R02-07` — Link encaminhado, replay, concorrência e tentativa cross-tenant não criam sessão global nem ampliam o acesso além daquele evento.
-- [ ] `AC-R02-08` — Depois da troca, o segredo não aparece na URL limpa, OG, analytics, logs controlados pela aplicação, histórico desnecessário ou `Referer`; visibilidade inevitável ao provedor é documentada no threat model e no DPA.
+- [x] `AC-R02-07` — Link encaminhado, replay, concorrência e tentativa cross-tenant não criam sessão global nem ampliam o acesso além daquele evento.
+- [x] `AC-R02-08` — Depois da troca, o segredo não aparece na URL limpa, OG, analytics, logs controlados pela aplicação, histórico desnecessário ou `Referer`; visibilidade inevitável ao provedor é documentada no threat model e no DPA.
 - [ ] `AC-R02-09` — Fluxo passa em Android, iPhone, navegador interno e navegador padrão, inclusive retorno em outro dia.
 - [x] `AC-R02-10` — Evento cancelado permanece informativo e não aceita resposta.
 

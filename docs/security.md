@@ -96,6 +96,24 @@ Essa capability não cria identidade; a reivindicação exige OTP no telefone
 verificado pelo Auth, preserva o `athlete_id` e revoga/rotaciona acessos emitidos
 antes da reivindicação. Conflito ou ambiguidade falha de forma fechada.
 
+### Registro do fornecedor no piloto R02
+
+Revisado em 31/07/2026 para o piloto com dados demo:
+
+| Item | Registro e controle |
+|---|---|
+| Canal | WhatsApp Business Platform operado por Twilio; os termos específicos da Twilio também vinculam o uso aos termos aplicáveis da WhatsApp LLC/Meta. |
+| Conteúdo conhecido | destinatário, corpo da mensagem e URL personalizada completa, inclusive a credencial no fragmento. Isso é `Customer Content` para a Twilio e não é anônimo perante Twilio/Meta. |
+| Papel contratual | o [DPA da Twilio](https://www.twilio.com/en-us/legal/data-protection-addendum), incorporado ao acordo de uso, descreve Twilio como operador/suboperador em parte do tratamento e como controlador independente nas finalidades limitadas previstas pelo próprio DPA; ele inclui LGPD e mecanismos de transferência internacional. |
+| Terceiros | a [lista de suboperadores](https://www.twilio.com/en-us/legal/sub-processors) identifica Meta no canal WhatsApp e oferece inscrição para alterações. Os [termos específicos](https://www.twilio.com/en-us/legal/service-country-specific-terms) tratam WhatsApp Business Platform como serviço de terceiro sujeito também aos termos da Meta. |
+| Minimização do MVP | mensagem contém somente texto operacional, URL pública do evento e credencial atleta-evento. Não enviar nascimento, posição, resposta atual, escalação, endereço privado, observação ou outro dado sensível. |
+| Aplicação | o GET, metadata e preview recebem somente a URL pública limpa; a aplicação remove o fragmento antes da jornada, não registra o segredo e permite revogação individual/global. Essas proteções limitam o impacto, mas não apagam a exposição ocorrida no envio. |
+| Piloto e produção real | o piloto permanece restrito a pessoas e dados demo. Antes de usar atletas reais, o responsável pelo tratamento deve confirmar base legal/consentimento, entidade contratante da conta, retenção configurada, termos vigentes e avisos de mudança de suboperadores. |
+
+Este registro documenta o fluxo e as salvaguardas técnicas; não substitui a
+avaliação jurídica do controlador nem permite declarar anonimato contra o
+fornecedor de mensageria.
+
 ## Checklist antes de produção
 
 - [ ] domínio e URLs de callback definitivos configurados;

@@ -88,8 +88,16 @@ describe("public event route", () => {
 
   it("publishes contextual but non-indexable metadata on the canonical URL", async () => {
     mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
+    mocks.getEventAccessContext.mockResolvedValue({
+      context: {
+        athleteDisplayName: "Atleta Privado",
+        attendanceStatus: "confirmed",
+      },
+      clearInvalidCookie: false,
+    });
 
     const metadata = await generateMetadata(props());
+    const serializedMetadata = JSON.stringify(metadata);
 
     expect(metadata.title).toBe("Treino semanal — Society United");
     expect(metadata.alternates).toEqual({ canonical: `/e/${publicId}` });
@@ -102,7 +110,10 @@ describe("public event route", () => {
       follow: false,
       nocache: true,
     });
-    expect(JSON.stringify(metadata)).not.toContain("Pelada do Parque");
+    expect(mocks.getEventAccessContext).not.toHaveBeenCalled();
+    expect(serializedMetadata).not.toContain("Pelada do Parque");
+    expect(serializedMetadata).not.toContain("Atleta Privado");
+    expect(serializedMetadata).not.toContain("confirmed");
   });
 
   it("renders no third-party resource or private event information", async () => {
