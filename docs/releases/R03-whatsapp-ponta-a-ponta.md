@@ -13,6 +13,7 @@ baseline:
 verified_at: "3d0b1b1"
 decisions:
   - DEC-WHATSAPP-PROVIDER
+  - DEC-WHATSAPP-DISPATCH-SAFETY
   - DEC-PERSISTENT-ACCESS
 invariants:
   - INV-MOBILE-WHATSAPP-FIRST
@@ -29,9 +30,10 @@ invariants:
 
 Uma pessoa administradora dispara a chamada de um evento para atletas ativos e
 consentidos. O worker envia um template pelo WhatsApp com o link personalizado,
-retry não duplica mensagens, callbacks atualizam entrega de forma idempotente e
-o atleta responde na página estável da R02. Se a automação falhar ou estiver
-desligada, a diretoria continua copiando e enviando o link manualmente.
+retry seguro não duplica mensagens, callbacks atualizam entrega de forma
+idempotente e o atleta responde na página estável da R02. Se a automação falhar
+ou estiver desligada, a diretoria continua copiando e enviando o link
+manualmente.
 
 ## Três tempos
 
@@ -88,14 +90,68 @@ Twilio Programmable Messaging + Content API atrás de adapter. O domínio conhec
 somente template interno, variáveis validadas, destinatário E.164, chave de
 dedupe e estados normalizados.
 
-A escrita de enqueue e a mudança do evento que a origina devem ser atômicas. O
-worker é o único consumidor com permissão de claim/ack; Actions validam e
-delegam. Callback não recebe autorização de domínio: valida assinatura, resolve
-o Message SID já conhecido e só avança a máquina de estados permitida.
+A criação das intenções e seu registro auditável são atômicos. Se uma mudança de
+domínio futura também originar mensagem, ambos devem compartilhar a mesma
+transação. O worker é o único consumidor com permissão de claim/ack; Actions
+validam e delegam. Callback não recebe autorização de domínio: valida assinatura
+e token opaco e só avança a máquina de estados permitida.
 
 O template inicial não promete entrega nem confirmação e não expõe a resposta
 atual. O link personalizado é conhecido pelo provedor, como registrado no
 threat model; nenhuma credencial entra em log, métrica ou auditoria.
+
+[`DEC-WHATSAPP-DISPATCH-SAFETY`](../decisions/DEC-WHATSAPP-DISPATCH-SAFETY.md)
+fecha o contrato de concorrência. A credencial R02 nasce na preparação
+transacional e só existe em claro na memória do worker. Antes da barreira de
+efeito, retry é automático; depois dela, timeout, queda do worker ou resposta
+incerta exigem reconciliação manual e nunca são reenviados automaticamente.
+Entrega exatamente uma vez não é prometida.
+
+### Contrato CP1 de `WP-R03-01`
+
+#### Intenção e elegibilidade
+
+- `enqueue_event_whatsapp_call` deriva a pessoa e o time da sessão owner/admin;
+- cria uma intenção por atleta ativo do mesmo time, com telefone E.164,
+  consentimento `granted`, chamada futura e prazo aberto;
+- revalida `whatsapp_delivery` e `integration_produce` no servidor;
+- a dedupe key é
+  `whatsapp:event-call:{team}:{event}:{athlete}:{schedule-version}:{template}:{template-version}`;
+- repetição da mesma chamada retorna o item existente; remarcação gera nova
+  versão e não reescreve histórico;
+- `payload` contém somente IDs internos e variáveis mínimas do template. O link,
+  a credencial, a resposta e o endereço privado não são persistidos nele.
+
+#### Claim, preparo e conclusão
+
+| Operação | Pré-condição | Efeito transacional |
+|---|---|---|
+| `claim_notification_batch` | consume ligado; item disponível e sem revisão | lease exclusivo, incremento da tentativa e `processing` |
+| `prepare_whatsapp_dispatch` | lease válido; elegibilidade ainda vigente | emite/rotaciona credencial, grava hash e `effect_started_at`; devolve segredo e token de callback uma vez |
+| `ack_notification_sent` | mesmo lease e SID válido | associa SID uma vez, marca `sent` e concilia callback antecipado |
+| `nack_notification` | mesmo lease e classe conhecida | agenda retry seguro, encerra permanentemente ou exige revisão |
+| `record_notification_callback` | assinatura validada e token opaco válido | acrescenta evento monotônico/idempotente sem ampliar autorização |
+| `recover_expired_notification_leases` | lease vencido | reabre somente se não houve barreira; caso contrário marca revisão |
+
+O retry automático aceita no máximo cinco tentativas, backoff exponencial com
+jitter e nunca ultrapassa o prazo útil do evento. Erro transitório explicitamente
+rejeitado pelo provedor pode ser refeito; erro permanente encerra; timeout ou
+resultado ambíguo após a barreira fica `failed` e `requires_review = true`.
+
+#### Expansão de dados e autorização
+
+- ampliar `notification_outbox` sem alterar `message_status`, adicionando lease,
+  `effect_started_at`, classe de falha, revisão e versão explícita da intenção;
+- criar tentativa e histórico de entrega append-only, além do hash do token de
+  callback; nenhuma tabela armazena o segredo R02 em claro;
+- owner/admin enxerga somente projeção redigida do próprio time; `anon` e
+  `authenticated` não escrevem nas estruturas de entrega;
+- worker e webhook usam RPCs estreitas de servidor; callback exige assinatura
+  Twilio no Route Handler e token opaco na RPC;
+- cancelamento, remarcação, opt-out e remoção cancelam o que ainda não cruzou a
+  barreira. Efeito já iniciado é preservado para conclusão ou reconciliação;
+- expansão nasce inerte. App N e N−1 preservam o compartilhamento manual quando
+  RPC/coluna não existe ou qualquer kill switch está desligado.
 
 ## Entry points
 
@@ -122,10 +178,10 @@ threat model; nenhuma credencial entra em log, métrica ou auditoria.
 ## Critérios de aceite
 
 - [x] `AC-R03-01` — Provedor e fronteira do adapter estão decididos sem acoplar o domínio à Twilio.
-- [ ] `AC-R03-02` — Um comando de chamada nasce atomicamente e possui dedupe estável por evento, atleta e versão do template.
+- [ ] `AC-R03-02` — Um comando de chamada nasce atomicamente e possui dedupe estável por evento, atleta, versão da agenda e versão do template.
 - [ ] `AC-R03-03` — Somente atleta ativo, com telefone e consentimento vigente, entra na outbox do próprio time.
-- [ ] `AC-R03-04` — Claims concorrentes, retry e recuperação não enviam a mesma intenção duas vezes.
-- [ ] `AC-R03-05` — Callback com assinatura válida atualiza somente Message SID conhecido; inválido, repetido, fora de ordem e cross-tenant falham fechado.
+- [ ] `AC-R03-04` — Claims concorrentes não executam a mesma intenção; retry anterior ao efeito é seguro e resultado ambíguo nunca é reenviado automaticamente.
+- [ ] `AC-R03-05` — Callback com assinatura e token válidos atualiza somente a tentativa vinculada; inválido, repetido, fora de ordem e cross-tenant falham fechado.
 - [ ] `AC-R03-06` — Template aprovado contém contexto mínimo e o link personalizado, sem resposta, PII extra ou endereço privado.
 - [ ] `AC-R03-07` — Kill switches de produzir e consumir funcionam independentemente e preservam a distribuição manual.
 - [ ] `AC-R03-08` — Operação observa pendente, aceito, enviado, entregue, lido e falho sem registrar telefone, corpo ou credencial.
@@ -137,6 +193,7 @@ threat model; nenhuma credencial entra em log, métrica ou auditoria.
 | Risco | Controle | Evidência |
 |---|---|---|
 | envio duplicado | dedupe transacional, lease e ack idempotente | concorrência e retry |
+| efeito externo ambíguo | barreira antes do envio, sem retry automático e reconciliação manual | timeout e lease expirado |
 | envio sem consentimento | regra autoritativa no enqueue e revalidação no claim | pgTAP negativo e cross-tenant |
 | callback forjado | validação oficial de `X-Twilio-Signature` | assinatura válida/inválida |
 | callback repetido ou fora de ordem | máquina de estados monotônica e idempotente | replay e reorder |
@@ -183,5 +240,19 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
 - OTP do Supabase e mensagens operacionais permanecem separados;
 - conteúdo mínimo, dados proibidos, fallback, rollout e gates estão definidos;
 - nenhuma migration, chamada ao provedor, template ou flag foi alterada;
-- próxima ação: revisar e integrar a decisão; implementação aguarda a validação
-  temporal final de `AC-R02-09` e o CP1 de `WP-R03-01`.
+- resultado integrado em `e611666`; a continuidade está registrada no CP1 de
+  `WP-R03-01` abaixo.
+
+### `WP-R03-01` — CP1
+
+- contrato de enqueue, dedupe, claim, preparo, ack, nack, callback e recuperação
+  fechado sem depender de nomes ou estados da Twilio;
+- segredo R02 permanece apenas como hash no banco e em claro somente na memória
+  do worker durante uma tentativa;
+- barreira de efeito separa retry seguro de resultado ambíguo; lease expirado
+  depois dela exige revisão manual;
+- permissões, estados, revalidações, concorrência, compatibilidade N/N−1 e
+  cancelamento/remarcação estão definidos;
+- nenhuma migration, chamada externa, template ou flag foi alterada;
+- próxima ação: implementar a expansão forward-only e os pgTAPs de
+  `WP-R03-01`, sem ativar produção ou consumo.

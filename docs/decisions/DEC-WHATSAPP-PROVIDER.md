@@ -64,6 +64,13 @@ Invariantes do contrato:
 - compartilhamento manual permanece utilizável durante piloto, falha, rollback
   ou troca de provedor.
 
+Como a criação de Message da API clássica não documenta uma chave de
+idempotência fornecida pela aplicação, o limite entre retry e efeito ambíguo é
+regido por
+[`DEC-WHATSAPP-DISPATCH-SAFETY`](DEC-WHATSAPP-DISPATCH-SAFETY.md). O DeuTime não
+promete exatamente uma entrega nem reenvia automaticamente depois de iniciar um
+efeito cujo resultado não pôde ser confirmado.
+
 O Sandbox é permitido somente para desenvolvimento e piloto com participantes
 demo. Produção com atletas reais exige sender próprio registrado, WABA/Meta
 Business verificado quando aplicável, template aprovado e callbacks definitivos.
