@@ -10,7 +10,7 @@ baseline:
   - BASE-ATTENDANCE
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "a40cceb"
+verified_at: "codex/r03-whatsapp-callback-operation"
 decisions:
   - DEC-WHATSAPP-PROVIDER
   - DEC-WHATSAPP-DISPATCH-SAFETY
@@ -181,10 +181,10 @@ resultado ambíguo após a barreira fica `failed` e `requires_review = true`.
 - [x] `AC-R03-02` — Um comando de chamada nasce atomicamente e possui dedupe estável por evento, atleta, versão da agenda e versão do template.
 - [x] `AC-R03-03` — Somente atleta ativo, com telefone e consentimento vigente, entra na outbox do próprio time.
 - [x] `AC-R03-04` — Claims concorrentes não executam a mesma intenção; retry anterior ao efeito é seguro e resultado ambíguo nunca é reenviado automaticamente.
-- [ ] `AC-R03-05` — Callback com assinatura e token válidos atualiza somente a tentativa vinculada; inválido, repetido, fora de ordem e cross-tenant falham fechado.
+- [x] `AC-R03-05` — Callback com assinatura e token válidos atualiza somente a tentativa vinculada; inválido, repetido, fora de ordem e cross-tenant falham fechado.
 - [ ] `AC-R03-06` — Template aprovado contém contexto mínimo e o link personalizado, sem resposta, PII extra ou endereço privado.
 - [x] `AC-R03-07` — Kill switches de produzir e consumir funcionam independentemente e preservam a distribuição manual.
-- [ ] `AC-R03-08` — Operação observa pendente, aceito, enviado, entregue, lido e falho sem registrar telefone, corpo ou credencial.
+- [x] `AC-R03-08` — Operação observa pendente, aceito, enviado, entregue, lido e falho sem registrar telefone, corpo ou credencial.
 - [ ] `AC-R03-09` — Sandbox passa com dados demo em Android e iPhone; sender próprio e template ficam aprovados antes de atletas reais.
 - [ ] `AC-R03-10` — Cancelamento, remarcação, opt-out e remoção impedem novos envios incompatíveis sem reescrever histórico.
 
@@ -289,3 +289,30 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
   desligados;
 - próxima ação: implementar `WP-R03-03` com callback assinado, endpoint de
   status e visão operacional redigida antes de expor qualquer modo live.
+
+### `WP-R03-03` — CP3
+
+- `POST /api/integrations/twilio/whatsapp/status` aceita somente formulário
+  URL-encoded de até 16 KiB, exige token opaco único e valida
+  `X-Twilio-Signature` com o SDK oficial contra `APP_URL` e todos os parâmetros;
+- o Route Handler extrai somente Message SID, estado e código numérico,
+  normaliza estados Twilio e delega à RPC server-only já idempotente e
+  monotônica; replay, reorder e SID divergente não alteram a tentativa;
+- respostas válidas não funcionam como oráculo de token: conhecido ou não,
+  recebem `204`, enquanto assinatura, mídia e payload inválidos falham antes da
+  RPC;
+- `list_whatsapp_delivery_operation` permite somente owner/admin do próprio
+  time e devolve estado, tentativas, revisão e código sanitizado, sem telefone,
+  corpo, URL, SID ou token;
+- o pgTAP adiciona 12 casos de grants, projeção redigida, autorização e
+  cross-tenant; o banco recomposto passou em 25 arquivos e 592 testes;
+- 10 testes Vitest focados cobrem assinatura oficial, campos futuros, URL
+  canônica, normalização e limites; `db:lint` mantém apenas o aviso legado em
+  `create_event_as_staff`;
+- lint, typecheck e 186 testes Vitest passaram; o build de produção passou ao
+  repetir com acesso às fontes externas;
+- nenhuma credencial externa foi configurada, nenhum callback real foi
+  processado e o modo live continua sem entrypoint. Flags e controles
+  permanecem desligados;
+- próxima ação: implementar `WP-R03-04`, começando pelo contrato e aprovação do
+  template mínimo no Sandbox antes de habilitar qualquer envio.

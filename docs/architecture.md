@@ -140,8 +140,11 @@ Uma série não é a partida. No MVP, a criação materializa de 2 a 52 ocorrên
 - o executor interno da R03 exige bearer server-only e respeita o controle de
   consumo. Em CP2 ele está fixo em dry-run: reivindica e libera antes da
   barreira, não emite credencial e não instancia o adapter Twilio. O modo live
-  permanece uma capacidade interna sem entrypoint até callback e operação
-  fecharem em CP3.
+  permanece uma capacidade interna sem entrypoint.
+- em CP3, o callback de status usa a URL canônica de `APP_URL`, o SDK oficial
+  para validar `X-Twilio-Signature` sobre todos os campos do formulário e o
+  token opaco para selecionar uma única tentativa. A operação owner/admin lê
+  somente projeção por time, sem telefone, corpo, URL, SID ou credencial.
 
 Os contratos canônicos estão em [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md), [`DEC-EVENT-PUBLIC-MINIMUM`](decisions/DEC-EVENT-PUBLIC-MINIMUM.md) e [`DEC-UNCLAIMED-IDENTITY`](decisions/DEC-UNCLAIMED-IDENTITY.md). A R00 fechou o transporte inicial como fragmento removido e trocado por `POST` same-origin em uma página mínima, antes de terceiros. Os ADRs definem projeção anônima, ameaças, identidade não reivindicada, renovação, limite absoluto, revogação e recuperação; a R02 deve provar o comportamento em Android/iPhone, navegador interno e padrão. “Duradouro” descreve a experiência normal sem login repetido; não significa segredo eterno ou autorização fora da fase do evento.
 
