@@ -22,7 +22,7 @@ describe("configuração do piloto Twilio", () => {
     ).toBeNull();
   });
 
-  it("aceita somente o sender e o perfil pré-aprovado do Sandbox", () => {
+  it("aceita o sender compartilhado com o perfil pré-aprovado do Sandbox", () => {
     expect(parseTwilioPilotConfig(sandboxEnv)).toEqual({
       accountSid: sandboxEnv.TWILIO_ACCOUNT_SID,
       authToken: sandboxEnv.TWILIO_AUTH_TOKEN,
@@ -36,6 +36,15 @@ describe("configuração do piloto Twilio", () => {
         },
       },
     });
+  });
+
+  it("aceita o template customizado de três variáveis dentro da janela ativa", () => {
+    expect(
+      parseTwilioPilotConfig({
+        ...sandboxEnv,
+        TWILIO_TEMPLATE_PROFILE: "event_call_v1",
+      })?.templates["event_call:v1"].profile,
+    ).toBe("event_call_v1");
   });
 
   it("exige time e destinatário explícitos para limitar o efeito", () => {
@@ -59,7 +68,7 @@ describe("configuração do piloto Twilio", () => {
     ).toThrow("Configuração do piloto Sandbox inválida.");
   });
 
-  it("falha fechado com sender próprio ou perfil customizado nesta fase", () => {
+  it("falha fechado com sender próprio ou perfil desconhecido", () => {
     expect(() =>
       parseTwilioPilotConfig({
         ...sandboxEnv,
@@ -69,7 +78,7 @@ describe("configuração do piloto Twilio", () => {
     expect(() =>
       parseTwilioPilotConfig({
         ...sandboxEnv,
-        TWILIO_TEMPLATE_PROFILE: "event_call_v1",
+        TWILIO_TEMPLATE_PROFILE: "template_desconhecido",
       }),
     ).toThrow("Configuração do piloto Sandbox inválida.");
   });

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { TwilioTemplateProfile } from "./whatsapp-template-catalog";
 
 const sandboxSchema = z.object({
   TWILIO_ACCOUNT_SID: z.string().regex(/^AC[A-Fa-f0-9]{32}$/),
@@ -7,7 +8,10 @@ const sandboxSchema = z.object({
   TWILIO_CONTENT_SID_EVENT_CALL_V1: z
     .string()
     .regex(/^HX[A-Fa-f0-9]{32}$/),
-  TWILIO_TEMPLATE_PROFILE: z.literal("sandbox_appointment"),
+  TWILIO_TEMPLATE_PROFILE: z.enum([
+    "sandbox_appointment",
+    "event_call_v1",
+  ] satisfies TwilioTemplateProfile[]),
   WHATSAPP_PILOT_TEAM_ID: z.string().uuid(),
   WHATSAPP_PILOT_RECIPIENT: z.string().regex(/^\+[1-9]\d{7,14}$/),
 });
@@ -21,7 +25,7 @@ export type TwilioPilotConfig = {
   templates: {
     "event_call:v1": {
       contentSid: string;
-      profile: "sandbox_appointment";
+      profile: TwilioTemplateProfile;
     };
   };
 };
