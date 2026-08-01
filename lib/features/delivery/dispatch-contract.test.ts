@@ -50,6 +50,9 @@ describe("contrato de dispatch WhatsApp", () => {
     expect(command.template.variables.event_link).toBe(
       `https://deutime.app/e/${prepared.event_public_id}#c=${prepared.credential_secret}`,
     );
+    expect(command.template.variables.event_media_url).toBe(
+      `https://deutime.app/e/${prepared.event_public_id}/convite.png`,
+    );
     expect(command.callbackUrl).toBe(
       `https://deutime.app/api/integrations/twilio/whatsapp/status/${prepared.attempt_id}`,
     );

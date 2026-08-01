@@ -84,6 +84,7 @@ export async function generateMetadata({
 
   const description = `${publicEventKindLabels[event.kind]} do ${event.team_name} em ${formatPublicEventDate(event.starts_at, event.team_timezone)}, às ${formatPublicEventTime(event.starts_at, event.team_timezone)}.`;
   const canonicalPath = `/e/${event.public_id}`;
+  const imagePath = `${canonicalPath}/convite.png`;
 
   return {
     title: `${event.title} — ${event.team_name}`,
@@ -99,10 +100,10 @@ export async function generateMetadata({
       url: canonicalPath,
       images: [
         {
-          url: "/opengraph-image",
+          url: imagePath,
           width: 1200,
           height: 630,
-          alt: "DeuTime — deu time, deu jogo",
+          alt: `${event.title} — ${event.team_name}`,
         },
       ],
     },
@@ -110,7 +111,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${event.title} — ${event.team_name}`,
       description,
-      images: ["/opengraph-image"],
+      images: [imagePath],
     },
   };
 }

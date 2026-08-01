@@ -7,6 +7,7 @@ const sandboxEnv = {
   TWILIO_AUTH_TOKEN: "token-sandbox-seguro",
   TWILIO_WHATSAPP_FROM: "+14155238886",
   TWILIO_CONTENT_SID_EVENT_CALL_V1: `HX${"b".repeat(32)}`,
+  TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1: `HX${"c".repeat(32)}`,
   TWILIO_TEMPLATE_PROFILE: "sandbox_appointment",
   WHATSAPP_PILOT_TEAM_ID: "11111111-1111-4111-8111-111111111111",
   WHATSAPP_PILOT_RECIPIENT: "+5511992362273",
@@ -43,8 +44,22 @@ describe("configuração do piloto Twilio", () => {
       parseTwilioPilotConfig({
         ...sandboxEnv,
         TWILIO_TEMPLATE_PROFILE: "event_call_v1",
-      })?.templates["event_call:v1"].profile,
+      })?.templates["event_call:v1"]?.profile,
     ).toBe("event_call_v1");
+  });
+
+  it("seleciona Content SID próprio e versão card_v1 para o card", () => {
+    expect(
+      parseTwilioPilotConfig({
+        ...sandboxEnv,
+        TWILIO_TEMPLATE_PROFILE: "event_call_card_v1",
+      })?.templates,
+    ).toEqual({
+      "event_call:card_v1": {
+        contentSid: sandboxEnv.TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1,
+        profile: "event_call_card_v1",
+      },
+    });
   });
 
   it("exige time e destinatário explícitos para limitar o efeito", () => {
@@ -88,6 +103,13 @@ describe("configuração do piloto Twilio", () => {
       parseTwilioPilotConfig({
         ...sandboxEnv,
         TWILIO_CONTENT_SID_EVENT_CALL_V1: "HXcurto",
+      }),
+    ).toThrow("Configuração do piloto Sandbox inválida.");
+    expect(() =>
+      parseTwilioPilotConfig({
+        ...sandboxEnv,
+        TWILIO_TEMPLATE_PROFILE: "event_call_card_v1",
+        TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1: undefined,
       }),
     ).toThrow("Configuração do piloto Sandbox inválida.");
   });

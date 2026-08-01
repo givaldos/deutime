@@ -104,6 +104,11 @@ describe("public event route", () => {
     expect(metadata.openGraph).toMatchObject({
       url: `/e/${publicId}`,
       title: "Treino semanal — Society United",
+      images: [
+        expect.objectContaining({
+          url: `/e/${publicId}/convite.png`,
+        }),
+      ],
     });
     expect(metadata.robots).toMatchObject({
       index: false,

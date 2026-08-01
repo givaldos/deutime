@@ -1,8 +1,8 @@
 ---
 release: R03
 work_package: WP-R03-04
-scope: whatsapp_sandbox_template_profile
-branch_or_commit: "13ff1a5"
+scope: whatsapp_sandbox_card_profile
+branch_or_commit: "codex/r03-whatsapp-card"
 checkpoint: idle
 status: ready_for_review
 completed_ac:
@@ -15,26 +15,25 @@ completed_ac:
   - "AC-R03-08"
 dirty_files: []
 tests:
-  - "16 testes focados aprovados"
-  - "37 arquivos e 209 testes Vitest aprovados"
+  - "37 testes focados aprovados"
+  - "38 arquivos e 215 testes Vitest aprovados"
   - "typecheck aprovado"
   - "lint e build de produção aprovados"
-  - "prova real: accepted > sent > delivered > read"
-  - "PR #72, gates, deploy e smoke aprovados"
-  - "TWILIO_TEMPLATE_PROFILE=event_call_v1 ativo no redeploy de produção"
-blocker: null
-next_action: "Criar uma nova intenção demo e validar as três variáveis em um único envio autorizado."
+  - "29 arquivos e 627 testes pgTAP aprovados"
+  - "integridade das migrations preservada desde af9a248"
+blocker: "Content SID de deutime_event_call_card_v1 ainda não cadastrado."
+next_action: "Criar a Content Resource card+text, registrar o SID, publicar banco antes do app e validar a URL PNG em produção."
 ---
 
 # Trabalho atual
 
-A primeira entrega física nova foi aceita e lida sem ambiguidade. O consumo está
-desligado. O callback por tentativa processou todos os estados e não exige
-revisão.
+A primeira entrega física foi aceita e lida sem ambiguidade. O novo perfil de
+card está implementado de forma inerte e mantém o mesmo callback e a mesma
+barreira contra reenvio ambíguo.
 
-O Content SID customizado e a Vercel agora usam o perfil `event_call_v1`, com
-nome, data e link separados. O redeploy de produção ficou pronto; falta apenas
-uma nova prova física autorizada do conteúdo.
+O card usa nome, data, link e a URL pública `.png` do evento como quarta
+variável. A mesma Content Resource contém fallback `twilio/text`. Ainda faltam
+o Content SID, o rollout banco/app e a prova física no Sandbox.
 
 As alterações locais do usuário em `docs/backlog.md` e `docs/roadmap.md`
 permanecem separadas.
