@@ -11,8 +11,8 @@ O DeuTime é um SaaS multi-time. A mesma pessoa pode administrar vários times, 
 2. **BID do time** — `athletes` é o vínculo entre perfil e time. Cada vínculo nasce pendente e exige aprovação independente do staff; `athlete_private` isola telefone, e-mail, nascimento e observações; `athlete_position_preferences` materializa as posições usadas pelo time. Antes da reivindicação por WhatsApp, owner/admin pode corrigir a identidade provisória; depois dela, nome, foto, privacidade e posições pertencem exclusivamente ao atleta. A vitrine pública inclui somente vínculos ativos cujo atleta consentiu em tornar o perfil público.
 3. **Agenda** — `event_series` descreve uma recorrência e `events` materializa cada ocorrência. Jogos avulsos não precisam de série.
 4. **Presença** — `event_attendance` registra a resposta do atleta para uma ocorrência específica.
-5. **Divisão e escalação** — `event_squads` representa os times de um racha; `lineup_spots` posiciona apenas atletas confirmados no evento.
-6. **Súmula e estatísticas** — `match_reports` mantém placar, resumo e encerramento de uma ocorrência; `match_incidents` atribui gols, assistências e cartões somente a atletas confirmados. Estatísticas são derivadas de partidas encerradas, sem contador paralelo.
+5. **Divisão e escalação** — `event_squads` representa os times planejados de um evento; `lineup_spots` posiciona atletas confirmados, sem transformar RSVP ou escalação em participação real.
+6. **Súmula e estatísticas** — o modelo legado mantém uma `match_report` por evento. Conforme [`DEC-EVENT-MATCH`](decisions/DEC-EVENT-MATCH.md), a expansão R04 preserva o evento como contêiner de zero a muitas partidas, cada uma com dois lados, participação real própria e fatos esportivos append-only. Estatísticas derivam somente de partidas encerradas, sem contador paralelo.
 7. **Comunicação** — `communication_consents` registra opt-in/opt-out e evidência; `notification_outbox` desacopla eventos do domínio do futuro provedor de WhatsApp.
 8. **Auditoria** — `audit_logs` registra mudanças sensíveis de estado sem armazenar o conteúdo completo da PII.
 
@@ -90,11 +90,16 @@ O papel `authenticated` não possui `INSERT` direto em `teams`.
 
 ## Escritas operacionais
 
-As Server Actions validam formato e tamanho, mas a autorização e a atomicidade são impostas novamente no PostgreSQL. RPCs estreitas criam atleta + PII + preferências + chamadas futuras e evento/série + local + chamadas do elenco em uma única transação. A súmula também usa RPCs estreitas: somente staff registra ou corrige lances, o banco exige atleta confirmado e cada alteração gera auditoria. A súmula pode ser preparada antes do horário marcado; apenas seu encerramento exige que a partida tenha começado. O papel autenticado não possui `INSERT` direto nas tabelas centrais desses agregados.
+As Server Actions validam formato e tamanho, mas a autorização e a atomicidade são impostas novamente no PostgreSQL. RPCs estreitas criam atleta + PII + preferências + chamadas futuras e evento/série + local + chamadas do elenco em uma única transação. A súmula também usa RPCs estreitas: somente staff registra ou corrige lances e cada alteração gera auditoria. No modelo R04, autoria interna exige participação real na mesma partida e no mesmo lado; correção após encerramento referencia o fato anterior e exige motivo. A súmula pode ser preparada antes do horário marcado; apenas seu encerramento exige que a partida tenha começado. O papel autenticado não possui `INSERT` direto nas tabelas centrais desses agregados.
 
 Edição e remoção do BID também passam por RPCs estreitas. Um vínculo sem histórico esportivo pode ser apagado fisicamente; havendo presença respondida, escala ou lance histórico, o registro é minimizado e arquivado. O processo remove contato, nascimento, consentimentos, posições e chamadas futuras, desconecta o usuário e preserva somente nome esportivo, camisa e fatos históricos. O perfil global e vínculos em outros times nunca são alterados.
 
 O atleta aprovado lê a súmula pelo RLS do próprio time, sem permissão de escrita. O perfil privado obtém seu agregado autenticado; o perfil público expõe somente contagens derivadas de partidas encerradas quando `is_public = true`.
+
+Vídeo opcional de partida persiste somente provedor allowlisted e identificador
+validado. A aplicação monta o embed; URL ou HTML arbitrários não atravessam essa
+fronteira. Identidade, escalação, participação e autoria permanecem privadas até
+que `DEC-PUBLIC-PRIVACY` defina a projeção consentida.
 
 ## Perfil social e mídia
 

@@ -34,6 +34,7 @@ Alterar uma invariante exige decisão explícita, atualização do roadmap, thre
 - [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md): link personalizado reutilizável cria uma capability duradoura e rotativa limitada ao atleta e evento; uma sessão completa de identidade só nasce de OTP ou de aparelho já verificado e permanece duradoura. Ambos são revogáveis e as permissões são recalculadas por fase e vínculo.
 - [`DEC-EVENT-PUBLIC-MINIMUM`](decisions/DEC-EVENT-PUBLIC-MINIMUM.md): evento usa `public_id` aleatório e imutável em `/e/{public_id}`; o GET anônimo publica somente contexto esportivo mínimo, sem local exato, presença ou identidade de atleta.
 - [`DEC-UNCLAIMED-IDENTITY`](decisions/DEC-UNCLAIMED-IDENTITY.md): atleta administrativo sem `user_id` pode responder por capability limitada ao atleta-evento; somente OTP reivindica a identidade e preserva o mesmo `athlete_id`.
+- [`DEC-EVENT-MATCH`](decisions/DEC-EVENT-MATCH.md): evento permanece como ocorrência e URL estável de zero a muitas partidas; cada partida possui exatamente dois lados, participação real própria e fatos esportivos append-only.
 - `DEC-FIXED-SHIRTS`: camisas têm identidade permanente, enquanto o elenco pode ser redistribuído a cada rodada.
 - `DEC-WHATSAPP-BEFORE-AUTO-SPLIT`: confirmação confiável pelo WhatsApp precede a divisão automática como prioridade de produto.
 - `DEC-PLAYER-EVALUATION`: características não formam ranking, podem ser revisadas pelo atleta e um peso de equilíbrio permanece reservado à diretoria na experiência comum.
@@ -47,7 +48,6 @@ Alterar uma invariante exige decisão explícita, atualização do roadmap, thre
 
 ## Decisões bloqueadoras
 
-- `DEC-EVENT-MATCH` — `open`: definir `evento → partida`, múltiplos confrontos, equipes, escalações, lances e placares antes de R04/R07.
 - `DEC-PUBLIC-PRIVACY` — `open`: definir matriz pública/identificada para nome, foto, escalação, comentários e resultado antes de R04.
 - [`DEC-WHATSAPP-PROVIDER`](decisions/DEC-WHATSAPP-PROVIDER.md) — `accepted`: R03 usa Twilio Programmable Messaging + Content API atrás de adapter provider-neutral; OTP do Supabase permanece separado, Sandbox é somente demo e produção real exige sender próprio, template aprovado e webhook assinado.
 - [`DEC-WHATSAPP-DISPATCH-SAFETY`](decisions/DEC-WHATSAPP-DISPATCH-SAFETY.md) — `accepted`: retry automático termina antes da barreira de efeito; resultado externo ambíguo exige reconciliação manual e credenciais personalizadas nunca são persistidas em claro.
