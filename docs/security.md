@@ -29,7 +29,7 @@ O baseline é OWASP ASVS 5.0 nível 2 e OWASP Top 10. Isso não é uma certifica
 
 ## Cadastro público
 
-O formulário usa duas camadas de validação, campo honeypot, Turnstile validado no servidor, limite de tamanho e resposta genérica antes de solicitar OTP. A conclusão exige sessão autenticada com telefone confirmado e chama `complete_verified_athlete_registration`, que revalida a identidade no banco; não usa a chave secreta da aplicação. Todo cadastro entra como `pending`, invisível no diretório público até aprovação e conforme as flags atuais. A exigência de consentimento específico para BID administrativo não reivindicado permanece uma lacuna de `DEC-PUBLIC-PRIVACY`.
+O formulário usa duas camadas de validação, campo honeypot, Turnstile validado no servidor, limite de tamanho e resposta genérica antes de solicitar OTP. A conclusão exige sessão autenticada com telefone confirmado e chama `complete_verified_athlete_registration`, que revalida a identidade no banco; não usa a chave secreta da aplicação. Todo cadastro entra como `pending`, invisível no diretório público até aprovação e conforme as flags atuais. `DEC-PUBLIC-PRIVACY` decidiu que BID administrativo não reivindicado nunca recebe consentimento por ato do staff; a retirada do controle legado ainda depende da expansão R04.
 
 O Turnstile não substitui rate limiting. Antes de abrir produção, configure limite por IP/slug no firewall da Vercel ou serviço equivalente, com política conservadora e observabilidade de falsos positivos.
 
@@ -48,7 +48,7 @@ O Turnstile não substitui rate limiting. Antes de abrir produção, configure l
 - `INSERT` direto em `athletes`, `athlete_private`, `venues`, `events` e `event_attendance`, além de mutações diretas em atleta/PII/posições, foi removido de `authenticated` para impedir bypass dos workflows;
 - mudanças de status de atleta, evento e presença continuam registradas em `audit_logs` sem copiar PII.
 - transmissão de partida aceita somente provedor allowlisted e identificador validado; URL e HTML de embed arbitrários são rejeitados;
-- a superfície anônima não recebe nome, foto, escalação, participação ou autoria até `DEC-PUBLIC-PRIVACY` definir consentimento e finalidade para cada campo.
+- a superfície anônima recebe identidade, escalação, participação ou autoria somente pela projeção e pelos consentimentos específicos definidos em `DEC-PUBLIC-PRIVACY`; sem ambos, o fato permanece anônimo por lado.
 
 ## LGPD e privacidade
 
@@ -60,6 +60,25 @@ O Turnstile não substitui rate limiting. Antes de abrir produção, configure l
 - formalizar DPA com fornecedores e mapear transferência internacional;
 - não usar telefone para WhatsApp sem consentimento válido ou outra base legal revisada;
 - usar `privacy_notes` apenas para informação operacional estritamente necessária, nunca dados sensíveis sem avaliação jurídica.
+
+### Projeções esportivas públicas
+
+[`DEC-PUBLIC-PRIVACY`](decisions/DEC-PUBLIC-PRIVACY.md) separa público anônimo,
+capability pessoal, atleta autenticado e staff. Evento público não torna atleta
+público: placar e fatos por lado podem ser anônimos, mas escalação, participação
+e autoria exigem consentimento próprio, específico, versionado e revogável. Foto
+e link de perfil exigem também consentimento de perfil.
+
+- staff não concede consentimento pelo atleta e o legado
+  `athletes.public_profile` deixa de autorizar pessoa não reivindicada;
+- capability encaminhada não revela terceiros, lineup privado ou contato;
+- RSVP, ausência, pendência, lista de espera, contato, nascimento, observação,
+  capability e cédula individual nunca entram na projeção anônima;
+- comentário permanece identificado apenas para a conversa privada autorizada;
+- menor de 18 anos ou idade não confirmada não ativa superfície pessoal pública
+  no MVP, que ainda não possui fluxo de responsável;
+- revogação invalida a projeção e suas URLs assinadas sem reescrever a súmula
+  interna; cache privado usa `no-store` e Open Graph nunca varia por pessoa.
 
 ## Credencial reutilizável e sessão duradoura
 

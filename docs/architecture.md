@@ -98,8 +98,18 @@ O atleta aprovado lê a súmula pelo RLS do próprio time, sem permissão de esc
 
 Vídeo opcional de partida persiste somente provedor allowlisted e identificador
 validado. A aplicação monta o embed; URL ou HTML arbitrários não atravessam essa
-fronteira. Identidade, escalação, participação e autoria permanecem privadas até
-que `DEC-PUBLIC-PRIVACY` defina a projeção consentida.
+fronteira. Identidade, escalação, participação e autoria permanecem privadas
+quando a projeção ou os consentimentos de `DEC-PUBLIC-PRIVACY` não autorizarem
+explicitamente cada campo.
+
+Conforme [`DEC-PUBLIC-PRIVACY`](decisions/DEC-PUBLIC-PRIVACY.md), a partida
+possui modo público próprio, privado por padrão. A projeção anônima pode expor
+lados, placar e fatos sem autoria; nome esportivo e atividade da pessoa exigem
+consentimento específico e versionado, enquanto foto, bio e link exigem também
+consentimento de perfil. Capability R02 mostra somente dados do próprio titular
+e não substitui vínculo autenticado para ler terceiros. O booleano legado
+`athletes.public_profile` não autoriza atleta não reivindicado e será contraído
+após a expansão compatível.
 
 ## Perfil social e mídia
 
