@@ -8,12 +8,16 @@ const sandboxSchema = z.object({
     .string()
     .regex(/^HX[A-Fa-f0-9]{32}$/),
   TWILIO_TEMPLATE_PROFILE: z.literal("sandbox_appointment"),
+  WHATSAPP_PILOT_TEAM_ID: z.string().uuid(),
+  WHATSAPP_PILOT_RECIPIENT: z.string().regex(/^\+[1-9]\d{7,14}$/),
 });
 
 export type TwilioPilotConfig = {
   accountSid: string;
   authToken: string;
   from: string;
+  pilotTeamId: string;
+  pilotRecipient: string;
   templates: {
     "event_call:v1": {
       contentSid: string;
@@ -36,6 +40,8 @@ export function parseTwilioPilotConfig(
     accountSid: parsed.data.TWILIO_ACCOUNT_SID,
     authToken: parsed.data.TWILIO_AUTH_TOKEN,
     from: parsed.data.TWILIO_WHATSAPP_FROM,
+    pilotTeamId: parsed.data.WHATSAPP_PILOT_TEAM_ID,
+    pilotRecipient: parsed.data.WHATSAPP_PILOT_RECIPIENT,
     templates: {
       "event_call:v1": {
         contentSid: parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_V1,

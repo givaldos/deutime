@@ -1846,6 +1846,19 @@ export type Database = {
           outbox_id: string
         }[]
       }
+      claim_notification_for_sandbox_pilot: {
+        Args: {
+          requested_lease_seconds?: number
+          requested_outbox_id: string
+          requested_recipient: string
+          requested_team_id: string
+        }
+        Returns: {
+          attempt_number: number
+          lease_token: string
+          outbox_id: string
+        }[]
+      }
       complete_verified_athlete_registration: {
         Args: {
           accepts_privacy_terms: boolean

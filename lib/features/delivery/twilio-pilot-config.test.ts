@@ -8,6 +8,8 @@ const sandboxEnv = {
   TWILIO_WHATSAPP_FROM: "+14155238886",
   TWILIO_CONTENT_SID_EVENT_CALL_V1: `HX${"b".repeat(32)}`,
   TWILIO_TEMPLATE_PROFILE: "sandbox_appointment",
+  WHATSAPP_PILOT_TEAM_ID: "11111111-1111-4111-8111-111111111111",
+  WHATSAPP_PILOT_RECIPIENT: "+5511992362273",
 };
 
 describe("configuração do piloto Twilio", () => {
@@ -25,6 +27,8 @@ describe("configuração do piloto Twilio", () => {
       accountSid: sandboxEnv.TWILIO_ACCOUNT_SID,
       authToken: sandboxEnv.TWILIO_AUTH_TOKEN,
       from: "+14155238886",
+      pilotTeamId: sandboxEnv.WHATSAPP_PILOT_TEAM_ID,
+      pilotRecipient: sandboxEnv.WHATSAPP_PILOT_RECIPIENT,
       templates: {
         "event_call:v1": {
           contentSid: sandboxEnv.TWILIO_CONTENT_SID_EVENT_CALL_V1,
@@ -32,6 +36,27 @@ describe("configuração do piloto Twilio", () => {
         },
       },
     });
+  });
+
+  it("exige time e destinatário explícitos para limitar o efeito", () => {
+    expect(() =>
+      parseTwilioPilotConfig({
+        ...sandboxEnv,
+        WHATSAPP_PILOT_TEAM_ID: "outro-time",
+      }),
+    ).toThrow("Configuração do piloto Sandbox inválida.");
+    expect(() =>
+      parseTwilioPilotConfig({
+        ...sandboxEnv,
+        WHATSAPP_PILOT_RECIPIENT: "+5511000000000",
+      }),
+    ).not.toThrow();
+    expect(() =>
+      parseTwilioPilotConfig({
+        ...sandboxEnv,
+        WHATSAPP_PILOT_RECIPIENT: "5511992362273",
+      }),
+    ).toThrow("Configuração do piloto Sandbox inválida.");
   });
 
   it("falha fechado com sender próprio ou perfil customizado nesta fase", () => {

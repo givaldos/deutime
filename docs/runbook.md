@@ -215,11 +215,96 @@ Antes do primeiro envio, confirme:
 6. existe uma janela acompanhada para interromper consumo, preservar outbox e
    voltar ao compartilhamento manual.
 
-O parser de configuração aceita exclusivamente o número compartilhado e o
-perfil do Sandbox. Nesta fatia, isso não cria um entrypoint live: qualquer
+O parser de configuração aceita exclusivamente o número compartilhado, o
+perfil do Sandbox, um time UUID e um destinatário E.164 allowlisted. Qualquer
 credencial ausente/inválida falha fechado, e `WHATSAPP_PILOT_MODE=off` mantém a
-integração inerte. O próximo gate deve adicionar uma execução limitada a uma
-única intenção demo antes de ligar qualquer controle global.
+integração inerte.
+
+O entrypoint `POST /api/internal/whatsapp/pilot` exige o mesmo bearer forte do
+worker, JSON estrito com uma única `outboxId`, configuração `sandbox` válida e
+`integration_consume` ativo. A RPC confere novamente outbox, time,
+destinatário, template `event_call:v1`, flag do time, lease e barreira de
+efeito. Ela nunca procura o próximo item da fila e não executa recovery global.
+
+Antes do envio, identifique no SQL Editor um único candidato demo e confirme
+que o telefone é exatamente o allowlisted na Vercel:
+
+```sql
+select
+  team.id as team_id,
+  event.id as event_id,
+  athlete.id as athlete_id,
+  athlete_private.phone_e164,
+  membership.user_id as operator_id
+from public.teams team
+join public.events event on event.team_id = team.id
+join public.event_attendance attendance on attendance.event_id = event.id
+join public.athletes athlete
+  on athlete.id = attendance.athlete_id
+  and athlete.team_id = team.id
+join public.athlete_private athlete_private
+  on athlete_private.athlete_id = athlete.id
+join public.communication_consents consent
+  on consent.athlete_id = athlete.id
+  and consent.team_id = team.id
+  and consent.channel = 'whatsapp'
+  and consent.status = 'granted'
+join public.team_memberships membership
+  on membership.team_id = team.id
+  and membership.status = 'active'
+  and membership.role in ('owner', 'admin')
+where team.id = '<WHATSAPP_PILOT_TEAM_ID>'::uuid
+  and athlete_private.phone_e164 = '<WHATSAPP_PILOT_RECIPIENT>'
+  and athlete.status = 'active'
+  and event.status = 'scheduled'
+  and event.starts_at > now()
+order by event.starts_at
+limit 1;
+```
+
+Com resultado único revisado, habilite produção somente para enfileirar e
+desligue-a antes do consumo:
+
+```sql
+select public.set_runtime_control('integration_produce', true);
+
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '<OPERATOR_ID>', true);
+select public.set_team_feature_flag(
+  '<WHATSAPP_PILOT_TEAM_ID>'::uuid,
+  'whatsapp_delivery',
+  true
+);
+select * from public.enqueue_event_whatsapp_call(
+  '<EVENT_ID>'::uuid,
+  'event_call',
+  'v1'
+);
+commit;
+
+select public.set_runtime_control('integration_produce', false);
+```
+
+Não prossiga se o enqueue retornar mais de uma linha. Para o efeito único,
+ligue consumo, chame o endpoint e desligue consumo imediatamente:
+
+```bash
+curl --fail-with-body \
+  -X POST 'https://deutime.app/api/internal/whatsapp/pilot' \
+  -H 'Authorization: Bearer <WHATSAPP_WORKER_SECRET>' \
+  -H 'Content-Type: application/json' \
+  --data '{"outboxId":"<OUTBOX_ID>"}'
+```
+
+```sql
+select public.set_runtime_control('integration_consume', false);
+```
+
+Se o endpoint não retornar `claimed=1` e `accepted=1`, não repita o envio:
+consulte `list_whatsapp_delivery_operation`, preserve a tentativa e trate como
+reconciliação manual. Depois da prova, desligue a flag do time e volte
+`WHATSAPP_PILOT_MODE` para `off` na Vercel.
 
 Registre separadamente Android e iPhone: horário exibido, abertura no navegador
 interno, URL removida após a troca, RSVP, `accepted/sent/delivered/read` quando
