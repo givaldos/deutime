@@ -221,6 +221,8 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
 - `integration_produce` e `integration_consume` permanecem desligados até o
   piloto;
 - piloto: somente `Demo Campo` e participantes do Sandbox;
+- o executor unitário tolera até 3 s para consultar o kill switch no Supabase,
+  permanecendo fail-closed em timeout ou erro;
 - telemetria: enqueue, claim, tentativa, aceito, enviado, entregue, lido, falho,
   dead letter e tempo até RSVP;
 - fallback: copiar e compartilhar manualmente o link da R02;

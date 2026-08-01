@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 
 const bodySchema = z.object({ outboxId: z.string().uuid() }).strict();
 const BODY_LIMIT = 1024;
+const CONTROL_LOOKUP_TIMEOUT_MS = 3_000;
 
 export async function POST(request: NextRequest) {
   if (
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
   }
   if (!config) return response({ status: "piloto desligado" }, 409);
 
-  if (!(await isExternalCommandConsumptionEnabled())) {
+  if (!(await isExternalCommandConsumptionEnabled(CONTROL_LOOKUP_TIMEOUT_MS))) {
     return response({ status: "consumo desligado" }, 409);
   }
 
