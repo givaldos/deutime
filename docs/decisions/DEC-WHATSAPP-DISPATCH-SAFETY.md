@@ -39,8 +39,8 @@ mas a fronteira externa é protegida por uma barreira explícita.
    concorrentes não recebem a mesma intenção;
 3. `prepare_whatsapp_dispatch` revalida autorização, time, vínculo, telefone,
    consentimento, evento, prazo e kill switches. Na mesma transação, emite ou
-   rotaciona a credencial R02, cria um token opaco de callback e grava
-   `effect_started_at`;
+   rotaciona a credencial R02, cria a tentativa com UUID aleatório, conserva um
+   token opaco para compatibilidade e grava `effect_started_at`;
 4. somente depois dessa marca o worker pode chamar o adapter. O segredo da
    credencial e o token do callback são devolvidos uma vez ao processo e nunca
    persistidos em texto puro;
@@ -66,12 +66,14 @@ parâmetros podem ser reduzidos por operação sem mudar o contrato.
 - a credencial personalizada não entra em `payload`, `recipient`, tentativa,
   callback, log, métrica ou auditoria; no banco permanece somente o hash previsto
   pela R02;
-- o token de callback também é persistido somente como hash e vinculado à
-  tentativa. A URL do callback carrega a parte opaca, sem expor `outbox_id`;
-- o Route Handler valida `X-Twilio-Signature` antes de delegar. A RPC exige ainda
-  o token de callback e aceita replay de forma idempotente;
-- callbacks podem chegar antes do ack do worker porque são resolvidos pelo token,
-  e não dependem de o Message SID já estar persistido;
+- o callback novo carrega somente o UUID aleatório e não secreto da tentativa no
+  caminho. O token legado permanece persistido apenas como hash para callbacks
+  já emitidos; nenhuma URL nova transporta segredo ou expõe `outbox_id`;
+- o Route Handler valida `X-Twilio-Signature` contra a URL canônica antes de
+  delegar. A RPC por tentativa é exclusiva de `service_role` e aceita replay de
+  forma idempotente; conhecer o UUID não autoriza uma escrita sem a assinatura;
+- callbacks podem chegar antes do ack do worker porque a tentativa já existe ao
+  cruzar a barreira e não depende de o Message SID ter sido persistido;
 - tentativas e eventos de entrega guardam somente IDs internos, estado
   normalizado, código de erro sanitizado e timestamps. Telefone, corpo e segredo
   ficam fora da telemetria;

@@ -2134,6 +2134,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      record_notification_callback_by_attempt_id: {
+        Args: {
+          requested_attempt_id: string
+          requested_delivery_status: string
+          requested_error_code?: string
+          requested_provider_message_id: string
+        }
+        Returns: boolean
+      }
       recover_expired_notification_leases: {
         Args: never
         Returns: {

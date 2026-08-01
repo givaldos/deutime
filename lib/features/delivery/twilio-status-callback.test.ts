@@ -2,6 +2,7 @@ import twilio from "twilio";
 import { describe, expect, it } from "vitest";
 import {
   normalizeTwilioStatusCallback,
+  parseCallbackAttemptId,
   parseCallbackToken,
   parseTwilioForm,
   validateTwilioSignature,
@@ -45,6 +46,13 @@ describe("callback de status da Twilio", () => {
     expect(parseCallbackToken(new URL(callbackUrl).searchParams)).toBe(token);
     expect(parseCallbackToken(new URL(`${callbackUrl}&debug=1`).searchParams)).toBeNull();
     expect(parseCallbackToken(new URL("https://deutime.app?t=curto").searchParams)).toBeNull();
+  });
+
+  it("aceita somente UUID como correlação não secreta da tentativa", () => {
+    expect(parseCallbackAttemptId("11111111-1111-4111-8111-111111111111")).toBe(
+      "11111111-1111-4111-8111-111111111111",
+    );
+    expect(parseCallbackAttemptId("../segredo")).toBeNull();
   });
 
   it("normaliza estados e somente códigos de erro seguros", () => {

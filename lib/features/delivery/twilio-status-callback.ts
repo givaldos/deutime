@@ -19,6 +19,7 @@ export type NormalizedTwilioStatusCallback = {
 };
 
 const callbackTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
+const callbackAttemptIdSchema = z.string().uuid();
 const providerMessageIdSchema = z
   .string()
   .regex(/^(?:SM|MM)[0-9A-Fa-f]{32}$/);
@@ -73,6 +74,11 @@ export function parseCallbackToken(searchParams: URLSearchParams) {
   const entries = Array.from(searchParams.entries());
   if (entries.length !== 1 || entries[0]?.[0] !== "t") return null;
   const parsed = callbackTokenSchema.safeParse(entries[0][1]);
+  return parsed.success ? parsed.data : null;
+}
+
+export function parseCallbackAttemptId(value: string) {
+  const parsed = callbackAttemptIdSchema.safeParse(value);
   return parsed.success ? parsed.data : null;
 }
 

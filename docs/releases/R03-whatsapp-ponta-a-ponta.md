@@ -93,8 +93,9 @@ dedupe e estados normalizados.
 A criação das intenções e seu registro auditável são atômicos. Se uma mudança de
 domínio futura também originar mensagem, ambos devem compartilhar a mesma
 transação. O worker é o único consumidor com permissão de claim/ack; Actions
-validam e delegam. Callback não recebe autorização de domínio: valida assinatura
-e token opaco e só avança a máquina de estados permitida.
+validam e delegam. Callback não recebe autorização de domínio: valida a
+assinatura, correlaciona uma tentativa já criada e só avança a máquina de
+estados permitida.
 
 O template inicial não promete entrega nem confirmação e não expõe a resposta
 atual. O link personalizado é conhecido pelo provedor, como registrado no
@@ -130,7 +131,7 @@ Entrega exatamente uma vez não é prometida.
 | `prepare_whatsapp_dispatch` | lease válido; elegibilidade ainda vigente | emite/rotaciona credencial, grava hash e `effect_started_at`; devolve segredo e token de callback uma vez |
 | `ack_notification_sent` | mesmo lease e SID válido | associa SID uma vez, marca `sent` e concilia callback antecipado |
 | `nack_notification` | mesmo lease e classe conhecida | agenda retry seguro, encerra permanentemente ou exige revisão |
-| `record_notification_callback` | assinatura validada e token opaco válido | acrescenta evento monotônico/idempotente sem ampliar autorização |
+| `record_notification_callback_by_attempt_id` | assinatura validada e UUID de tentativa válido | acrescenta evento monotônico/idempotente sem ampliar autorização |
 | `recover_expired_notification_leases` | lease vencido | reabre somente se não houve barreira; caso contrário marca revisão |
 
 O retry automático aceita no máximo cinco tentativas, backoff exponencial com
@@ -147,7 +148,8 @@ resultado ambíguo após a barreira fica `failed` e `requires_review = true`.
 - owner/admin enxerga somente projeção redigida do próprio time; `anon` e
   `authenticated` não escrevem nas estruturas de entrega;
 - worker e webhook usam RPCs estreitas de servidor; callback exige assinatura
-  Twilio no Route Handler e token opaco na RPC;
+  Twilio no Route Handler e correlaciona um UUID não secreto já criado. O
+  contrato por token opaco permanece somente para URLs legadas;
 - cancelamento, remarcação, opt-out e remoção cancelam o que ainda não cruzou a
   barreira. Efeito já iniciado é preservado para conclusão ou reconciliação;
 - expansão nasce inerte. App N e N−1 preservam o compartilhamento manual quando
@@ -225,6 +227,10 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
   permanecendo fail-closed em timeout ou erro;
 - adapter e callback aceitam os Message SIDs oficiais `SM` e `MM`, ambos com
   32 dígitos hexadecimais;
+- callbacks novos usam o UUID não secreto da tentativa no caminho, pois o
+  Sandbox não preservou a query no replay operacional. A assinatura oficial e
+  a URL canônica continuam obrigatórias; o endpoint por token permanece
+  compatível com mensagens já emitidas;
 - telemetria: enqueue, claim, tentativa, aceito, enviado, entregue, lido, falho,
   dead letter e tempo até RSVP;
 - fallback: copiar e compartilhar manualmente o link da R02;
@@ -372,3 +378,23 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
 - próxima ação: configurar os segredos diretamente na Vercel, selecionar um
   único evento/atleta demo, enfileirar uma intenção e executar a prova física
   acompanhada, desligando consumo imediatamente depois.
+
+### `WP-R03-04` — CP5a, correlação real do callback
+
+- a primeira tentativa real foi preservada como ambígua e não será reenviada;
+  a Twilio aceitou SID `MM`, mas o replay operacional chegou sem a query usada
+  para correlação;
+- callbacks novos carregam o UUID aleatório e não secreto da tentativa no
+  caminho. O Route Handler ainda valida a assinatura oficial contra `APP_URL`
+  e todos os campos antes de chamar a RPC exclusiva de `service_role`;
+- `record_notification_callback_by_attempt_id` mantém replay idempotente,
+  ordem monotônica, callback anterior ao ack e falha fechada para tentativa ou
+  SID divergente. O endpoint anterior continua ativo para mensagens emitidas;
+- a migration forward-only `202608010004` adiciona somente a nova RPC; nenhum
+  enum, dado histórico, flag ou controle foi alterado;
+- 19 testes Vitest focados passaram; o banco local foi recomposto e 28 arquivos
+  com 621 pgTAPs passaram. O lint de banco mantém apenas o aviso legado em
+  `create_event_as_staff`;
+- próxima ação: publicar banco antes do app, executar um único envio novo dentro
+  da janela de 24 horas e confirmar `accepted/delivered/read` sem reutilizar a
+  outbox ambígua.
