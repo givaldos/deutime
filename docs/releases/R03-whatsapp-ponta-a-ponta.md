@@ -189,7 +189,7 @@ resultado ambíguo após a barreira fica `failed` e `requires_review = true`.
 - [x] `AC-R03-07` — Kill switches de produzir e consumir funcionam independentemente e preservam a distribuição manual.
 - [x] `AC-R03-08` — Operação observa pendente, aceito, enviado, entregue, lido e falho sem registrar telefone, corpo ou credencial.
 - [ ] `AC-R03-09` — Sandbox passa com dados demo em Android e iPhone; sender próprio e template ficam aprovados antes de atletas reais.
-- [ ] `AC-R03-10` — Cancelamento, remarcação, opt-out e remoção impedem novos envios incompatíveis sem reescrever histórico.
+- [x] `AC-R03-10` — Cancelamento, remarcação, opt-out e remoção impedem novos envios incompatíveis sem reescrever histórico.
 
 ## Riscos e controles
 
@@ -454,3 +454,28 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
   quando o número oficial for validado;
 - próxima ação: após homologar o número oficial, recriar a Content Resource,
   registrar o novo SID server-only e executar um único envio físico.
+
+### `WP-R03-04` — CP5d, remoção sem apagar entrega
+
+- a auditoria de `AC-R03-10` confirmou que cancelamento e remarcação avançam a
+  versão autoritativa, enquanto o preparo revalida evento, versão, consentimento
+  e vínculo ativo antes da barreira; o opt-out já possuía prova negativa;
+- foi corrigida uma lacuna na remoção de atleta: o fluxo anterior apagava a
+  outbox e, por cascata, tentativas e eventos do provedor;
+- a migration forward-only
+  `202608010006_preserve_delivery_history_on_athlete_removal.sql` transforma a
+  existência de entrega em histórico do vínculo. Intenções pendentes, falhas
+  recuperáveis e claims anteriores ao efeito são cancelados com leases limpos;
+  efeitos iniciados, envios concluídos, tentativas e callbacks são preservados;
+- a remoção continua apagando participação futura, consentimento e dados
+  privados correntes. Vínculo sem qualquer histórico continua elegível para
+  exclusão física;
+- 15 casos pgTAP novos cobrem arquivamento, cancelamento seguro, barreira,
+  tentativas/eventos, dados correntes e compatibilidade da exclusão física. Os
+  quatro contratos focados passaram em 131 casos; o banco completo passou em
+  30 arquivos e 642 casos;
+- integridade das migrations, lint de banco, tipos, lint, typecheck, 215 testes
+  Vitest, build e auditoria de dependências passaram. O lint de banco mantém
+  somente o aviso legado de variável sombreada em `create_event_as_staff`;
+- `AC-R03-10` está concluído. A continuidade de R03 permanece dependente da
+  homologação do número oficial para recriar e aprovar o template card.
