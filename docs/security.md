@@ -110,7 +110,7 @@ Revisado em 31/07/2026 para o piloto com dados demo:
 | Aplicação | o GET, metadata e preview recebem somente a URL pública limpa; a aplicação remove o fragmento antes da jornada, não registra o segredo e permite revogação individual/global. Essas proteções limitam o impacto, mas não apagam a exposição ocorrida no envio. |
 | Worker e outbox | conforme [`DEC-WHATSAPP-DISPATCH-SAFETY`](decisions/DEC-WHATSAPP-DISPATCH-SAFETY.md), a outbox não contém a credencial. Uma RPC a emite na preparação e persiste somente o hash; o valor em claro vive apenas na memória do worker. Após a barreira de efeito, timeout ou queda não provoca reenvio automático. |
 | Executor interno | aceita somente `POST` com bearer aleatório server-only de no mínimo 32 caracteres, resposta `no-store` e `integration_consume` ativo. O entrypoint publicado em CP2 chama apenas dry-run; libera o lease antes da barreira e não recebe configuração Twilio. |
-| Callback | Route Handler valida `X-Twilio-Signature`; a RPC exige também token opaco persistido somente como hash. Telemetria guarda SID, estado, código sanitizado e timestamps, nunca telefone, corpo ou URL personalizada. |
+| Callback | Route Handler valida `X-Twilio-Signature` com o SDK oficial, URL canônica e todos os campos do formulário; a RPC exige também token opaco persistido somente como hash. A projeção operacional guarda estado, código sanitizado e timestamps, nunca telefone, corpo, URL, SID ou credencial. |
 | Piloto e produção real | o piloto permanece restrito a pessoas e dados demo. Antes de usar atletas reais, o responsável pelo tratamento deve confirmar base legal/consentimento, entidade contratante da conta, retenção configurada, termos vigentes e avisos de mudança de suboperadores. |
 
 Na R03, callbacks de status e entrada aceitam somente `POST` com
@@ -119,6 +119,11 @@ exata. Message SID e estado normalizado podem ser persistidos; Auth Token,
 telefone, corpo completo e link personalizado não entram em logs ou auditoria.
 O Sandbox continua proibido para atletas reais e não substitui sender próprio
 nem template aprovado.
+
+O endpoint implementado em CP3 limita o corpo a 16 KiB, aceita somente
+`application/x-www-form-urlencoded` e não confia no header `Host` para
+reconstruir a URL assinada. `TWILIO_AUTH_TOKEN` é server-only; quando ausente o
+webhook responde indisponível, e o modo live do worker continua inacessível.
 
 Este registro documenta o fluxo e as salvaguardas técnicas; não substitui a
 avaliação jurídica do controlador nem permite declarar anonimato contra o

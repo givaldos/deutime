@@ -78,6 +78,25 @@ export function createSupabaseDeliveryRepository(
   };
 }
 
+export async function recordNotificationCallback(
+  input: {
+    callbackToken: string;
+    providerMessageId: string;
+    deliveryStatus: string;
+    errorCode: string | null;
+  },
+  client: Client = createPrivilegedClient(),
+) {
+  const { data, error } = await client.rpc("record_notification_callback", {
+    requested_callback_token: input.callbackToken,
+    requested_provider_message_id: input.providerMessageId,
+    requested_delivery_status: input.deliveryStatus,
+    requested_error_code: input.errorCode ?? undefined,
+  });
+  if (error) throw operationFailed("callback");
+  return data === true;
+}
+
 function operationFailed(operation: string) {
   return new Error(`Operação de delivery indisponível: ${operation}.`);
 }

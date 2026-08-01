@@ -2073,6 +2073,22 @@ export type Database = {
           team_slug: string
         }[]
       }
+      list_whatsapp_delivery_operation: {
+        Args: { requested_limit?: number; requested_team_id: string }
+        Returns: {
+          athlete_id: string
+          attempts: number
+          created_at: string
+          delivery_status: string
+          event_id: string
+          failure_class: string
+          outbox_id: string
+          outbox_status: Database["public"]["Enums"]["message_status"]
+          provider_error_code: string
+          requires_review: boolean
+          updated_at: string
+        }[]
+      }
       nack_notification: {
         Args: {
           requested_attempt_id: string
