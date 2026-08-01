@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- next/og renderiza o ativo oficial por meio de img. */
 import { getPublicEvent, type PublicEvent } from "@/lib/data/public-event";
 import {
   formatPublicEventDate,
@@ -23,26 +24,39 @@ type InviteImageRouteContext = {
 };
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: InviteImageRouteContext,
 ) {
   const { publicId } = await context.params;
   const event = isPublicEventId(publicId)
     ? await getPublicEvent(publicId).catch(() => null)
     : null;
+  const brandLogoUrl = new URL(
+    "/brand/logo-deutime-email-640-fundo-escuro.png",
+    request.url,
+  ).toString();
 
-  return new ImageResponse(<InviteImage event={event} />, {
-    width: 1200,
-    height: 630,
-    headers: imageHeaders,
-  });
+  return new ImageResponse(
+    <InviteImage event={event} brandLogoUrl={brandLogoUrl} />,
+    {
+      width: 1200,
+      height: 630,
+      headers: imageHeaders,
+    },
+  );
 }
 
 export async function HEAD() {
   return new Response(null, { status: 200, headers: imageHeaders });
 }
 
-export function InviteImage({ event }: { event: PublicEvent | null }) {
+export function InviteImage({
+  event,
+  brandLogoUrl = "/brand/logo-deutime-email-640-fundo-escuro.png",
+}: {
+  event: PublicEvent | null;
+  brandLogoUrl?: string;
+}) {
   const status = event
     ? publicEventStatusPresentation[event.status]
     : publicEventStatusPresentation.scheduled;
@@ -67,29 +81,26 @@ export function InviteImage({ event }: { event: PublicEvent | null }) {
         fontFamily: "sans-serif",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-        <div
-          style={{
-            width: 58,
-            height: 58,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: 18,
-            background: "#bdf63c",
-            color: "#0d2b22",
-          fontSize: 24,
-          fontWeight: 900,
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
-          DT
-        </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 30, fontWeight: 900 }}>DeuTime</span>
-          <span style={{ fontSize: 18, color: "#a9c6b8" }}>
-            Convocação do time
-          </span>
-        </div>
+        <img
+          src={brandLogoUrl}
+          alt="DeuTime"
+          style={{
+            width: 360,
+            height: 87,
+            objectFit: "contain",
+            objectPosition: "left center",
+          }}
+        />
+        <span style={{ fontSize: 18, color: "#a9c6b8" }}>
+          Convocação do time
+        </span>
       </div>
 
       <div

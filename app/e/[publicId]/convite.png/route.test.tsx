@@ -30,6 +30,8 @@ describe("imagem pública do convite", () => {
     expect(html).toContain("Society United");
     expect(html).toContain("Treino semanal");
     expect(html).toContain("3 de agosto de 2026");
+    expect(html).toContain("logo-deutime-email-640-fundo-escuro.png");
+    expect(html).not.toContain(">DT<");
     expect(html).not.toContain("opponent");
     expect(html).not.toContain("attendance");
     expect(html).not.toContain("athlete");

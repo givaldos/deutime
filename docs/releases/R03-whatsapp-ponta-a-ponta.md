@@ -435,7 +435,9 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
   possui cache curto e fallback visual genérico, sem revelar atleta, RSVP,
   adversário ou localização privada;
 - o Open Graph do evento usa a mesma imagem contextual, evitando duas fontes
-  visuais divergentes para o convite;
+  visuais divergentes para o convite. O cabeçalho reutiliza o ativo oficial
+  `logo-deutime-email-640-fundo-escuro.png`, com escudo e wordmark, sem marca
+  improvisada;
 - o perfil `event_call_card_v1` exige Content SID próprio e seleciona a versão
   interna `event_call:card_v1`; perfis anteriores permanecem compatíveis;
 - a migration forward-only `202608010005_whatsapp_card_pilot.sql` amplia apenas
@@ -444,8 +446,11 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
 - banco local recomposto; 29 arquivos e 627 testes pgTAP passaram. Lint,
   typecheck, 38 arquivos e 215 testes Vitest passaram; o build de produção
   passou com acesso às fontes externas;
-- o suporte permanece inerte até cadastrar o Content SID, selecionar o perfil
-  na Vercel e publicar banco antes do app. O rollout autorizado mantém os kill
-  switches ligados apenas para os cadastros demo participantes do Sandbox;
-- próxima ação: criar a Content Resource, registrar o SID server-only, publicar
-  banco/app e validar a imagem pública antes de um único envio físico.
+- banco e app foram publicados, a imagem pública passou em produção e os kill
+  switches ficaram ligados para o piloto restrito. A seleção do novo perfil
+  permanece inerte;
+- a Content Resource criada manualmente não será usada: seu conteúdo principal
+  ficou no campo de RCS. Por decisão do produto, ela será recriada somente
+  quando o número oficial for validado;
+- próxima ação: após homologar o número oficial, recriar a Content Resource,
+  registrar o novo SID server-only e executar um único envio físico.
