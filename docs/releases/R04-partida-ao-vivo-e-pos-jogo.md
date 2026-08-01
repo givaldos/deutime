@@ -1,7 +1,7 @@
 ---
 id: R04
 type: vertical
-status: planning
+status: active
 outcome: "Registrar uma ou mais partidas no mesmo evento, acompanhar placar e lances ao vivo e preservar uma súmula final auditável na URL estável."
 depends_on:
   - R02
@@ -10,7 +10,7 @@ baseline:
   - BASE-MATCH-REPORT
   - BASE-PUBLIC
   - BASE-WRITES
-verified_at: "codex/r04-event-match-decision"
+verified_at: "codex/r04-public-privacy-decision"
 decisions:
   - DEC-EVENT-MATCH
   - DEC-PUBLIC-PRIVACY
@@ -56,7 +56,8 @@ de cadastro fictício e a operação manual continua disponível.
 - suportar adversário externo, transmissão opcional, placar e cronologia ao
   vivo sem HTML arbitrário;
 - tornar correções pós-jogo append-only, motivadas e auditáveis;
-- fechar `DEC-PUBLIC-PRIVACY` antes de publicar identidade, escalação ou autoria.
+- implementar modos públicos do confronto e consentimentos pessoais separados,
+  ambos privados por padrão.
 
 ### Futuro compatível
 
@@ -77,7 +78,7 @@ de cadastro fictício e a operação manual continua disponível.
 - início, acompanhamento, anulação, encerramento e correção auditada;
 - transmissão opcional por YouTube ou Vimeo allowlisted;
 - operação administrativa mobile e leitura privada autorizada;
-- evolução da URL canônica conforme a matriz pública ainda a decidir;
+- evolução da URL canônica conforme a matriz pública consentida;
 - migração compatível da súmula simples existente.
 
 ### Fora
@@ -95,9 +96,11 @@ contêiner da ocorrência e introduz partidas explícitas. Cada partida possui d
 lados, participação real própria e ledger de lances append-only. A URL continua
 pertencendo ao evento e apresenta o confronto selecionado sem mudar de endereço.
 
-`DEC-PUBLIC-PRIVACY` permanece bloqueadora para nomes, fotos, escalações,
-participações e autorias em superfície anônima. Até sua aceitação, o contrato
-público não ultrapassa
+[`DEC-PUBLIC-PRIVACY`](../decisions/DEC-PUBLIC-PRIVACY.md) separa quatro
+audiências e mantém a capability pessoal restrita aos próprios dados. Placar e
+fatos por lado podem ser publicados em modo `final_result` ou `live`; identidade
+exige consentimento específico de atividade esportiva e, para foto/bio/perfil,
+também consentimento de perfil. O fallback continua sendo o mínimo de
 [`DEC-EVENT-PUBLIC-MINIMUM`](../decisions/DEC-EVENT-PUBLIC-MINIMUM.md).
 
 Banco e aplicação serão expandidos antes de qualquer consumidor. RPCs legadas
@@ -183,11 +186,14 @@ correção pós-jogo e celular real.
 
 ## Evidências e checkpoint
 
-### `DP-R04-01` — CP0 parcial
+### `DP-R04-01` — CP0 concluído
 
 - o modelo existente e seus consumidores foram confrontados com o roadmap;
 - `DEC-EVENT-MATCH` foi aceita com evento 0..N partidas, dois lados, presença
   real separada e timeline append-only;
+- `DEC-PUBLIC-PRIVACY` foi aceita com quatro audiências, publicação de fatos por
+  lado, consentimentos pessoais separados e capability sem acesso a terceiros;
 - migração legada, compatibilidade N/N−1, fallback e reversão estão definidos;
 - nenhuma migration, flag, dado ou ambiente foi alterado;
-- `DEC-PUBLIC-PRIVACY` permanece como próxima decisão bloqueadora antes do CP1.
+- próxima ação: CP1 de `WP-R04-01`, detalhando tabelas, constraints, RPCs,
+  projeções, backfill e matriz de compatibilidade da expansão inerte.

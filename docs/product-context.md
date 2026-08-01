@@ -9,7 +9,7 @@ Este arquivo reúne somente fatos e regras estáveis que uma feature pode refere
 - `BASE-SERIES`: recorrência materializa eventos independentes; edição preserva respostas e exceções passadas.
 - `BASE-ATTENDANCE`: `event_attendance` inclui pendente, SIM, NÃO, TALVEZ e lista de espera; a auto-resposta aceita somente SIM/NÃO/TALVEZ para vínculo ativo, evento agendado e futuro e prazo aberto.
 - `BASE-MATCH-REPORT`: súmula atual é única por evento, pode nascer como rascunho antes do jogo e aceita correções auditadas depois do encerramento; estatísticas continuam derivadas do estado finalizado, sem contador paralelo.
-- `BASE-PUBLIC`: time e atleta possuem projeções públicas mínimas controladas pelas flags atuais; BID não reivindicado ainda pode usar uma flag administrativa sem evidência específica do atleta, lacuna coberta por `DEC-PUBLIC-PRIVACY`.
+- `BASE-PUBLIC`: time e atleta possuem projeções públicas mínimas controladas pelas flags atuais; o BID não reivindicado ainda pode usar uma flag administrativa legada, cuja retirada e substituição por consentimentos versionados foi decidida em `DEC-PUBLIC-PRIVACY` e ainda não foi implementada.
 - `BASE-WRITES`: mutações centrais do domínio seguem Server Action fina e RPC transacional com autorização revalidada; tabelas usam RLS, uploads usam Storage RLS e parte da auditoria por trigger ainda não possui garantia transacional uniforme.
 - `BASE-DELIVERY`: o repositório configura CI de qualidade, banco, dependências, CodeQL e Terraform e contém mecanismos independentes de publicação; o Git não comprova que todos estejam habilitados ou saudáveis em produção.
 
@@ -35,6 +35,7 @@ Alterar uma invariante exige decisão explícita, atualização do roadmap, thre
 - [`DEC-EVENT-PUBLIC-MINIMUM`](decisions/DEC-EVENT-PUBLIC-MINIMUM.md): evento usa `public_id` aleatório e imutável em `/e/{public_id}`; o GET anônimo publica somente contexto esportivo mínimo, sem local exato, presença ou identidade de atleta.
 - [`DEC-UNCLAIMED-IDENTITY`](decisions/DEC-UNCLAIMED-IDENTITY.md): atleta administrativo sem `user_id` pode responder por capability limitada ao atleta-evento; somente OTP reivindica a identidade e preserva o mesmo `athlete_id`.
 - [`DEC-EVENT-MATCH`](decisions/DEC-EVENT-MATCH.md): evento permanece como ocorrência e URL estável de zero a muitas partidas; cada partida possui exatamente dois lados, participação real própria e fatos esportivos append-only.
+- [`DEC-PUBLIC-PRIVACY`](decisions/DEC-PUBLIC-PRIVACY.md): placar e fatos por lado podem ser publicados pelo time, mas identidade e atividade esportiva exigem consentimentos próprios, específicos, versionados e revogáveis; capability pessoal não revela terceiros e staff não consente pelo atleta.
 - `DEC-FIXED-SHIRTS`: camisas têm identidade permanente, enquanto o elenco pode ser redistribuído a cada rodada.
 - `DEC-WHATSAPP-BEFORE-AUTO-SPLIT`: confirmação confiável pelo WhatsApp precede a divisão automática como prioridade de produto.
 - `DEC-PLAYER-EVALUATION`: características não formam ranking, podem ser revisadas pelo atleta e um peso de equilíbrio permanece reservado à diretoria na experiência comum.
@@ -48,7 +49,6 @@ Alterar uma invariante exige decisão explícita, atualização do roadmap, thre
 
 ## Decisões bloqueadoras
 
-- `DEC-PUBLIC-PRIVACY` — `open`: definir matriz pública/identificada para nome, foto, escalação, comentários e resultado antes de R04.
 - [`DEC-WHATSAPP-PROVIDER`](decisions/DEC-WHATSAPP-PROVIDER.md) — `accepted`: R03 usa Twilio Programmable Messaging + Content API atrás de adapter provider-neutral; OTP do Supabase permanece separado, Sandbox é somente demo e produção real exige sender próprio, template aprovado e webhook assinado.
 - [`DEC-WHATSAPP-DISPATCH-SAFETY`](decisions/DEC-WHATSAPP-DISPATCH-SAFETY.md) — `accepted`: retry automático termina antes da barreira de efeito; resultado externo ambíguo exige reconciliação manual e credenciais personalizadas nunca são persistidas em claro.
 - `DEC-CONVERSATION-LIFETIME` — `open`: definir duração de escrita e renovação de acesso da conversa antes de R06.

@@ -1,34 +1,33 @@
 ---
 release: R04
 work_package: DP-R04-01
-scope: event_match_decision
-branch_or_commit: "codex/r04-event-match-decision"
+scope: public_privacy_decision
+branch_or_commit: "codex/r04-public-privacy-decision"
 checkpoint: idle
 status: ready_for_review
 completed_ac: []
 dirty_files: []
 tests:
-  - "revisão documental do schema, RPCs, UI e invariantes atuais"
-  - "compatibilidade N/N−1 e migração forward-only definidas no ADR"
+  - "revisão documental das views públicas, consentimentos, capabilities e UI atuais"
+  - "matriz de quatro audiências e migração forward-only definidas no ADR"
   - "lint e typecheck aprovados"
   - "38 arquivos e 215 testes Vitest aprovados"
   - "build de produção aprovado"
   - "security:audit aprovado sem vulnerabilidades"
-blocker: "DEC-PUBLIC-PRIVACY permanece aberta antes da expansão de banco e da projeção pública R04."
-next_action: "Fechar DEC-PUBLIC-PRIVACY e completar DP-R04-01 antes de iniciar WP-R04-01."
+blocker: null
+next_action: "Iniciar CP1 de WP-R04-01 com modelo de dados, constraints, RPCs, backfill e compatibilidade N/N−1."
 ---
 
 # Trabalho atual
 
-`DEC-EVENT-MATCH` está aceita. O evento permanece como ocorrência e URL
-canônica de zero a muitas partidas; cada partida tem exatamente dois lados,
-participação real distinta de RSVP/escalação e timeline append-only.
+`DP-R04-01` concluiu o CP0. `DEC-EVENT-MATCH` e `DEC-PUBLIC-PRIVACY`
+estão aceitas; não resta decisão estrutural bloqueando a expansão inerte da R04.
 
-O pacote R04 registra backfill da súmula legada, wrappers compatíveis para a
-partida única, falha fechada diante de múltiplos confrontos, rollout por flag e
-fallback manual. Nenhuma migration, flag ou dado de produção foi alterado.
+A superfície pública pode mostrar lados, placar e timeline sem autoria conforme
+o modo do evento. Identidade esportiva exige consentimento próprio, versionado
+e revogável. Capability pessoal continua limitada ao próprio atleta e não
+revela terceiros. Staff não consente em nome de atleta não reivindicado.
 
-A próxima ação é resolver a matriz pública/identificada de nome, foto,
-escalação, participação, autoria e resultado em `DEC-PUBLIC-PRIVACY`. As
-alterações locais do usuário em `docs/backlog.md` e `docs/roadmap.md` permanecem
-separadas.
+Nenhuma migration, flag ou dado de produção foi alterado. A próxima ação é o
+CP1 de `WP-R04-01`. As alterações locais do usuário em `docs/backlog.md` e
+`docs/roadmap.md` permanecem separadas.
