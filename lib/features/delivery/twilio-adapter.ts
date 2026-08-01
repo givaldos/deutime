@@ -2,13 +2,22 @@ import type {
   WhatsAppAdapter,
   WhatsAppDispatchCommand,
 } from "./dispatch-contract";
+import {
+  renderTwilioTemplateVariables,
+  type TwilioTemplateProfile,
+} from "./whatsapp-template-catalog";
+
+type TwilioTemplateConfig = {
+  contentSid: string;
+  profile: TwilioTemplateProfile;
+};
 
 type TwilioAdapterConfig = {
   accountSid: string;
   authToken: string;
   from?: string;
   messagingServiceSid?: string;
-  contentSids: Record<string, string>;
+  templates: Record<string, TwilioTemplateConfig>;
   timeoutMs?: number;
 };
 
@@ -22,9 +31,8 @@ export function createTwilioWhatsAppAdapter(
 
   return {
     async send(command, signal) {
-      const contentSid =
-        config.contentSids[templateIdentifier(command)] ?? null;
-      if (!contentSid) {
+      const template = config.templates[templateIdentifier(command)] ?? null;
+      if (!template) {
         return {
           kind: "rejected",
           failureClass: "permanent",
@@ -34,8 +42,10 @@ export function createTwilioWhatsAppAdapter(
 
       const body = new URLSearchParams({
         To: `whatsapp:${command.recipient}`,
-        ContentSid: contentSid,
-        ContentVariables: JSON.stringify(toTwilioVariables(command)),
+        ContentSid: template.contentSid,
+        ContentVariables: JSON.stringify(
+          renderTwilioTemplateVariables(command, template.profile),
+        ),
         StatusCallback: command.callbackUrl,
       });
       if (config.messagingServiceSid) {
@@ -110,8 +120,8 @@ function validateConfig(config: TwilioAdapterConfig) {
   ) {
     throw new Error("MessagingServiceSid inválido.");
   }
-  for (const sid of Object.values(config.contentSids)) {
-    if (!/^HX[A-Za-z0-9]{8,253}$/.test(sid)) {
+  for (const template of Object.values(config.templates)) {
+    if (!/^HX[A-Fa-f0-9]{32}$/.test(template.contentSid)) {
       throw new Error("ContentSid inválido.");
     }
   }
@@ -119,14 +129,6 @@ function validateConfig(config: TwilioAdapterConfig) {
 
 function templateIdentifier(command: WhatsAppDispatchCommand) {
   return `${command.template.key}:${command.template.version}`;
-}
-
-function toTwilioVariables(command: WhatsAppDispatchCommand) {
-  return {
-    "1": command.template.variables.event_title,
-    "2": command.template.variables.event_starts_at,
-    "3": command.template.variables.event_link,
-  };
 }
 
 function normalizeSender(sender: string) {

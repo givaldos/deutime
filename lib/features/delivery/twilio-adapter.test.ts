@@ -21,7 +21,12 @@ const config = {
   accountSid: "AC1234567890",
   authToken: "token-com-tamanho-seguro",
   from: "+14155238886",
-  contentSids: { "event_call:v1": "HX1234567890" },
+  templates: {
+    "event_call:v1": {
+      contentSid: "HX0123456789abcdef0123456789abcdef",
+      profile: "event_call_v1" as const,
+    },
+  },
 };
 
 describe("adapter Twilio", () => {
@@ -46,7 +51,9 @@ describe("adapter Twilio", () => {
     const body = init?.body as URLSearchParams;
     expect(body.get("To")).toBe("whatsapp:+5511999999999");
     expect(body.get("From")).toBe("whatsapp:+14155238886");
-    expect(body.get("ContentSid")).toBe("HX1234567890");
+    expect(body.get("ContentSid")).toBe(
+      "HX0123456789abcdef0123456789abcdef",
+    );
     expect(body.get("StatusCallback")).toBe(command.callbackUrl);
     expect(JSON.parse(body.get("ContentVariables")!)).toEqual({
       "1": "Racha de sexta",
@@ -109,7 +116,7 @@ describe("adapter Twilio", () => {
 
   it("falha fechado quando o template não está configurado", async () => {
     const adapter = createTwilioWhatsAppAdapter(
-      { ...config, contentSids: {} },
+      { ...config, templates: {} },
       vi.fn() as typeof fetch,
     );
     await expect(adapter.send(command)).resolves.toEqual({
@@ -117,5 +124,34 @@ describe("adapter Twilio", () => {
       failureClass: "permanent",
       errorCode: "template_not_configured",
     });
+  });
+
+  it("usa somente as duas variáveis do template pré-aprovado no Sandbox", async () => {
+    const fetchImpl = vi.fn(async () =>
+      Response.json({ sid: "SM1234567890" }, { status: 201 }),
+    );
+    const adapter = createTwilioWhatsAppAdapter(
+      {
+        ...config,
+        templates: {
+          "event_call:v1": {
+            ...config.templates["event_call:v1"],
+            profile: "sandbox_appointment",
+          },
+        },
+      },
+      fetchImpl as typeof fetch,
+    );
+    await adapter.send(command);
+
+    const [, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
+    const variables = JSON.parse(
+      (init.body as URLSearchParams).get("ContentVariables")!,
+    );
+    expect(variables).toEqual({
+      "1": "Racha de sexta em 2030-08-02T22:00:00.000Z",
+      "2": "https://deutime.app/e/example#c=secret",
+    });
+    expect(variables).not.toHaveProperty("3");
   });
 });
