@@ -10,7 +10,7 @@ baseline:
   - BASE-ATTENDANCE
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "codex/r03-whatsapp-template-contract"
+verified_at: "codex/r03-whatsapp-sandbox-pilot"
 decisions:
   - DEC-WHATSAPP-PROVIDER
   - DEC-WHATSAPP-DISPATCH-SAFETY
@@ -345,3 +345,26 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
 - próxima ação: configurar as credenciais server-only e o Content SID
   pré-aprovado, implementar um entrypoint live limitado a uma única intenção
   demo e executar o checklist acompanhado do Sandbox.
+
+### `WP-R03-04` — CP4b, executor Sandbox unitário
+
+- `POST /api/internal/whatsapp/pilot` exige bearer forte, JSON estrito, modo
+  Sandbox válido e kill switch de consumo antes de construir adapter ou acessar
+  a outbox;
+- ambiente allowlista um time UUID, um telefone E.164, o sender compartilhado,
+  o Content SID e o perfil de duas variáveis. Configuração parcial ou sender
+  divergente retorna indisponível sem detalhes;
+- `claim_notification_for_sandbox_pilot` reivindica somente a combinação
+  outbox/time/telefone solicitada, exige `event_call:v1`, flag do time, estado
+  seguro e ausência da barreira; nunca varre nem recupera a fila global;
+- o worker roda live com lote 1 e reaproveita preparo, segredo em memória,
+  adapter, ack/nack e callback já testados. Resultado ambíguo continua sem
+  retry automático;
+- 21 testes focados cobrem autorização, modo/consumo desligados, corpo estrito,
+  lote unitário, redaction, adapter e worker; 11 pgTAPs cobrem grants, kill
+  switch, allowlist, replay e preservação de uma segunda intenção;
+- banco recomposto; 27 arquivos e 610 pgTAPs passaram. Nenhuma variável externa,
+  flag, controle, outbox ou mensagem real foi alterada durante a implementação;
+- próxima ação: configurar os segredos diretamente na Vercel, selecionar um
+  único evento/atleta demo, enfileirar uma intenção e executar a prova física
+  acompanhada, desligando consumo imediatamente depois.

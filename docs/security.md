@@ -123,7 +123,14 @@ nem template aprovado.
 O endpoint implementado em CP3 limita o corpo a 16 KiB, aceita somente
 `application/x-www-form-urlencoded` e não confia no header `Host` para
 reconstruir a URL assinada. `TWILIO_AUTH_TOKEN` é server-only; quando ausente o
-webhook responde indisponível, e o modo live do worker continua inacessível.
+webhook responde indisponível. O consumidor live geral continua inacessível;
+somente o piloto unitário descrito abaixo possui entrypoint.
+
+O piloto Sandbox acrescenta um entrypoint live separado, sem varredura de fila.
+Além do bearer server-only, ele exige modo `sandbox`, time UUID, destinatário
+E.164 e `ContentSid` allowlisted no ambiente. A RPC aceita uma única outbox e
+repete todos esses vínculos antes do lease; configuração inválida, flag ou
+consumo desligados falham fechado. Resultado ambíguo nunca autoriza repetição.
 
 Este registro documenta o fluxo e as salvaguardas técnicas; não substitui a
 avaliação jurídica do controlador nem permite declarar anonimato contra o

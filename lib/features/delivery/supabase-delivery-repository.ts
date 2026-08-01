@@ -78,6 +78,36 @@ export function createSupabaseDeliveryRepository(
   };
 }
 
+export function createSupabasePilotDeliveryRepository(
+  input: { teamId: string; recipient: string; outboxId: string },
+  client: Client = createPrivilegedClient(),
+): WhatsAppDeliveryRepository {
+  const repository = createSupabaseDeliveryRepository(client);
+  return {
+    ...repository,
+    async recoverExpiredLeases() {
+      return { safeRetryCount: 0, reviewCount: 0 };
+    },
+    async claimBatch(_limit, leaseSeconds) {
+      const { data, error } = await client.rpc(
+        "claim_notification_for_sandbox_pilot",
+        {
+          requested_outbox_id: input.outboxId,
+          requested_team_id: input.teamId,
+          requested_recipient: input.recipient,
+          requested_lease_seconds: leaseSeconds,
+        },
+      );
+      if (error) throw operationFailed("pilot-claim");
+      return (data ?? []).map((row) => ({
+        outboxId: row.outbox_id,
+        leaseToken: row.lease_token,
+        attemptNumber: row.attempt_number,
+      }));
+    },
+  };
+}
+
 export async function recordNotificationCallback(
   input: {
     callbackToken: string;
