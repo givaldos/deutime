@@ -1,8 +1,8 @@
 ---
 release: R03
 work_package: WP-R03-04
-scope: whatsapp_single_sandbox_pilot
-branch_or_commit: "codex/r03-whatsapp-sandbox-pilot"
+scope: whatsapp_single_sandbox_control_timeout
+branch_or_commit: "codex/r03-whatsapp-control-timeout"
 checkpoint: idle
 status: ready_for_review
 completed_ac:
@@ -14,41 +14,29 @@ completed_ac:
   - "AC-R03-07"
   - "AC-R03-08"
 dirty_files:
-  - ".env.example"
   - "app/api/internal/whatsapp/pilot/route.ts"
   - "app/api/internal/whatsapp/pilot/route.test.ts"
-  - "lib/features/delivery/twilio-pilot-config.ts"
-  - "lib/features/delivery/twilio-pilot-config.test.ts"
-  - "lib/features/delivery/supabase-delivery-repository.ts"
-  - "supabase/migrations/202608010003_whatsapp_single_sandbox_claim.sql"
-  - "supabase/tests/027_whatsapp_single_sandbox_claim.test.sql"
-  - "lib/database.types.ts"
+  - "lib/features/delivery/server.ts"
   - "docs/releases/R03-whatsapp-ponta-a-ponta.md"
-  - "docs/releases/README.md"
-  - "docs/architecture.md"
-  - "docs/security.md"
-  - "docs/runbook.md"
   - "docs/work/current.md"
 tests:
-  - "21 testes focados — configuração, autorização, corpo, lote unitário, adapter e worker"
-  - "npm run db:reset — schema recomposto com a migration 202608010003"
-  - "npm run db:test — 27 arquivos e 610 testes aprovados"
-  - "npm run db:lint — nenhum alerta novo; aviso legado em create_event_as_staff"
-  - "lint, typecheck e 203 testes Vitest aprovados"
+  - "10 testes focados do gate e Route Handler aprovados"
+  - "lint e typecheck aprovados"
+  - "36 arquivos e 203 testes Vitest aprovados"
+  - "build de produção aprovado com acesso às fontes externas"
 blocker: null
-next_action: "Publicar a expansão inerte; configurar segredos na Vercel; selecionar exatamente uma intenção Demo Campo e executar a prova Sandbox acompanhada."
+next_action: "Publicar a correção e repetir uma única vez a prova com o mesmo outbox ainda intacto."
 ---
 
 # Trabalho atual
 
-`WP-R03-04` possui um executor live específico para o Sandbox, limitado por
-bearer, ambiente, outbox, time, telefone, template, flag e kill switch. Ele não
-varre a fila e não recupera leases globais.
+O primeiro disparo acompanhado falhou fechado com `409` antes do worker. A
+execução Vercel levou 1,41 s, acima do timeout genérico de 750 ms do gate, e o
+outbox permaneceu `pending`, com zero tentativas e nenhum efeito externo.
 
-O código e o banco estão validados, mas nenhuma credencial foi configurada e
-nenhum efeito real foi executado. `AC-R03-06` aguarda aprovação do template
-definitivo; `AC-R03-09` aguarda Android/iPhone e o sender próprio continua gate
-para atletas reais.
+Esta correção amplia somente a espera do executor unitário para 3 s e mantém o
+mesmo fallback `false` em erro ou timeout. O consumo global já foi desligado;
+nenhum efeito real foi executado. `AC-R03-06` e `AC-R03-09` seguem pendentes.
 
 As alterações locais do usuário em `docs/backlog.md` e `docs/roadmap.md`
 permanecem separadas.

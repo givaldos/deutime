@@ -82,6 +82,7 @@ describe("executor controlado do piloto Sandbox", () => {
     mocks.parseConfig.mockReturnValueOnce(config);
     mocks.consumptionEnabled.mockResolvedValueOnce(false);
     expect((await POST(request())).status).toBe(409);
+    expect(mocks.consumptionEnabled).toHaveBeenCalledWith(3_000);
     expect(mocks.runWorker).not.toHaveBeenCalled();
   });
 

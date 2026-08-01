@@ -41,6 +41,6 @@ export function isExternalCommandProductionEnabled() {
   return canProduceExternalCommands(lookupRuntimeControl);
 }
 
-export function isExternalCommandConsumptionEnabled() {
-  return canConsumeExternalCommands(lookupRuntimeControl);
+export function isExternalCommandConsumptionEnabled(timeoutMs?: number) {
+  return canConsumeExternalCommands(lookupRuntimeControl, timeoutMs);
 }
