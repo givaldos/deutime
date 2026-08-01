@@ -1,7 +1,7 @@
 ---
 release: R03
 work_package: WP-R03-04
-scope: whatsapp_callback_attempt_correlation
+scope: whatsapp_sandbox_template_profile
 branch_or_commit: "main"
 checkpoint: CP5
 status: in_progress
@@ -14,28 +14,30 @@ completed_ac:
   - "AC-R03-07"
   - "AC-R03-08"
 dirty_files:
-  - "callback Route Handlers e contrato de dispatch"
-  - "migration/RPC de correlação por tentativa"
-  - "testes Vitest e pgTAP"
-  - "documentação R03, arquitetura e segurança"
+  - "lib/features/delivery/twilio-pilot-config.ts"
+  - "lib/features/delivery/twilio-pilot-config.test.ts"
+  - "docs/releases/R03-whatsapp-ponta-a-ponta.md"
+  - "docs/work/current.md"
 tests:
-  - "19 testes Vitest focados aprovados"
-  - "37 arquivos e 208 testes Vitest aprovados"
+  - "16 testes focados aprovados"
+  - "37 arquivos e 209 testes Vitest aprovados"
   - "typecheck aprovado"
   - "lint e build de produção aprovados"
-  - "28 arquivos e 621 pgTAPs aprovados"
-  - "db:reset e integridade de migrations aprovados"
+  - "prova real: accepted > sent > delivered > read"
 blocker: null
-next_action: "Executar verify, publicar banco antes do app e realizar um único envio novo no Sandbox."
+next_action: "Publicar suporte ao perfil event_call_v1 e atualizar TWILIO_TEMPLATE_PROFILE na Vercel."
 ---
 
 # Trabalho atual
 
-O callback novo usa o UUID não secreto da tentativa no caminho e mantém a
-assinatura Twilio como autenticação. A RPC é exclusiva de `service_role`, aceita
-callback antes do ack, replay e progressão monotônica. O endpoint anterior por
-token opaco continua disponível somente para mensagens já emitidas.
+A primeira entrega física nova foi aceita e lida sem ambiguidade. O consumo está
+desligado. O callback por tentativa processou todos os estados e não exige
+revisão.
 
-A tentativa anterior permanece `failed/ambiguous`, exige revisão e não será
-reutilizada. As alterações locais do usuário em `docs/backlog.md` e
-`docs/roadmap.md` permanecem separadas.
+O Content SID customizado usa três variáveis, mas a Vercel ainda seleciona o
+perfil de duas variáveis do template pré-aprovado. O código passa a aceitar
+`event_call_v1`; depois do deploy, basta trocar a variável de ambiente e fazer
+um novo envio isolado.
+
+As alterações locais do usuário em `docs/backlog.md` e `docs/roadmap.md`
+permanecem separadas.

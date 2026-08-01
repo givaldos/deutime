@@ -398,3 +398,23 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
 - próxima ação: publicar banco antes do app, executar um único envio novo dentro
   da janela de 24 horas e confirmar `accepted/delivered/read` sem reutilizar a
   outbox ambígua.
+
+### `WP-R03-04` — CP5b, primeira entrega física
+
+- banco, app e smoke foram publicados em `main`; `dev` foi alinhada ao mesmo
+  merge;
+- uma nova intenção demo, isolada da tentativa ambígua, foi executada uma única
+  vez dentro da janela ativa do Sandbox. O worker registrou `accepted = 1`, sem
+  rejeição ou ambiguidade, e a mensagem chegou fisicamente pelo número Twilio;
+- a correlação nova processou a sequência
+  `accepted > sent > delivered > read`; a tentativa terminou em `read`, a
+  outbox ficou `sent`, sem revisão, e o consumo foi desligado após a prova;
+- a prova revelou uma divergência de configuração: o Content SID customizado
+  usa três variáveis (`nome`, `data`, `link`), enquanto a Vercel ainda seleciona
+  `sandbox_appointment`, que combina nome e data e envia somente duas;
+- o piloto passa a aceitar também `event_call_v1`, mantendo sender, time,
+  destinatário, Content SID, bearer e kill switch allowlisted. Perfil ausente ou
+  desconhecido continua falhando fechado;
+- próxima ação: publicar o suporte ao perfil, configurar
+  `TWILIO_TEMPLATE_PROFILE=event_call_v1` na Vercel e validar o conteúdo em um
+  único novo envio, sem alterar o template aprovado nesta etapa.
