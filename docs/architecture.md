@@ -144,8 +144,10 @@ Uma série não é a partida. No MVP, a criação materializa de 2 a 52 ocorrên
   unitário de CP4 pode alcançar esse modo sob as barreiras descritas abaixo.
 - em CP3, o callback de status usa a URL canônica de `APP_URL`, o SDK oficial
   para validar `X-Twilio-Signature` sobre todos os campos do formulário e o
-  token opaco para selecionar uma única tentativa. A operação owner/admin lê
-  somente projeção por time, sem telefone, corpo, URL, SID ou credencial.
+  UUID não secreto da tentativa para correlação antecipada. A RPC é exclusiva
+  do servidor; o endpoint legado por token opaco continua apenas para URLs já
+  emitidas. A operação owner/admin lê somente projeção por time, sem telefone,
+  corpo, URL, SID ou credencial.
 - o contrato de CP4 separa o perfil pré-aprovado de duas variáveis exigido pelo
   Sandbox do template `event_call:v1` em português e com três variáveis para o
   sender próprio. Ambos derivam do mesmo comando provider-neutral; o fuso do

@@ -40,7 +40,7 @@ describe("contrato de dispatch WhatsApp", () => {
     ).toBeNull();
   });
 
-  it("monta link R02 no fragmento e callback por token opaco", () => {
+  it("monta link R02 no fragmento e callback pelo ID não secreto da tentativa", () => {
     const parsed = parsePreparedDispatch(prepared)!;
     const command = buildWhatsAppDispatchCommand(
       parsed,
@@ -51,7 +51,7 @@ describe("contrato de dispatch WhatsApp", () => {
       `https://deutime.app/e/${prepared.event_public_id}#c=${prepared.credential_secret}`,
     );
     expect(command.callbackUrl).toBe(
-      `https://deutime.app/api/integrations/twilio/whatsapp/status?t=${prepared.callback_token}`,
+      `https://deutime.app/api/integrations/twilio/whatsapp/status/${prepared.attempt_id}`,
     );
     expect(command.template.variables).not.toHaveProperty("recipient");
   });

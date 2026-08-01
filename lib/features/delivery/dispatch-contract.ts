@@ -68,10 +68,9 @@ export function buildWhatsAppDispatchCommand(
   eventUrl.hash = new URLSearchParams({ c: prepared.credential_secret }).toString();
 
   const callbackUrl = new URL(
-    "/api/integrations/twilio/whatsapp/status",
+    `/api/integrations/twilio/whatsapp/status/${prepared.attempt_id}`,
     appUrl,
   );
-  callbackUrl.searchParams.set("t", prepared.callback_token);
 
   return {
     attemptId: prepared.attempt_id,

@@ -1,10 +1,10 @@
 ---
 release: R03
 work_package: WP-R03-04
-scope: whatsapp_twilio_mm_sid
-branch_or_commit: "codex/r03-whatsapp-mm-sid"
-checkpoint: idle
-status: ready_for_review
+scope: whatsapp_callback_attempt_correlation
+branch_or_commit: "main"
+checkpoint: CP5
+status: in_progress
 completed_ac:
   - "AC-R03-01"
   - "AC-R03-02"
@@ -14,31 +14,28 @@ completed_ac:
   - "AC-R03-07"
   - "AC-R03-08"
 dirty_files:
-  - "lib/features/delivery/twilio-adapter.ts"
-  - "lib/features/delivery/twilio-adapter.test.ts"
-  - "lib/features/delivery/twilio-status-callback.ts"
-  - "lib/features/delivery/twilio-status-callback.test.ts"
-  - "docs/releases/R03-whatsapp-ponta-a-ponta.md"
-  - "docs/work/current.md"
+  - "callback Route Handlers e contrato de dispatch"
+  - "migration/RPC de correlação por tentativa"
+  - "testes Vitest e pgTAP"
+  - "documentação R03, arquitetura e segurança"
 tests:
-  - "17 testes focados do adapter, callback e Route Handler aprovados"
-  - "lint e typecheck aprovados"
-  - "36 arquivos e 204 testes Vitest aprovados"
-  - "build de produção aprovado com acesso às fontes externas"
+  - "19 testes Vitest focados aprovados"
+  - "37 arquivos e 208 testes Vitest aprovados"
+  - "typecheck aprovado"
+  - "lint e build de produção aprovados"
+  - "28 arquivos e 621 pgTAPs aprovados"
+  - "db:reset e integridade de migrations aprovados"
 blocker: null
-next_action: "Validar SM/MM, publicar e reconciliar a tentativa existente sem reenviar."
+next_action: "Executar verify, publicar banco antes do app e realizar um único envio novo no Sandbox."
 ---
 
 # Trabalho atual
 
-O disparo único chegou à API da Twilio, que criou a mensagem e chamou o webhook,
-mas retornou um Message SID `MM`. O adapter e o callback aceitavam apenas `SM`,
-por isso a tentativa foi preservada como `failed/ambiguous`, sem SID persistido,
-e o webhook respondeu 400.
+O callback novo usa o UUID não secreto da tentativa no caminho e mantém a
+assinatura Twilio como autenticação. A RPC é exclusiva de `service_role`, aceita
+callback antes do ack, replay e progressão monotônica. O endpoint anterior por
+token opaco continua disponível somente para mensagens já emitidas.
 
-Esta correção alinha os dois parsers ao contrato oficial `SM|MM` com 32 dígitos
-hexadecimais. O consumo global já foi desligado e o outbox exige revisão; não
-deve haver reenvio. `AC-R03-06` e a conclusão de `AC-R03-09` seguem pendentes.
-
-As alterações locais do usuário em `docs/backlog.md` e `docs/roadmap.md`
-permanecem separadas.
+A tentativa anterior permanece `failed/ambiguous`, exige revisão e não será
+reutilizada. As alterações locais do usuário em `docs/backlog.md` e
+`docs/roadmap.md` permanecem separadas.
