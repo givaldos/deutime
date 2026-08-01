@@ -31,8 +31,9 @@ const config = {
 
 describe("adapter Twilio", () => {
   it("traduz o comando interno para Content API e retorna o SID", async () => {
+    const providerMessageId = `MM${"a".repeat(32)}`;
     const fetchImpl = vi.fn(async () =>
-      Response.json({ sid: "SM1234567890" }, { status: 201 }),
+      Response.json({ sid: providerMessageId }, { status: 201 }),
     );
     const adapter = createTwilioWhatsAppAdapter(
       config,
@@ -41,7 +42,7 @@ describe("adapter Twilio", () => {
 
     await expect(adapter.send(command)).resolves.toEqual({
       kind: "accepted",
-      providerMessageId: "SM1234567890",
+      providerMessageId,
     });
 
     const [, init] = fetchImpl.mock.calls[0] as unknown as [
@@ -128,7 +129,7 @@ describe("adapter Twilio", () => {
 
   it("usa somente as duas variáveis do template pré-aprovado no Sandbox", async () => {
     const fetchImpl = vi.fn(async () =>
-      Response.json({ sid: "SM1234567890" }, { status: 201 }),
+      Response.json({ sid: `SM${"1".repeat(32)}` }, { status: 201 }),
     );
     const adapter = createTwilioWhatsAppAdapter(
       {

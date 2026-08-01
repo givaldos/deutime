@@ -223,6 +223,8 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
 - piloto: somente `Demo Campo` e participantes do Sandbox;
 - o executor unitário tolera até 3 s para consultar o kill switch no Supabase,
   permanecendo fail-closed em timeout ou erro;
+- adapter e callback aceitam os Message SIDs oficiais `SM` e `MM`, ambos com
+  32 dígitos hexadecimais;
 - telemetria: enqueue, claim, tentativa, aceito, enviado, entregue, lido, falho,
   dead letter e tempo até RSVP;
 - fallback: copiar e compartilhar manualmente o link da R02;
