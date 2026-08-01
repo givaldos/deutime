@@ -10,7 +10,7 @@ baseline:
   - BASE-ATTENDANCE
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "codex/r03-whatsapp-callback-operation"
+verified_at: "codex/r03-whatsapp-template-contract"
 decisions:
   - DEC-WHATSAPP-PROVIDER
   - DEC-WHATSAPP-DISPATCH-SAFETY
@@ -316,3 +316,32 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
   permanecem desligados;
 - próxima ação: implementar `WP-R03-04`, começando pelo contrato e aprovação do
   template mínimo no Sandbox antes de habilitar qualquer envio.
+
+### `WP-R03-04` — CP4a, contrato e prontidão
+
+- a documentação oficial confirmou que o Sandbox aceita somente templates
+  pré-aprovados da Twilio; template customizado exige sender próprio;
+- `EVENT_CALL_TEMPLATE_V1` define o conteúdo definitivo `pt_BR`, categoria
+  `UTILITY` e amostras para título, horário e link. Não contém resposta atual,
+  endereço privado, telefone, escalação ou dado pessoal adicional;
+- o adapter ganhou perfis explícitos: `sandbox_appointment` usa as duas
+  variáveis do Appointment Reminders; `event_call_v1` usa as três variáveis do
+  template definitivo sem alterar o contrato de domínio;
+- a expansão `202608010002_whatsapp_template_context.sql` anexa somente o fuso
+  autoritativo do time à intenção; App N-1 ignora a nova chave e App N aceita o
+  payload anterior usando ISO como fallback;
+- a configuração do piloto aceita apenas o sender compartilhado
+  `+14155238886`, SID completo e perfil Sandbox. `off` continua sendo o padrão
+  e nenhum entrypoint live consome essa configuração;
+- 19 testes focados cobrem conteúdo mínimo, PII proibida, perfis, fuso,
+  compatibilidade e falha fechada; sete pgTAPs cobrem grants, autoridade,
+  minimização e imutabilidade histórica;
+- banco recomposto; 26 arquivos e 599 pgTAPs passaram. Nenhuma chamada Twilio,
+  criação de template, mudança de flag ou envio foi executado;
+- lint, typecheck e 197 testes Vitest passaram; o build de produção passou ao
+  repetir com acesso às fontes externas;
+- `AC-R03-06` permanece aberto até aprovação do template definitivo e
+  `AC-R03-09` permanece aberto até a prova física Android/iPhone;
+- próxima ação: configurar as credenciais server-only e o Content SID
+  pré-aprovado, implementar um entrypoint live limitado a uma única intenção
+  demo e executar o checklist acompanhado do Sandbox.

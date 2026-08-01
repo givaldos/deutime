@@ -145,6 +145,10 @@ Uma série não é a partida. No MVP, a criação materializa de 2 a 52 ocorrên
   para validar `X-Twilio-Signature` sobre todos os campos do formulário e o
   token opaco para selecionar uma única tentativa. A operação owner/admin lê
   somente projeção por time, sem telefone, corpo, URL, SID ou credencial.
+- o contrato de CP4 separa o perfil pré-aprovado de duas variáveis exigido pelo
+  Sandbox do template `event_call:v1` em português e com três variáveis para o
+  sender próprio. Ambos derivam do mesmo comando provider-neutral; o fuso do
+  time é anexado à intenção pelo banco e consumidores N-1 continuam aceitos.
 
 Os contratos canônicos estão em [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md), [`DEC-EVENT-PUBLIC-MINIMUM`](decisions/DEC-EVENT-PUBLIC-MINIMUM.md) e [`DEC-UNCLAIMED-IDENTITY`](decisions/DEC-UNCLAIMED-IDENTITY.md). A R00 fechou o transporte inicial como fragmento removido e trocado por `POST` same-origin em uma página mínima, antes de terceiros. Os ADRs definem projeção anônima, ameaças, identidade não reivindicada, renovação, limite absoluto, revogação e recuperação; a R02 deve provar o comportamento em Android/iPhone, navegador interno e padrão. “Duradouro” descreve a experiência normal sem login repetido; não significa segredo eterno ou autorização fora da fase do evento.
 

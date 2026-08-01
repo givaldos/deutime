@@ -55,4 +55,22 @@ describe("contrato de dispatch WhatsApp", () => {
     );
     expect(command.template.variables).not.toHaveProperty("recipient");
   });
+
+  it("propaga o fuso autoritativo quando o banco N já o fornece", () => {
+    const parsed = parsePreparedDispatch({
+      ...prepared,
+      template_payload: {
+        ...prepared.template_payload,
+        event_timezone: "America/Sao_Paulo",
+      },
+    })!;
+    const command = buildWhatsAppDispatchCommand(
+      parsed,
+      new URL("https://deutime.app"),
+    );
+
+    expect(command.template.variables.event_timezone).toBe(
+      "America/Sao_Paulo",
+    );
+  });
 });

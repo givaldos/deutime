@@ -17,6 +17,7 @@ const preparedDispatchSchema = z.object({
     event_public_id: uuidSchema,
     event_title: z.string().min(2).max(120),
     event_starts_at: z.string().datetime({ offset: true }),
+    event_timezone: z.string().min(3).max(64).optional(),
     schedule_version: z.number().int().positive(),
   }),
 });
@@ -81,6 +82,9 @@ export function buildWhatsAppDispatchCommand(
       variables: {
         event_title: prepared.template_payload.event_title,
         event_starts_at: prepared.template_payload.event_starts_at,
+        ...(prepared.template_payload.event_timezone
+          ? { event_timezone: prepared.template_payload.event_timezone }
+          : {}),
         event_link: eventUrl.toString(),
       },
     },

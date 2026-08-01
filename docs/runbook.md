@@ -174,6 +174,58 @@ localmente:
 Anexe ao pacote da release os IDs das execuções, deployment promovido, horários
 e resultado. Sem essa evidência, o ensaio de rollback não está concluído.
 
+### Preparação do piloto WhatsApp — R03
+
+O Sandbox da Twilio é somente para teste e não aceita template personalizado.
+O ensaio físico usa o template **Appointment Reminders** pré-aprovado pela
+Twilio, com o `ContentSid` exibido no Console da própria conta:
+
+| Variável Sandbox | Valor DeuTime |
+|---|---|
+| `{{1}}` | título do evento + data/hora no fuso do time |
+| `{{2}}` | link personalizado e estável do evento |
+
+Essa redação em inglês não aprova o template do produto. O contrato definitivo
+está em `EVENT_CALL_TEMPLATE_V1`: português `pt_BR`, categoria `UTILITY`, três
+variáveis (título, data/hora e link), sem resposta atual, telefone, escalação,
+endereço privado ou outra PII. Ele só pode ser criado e submetido depois do
+registro do sender próprio; aprovação `approved` é gate para atletas reais.
+
+Para preparar o Sandbox sem habilitar efeito, copie do Console somente para o
+cofre local/Vercel, nunca para Git, logs ou documentação:
+
+```dotenv
+WHATSAPP_PILOT_MODE=sandbox
+TWILIO_ACCOUNT_SID=AC...
+TWILIO_AUTH_TOKEN=...
+TWILIO_WHATSAPP_FROM=+14155238886
+TWILIO_CONTENT_SID_EVENT_CALL_V1=HX...
+TWILIO_TEMPLATE_PROFILE=sandbox_appointment
+```
+
+Antes do primeiro envio, confirme:
+
+1. cada número demo enviou `join <código>` ao Sandbox nas últimas 72 horas;
+2. o `ContentSid` é o Appointment Reminders mostrado no Console;
+3. `Demo Campo` é o único time candidato e contém apenas dados demo;
+4. `integration_produce`, `integration_consume` e `whatsapp_delivery` ainda
+   estão desligados;
+5. o callback público responde fechado sem assinatura e o smoke de produção
+   está verde;
+6. existe uma janela acompanhada para interromper consumo, preservar outbox e
+   voltar ao compartilhamento manual.
+
+O parser de configuração aceita exclusivamente o número compartilhado e o
+perfil do Sandbox. Nesta fatia, isso não cria um entrypoint live: qualquer
+credencial ausente/inválida falha fechado, e `WHATSAPP_PILOT_MODE=off` mantém a
+integração inerte. O próximo gate deve adicionar uma execução limitada a uma
+única intenção demo antes de ligar qualquer controle global.
+
+Registre separadamente Android e iPhone: horário exibido, abertura no navegador
+interno, URL removida após a troca, RSVP, `accepted/sent/delivered/read` quando
+disponível e ausência de duplicata. Não copie telefone, link personalizado ou
+corpo completo para a evidência.
+
 ### Piloto de `event_control` — R01
 
 O deploy da R01 deve chegar com `event_control` desligada para todos os times.

@@ -1,8 +1,8 @@
 ---
 release: R03
-work_package: WP-R03-03
-scope: whatsapp_callback_operation
-branch_or_commit: "codex/r03-whatsapp-callback-operation"
+work_package: WP-R03-04
+scope: whatsapp_template_contract_sandbox_readiness
+branch_or_commit: "codex/r03-whatsapp-template-contract"
 checkpoint: idle
 status: ready_for_review
 completed_ac:
@@ -15,45 +15,44 @@ completed_ac:
   - "AC-R03-08"
 dirty_files:
   - ".env.example"
-  - "package.json"
-  - "package-lock.json"
-  - "app/api/integrations/twilio/whatsapp/status/route.ts"
-  - "app/api/integrations/twilio/whatsapp/status/route.test.ts"
-  - "lib/features/delivery/twilio-status-callback.ts"
-  - "lib/features/delivery/twilio-status-callback.test.ts"
-  - "lib/features/delivery/supabase-delivery-repository.ts"
-  - "supabase/migrations/202608010001_whatsapp_callback_operation.sql"
-  - "supabase/tests/025_whatsapp_callback_operation.test.sql"
-  - "lib/database.types.ts"
+  - "lib/features/delivery/dispatch-contract.ts"
+  - "lib/features/delivery/dispatch-contract.test.ts"
+  - "lib/features/delivery/twilio-adapter.ts"
+  - "lib/features/delivery/twilio-adapter.test.ts"
+  - "lib/features/delivery/whatsapp-template-catalog.ts"
+  - "lib/features/delivery/whatsapp-template-catalog.test.ts"
+  - "lib/features/delivery/twilio-pilot-config.ts"
+  - "lib/features/delivery/twilio-pilot-config.test.ts"
+  - "supabase/migrations/202608010002_whatsapp_template_context.sql"
+  - "supabase/tests/026_whatsapp_template_context.test.sql"
   - "docs/releases/R03-whatsapp-ponta-a-ponta.md"
   - "docs/releases/README.md"
   - "docs/architecture.md"
-  - "docs/security.md"
+  - "docs/runbook.md"
   - "docs/work/current.md"
 tests:
-  - "10 testes focados — assinatura oficial, URL canônica, normalização, Route Handler e limites"
-  - "npm run db:reset — schema recomposto com a migration 202608010001"
-  - "npm run db:test — 25 arquivos e 592 testes aprovados"
+  - "19 testes focados — catálogo, minimização, perfis, fuso, adapter e configuração"
+  - "npm run db:reset — schema recomposto com a migration 202608010002"
+  - "npm run db:test — 26 arquivos e 599 testes aprovados"
   - "npm run db:lint — nenhum alerta novo; aviso legado em create_event_as_staff"
-  - "npm run verify — lint, typecheck e 186 testes aprovados; build aprovado com rede"
+  - "npm run verify — lint, typecheck e 197 testes aprovados; build aprovado com rede"
 blocker: null
-next_action: "Implementar WP-R03-04: contrato do template mínimo, aprovação e prova Sandbox somente com participantes demo; manter o modo live fechado até os gates de piloto."
+next_action: "Configurar credenciais server-only e Content SID pré-aprovado; implementar entrypoint live limitado a uma única intenção Demo Campo e executar prova Sandbox acompanhada."
 ---
 
 # Trabalho atual
 
-`WP-R03-03` fecha a entrada de callbacks e a leitura operacional da R03. O
-webhook valida assinatura com o SDK oficial, a URL canônica e todos os campos
-recebidos antes de extrair a carga mínima. A RPC continua sendo a única escrita
-e garante token opaco, SID vinculado, replay e ordem monotônica.
+`WP-R03-04` possui agora um contrato explícito para o template definitivo e um
+preset separado para a limitação do Sandbox. O horário é renderizado no fuso
+autoritativo persistido junto da intenção, sem acrescentar PII.
 
-Owner/admin pode consultar uma projeção do próprio time com estados e falhas
-sanitizadas. Telefone, corpo, URL personalizada, SID e credenciais não fazem
-parte do retorno.
+O Sandbox não aprova conteúdo customizado. A prova física usará o Appointment
+Reminders pré-aprovado, enquanto `event_call:v1` só será submetido quando houver
+sender próprio. Portanto `AC-R03-06` e `AC-R03-09` continuam abertos.
 
-Nenhum efeito externo foi executado. `whatsapp_delivery`,
-`integration_produce` e `integration_consume` continuam desligados, não há
-entrypoint live e nenhuma credencial Twilio foi configurada nesta fatia.
+Nenhum efeito externo foi executado. O parser de configuração não é consumido
+por entrypoint live, `WHATSAPP_PILOT_MODE` nasce `off` e flags/controles não
+foram alterados.
 
 As alterações locais do usuário em `docs/backlog.md` e `docs/roadmap.md`
 permanecem separadas.
