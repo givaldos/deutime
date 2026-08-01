@@ -85,6 +85,10 @@ export function buildWhatsAppDispatchCommand(
           ? { event_timezone: prepared.template_payload.event_timezone }
           : {}),
         event_link: eventUrl.toString(),
+        event_media_url: new URL(
+          `/e/${prepared.event_public_id}/convite.png`,
+          appUrl,
+        ).toString(),
       },
     },
     callbackUrl: callbackUrl.toString(),

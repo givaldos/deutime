@@ -2,6 +2,7 @@ import type { WhatsAppDispatchCommand } from "./dispatch-contract";
 
 export type TwilioTemplateProfile =
   | "event_call_v1"
+  | "event_call_card_v1"
   | "sandbox_appointment";
 
 export const EVENT_CALL_TEMPLATE_V1 = {
@@ -27,6 +28,37 @@ export const EVENT_CALL_TEMPLATE_V1 = {
   },
 } as const;
 
+const eventCallBody =
+  "⚽ CONVOCAÇÃO: {{1}}\n📅 {{2}}\n\nA lista acabou de abrir. Contamos com teu nome, craque. Com 1 toque você confirma presença 👇\n{{3}}\n\nSem senha, sem cadastro. Só clicar no link. Mudou o plano? Volta no link e troca a resposta.";
+
+export const EVENT_CALL_CARD_TEMPLATE_V1 = {
+  key: "event_call",
+  version: "card_v1",
+  content: {
+    friendly_name: "deutime_event_call_card_v1",
+    language: "pt_BR",
+    variables: {
+      "1": "Treino de sexta",
+      "2": "02/08/2030 às 19:00",
+      "3": "https://deutime.app/e/00000000-0000-4000-8000-000000000000#c=exemplo",
+      "4": "https://deutime.app/e/00000000-0000-4000-8000-000000000000/convite.png",
+    },
+    types: {
+      "twilio/card": {
+        title: eventCallBody,
+        media: ["{{4}}"],
+      },
+      "twilio/text": {
+        body: eventCallBody,
+      },
+    },
+  },
+  approval: {
+    name: "deutime_event_call_card_v1",
+    category: "UTILITY",
+  },
+} as const;
+
 export function renderTwilioTemplateVariables(
   command: WhatsAppDispatchCommand,
   profile: TwilioTemplateProfile,
@@ -43,6 +75,16 @@ export function renderTwilioTemplateVariables(
     return {
       "1": `${eventTitle} em ${eventStart}`,
       "2": eventLink,
+    };
+  }
+
+  if (profile === "event_call_card_v1") {
+    const eventMediaUrl = required(variables.event_media_url);
+    return {
+      "1": eventTitle,
+      "2": eventStart,
+      "3": eventLink,
+      "4": eventMediaUrl,
     };
   }
 

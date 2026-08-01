@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { WhatsAppDispatchCommand } from "./dispatch-contract";
 import {
+  EVENT_CALL_CARD_TEMPLATE_V1,
   EVENT_CALL_TEMPLATE_V1,
   renderTwilioTemplateVariables,
 } from "./whatsapp-template-catalog";
@@ -16,6 +17,7 @@ const command: WhatsAppDispatchCommand = {
       event_starts_at: "2030-08-02T22:00:00.000Z",
       event_timezone: "America/Sao_Paulo",
       event_link: "https://deutime.app/e/example#c=secret",
+      event_media_url: "https://deutime.app/e/example/convite.png",
     },
   },
   callbackUrl: "https://deutime.app/api/status?t=opaque",
@@ -60,6 +62,35 @@ describe("catálogo de templates do WhatsApp", () => {
       "1": "Racha de sexta",
       "2": "02/08/2030, 19:00",
       "3": "https://deutime.app/e/example#c=secret",
+    });
+  });
+
+  it("define card com imagem e fallback textual usando as mesmas variáveis", () => {
+    expect(EVENT_CALL_CARD_TEMPLATE_V1).toMatchObject({
+      key: "event_call",
+      version: "card_v1",
+      content: {
+        friendly_name: "deutime_event_call_card_v1",
+        language: "pt_BR",
+      },
+    });
+    expect(EVENT_CALL_CARD_TEMPLATE_V1.content.types["twilio/card"].media).toEqual([
+      "{{4}}",
+    ]);
+    expect(EVENT_CALL_CARD_TEMPLATE_V1.content.types["twilio/card"].title).toBe(
+      EVENT_CALL_CARD_TEMPLATE_V1.content.types["twilio/text"].body,
+    );
+    expect(EVENT_CALL_CARD_TEMPLATE_V1.content.variables["4"]).toMatch(
+      /^https:\/\/deutime\.app\/e\/.+\/convite\.png$/,
+    );
+  });
+
+  it("renderiza nome, data, link e mídia separados para o card", () => {
+    expect(renderTwilioTemplateVariables(command, "event_call_card_v1")).toEqual({
+      "1": "Racha de sexta",
+      "2": "02/08/2030, 19:00",
+      "3": "https://deutime.app/e/example#c=secret",
+      "4": "https://deutime.app/e/example/convite.png",
     });
   });
 

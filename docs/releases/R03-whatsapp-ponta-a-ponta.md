@@ -70,7 +70,8 @@ manualmente.
 - disparo administrativo de uma chamada;
 - outbox transacional, dedupe, claim concorrente, lease, retry e dead letter;
 - adapter Twilio Programmable Messaging e Content API;
-- template utilitário em português com conteúdo mínimo e link R02;
+- template utilitário em português com card contextual, imagem pública do
+  evento, fallback textual e link R02;
 - callback assinado de status e normalização de estados;
 - painel/telemetria mínima da operação e recuperação manual;
 - piloto `Demo Campo` no Sandbox e preparação do sender de produção.
@@ -79,7 +80,7 @@ manualmente.
 
 - receber comandos de RSVP por texto ou botão no WhatsApp;
 - automação de lembrete, marketing ou broadcast geral;
-- mídia, localização exata, escalação ou resposta atual no template;
+- localização exata, escalação ou resposta atual no template;
 - substituir o WhatsApp usado pelo Supabase Auth para OTP;
 - desativar o compartilhamento manual.
 
@@ -223,6 +224,9 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
 - `integration_produce` e `integration_consume` permanecem desligados até o
   piloto;
 - piloto: somente `Demo Campo` e participantes do Sandbox;
+- o card `event_call:card_v1` usa uma imagem pública `.png` sem atleta,
+  resposta, adversário ou endereço privado; a mesma Content Resource contém
+  `twilio/text` como fallback de canal;
 - o executor unitário tolera até 3 s para consultar o kill switch no Supabase,
   permanecendo fail-closed em timeout ou erro;
 - adapter e callback aceitam os Message SIDs oficiais `SM` e `MM`, ambos com
@@ -420,3 +424,28 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
   Vercel e um redeploy de produção ficou `Ready` no domínio `deutime.app`;
 - próxima ação: validar o conteúdo em um único novo envio isolado, mediante
   confirmação, sem alterar o template aprovado nesta etapa.
+
+### `WP-R03-04` — CP5c, card contextual e fallback textual
+
+- `deutime_event_call_card_v1` foi modelado como `twilio/card`, com o texto
+  completo no `title` para WhatsApp, mídia variável `{{4}}` e `twilio/text`
+  equivalente na mesma Content Resource;
+- o contrato passa a gerar `event_media_url` em
+  `/e/{publicId}/convite.png`. A rota pública responde `GET` e `HEAD` como PNG,
+  possui cache curto e fallback visual genérico, sem revelar atleta, RSVP,
+  adversário ou localização privada;
+- o Open Graph do evento usa a mesma imagem contextual, evitando duas fontes
+  visuais divergentes para o convite;
+- o perfil `event_call_card_v1` exige Content SID próprio e seleciona a versão
+  interna `event_call:card_v1`; perfis anteriores permanecem compatíveis;
+- a migration forward-only `202608010005_whatsapp_card_pilot.sql` amplia apenas
+  o claim unitário allowlisted para `card_v1`. Versões desconhecidas continuam
+  pendentes e nenhum worker geral ganhou efeito live;
+- banco local recomposto; 29 arquivos e 627 testes pgTAP passaram. Lint,
+  typecheck, 38 arquivos e 215 testes Vitest passaram; o build de produção
+  passou com acesso às fontes externas;
+- o suporte permanece inerte até cadastrar o Content SID, selecionar o perfil
+  na Vercel e publicar banco antes do app. O rollout autorizado mantém os kill
+  switches ligados apenas para os cadastros demo participantes do Sandbox;
+- próxima ação: criar a Content Resource, registrar o SID server-only, publicar
+  banco/app e validar a imagem pública antes de um único envio físico.
