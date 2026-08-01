@@ -82,7 +82,7 @@ export function createTwilioWhatsAppAdapter(
       const providerBody = await readProviderBody(response);
       if (response.ok) {
         const sid = providerBody?.sid;
-        return typeof sid === "string" && /^SM[A-Za-z0-9]{8,253}$/.test(sid)
+        return typeof sid === "string" && /^(?:SM|MM)[0-9A-Fa-f]{32}$/.test(sid)
           ? { kind: "accepted", providerMessageId: sid }
           : { kind: "ambiguous", errorCode: "provider_response_invalid" };
       }

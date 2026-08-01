@@ -19,7 +19,9 @@ export type NormalizedTwilioStatusCallback = {
 };
 
 const callbackTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
-const providerMessageIdSchema = z.string().regex(/^SM[A-Za-z0-9]{32}$/);
+const providerMessageIdSchema = z
+  .string()
+  .regex(/^(?:SM|MM)[0-9A-Fa-f]{32}$/);
 const providerErrorSchema = z.string().regex(/^\d{1,10}$/);
 
 const statusMap: Record<

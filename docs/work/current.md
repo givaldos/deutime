@@ -1,8 +1,8 @@
 ---
 release: R03
 work_package: WP-R03-04
-scope: whatsapp_single_sandbox_control_timeout
-branch_or_commit: "codex/r03-whatsapp-control-timeout"
+scope: whatsapp_twilio_mm_sid
+branch_or_commit: "codex/r03-whatsapp-mm-sid"
 checkpoint: idle
 status: ready_for_review
 completed_ac:
@@ -14,29 +14,31 @@ completed_ac:
   - "AC-R03-07"
   - "AC-R03-08"
 dirty_files:
-  - "app/api/internal/whatsapp/pilot/route.ts"
-  - "app/api/internal/whatsapp/pilot/route.test.ts"
-  - "lib/features/delivery/server.ts"
+  - "lib/features/delivery/twilio-adapter.ts"
+  - "lib/features/delivery/twilio-adapter.test.ts"
+  - "lib/features/delivery/twilio-status-callback.ts"
+  - "lib/features/delivery/twilio-status-callback.test.ts"
   - "docs/releases/R03-whatsapp-ponta-a-ponta.md"
   - "docs/work/current.md"
 tests:
-  - "10 testes focados do gate e Route Handler aprovados"
+  - "17 testes focados do adapter, callback e Route Handler aprovados"
   - "lint e typecheck aprovados"
-  - "36 arquivos e 203 testes Vitest aprovados"
+  - "36 arquivos e 204 testes Vitest aprovados"
   - "build de produção aprovado com acesso às fontes externas"
 blocker: null
-next_action: "Publicar a correção e repetir uma única vez a prova com o mesmo outbox ainda intacto."
+next_action: "Validar SM/MM, publicar e reconciliar a tentativa existente sem reenviar."
 ---
 
 # Trabalho atual
 
-O primeiro disparo acompanhado falhou fechado com `409` antes do worker. A
-execução Vercel levou 1,41 s, acima do timeout genérico de 750 ms do gate, e o
-outbox permaneceu `pending`, com zero tentativas e nenhum efeito externo.
+O disparo único chegou à API da Twilio, que criou a mensagem e chamou o webhook,
+mas retornou um Message SID `MM`. O adapter e o callback aceitavam apenas `SM`,
+por isso a tentativa foi preservada como `failed/ambiguous`, sem SID persistido,
+e o webhook respondeu 400.
 
-Esta correção amplia somente a espera do executor unitário para 3 s e mantém o
-mesmo fallback `false` em erro ou timeout. O consumo global já foi desligado;
-nenhum efeito real foi executado. `AC-R03-06` e `AC-R03-09` seguem pendentes.
+Esta correção alinha os dois parsers ao contrato oficial `SM|MM` com 32 dígitos
+hexadecimais. O consumo global já foi desligado e o outbox exige revisão; não
+deve haver reenvio. `AC-R03-06` e a conclusão de `AC-R03-09` seguem pendentes.
 
 As alterações locais do usuário em `docs/backlog.md` e `docs/roadmap.md`
 permanecem separadas.

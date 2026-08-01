@@ -71,6 +71,20 @@ describe("callback de status da Twilio", () => {
     });
   });
 
+  it("aceita Message SID de mídia retornado pelo WhatsApp", () => {
+    const providerMessageId = `MM${"a".repeat(32)}`;
+    expect(
+      normalizeTwilioStatusCallback({
+        MessageSid: providerMessageId,
+        MessageStatus: "delivered",
+      }),
+    ).toEqual({
+      providerMessageId,
+      deliveryStatus: "delivered",
+      errorCode: null,
+    });
+  });
+
   it("rejeita SID, status, erro ou campo de negócio repetido inválido", () => {
     expect(normalizeTwilioStatusCallback({ MessageSid: "SM-invalido", MessageStatus: "sent" })).toBeNull();
     expect(
