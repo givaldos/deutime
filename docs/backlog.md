@@ -188,8 +188,8 @@ O caminho principal deste marco começa na mensagem do WhatsApp e termina na aç
 - [x] Registrar prazo de confirmação por evento e impedir que o atleta responda depois dele.
 - [x] Persistir o fuso no time e usá-lo na materialização das séries.
 - [ ] Converter a entrada e a edição de data pelo fuso do time, independentemente do fuso do navegador.
-- [ ] Configurar no time quatro momentos: abertura da chamada, lembrete de pendência, fechamento e lembrete geral do evento.
-- [ ] Oferecer como padrão: abertura na criação, fechamento 24 h antes e lembrete geral 1 h antes; definir o padrão da pendência na descoberta.
+- [ ] Configurar no time cinco momentos: abertura da chamada, primeiro e segundo lembretes para não confirmados, fechamento e lembrete geral do evento.
+- [ ] Oferecer como padrão: abertura na criação, fechamento 24 h antes e lembrete geral 1 h antes; definir os padrões dos dois lembretes de pendência na descoberta.
 - [ ] Na mesma área administrativa, configurar a duração padrão da votação do Craque da Galera, limitada a no máximo 12 h após o fim da partida; a ativação pertence ao Marco 5.3.
 - [ ] Fazer o evento herdar os padrões e permitir alteração caso a caso, indicando o que foi personalizado.
 - [ ] Permitir alteração pós-prazo somente pela diretoria, registrando autor e justificativa.
@@ -200,7 +200,7 @@ O caminho principal deste marco começa na mensagem do WhatsApp e termina na aç
 - [x] Persistir a escolha feita no checkbox de WhatsApp com data e evidência do telefone verificado.
 - [ ] Exigir ação afirmativa em um checkbox desmarcado por padrão e registrar a versão e a finalidade do consentimento.
 - [ ] Permitir revogação a qualquer momento e aplicar o opt-out antes de cada envio.
-- [ ] Criar as mensagens de chamada aberta, lembrete para pendentes e lembrete geral.
+- [ ] Criar as mensagens de chamada aberta, dois lembretes para não confirmados e lembrete geral.
 - [ ] Definir o contrato da mensagem “escalação publicada”; a ativação do disparo pertence ao Marco 3.4.
 - [ ] Definir o contrato da mensagem “súmula pronta e votação aberta”; a ativação do disparo pertence ao Marco 5.3.
 - [ ] Pré-visualizar e testar cada mensagem antes de ativá-la.
@@ -232,9 +232,14 @@ O caminho principal deste marco começa na mensagem do WhatsApp e termina na aç
 - [x] Manter o schema base de uma outbox de notificações desacoplada do provedor.
 - [ ] Implementar o produtor idempotente que grava comandos reais na outbox.
 - [ ] Implementar worker idempotente, retries com backoff, dead-letter, redaction, métricas e alertas.
-- [ ] Disparar chamada, lembrete de pendência e lembrete geral conforme seus próprios gatilhos.
+- [ ] Disparar chamada, as duas cotas de lembrete para não confirmados e lembrete geral conforme seus próprios gatilhos.
 - [ ] Cancelar ou reagendar mensagens quando o evento for cancelado ou remarcado.
-- [ ] Não enviar lembrete de pendência para quem já respondeu.
+- [ ] Calcular os destinatários no momento efetivo de cada envio e não enviar lembrete para quem já respondeu **SIM**, **NÃO** ou **TALVEZ**, revogou o consentimento ou deixou de ser elegível.
+- [ ] Permitir ao admin antecipar manualmente a próxima cota pendente; o envio consome a cota, cancela seu agendamento e nunca cria um terceiro lembrete.
+- [ ] Mostrar a quantidade atual de destinatários antes do envio manual; com zero destinatários, não consumir a cota nem chamar o provedor.
+- [ ] Encerrar como `skipped` a cota automática executada sem destinatários, sem chamar o provedor.
+- [ ] Garantir no máximo uma mensagem por atleta e cota com chave idempotente estável para clique repetido, retry, concorrência e reprocessamento.
+- [ ] Mostrar ao admin o estado de cada cota e totais agregados de destinatários, entrega e custo.
 - [ ] Permitir recado avulso da diretoria para os confirmados e mostrá-lo também na página do evento.
 - [ ] Validar assinatura, timestamp e replay dos webhooks.
 - [ ] Mapear entrega, leitura e falha sem reter indefinidamente o payload integral do provedor.

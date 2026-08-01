@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 29 de julho de 2026.
+> Atualizado em 1º de agosto de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -16,7 +16,7 @@ O produto já possui:
 - ✅ súmula administrativa com placar, lances, encerramento e correções auditadas;
 - ✅ página pública do time, perfil público consentido e mídia privada;
 - ✅ perfil pessoal editável, incluindo foto global com recorte, troca, remoção e exibição pública consentida;
-- 🟡 OTP no WhatsApp e outbox estão prontos como fundação, ainda sem automação operacional.
+- 🟡 OTP no WhatsApp está disponível; outbox, worker e callback já passaram por uma entrega física controlada, mas a automação geral ainda não foi liberada.
 
 O padrão técnico comprovado é uma fatia vertical: UI mobile → Server Action fina → RPC transacional → autorização/RLS → testes e auditoria. Os fatos exatos possuem IDs `BASE-*` no contexto canônico.
 
@@ -26,18 +26,33 @@ O padrão técnico comprovado é uma fatia vertical: UI mobile → Server Action
 |---|---|---|---|
 | **R00 — Fundação de entrega** | ✅ `done` | Ativação controlada, deploy compatível e smoke test para o fluxo local + produção do MVP. | [Abrir](releases/R00-fundacao-de-entrega.md) |
 | **R01 — Evento sob controle** | ✅ `done` | Fuso correto e cancelamento/remarcação com histórico preservado. | [Abrir](releases/R01-evento-sob-controle.md) |
-| **R02 — Confirmação pelo link** | 🟡 `active` | URL pública e compartilhamento manual concluídos; capability duradoura e SIM/NÃO/TALVEZ pelo link ainda estão em execução. | [Abrir](releases/R02-confirmacao-pelo-link.md) |
+| **R02 — Confirmação pelo link** | 🟡 `active` — 9/10 critérios | URL, capability duradoura, revogação e SIM/NÃO/TALVEZ pelo link concluídos; falta a validação móvel final. | [Abrir](releases/R02-confirmacao-pelo-link.md) |
+| **R03 — WhatsApp ponta a ponta** | 🟡 `active` — 7/10 critérios | Envio físico, worker, callback e card contextual validados em piloto restrito; sender oficial e fechamento operacional ainda pendentes. | [Abrir](releases/R03-whatsapp-ponta-a-ponta.md) |
 
-R00 e R01 estão concluídas. A frente atual é a R02. Pacotes de descoberta podem fechar decisões da release consumidora, mas implementação não começa com decisão que altere schema, autorização ou contrato público ainda aberta.
+R00 e R01 estão concluídas. R02 está em fechamento de validação e R03 está em piloto controlado. Pacotes de descoberta podem fechar decisões da release consumidora, mas implementação não começa com decisão que altere schema, autorização ou contrato público ainda aberta.
 
-Na R02, `WP-R02-01` e os critérios `AC-R02-01`, `AC-R02-02` e `AC-R02-10` estão concluídos. Os contratos de `DEC-EVENT-PUBLIC-MINIMUM`, `DEC-UNCLAIMED-IDENTITY` e `DEC-PERSISTENT-ACCESS` já foram fechados; faltam capability, sessão persistente, resposta pelo link, revogação e validação móvel completa.
+Na R02, `AC-R02-01` a `08` e `AC-R02-10` estão concluídos. Falta somente `AC-R02-09`: validar em Android, iPhone, navegador interno do WhatsApp e navegador padrão, incluindo o retorno em outro dia. Até essa evidência ser registrada, a release permanece `active`, sem ser apresentada como concluída.
+
+Na R03, `AC-R03-01` a `05`, `07` e `08` estão concluídos. A infraestrutura já realizou uma entrega física controlada e processou `accepted → sent → delivered → read`. Faltam:
+
+- `AC-R03-06`: homologar o número oficial, recriar o card no campo correto, registrar o novo Content SID e aprovar o template definitivo;
+- `AC-R03-09`: executar a prova final em Android e iPhone com sender próprio antes de enviar para atletas reais;
+- `AC-R03-10`: fechar a evidência operacional de cancelamento, remarcação, opt-out e remoção sem reenvio incompatível;
+- encerrar o piloto com consumo desligado por padrão, fallback manual preservado, evidências no pacote e checkpoint em `idle`.
+
+A página do evento e seu Open Graph contextual já reutilizam a imagem oficial do convite. A evolução ainda prevista inclui o escudo específico do time com fallback da marca e cartões enriquecidos conforme a fase do evento. Local, escalação, placar, votação e vencedor só entram quando forem públicos; identidade pessoal, credencial e dados sem consentimento nunca entram no cartão.
+
+Depois de fechar o envio inicial da R03, a próxima fatia reutilizará a mesma outbox para **dois lembretes de confirmação por evento**. Os alertas do time definirão os horários, e o evento poderá receber ajustes administrativos antes do disparo. “Não confirmou” significa atleta elegível que ainda não respondeu **SIM**, **NÃO** nem **TALVEZ** no momento efetivo do envio; consentimento revogado, telefone inválido, evento cancelado ou prazo encerrado também impedem o envio.
+
+O admin poderá usar **Enviar lembrete agora** para antecipar a próxima cota ainda pendente. O envio manual consumirá essa cota e cancelará seu agendamento automático, portanto nunca criará um terceiro lembrete. Sem destinatários, o envio manual não consumirá a cota; uma execução automática vazia será encerrada como `skipped`, sem chamada ou custo do provedor.
+
+A lista será recalculada imediatamente antes de produzir a outbox. Cada atleta poderá receber no máximo uma mensagem por cota; clique repetido, retry, concorrência ou reprocessamento reutilizarão a mesma chave idempotente. O admin verá o estado de cada cota e os totais agregados de destinatários, entrega e custo.
 
 ## Futuro — releases verticais
 
 | Release | Estado | Resultado autossuficiente | Depende de | Decisão antes de promover | Fallback |
 |---|---|---|---|---|---|
-| **R03 — WhatsApp ponta a ponta** | ⚪ `não iniciado` | Uma chamada real, consentida e observável, com worker, retry e webhook. | R01, R02 | `DEC-WHATSAPP-PROVIDER` | Compartilhamento manual |
-| **R04 — Partida e pós-jogo básico** | ⚪ `não iniciado` | Partida mínima, encerramento, presença real e súmula pública/identificada. | R02 | `DEC-EVENT-MATCH`, `DEC-PUBLIC-PRIVACY` | Súmula administrativa |
+| **R04 — Partida ao vivo e pós-jogo** | ⚪ `não iniciado` | Presença real, transmissão opcional, lances em tempo real e timeline final na mesma página. | R02 | `DEC-EVENT-MATCH`, `DEC-PUBLIC-PRIVACY` | Súmula administrativa e atualização manual |
 | **R05 — Craque da Galera** | ⚪ `não iniciado` | Voto único anônimo, candidatos presentes e resultado agregado. | R04 | `DEC-ANONYMOUS-RETENTION` | Súmula sem votação |
 | **R06 — Conversa da súmula** | ⚪ `não iniciado` | Comentários identificados, respostas, denúncia e moderação. | R02, R04 | `DEC-CONVERSATION-LIFETIME`, `DEC-ANONYMOUS-RETENTION` | Súmula somente leitura |
 | **R07 — Times manuais compartilháveis** | ⚪ `não iniciado` | Divisão acessível, publicação e imagem pelo mesmo link. | R02 | `DEC-EVENT-MATCH` | Lista de confirmados |
@@ -45,7 +60,19 @@ Na R02, `WP-R02-01` e os critérios `AC-R02-01`, `AC-R02-02` e `AC-R02-10` estã
 | **R09 — Campeonatos, camisas e tabela** | ⚪ `não iniciado` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento e histórico. | R04, R07 | `DEC-EVENT-MATCH` e modelo de campeonato | Histórico por partida |
 | **R10 — Reconhecimento** | ⚪ `não iniciado` | Pontos positivos, Craques e perfis consentidos. | R04, R05 | — | Estatísticas básicas |
 
-Depois da R02, R03, R04 e R07 são trilhas independentes. R05 e R06 não esperam divisão automática nem tabela.
+Depois de estabilizar os contratos da R02, R04 e R07 podem avançar como trilhas independentes da automação restante da R03. R05 e R06 não esperam divisão automática nem tabela.
+
+Na R04, a mesma URL pública do evento evoluirá conforme a partida:
+
+- **antes do jogo:** escudo do time, contexto do evento, chamada ou escalação autorizada e link opcional de transmissão;
+- **durante o jogo:** vídeo do YouTube ou Vimeo, quando configurado pelo admin, placar e timeline de lances atualizados em tempo real;
+- **depois do jogo:** súmula, placar final e timeline cronológica de gols, assistências, cartões, substituições e demais ocorrências registradas.
+
+Antes de lançar estatísticas, uma pessoa administradora autorizada marcará quem efetivamente entrou em campo. Essa presença real, separada das respostas **SIM** e **TALVEZ**, será a fonte única para atribuir gols, assistências, cartões, pontuação futura e candidatura ao Craque da Galera. A lista será congelada com a súmula final; correções posteriores exigirão motivo e auditoria.
+
+Os lances serão gravados primeiro na fonte transacional e somente depois distribuídos em tempo real. Se o canal ao vivo falhar, o registro administrativo continuará funcionando e a página voltará a consultar os dados persistidos, sem perder ou duplicar lances. Em eventos com várias partidas, presença, placar e timeline serão independentes por confronto.
+
+O admin poderá cadastrar somente URLs validadas de YouTube ou Vimeo. A mídia será carregada com proteção contra rastreamento e sem transmitir credencial, identidade ou endereço personalizado a terceiros; sem vídeo válido, a página preservará normalmente placar e timeline.
 
 Na R09, uma pessoa administradora autorizada poderá criar e configurar o campeonato em um dos formatos:
 
@@ -80,7 +107,7 @@ flowchart LR
     R00["R00 Entrega segura"] --> R01["R01 Evento sob controle"]
     R01 --> R02["R02 Mesmo link"]
     R02 --> R03["R03 WhatsApp automático"]
-    R02 --> R04["R04 Pós-jogo básico"]
+    R02 --> R04["R04 Partida ao vivo"]
     R02 --> R07["R07 Divisão manual"]
     R04 --> R05["R05 Craque da Galera"]
     R04 --> R06["R06 Conversa"]
