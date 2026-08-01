@@ -39,13 +39,16 @@ O Turnstile não substitui rate limiting. Antes de abrir produção, configure l
 - aprovação pública usa bloqueio de linha, só aceita estado `pending` e não pode ser repetida;
 - criação de evento materializa a série e popula a chamada do elenco no mesmo commit;
 - alteração administrativa de presença confere evento, atleta ativo e time novamente no banco;
-- lançamento da súmula exige staff e atleta confirmado; o minuto é opcional, correções ajustam o placar e são auditadas;
+- no modelo legado, lançamento da súmula exige staff e atleta confirmado; na expansão R04, autoria interna exige participação real na mesma partida e lado, enquanto fato de adversário externo pode omitir atleta;
+- partidas, lados, participações, lances e correções não aceitam escrita direta do cliente; correção após encerramento é append-only, exige motivo e permanece auditada;
 - estatísticas ignoram rascunhos e são derivadas somente de eventos concluídos com súmula encerrada;
 - perfil reivindicado pelo atleta torna nome, contato, privacidade e posições imutáveis para owner/admin; somente camisa e observação interna do vínculo permanecem editáveis;
 - foto de perfil é gravada pelo atleta apenas na própria pasta do bucket privado, vinculada por RPC auditada e exposta por URL temporária somente após opt-in público;
 - remoção do vínculo exige owner/admin, apaga cadastros sem histórico e minimiza os que possuem fatos esportivos, removendo contato, nascimento, consentimentos e chamadas futuras enquanto preserva a identificação necessária à súmula;
 - `INSERT` direto em `athletes`, `athlete_private`, `venues`, `events` e `event_attendance`, além de mutações diretas em atleta/PII/posições, foi removido de `authenticated` para impedir bypass dos workflows;
 - mudanças de status de atleta, evento e presença continuam registradas em `audit_logs` sem copiar PII.
+- transmissão de partida aceita somente provedor allowlisted e identificador validado; URL e HTML de embed arbitrários são rejeitados;
+- a superfície anônima não recebe nome, foto, escalação, participação ou autoria até `DEC-PUBLIC-PRIVACY` definir consentimento e finalidade para cada campo.
 
 ## LGPD e privacidade
 
