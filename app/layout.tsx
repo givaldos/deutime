@@ -26,8 +26,11 @@ export const metadata: Metadata = {
     "O DeuTime convoca a galera, cobra resposta, fecha o número e divide os times. Você só marca o jogo — e joga.",
   applicationName: "DeuTime",
   icons: {
-    icon: "/brand/icone-app-deutime.svg",
-    apple: "/brand/icone-app-deutime.svg",
+    apple: {
+      url: "/brand/icone-deutime-email-256.png",
+      sizes: "256x256",
+      type: "image/png",
+    },
   },
   openGraph: {
     type: "website",
