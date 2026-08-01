@@ -415,6 +415,8 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
 - o piloto passa a aceitar também `event_call_v1`, mantendo sender, time,
   destinatário, Content SID, bearer e kill switch allowlisted. Perfil ausente ou
   desconhecido continua falhando fechado;
-- próxima ação: publicar o suporte ao perfil, configurar
-  `TWILIO_TEMPLATE_PROFILE=event_call_v1` na Vercel e validar o conteúdo em um
-  único novo envio, sem alterar o template aprovado nesta etapa.
+- o suporte foi publicado em `main` e `dev` pelo PR #72; todos os gates e o
+  smoke passaram. `TWILIO_TEMPLATE_PROFILE=event_call_v1` foi configurado na
+  Vercel e um redeploy de produção ficou `Ready` no domínio `deutime.app`;
+- próxima ação: validar o conteúdo em um único novo envio isolado, mediante
+  confirmação, sem alterar o template aprovado nesta etapa.
