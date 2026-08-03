@@ -18,10 +18,10 @@ describe("content security policy", () => {
     expect(policy).not.toContain("style-src 'self' 'nonce-development-nonce'");
     expect(policy).not.toContain("sha256-");
     expect(policy).toContain(
-      "img-src 'self' blob: data: https://*.supabase.co http://127.0.0.1:54321 http://localhost:54321",
+      "img-src 'self' blob: data: https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com http://127.0.0.1:54321 http://localhost:54321",
     );
     expect(policy).toContain(
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com http://127.0.0.1:54321 ws://127.0.0.1:54321 http://localhost:54321 ws://localhost:54321",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com http://127.0.0.1:54321 ws://127.0.0.1:54321 http://localhost:54321 ws://localhost:54321",
     );
   });
 
