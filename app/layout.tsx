@@ -2,6 +2,7 @@ import { GoogleTagManager } from "@/components/google-tag-manager";
 import { getAppUrl } from "@/lib/env/server";
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 
 const inter = Inter({
@@ -59,16 +60,17 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html lang="pt-BR">
       <head />
       <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}>
-        <GoogleTagManager />
+        <GoogleTagManager nonce={nonce} />
         {children}
       </body>
     </html>

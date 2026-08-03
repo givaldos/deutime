@@ -12,10 +12,10 @@ export function buildContentSecurityPolicy(nonce: string, isDevelopment: boolean
       ? "style-src 'self' 'unsafe-inline'"
       : `style-src 'self' 'nonce-${nonce}'`,
     ...(isDevelopment ? [] : ["style-src-attr 'unsafe-inline'"]),
-    `img-src 'self' blob: data: https://*.supabase.co${isDevelopment ? " http://127.0.0.1:54321 http://localhost:54321" : ""}`,
+    `img-src 'self' blob: data: https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com${isDevelopment ? " http://127.0.0.1:54321 http://localhost:54321" : ""}`,
     "font-src 'self'",
-    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com${isDevelopment ? " http://127.0.0.1:54321 ws://127.0.0.1:54321 http://localhost:54321 ws://localhost:54321" : ""}`,
-    "frame-src https://challenges.cloudflare.com",
+    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com${isDevelopment ? " http://127.0.0.1:54321 ws://127.0.0.1:54321 http://localhost:54321 ws://localhost:54321" : ""}`,
+    "frame-src https://challenges.cloudflare.com https://www.googletagmanager.com",
     "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
