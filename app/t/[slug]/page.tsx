@@ -18,19 +18,18 @@ import {
   CalendarDays,
   Camera,
   Clock3,
-  Facebook,
   Globe2,
-  Instagram,
   LogIn,
   MapPin,
   Music2,
+  PlayCircle,
+  Share2,
   ShieldCheck,
   Shirt,
   Sparkles,
   Star,
   UserPlus,
   UsersRound,
-  Youtube,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -105,9 +104,9 @@ export default async function PublicTeamPage({
   const nextEvent = events[0];
   const laterEvents = events.slice(1);
   const socialLinks = [
-    { label: "Instagram", href: team.instagram_url, icon: Instagram },
-    { label: "Facebook", href: team.facebook_url, icon: Facebook },
-    { label: "YouTube", href: team.youtube_url, icon: Youtube },
+    { label: "Instagram", href: team.instagram_url, icon: Camera },
+    { label: "Facebook", href: team.facebook_url, icon: Share2 },
+    { label: "YouTube", href: team.youtube_url, icon: PlayCircle },
     { label: "TikTok", href: team.tiktok_url, icon: Music2 },
     { label: "Site", href: team.website_url, icon: Globe2 },
   ].filter((item): item is typeof item & { href: string } => Boolean(item.href));

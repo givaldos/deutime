@@ -8,15 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Camera,
   Eye,
-  Facebook,
   Globe2,
-  Instagram,
   LoaderCircle,
   Music2,
+  PlayCircle,
   Save,
+  Share2,
   ShieldCheck,
-  Youtube,
 } from "lucide-react";
 import { useActionState } from "react";
 
@@ -98,7 +98,7 @@ export function TeamSettingsForm({
           <SocialField
             id="instagramUrl"
             label="Instagram"
-            icon={Instagram}
+            icon={Camera}
             defaultValue={team.instagramUrl}
             placeholder="@meutime"
             invalid={Boolean(state.errors?.instagramUrl)}
@@ -106,7 +106,7 @@ export function TeamSettingsForm({
           <SocialField
             id="facebookUrl"
             label="Facebook"
-            icon={Facebook}
+            icon={Share2}
             defaultValue={team.facebookUrl}
             placeholder="facebook.com/meutime"
             invalid={Boolean(state.errors?.facebookUrl)}
@@ -114,7 +114,7 @@ export function TeamSettingsForm({
           <SocialField
             id="youtubeUrl"
             label="YouTube"
-            icon={Youtube}
+            icon={PlayCircle}
             defaultValue={team.youtubeUrl}
             placeholder="@meutime"
             invalid={Boolean(state.errors?.youtubeUrl)}
@@ -243,7 +243,7 @@ function SocialField({
 }: {
   id: string;
   label: string;
-  icon: typeof Instagram;
+  icon: typeof Camera;
   defaultValue: string;
   placeholder: string;
   invalid: boolean;
