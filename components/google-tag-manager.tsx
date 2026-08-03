@@ -6,13 +6,17 @@ import Script from "next/script";
 
 const GOOGLE_TAG_MANAGER_ID = "GTM-TPJZMDD3";
 
-export function GoogleTagManager() {
+export function GoogleTagManager({ nonce }: { nonce?: string }) {
   const pathname = usePathname();
   if (!shouldLoadThirdPartyAnalytics(pathname)) return null;
 
   return (
     <>
-      <Script id="google-tag-manager" strategy="afterInteractive">
+      <Script
+        id="google-tag-manager"
+        strategy="afterInteractive"
+        nonce={nonce}
+      >
         {`
           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
           new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
