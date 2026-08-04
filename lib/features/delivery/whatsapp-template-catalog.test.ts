@@ -16,8 +16,9 @@ const command: WhatsAppDispatchCommand = {
       event_title: "Racha de sexta",
       event_starts_at: "2030-08-02T22:00:00.000Z",
       event_timezone: "America/Sao_Paulo",
-      event_link: "https://deutime.app/e/example#c=secret",
-      event_media_url: "https://deutime.app/e/example/convite.png",
+      // paths sem domínio, conforme exigência da Meta
+      event_link: "e/example#c=secret",
+      event_media_url: "e/example/convite.png",
     },
   },
   callbackUrl: "https://deutime.app/api/status?t=opaque",
@@ -37,7 +38,7 @@ describe("catálogo de templates do WhatsApp", () => {
     expect(EVENT_CALL_TEMPLATE_V1.content.variables).toEqual({
       "1": "Treino de sexta",
       "2": "02/08/2030 às 19:00",
-      "3": expect.stringMatching(/^https:\/\/deutime\.app\/e\//),
+      "3": expect.stringMatching(/^e\//),
     });
   });
 
@@ -61,7 +62,7 @@ describe("catálogo de templates do WhatsApp", () => {
     expect(renderTwilioTemplateVariables(command, "event_call_v1")).toEqual({
       "1": "Racha de sexta",
       "2": "02/08/2030, 19:00",
-      "3": "https://deutime.app/e/example#c=secret",
+      "3": "e/example#c=secret",
     });
   });
 
@@ -75,13 +76,13 @@ describe("catálogo de templates do WhatsApp", () => {
       },
     });
     expect(EVENT_CALL_CARD_TEMPLATE_V1.content.types["twilio/card"].media).toEqual([
-      "{{4}}",
+      "https://deutime.app/{{4}}",
     ]);
     expect(EVENT_CALL_CARD_TEMPLATE_V1.content.types["twilio/card"].title).toBe(
       EVENT_CALL_CARD_TEMPLATE_V1.content.types["twilio/text"].body,
     );
     expect(EVENT_CALL_CARD_TEMPLATE_V1.content.variables["4"]).toMatch(
-      /^https:\/\/deutime\.app\/e\/.+\/convite\.png$/,
+      /^e\/.+\/convite\.png$/,
     );
   });
 
@@ -89,8 +90,8 @@ describe("catálogo de templates do WhatsApp", () => {
     expect(renderTwilioTemplateVariables(command, "event_call_card_v1")).toEqual({
       "1": "Racha de sexta",
       "2": "02/08/2030, 19:00",
-      "3": "https://deutime.app/e/example#c=secret",
-      "4": "https://deutime.app/e/example/convite.png",
+      "3": "e/example#c=secret",
+      "4": "e/example/convite.png",
     });
   });
 
@@ -99,7 +100,7 @@ describe("catálogo de templates do WhatsApp", () => {
       renderTwilioTemplateVariables(command, "sandbox_appointment"),
     ).toEqual({
       "1": "Racha de sexta em 02/08/2030, 19:00",
-      "2": "https://deutime.app/e/example#c=secret",
+      "2": "e/example#c=secret",
     });
   });
 

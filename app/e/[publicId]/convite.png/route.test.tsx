@@ -29,7 +29,11 @@ describe("imagem pública do convite", () => {
     const html = renderToStaticMarkup(<InviteImage event={event} />);
     expect(html).toContain("Society United");
     expect(html).toContain("Treino semanal");
-    expect(html).toContain("3 de agosto de 2026");
+    // data em destaque: dia numérico, mês abreviado e dia da semana por extenso
+    expect(html).toContain("03");
+    expect(html).toContain("ago");
+    expect(html).toContain("segunda-feira");
+    expect(html).toContain("às 18:00");
     expect(html).toContain("logo-deutime-email-640-fundo-escuro.png");
     expect(html).not.toContain(">DT<");
     expect(html).not.toContain("opponent");
