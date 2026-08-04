@@ -47,11 +47,12 @@ describe("contrato de dispatch WhatsApp", () => {
       new URL("https://deutime.app"),
     );
 
+    // {{3}} e {{4}} carregam apenas o caminho; domínio fica fixo no template Meta.
     expect(command.template.variables.event_link).toBe(
-      `https://deutime.app/e/${prepared.event_public_id}#c=${prepared.credential_secret}`,
+      `e/${prepared.event_public_id}#c=${prepared.credential_secret}`,
     );
     expect(command.template.variables.event_media_url).toBe(
-      `https://deutime.app/e/${prepared.event_public_id}/convite.png`,
+      `e/${prepared.event_public_id}/convite.png`,
     );
     expect(command.callbackUrl).toBe(
       `https://deutime.app/api/integrations/twilio/whatsapp/status/${prepared.attempt_id}`,

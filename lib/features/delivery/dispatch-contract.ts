@@ -64,8 +64,11 @@ export function buildWhatsAppDispatchCommand(
   prepared: PreparedDispatch,
   appUrl: URL,
 ): WhatsAppDispatchCommand {
-  const eventUrl = new URL(`/e/${prepared.event_public_id}`, appUrl);
-  eventUrl.hash = new URLSearchParams({ c: prepared.credential_secret }).toString();
+  // A Meta exige que o domínio fique fixo no template aprovado; apenas o
+  // caminho (sem "/" inicial) vai nas variáveis {{3}} e {{4}}.
+  const credentialParams = new URLSearchParams({ c: prepared.credential_secret });
+  const eventLinkPath = `e/${prepared.event_public_id}#${credentialParams.toString()}`;
+  const eventMediaPath = `e/${prepared.event_public_id}/convite.png`;
 
   const callbackUrl = new URL(
     `/api/integrations/twilio/whatsapp/status/${prepared.attempt_id}`,
@@ -84,11 +87,8 @@ export function buildWhatsAppDispatchCommand(
         ...(prepared.template_payload.event_timezone
           ? { event_timezone: prepared.template_payload.event_timezone }
           : {}),
-        event_link: eventUrl.toString(),
-        event_media_url: new URL(
-          `/e/${prepared.event_public_id}/convite.png`,
-          appUrl,
-        ).toString(),
+        event_link: eventLinkPath,
+        event_media_url: eventMediaPath,
       },
     },
     callbackUrl: callbackUrl.toString(),

@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- next/og renderiza o ativo oficial por meio de img. */
 import { getPublicEvent, type PublicEvent } from "@/lib/data/public-event";
 import {
-  formatPublicEventDate,
   formatPublicEventTime,
   isPublicEventId,
   publicEventKindLabels,
@@ -60,9 +59,6 @@ export function InviteImage({
   const status = event
     ? publicEventStatusPresentation[event.status]
     : publicEventStatusPresentation.scheduled;
-  const date = event
-    ? formatPublicEventDate(event.starts_at, event.team_timezone)
-    : "Confira os detalhes do convite";
   const time = event
     ? formatPublicEventTime(event.starts_at, event.team_timezone)
     : null;
@@ -107,7 +103,7 @@ export function InviteImage({
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 20,
+          gap: 16,
           maxWidth: 1040,
         }}
       >
@@ -132,9 +128,79 @@ export function InviteImage({
         >
           {event?.title ?? "Você foi convocado"}
         </span>
-        <span style={{ fontSize: 28, color: "#d7e3dc" }}>
-          {event ? `${date}, às ${time}` : date}
-        </span>
+
+        {/* Destaque de data — essencial pois a data não vai no corpo do template card */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+            marginTop: 4,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "#bdf63c",
+              color: "#0d2b22",
+              borderRadius: 16,
+              padding: "10px 20px",
+              minWidth: 80,
+              lineHeight: 1,
+            }}
+          >
+            {event ? (
+              <>
+                <span style={{ fontSize: 36, fontWeight: 900 }}>
+                  {new Intl.DateTimeFormat("pt-BR", {
+                    day: "2-digit",
+                    timeZone: event.team_timezone,
+                  }).format(new Date(event.starts_at))}
+                </span>
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 900,
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                    marginTop: 2,
+                  }}
+                >
+                  {new Intl.DateTimeFormat("pt-BR", {
+                    month: "short",
+                    timeZone: event.team_timezone,
+                  })
+                    .format(new Date(event.starts_at))
+                    .replace(".", "")}
+                </span>
+              </>
+            ) : (
+              <span style={{ fontSize: 24, fontWeight: 900 }}>?</span>
+            )}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+            }}
+          >
+            <span style={{ fontSize: 30, fontWeight: 900, color: "#f7f5ed" }}>
+              {event
+                ? new Intl.DateTimeFormat("pt-BR", {
+                    weekday: "long",
+                    timeZone: event.team_timezone,
+                  }).format(new Date(event.starts_at))
+                : "Confira os detalhes"}
+            </span>
+            <span style={{ fontSize: 24, color: "#a9c6b8", fontWeight: 700 }}>
+              {event && time ? `às ${time}` : ""}
+            </span>
+          </div>
+        </div>
       </div>
 
       <div

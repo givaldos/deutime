@@ -83,13 +83,22 @@ describe("configuração do piloto Twilio", () => {
     ).toThrow("Configuração do piloto Sandbox inválida.");
   });
 
-  it("falha fechado com sender próprio ou perfil desconhecido", () => {
+  it("aceita o sender próprio de produção e falha com perfil desconhecido", () => {
+    // número próprio (+55 11 3230-0101) agora é válido
     expect(() =>
       parseTwilioPilotConfig({
         ...sandboxEnv,
-        TWILIO_WHATSAPP_FROM: "+5511999999999",
+        TWILIO_WHATSAPP_FROM: "+551132300101",
       }),
-    ).toThrow("Configuração do piloto Sandbox inválida.");
+    ).not.toThrow();
+    expect(
+      parseTwilioPilotConfig({
+        ...sandboxEnv,
+        TWILIO_WHATSAPP_FROM: "+551132300101",
+      })?.from,
+    ).toBe("+551132300101");
+
+    // perfil desconhecido continua falhando fechado
     expect(() =>
       parseTwilioPilotConfig({
         ...sandboxEnv,

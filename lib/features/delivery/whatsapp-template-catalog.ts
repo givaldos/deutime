@@ -14,11 +14,12 @@ export const EVENT_CALL_TEMPLATE_V1 = {
     variables: {
       "1": "Treino de sexta",
       "2": "02/08/2030 às 19:00",
-      "3": "https://deutime.app/e/00000000-0000-4000-8000-000000000000#c=exemplo",
+      // Domínio fixo no template aprovado pela Meta; {{3}} carrega só o caminho.
+      "3": "e/00000000-0000-4000-8000-000000000000#c=exemplo",
     },
     types: {
       "twilio/text": {
-        body: "Olá! O evento {{1}} está marcado para {{2}}. Consulte os detalhes e responda à chamada pelo link {{3}}. Se você não reconhece este convite, ignore esta mensagem.",
+        body: "Olá! O evento {{1}} está marcado para {{2}}. Consulte os detalhes e responda à chamada pelo link https://deutime.app/{{3}}. Se você não reconhece este convite, ignore esta mensagem.",
       },
     },
   },
@@ -29,7 +30,7 @@ export const EVENT_CALL_TEMPLATE_V1 = {
 } as const;
 
 const eventCallBody =
-  "⚽ CONVOCAÇÃO: {{1}}\n📅 {{2}}\n\nA lista acabou de abrir. Contamos com teu nome, craque. Com 1 toque você confirma presença 👇\n{{3}}\n\nSem senha, sem cadastro. Só clicar no link. Mudou o plano? Volta no link e troca a resposta.";
+  "⚽ CONVOCAÇÃO: {{1}}\n📅 {{2}}\n\nA lista acabou de abrir. Contamos com teu nome, craque. Com 1 toque você confirma presença 👇\nhttps://deutime.app/{{3}}\n\nSem senha, sem cadastro. Só clicar no link. Mudou o plano? Volta no link e troca a resposta.";
 
 export const EVENT_CALL_CARD_TEMPLATE_V1 = {
   key: "event_call",
@@ -40,13 +41,14 @@ export const EVENT_CALL_CARD_TEMPLATE_V1 = {
     variables: {
       "1": "Treino de sexta",
       "2": "02/08/2030 às 19:00",
-      "3": "https://deutime.app/e/00000000-0000-4000-8000-000000000000#c=exemplo",
-      "4": "https://deutime.app/e/00000000-0000-4000-8000-000000000000/convite.png",
+      // Domínio fixo no template aprovado pela Meta; {{3}} e {{4}} carregam só o caminho.
+      "3": "e/00000000-0000-4000-8000-000000000000#c=exemplo",
+      "4": "e/00000000-0000-4000-8000-000000000000/convite.png",
     },
     types: {
       "twilio/card": {
         title: eventCallBody,
-        media: ["{{4}}"],
+        media: ["https://deutime.app/{{4}}"],
       },
       "twilio/text": {
         body: eventCallBody,

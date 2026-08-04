@@ -4,10 +4,12 @@ import type { TwilioTemplateProfile } from "./whatsapp-template-catalog";
 const sandboxSchema = z.object({
   TWILIO_ACCOUNT_SID: z.string().regex(/^AC[A-Fa-f0-9]{32}$/),
   TWILIO_AUTH_TOKEN: z.string().min(16).max(128),
-  TWILIO_WHATSAPP_FROM: z.literal("+14155238886"),
+  // Aceita o número Sandbox compartilhado ou o sender próprio de produção.
+  TWILIO_WHATSAPP_FROM: z.string().regex(/^\+[1-9]\d{7,14}$/),
   TWILIO_CONTENT_SID_EVENT_CALL_V1: z
     .string()
-    .regex(/^HX[A-Fa-f0-9]{32}$/),
+    .regex(/^HX[A-Fa-f0-9]{32}$/)
+    .optional(),
   TWILIO_TEMPLATE_PROFILE: z.enum([
     "sandbox_appointment",
     "event_call_v1",
