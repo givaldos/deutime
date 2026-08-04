@@ -19,6 +19,34 @@ const sandboxSchema = z.object({
   WHATSAPP_PILOT_RECIPIENT: z.string().regex(/^\+[1-9]\d{7,14}$/),
 });
 
+// Schema para o worker geral de produção — sem restrição de destinatário único.
+const productionSchema = z.object({
+  TWILIO_ACCOUNT_SID: z.string().regex(/^AC[A-Fa-f0-9]{32}$/),
+  TWILIO_AUTH_TOKEN: z.string().min(16).max(128),
+  TWILIO_WHATSAPP_FROM: z.string().regex(/^\+[1-9]\d{7,14}$/),
+  TWILIO_CONTENT_SID_EVENT_CALL_V1: z
+    .string()
+    .regex(/^HX[A-Fa-f0-9]{32}$/)
+    .optional(),
+  TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1: z
+    .string()
+    .regex(/^HX[A-Fa-f0-9]{32}$/)
+    .optional(),
+});
+
+export type TwilioProductionConfig = {
+  accountSid: string;
+  authToken: string;
+  from: string;
+  templates: Record<
+    string,
+    {
+      contentSid: string;
+      profile: TwilioTemplateProfile;
+    }
+  >;
+};
+
 export type TwilioPilotConfig = {
   accountSid: string;
   authToken: string;
@@ -66,5 +94,50 @@ export function parseTwilioPilotConfig(
         profile,
       },
     },
+  };
+}
+
+/**
+ * Configura o adapter para o worker geral de produção.
+ * Não exige WHATSAPP_PILOT_MODE; basta ter TWILIO_ACCOUNT_SID, AUTH_TOKEN,
+ * FROM e ao menos um Content SID de template válido.
+ * Retorna null se as variáveis obrigatórias estiverem ausentes (worker fica
+ * em dry-run). Lança se estiverem presentes mas com formato inválido.
+ */
+export function parseTwilioProductionConfig(
+  env: Record<string, string | undefined>,
+): TwilioProductionConfig | null {
+  // Se nenhuma credencial estiver definida, mantém dry-run silenciosamente.
+  if (!env.TWILIO_ACCOUNT_SID && !env.TWILIO_AUTH_TOKEN) return null;
+
+  const parsed = productionSchema.safeParse(env);
+  if (!parsed.success) {
+    throw new Error("Configuração Twilio de produção inválida.");
+  }
+
+  const templates: TwilioProductionConfig["templates"] = {};
+
+  if (parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_V1) {
+    templates["event_call:v1"] = {
+      contentSid: parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_V1,
+      profile: "event_call_v1",
+    };
+  }
+  if (parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1) {
+    templates["event_call:card_v1"] = {
+      contentSid: parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1,
+      profile: "event_call_card_v1",
+    };
+  }
+
+  if (Object.keys(templates).length === 0) {
+    throw new Error("Configuração Twilio de produção inválida.");
+  }
+
+  return {
+    accountSid: parsed.data.TWILIO_ACCOUNT_SID,
+    authToken: parsed.data.TWILIO_AUTH_TOKEN,
+    from: parsed.data.TWILIO_WHATSAPP_FROM,
+    templates,
   };
 }

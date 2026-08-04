@@ -5,6 +5,9 @@ const mocks = vi.hoisted(() => ({
   consumptionEnabled: vi.fn(),
   createRepository: vi.fn(() => ({ releaseClaim: vi.fn() })),
   runWorker: vi.fn(),
+  parseProductionConfig: vi.fn(),
+  createAdapter: vi.fn(),
+  getAppUrl: vi.fn(() => new URL("https://deutime.app")),
 }));
 
 vi.mock("@/lib/features/delivery/server", () => ({
@@ -15,6 +18,15 @@ vi.mock("@/lib/features/delivery/supabase-delivery-repository", () => ({
 }));
 vi.mock("@/lib/features/delivery/whatsapp-worker", () => ({
   runWhatsAppWorker: mocks.runWorker,
+}));
+vi.mock("@/lib/features/delivery/twilio-pilot-config", () => ({
+  parseTwilioProductionConfig: mocks.parseProductionConfig,
+}));
+vi.mock("@/lib/features/delivery/twilio-adapter", () => ({
+  createTwilioWhatsAppAdapter: mocks.createAdapter,
+}));
+vi.mock("@/lib/env/server", () => ({
+  getAppUrl: mocks.getAppUrl,
 }));
 
 import { POST } from "./route";
@@ -53,9 +65,10 @@ describe("executor interno do WhatsApp", () => {
     expect(mocks.runWorker).not.toHaveBeenCalled();
   });
 
-  it("expõe somente dry-run mesmo com consumo habilitado", async () => {
+  it("usa dry-run quando não há credenciais Twilio configuradas", async () => {
     process.env.WHATSAPP_WORKER_SECRET = secret;
     mocks.consumptionEnabled.mockResolvedValue(true);
+    mocks.parseProductionConfig.mockReturnValue(null);
     mocks.runWorker.mockResolvedValue({ mode: "dry-run", claimed: 0 });
     const response = await POST(request());
 
@@ -67,5 +80,36 @@ describe("executor interno do WhatsApp", () => {
       status: "dry-run concluído",
       summary: { mode: "dry-run", claimed: 0 },
     });
+  });
+
+  it("usa live quando as credenciais Twilio estão configuradas", async () => {
+    process.env.WHATSAPP_WORKER_SECRET = secret;
+    mocks.consumptionEnabled.mockResolvedValue(true);
+    const fakeConfig = { accountSid: "AC123", templates: {} };
+    mocks.parseProductionConfig.mockReturnValue(fakeConfig);
+    const fakeAdapter = { send: vi.fn() };
+    mocks.createAdapter.mockReturnValue(fakeAdapter);
+    mocks.runWorker.mockResolvedValue({ mode: "live", claimed: 1, accepted: 1 });
+    const response = await POST(request());
+
+    expect(response.status).toBe(200);
+    expect(mocks.runWorker).toHaveBeenCalledWith(
+      expect.objectContaining({ mode: "live", adapter: fakeAdapter }),
+    );
+    await expect(response.json()).resolves.toMatchObject({
+      status: "worker executado",
+    });
+  });
+
+  it("retorna 503 se a configuração Twilio for inválida", async () => {
+    process.env.WHATSAPP_WORKER_SECRET = secret;
+    mocks.consumptionEnabled.mockResolvedValue(true);
+    mocks.parseProductionConfig.mockImplementation(() => {
+      throw new Error("Configuração Twilio de produção inválida.");
+    });
+    const response = await POST(request());
+
+    expect(response.status).toBe(503);
+    expect(mocks.runWorker).not.toHaveBeenCalled();
   });
 });
