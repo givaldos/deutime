@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     return response({ status: "não autorizado" }, 401);
   }
 
-  const vars = [
+  const envKeys = [
     "TWILIO_ACCOUNT_SID",
     "TWILIO_AUTH_TOKEN",
     "TWILIO_WHATSAPP_FROM",
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
   ] as const;
 
   const present: Record<string, string> = {};
-  for (const key of vars) {
+  for (const key of envKeys) {
     const val = process.env[key];
     if (val) {
       // mostra apenas os primeiros 6 caracteres para confirmar o formato sem expor o segredo
@@ -51,9 +51,6 @@ export async function GET(request: NextRequest) {
 
   return response({ env: present, parsedConfig: configResult }, 200);
 }
-
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   if (
