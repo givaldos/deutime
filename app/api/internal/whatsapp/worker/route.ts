@@ -10,48 +10,6 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** GET temporário para diagnóstico de variáveis de ambiente — remover após confirmar live. */
-export async function GET(request: NextRequest) {
-  if (
-    !isAuthorizedWorkerRequest(
-      request.headers.get("authorization"),
-      process.env.WHATSAPP_WORKER_SECRET,
-    )
-  ) {
-    return response({ status: "não autorizado" }, 401);
-  }
-
-  const envKeys = [
-    "TWILIO_ACCOUNT_SID",
-    "TWILIO_AUTH_TOKEN",
-    "TWILIO_WHATSAPP_FROM",
-    "TWILIO_CONTENT_SID_EVENT_CALL_V1",
-    "TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1",
-    "WHATSAPP_PILOT_MODE",
-  ] as const;
-
-  const present: Record<string, string> = {};
-  for (const key of envKeys) {
-    const val = process.env[key];
-    if (val) {
-      // mostra apenas os primeiros 6 caracteres para confirmar o formato sem expor o segredo
-      present[key] = val.slice(0, 6) + "…";
-    } else {
-      present[key] = "(ausente)";
-    }
-  }
-
-  let configResult: string;
-  try {
-    const cfg = parseTwilioProductionConfig(process.env);
-    configResult = cfg ? `live — ${Object.keys(cfg.templates).join(", ")}` : "null (dry-run)";
-  } catch (e) {
-    configResult = `erro: ${e instanceof Error ? e.message : String(e)}`;
-  }
-
-  return response({ env: present, parsedConfig: configResult }, 200);
-}
-
 export async function POST(request: NextRequest) {
   if (
     !isAuthorizedWorkerRequest(

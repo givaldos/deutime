@@ -38,6 +38,7 @@ const event = {
   public_id: publicId,
   team_name: "Society United",
   team_timezone: "America/Sao_Paulo",
+  team_logo_url: null as string | null,
   title: "Treino semanal",
   kind: "training" as const,
   sport_format: "society" as const,
