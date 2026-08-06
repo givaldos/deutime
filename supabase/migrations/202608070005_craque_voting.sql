@@ -11,8 +11,7 @@ create table if not exists public.craque_votes (
   candidate_athlete_id uuid not null references public.athletes(id) on delete restrict,
   receipt_token_hash text not null check (char_length(receipt_token_hash)=64),
   created_at timestamptz not null default now(),
-  unique (match_id, voter_hash),
-  foreign key (match_id, team_id) references public.event_matches(id, team_id) on delete cascade
+  unique (match_id, voter_hash)
 );
 
 create table if not exists public.craque_vote_receipts (
