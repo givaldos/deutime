@@ -4,7 +4,6 @@ import {
   isPublicEventContractUnavailable,
   isPublicEventId,
 } from "@/lib/features/public-event/presentation";
-import { createPrivilegedClient } from "@/lib/supabase/privileged";
 import { createClient } from "@/lib/supabase/server";
 import { cache } from "react";
 
@@ -60,14 +59,11 @@ export const getPublicEvent = cache(
       return null;
     }
 
-    // Busca logo do time em paralelo — falha silenciosa se não existir.
-    const teamLogoUrl = await getTeamLogoUrlByEventPublicId(publicId);
-
     return {
       public_id: data.public_id,
       team_name: data.team_name,
       team_timezone: data.team_timezone,
-      team_logo_url: teamLogoUrl,
+      team_logo_url: null, // preenchido pelo caller via getTeamLogoUrl
       title: data.title,
       kind: data.kind,
       sport_format: data.sport_format,
@@ -78,32 +74,3 @@ export const getPublicEvent = cache(
     };
   },
 );
-
-async function getTeamLogoUrlByEventPublicId(
-  publicId: string,
-): Promise<string | null> {
-  try {
-    const privileged = createPrivilegedClient();
-    const { data: eventRow } = await privileged
-      .from("events")
-      .select("team_id")
-      .eq("public_id", publicId)
-      .maybeSingle();
-    if (!eventRow?.team_id) return null;
-
-    const { data: mediaRow } = await privileged
-      .from("team_media")
-      .select("storage_path")
-      .eq("team_id", eventRow.team_id)
-      .eq("kind", "logo")
-      .maybeSingle();
-    if (!mediaRow?.storage_path) return null;
-
-    const { data: signed } = await privileged.storage
-      .from("team_media")
-      .createSignedUrl(mediaRow.storage_path, 3600);
-    return signed?.signedUrl ?? null;
-  } catch {
-    return null;
-  }
-}

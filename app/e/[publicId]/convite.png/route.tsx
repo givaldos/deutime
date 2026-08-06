@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- next/og renderiza o ativo oficial por meio de img. */
 import { getPublicEvent, type PublicEvent } from "@/lib/data/public-event";
-import { createPrivilegedClient } from "@/lib/supabase/privileged";
+import { getTeamLogoUrlByEventPublicId } from "@/lib/data/team-logo";
 import {
   formatPublicEventTime,
   isPublicEventId,
@@ -23,34 +23,6 @@ type InviteImageRouteContext = {
   params: Promise<{ publicId: string }>;
 };
 
-async function getTeamLogoUrl(publicId: string): Promise<string | null> {
-  try {
-    const privileged = createPrivilegedClient();
-    // Busca o logo_path do time via join com events usando o public_id
-    const { data } = await privileged
-      .from("events")
-      .select("team_id")
-      .eq("public_id", publicId)
-      .maybeSingle();
-    if (!data?.team_id) return null;
-
-    const { data: mediaData } = await privileged
-      .from("team_media")
-      .select("storage_path")
-      .eq("team_id", data.team_id)
-      .eq("kind", "logo")
-      .maybeSingle();
-    if (!mediaData?.storage_path) return null;
-
-    const { data: signed } = await privileged.storage
-      .from("team_media")
-      .createSignedUrl(mediaData.storage_path, 600);
-    return signed?.signedUrl ?? null;
-  } catch {
-    return null;
-  }
-}
-
 export async function GET(
   request: Request,
   context: InviteImageRouteContext,
@@ -60,7 +32,7 @@ export async function GET(
 
   const [event, teamLogoUrl] = await Promise.all([
     isValid ? getPublicEvent(publicId).catch(() => null) : Promise.resolve(null),
-    isValid ? getTeamLogoUrl(publicId) : Promise.resolve(null),
+    isValid ? getTeamLogoUrlByEventPublicId(publicId) : Promise.resolve(null),
   ]);
 
   const brandLogoUrl = new URL(

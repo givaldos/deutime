@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   getPublicEvent: vi.fn(),
+  getTeamLogoUrlByEventPublicId: vi.fn().mockResolvedValue(null),
   createPrivilegedClient: vi.fn(() => ({
     from: vi.fn(() => ({
       select: vi.fn(() => ({
@@ -21,6 +22,9 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/lib/data/public-event", () => ({
   getPublicEvent: mocks.getPublicEvent,
+}));
+vi.mock("@/lib/data/team-logo", () => ({
+  getTeamLogoUrlByEventPublicId: mocks.getTeamLogoUrlByEventPublicId,
 }));
 vi.mock("@/lib/supabase/privileged", () => ({
   createPrivilegedClient: mocks.createPrivilegedClient,
