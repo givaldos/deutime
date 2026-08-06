@@ -3,6 +3,8 @@ import {
   MatchIncidentForm,
   MatchScoreForm,
 } from "@/components/admin-match-report";
+import { getEventMatches } from "@/lib/data/matches";
+import { CreateMatchForm, ParticipationForm, RecordEventForm } from "@/components/match-forms";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { AppContainer } from "@/components/ui/app-shell";
 import { TeamAppHeader } from "@/components/team-app-header";
@@ -112,6 +114,7 @@ export default async function MatchReportPage({
       .order("sort_order")
       .limit(2),
   ]);
+  const eventMatches = await getEventMatches(team.id, event.id);
 
   const confirmedAthleteIds = (attendance ?? []).map(
     (item) => item.athlete_id,
@@ -396,6 +399,51 @@ export default async function MatchReportPage({
             </div>
           )}
         </section>
+
+        {eventMatches !== null && (
+          <section className="app-surface p-5 sm:p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-bold">Partidas do evento (R04)</h2>
+              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                {eventMatches.length} {eventMatches.length === 1 ? "partida" : "partidas"}
+              </span>
+            </div>
+            <CreateMatchForm teamSlug={team.slug} eventId={event.id} />
+            {eventMatches.length === 0 ? (
+              <p className="text-sm text-slate-500">Nenhuma partida criada. Use “Nova partida” para iniciar.</p>
+            ) : (
+              <div className="space-y-4">
+                {eventMatches.map((m) => (
+                  <div key={m.id} className="rounded-2xl border border-slate-200 p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="font-semibold">Partida {m.ordinal} · {m.status}</p>
+                      <span className="text-xs text-slate-400">{m.public_mode}</span>
+                    </div>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {(m.sides.find((s) => s.side_index === 1)?.label ?? "Time A")} × {(m.sides.find((s) => s.side_index === 2)?.label ?? "Time B")}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">{m.events.length} lances · {m.participations.length} participantes</p>
+                    <div className="mt-3 space-y-3">
+                      <ParticipationForm
+                        teamSlug={team.slug}
+                        matchId={m.id}
+                        athletes={(athletes ?? []).map((a) => ({ id: a.id, name: a.preferred_name || a.full_name }))}
+                        sides={m.sides}
+                      />
+                      <RecordEventForm
+                        teamSlug={team.slug}
+                        matchId={m.id}
+                        sides={m.sides}
+                        athletes={(athletes ?? []).map((a) => ({ id: a.id, name: a.preferred_name || a.full_name }))}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <p className="mt-3 text-xs text-slate-400">Recurso atrás de flag <code>event_matches</code> desligada por padrão; fallback mantém súmula legada.</p>
+          </section>
+        )}
 
         <p className="app-surface flex items-start gap-2 p-4 text-xs leading-5 text-slate-500">
           <CalendarDays

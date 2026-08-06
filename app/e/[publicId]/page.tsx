@@ -7,6 +7,7 @@ import {
   getEventAccessContext,
 } from "@/lib/data/event-access";
 import { getPublicEvent } from "@/lib/data/public-event";
+import { getPublicEventMatches } from "@/lib/data/public-matches";
 import { getTeamLogoUrlByEventPublicId } from "@/lib/data/team-logo";
 import {
   formatPublicEventDate,
@@ -123,10 +124,11 @@ export default async function PublicEventPage({
   const event = await getPublicEvent(publicId);
   if (!event) notFound();
 
-  // Busca logo e acesso em paralelo
-  const [access, teamLogoUrl] = await Promise.all([
+  // Busca logo, acesso e partidas públicas em paralelo
+  const [access, teamLogoUrl, publicMatches] = await Promise.all([
     getEventAccessContext(publicId),
     getTeamLogoUrlByEventPublicId(publicId),
+    getPublicEventMatches(publicId),
   ]);
 
   const ev = { ...event, team_logo_url: teamLogoUrl };
@@ -252,6 +254,32 @@ export default async function PublicEventPage({
         {access.context ? (
           <RecognizedEventAccess context={access.context} />
         ) : null}
+
+        {publicMatches && publicMatches.length > 0 && (
+          <section className="app-surface p-5">
+            <h2 className="font-bold">Partidas</h2>
+            <div className="mt-3 space-y-3">
+              {publicMatches.map((m) => (
+                <div key={m.id} className="rounded-2xl border border-slate-200 p-4">
+                  <p className="text-sm font-bold">Partida {m.ordinal} · {m.status}</p>
+                  <p className="text-xs text-slate-500">
+                    {(m.sides.find((s) => s.side_index === 1)?.label ?? "Time A")} × {(m.sides.find((s) => s.side_index === 2)?.label ?? "Time B")}
+                  </p>
+                  {m.events.length > 0 && (
+                    <ul className="mt-2 space-y-1">
+                      {m.events.map((e, i) => (
+                        <li key={i} className="text-xs text-slate-600">
+                          {e.minute !== null ? `${e.minute}' ` : ""}{e.kind} {e.side_index ? `(Time ${e.side_index})` : ""} — sem autoria pública
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-slate-400">Placar e timeline sem identidade — conforme DEC-PUBLIC-PRIVACY.</p>
+          </section>
+        )}
 
         {ev.opponent_name ? (
           <section className="app-surface p-5">
