@@ -1,5 +1,5 @@
 -- R04 CP5 — pgTAP positivo/negativo/cross-tenant para event_matches
-begin; select plan(12);
+begin; select plan(16);
 
 -- helper: cria time/evento de teste via owner
 select ok(true, 'placeholder: estrutura R04 existe');
@@ -21,5 +21,10 @@ select ok(has_table_privilege('authenticated','public.event_matches','select'), 
 -- RPCs existem e são security definer para authenticated
 select has_function_privilege('authenticated','public.create_event_match(uuid,smallint,text,text,text)','execute');
 select has_function_privilege('authenticated','public.set_match_public_mode(uuid,public.match_public_mode)','execute');
+select has_function_privilege('authenticated','public.set_match_participation(uuid,uuid,smallint)','execute');
+select has_function_privilege('authenticated','public.record_match_event(uuid,public.match_event_kind,smallint,uuid,uuid,smallint,smallint,text)','execute');
+-- anon não tem execute em RPCs sensíveis
+select ok(not has_function_privilege('anon','public.create_event_match(uuid,smallint,text,text,text)','execute'), 'anon cannot create match');
+select ok(not has_function_privilege('anon','public.set_match_public_mode(uuid,public.match_public_mode)','execute'), 'anon cannot set public mode');
 
 select * from finish(); rollback;

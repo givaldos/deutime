@@ -257,7 +257,10 @@ export default async function PublicEventPage({
 
         {publicMatches && publicMatches.length > 0 && (
           <section className="app-surface p-5">
-            <h2 className="font-bold">Partidas</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold">Partidas</h2>
+              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">{publicMatches.reduce((a, m) => a + m.events.filter((e) => e.kind === "goal").length, 0)} gols</span>
+            </div>
             <div className="mt-3 space-y-3">
               {publicMatches.map((m) => (
                 <div key={m.id} className="rounded-2xl border border-slate-200 p-4">

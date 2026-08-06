@@ -5,7 +5,7 @@ scope: match_expansion_and_operation
 branch_or_commit: "dev"
 checkpoint: CP4
 status: in_progress
-completed_ac: ["AC-R04-01","AC-R04-02","AC-R04-03","AC-R04-04","AC-R04-06","AC-R04-08"]
+completed_ac: ["AC-R04-01","AC-R04-02","AC-R04-03","AC-R04-04","AC-R04-06","AC-R04-08","AC-R04-10"]
 dirty_files:
   - supabase/migrations/202608070001_r04_match_expansion.sql
   - supabase/migrations/202608070002_r04_match_rpc.sql
