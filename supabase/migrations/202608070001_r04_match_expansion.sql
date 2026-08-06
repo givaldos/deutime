@@ -2,6 +2,9 @@
 -- Mantém súmula legada intacta; app antigo (N) continua lendo match_reports; app novo (N+1) lê event_matches atrás de flag event_matches desligada.
 -- Backfill cria 1 partida padrão por súmula legada; eventos sem súmula permanecem com zero partidas.
 
+-- Enum de feature flag para R04
+alter type public.feature_key add value if not exists 'event_matches';
+
 -- Tipos
 do $$ begin
   if not exists (select 1 from pg_type where typname = 'match_status') then
@@ -49,13 +52,12 @@ create table if not exists public.match_sides (
   external_snapshot jsonb,
   created_at timestamptz not null default now(),
   unique (match_id, side_index),
-  unique (match_id, team_id, side_index),
-  foreign key (match_id, event_id, team_id) references public.event_matches(id, event_id, team_id) on delete cascade
+  unique (match_id, team_id, side_index)
 );
 
 create table if not exists public.match_participations (
   id uuid primary key default gen_random_uuid(),
-  match_id uuid not null,
+  match_id uuid not null references public.event_matches(id) on delete cascade,
   event_id uuid not null,
   team_id uuid not null,
   athlete_id uuid not null,
@@ -63,14 +65,12 @@ create table if not exists public.match_participations (
   created_by uuid not null references auth.users(id) on delete restrict,
   created_at timestamptz not null default now(),
   unique (match_id, athlete_id),
-  foreign key (athlete_id, team_id) references public.athletes(id, team_id) on delete restrict,
-  foreign key (match_id, event_id, team_id) references public.event_matches(id, event_id, team_id) on delete cascade,
-  foreign key (side_id, match_id, team_id) references public.match_sides(id, match_id, team_id) on delete restrict
+  foreign key (athlete_id, team_id) references public.athletes(id, team_id) on delete restrict
 );
 
 create table if not exists public.match_events (
   id uuid primary key default gen_random_uuid(),
-  match_id uuid not null,
+  match_id uuid not null references public.event_matches(id) on delete cascade,
   event_id uuid not null,
   team_id uuid not null,
   kind public.match_event_kind not null,
@@ -82,7 +82,6 @@ create table if not exists public.match_events (
   notes text check (notes is null or char_length(notes) <= 500),
   created_by uuid not null references auth.users(id) on delete restrict,
   created_at timestamptz not null default now(),
-  foreign key (match_id, event_id, team_id) references public.event_matches(id, event_id, team_id) on delete cascade,
   foreign key (athlete_id, team_id) references public.athletes(id, team_id) on delete restrict,
   foreign key (assist_athlete_id, team_id) references public.athletes(id, team_id) on delete restrict,
   check (assist_athlete_id is null or assist_athlete_id <> athlete_id),
