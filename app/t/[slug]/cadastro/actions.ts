@@ -1,7 +1,10 @@
 "use server";
 
+import { getTurnstileConfig } from "@/lib/env/server";
+import { verifyTurnstileToken } from "@/lib/security/turnstile";
 import { createClient } from "@/lib/supabase/server";
 import { normalizePhone } from "@/lib/validation/phone";
+import { headers } from "next/headers";
 import { z } from "zod";
 
 const slugSchema = z
@@ -95,7 +98,32 @@ export async function prepareAthleteRegistration(
     return { ok: false, message: "Não foi possível concluir agora." };
   }
 
-  if (process.env.NODE_ENV === "production" && !parsed.data.turnstileToken) {
+  const turnstileConfig = getTurnstileConfig();
+  const hasTurnstileConfig = turnstileConfig !== null;
+
+  if (process.env.NODE_ENV === "production" && hasTurnstileConfig && !parsed.data.turnstileToken) {
+    return {
+      ok: false,
+      message: "Conclua a verificação de segurança para continuar.",
+    };
+  }
+
+  if (hasTurnstileConfig && parsed.data.turnstileToken) {
+    const headerList = await headers().catch(() => null);
+    const forwardedFor = headerList?.get("x-forwarded-for")?.split(",")[0]?.trim();
+    const remoteIp = headerList?.get("x-real-ip")?.trim() || forwardedFor || undefined;
+    const verified = await verifyTurnstileToken(
+      parsed.data.turnstileToken,
+      turnstileConfig.secretKey,
+      remoteIp,
+    );
+    if (!verified.success) {
+      return {
+        ok: false,
+        message: "Conclua a verificação de segurança para continuar.",
+      };
+    }
+  } else if (process.env.NODE_ENV === "production" && hasTurnstileConfig) {
     return {
       ok: false,
       message: "Conclua a verificação de segurança para continuar.",

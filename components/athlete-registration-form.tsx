@@ -112,8 +112,9 @@ export function AthleteRegistrationForm({
     setError(null);
 
     try {
-      const formData = registrationFormData(event.currentTarget);
       const captchaToken = getTurnstileToken(event.currentTarget);
+      const formData = registrationFormData(event.currentTarget);
+      if (captchaToken) formData.set("cf-turnstile-response", captchaToken);
       const prepared = await prepareAthleteRegistration(formData);
       if (!prepared.ok) {
         setError(prepared.message);
