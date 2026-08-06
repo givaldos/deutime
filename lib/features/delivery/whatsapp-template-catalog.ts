@@ -29,8 +29,8 @@ export const EVENT_CALL_TEMPLATE_V1 = {
   },
 } as const;
 
-const eventCallBody =
-  "⚽ CONVOCAÇÃO: {{1}}\n📅 {{2}}\n\nA lista acabou de abrir. Contamos com teu nome, craque. Com 1 toque você confirma presença 👇\nhttps://deutime.app/{{3}}\n\nSem senha, sem cadastro. Só clicar no link. Mudou o plano? Volta no link e troca a resposta.";
+const eventCallCardBody =
+  "*Fala Craque* e *Camisa 10*\nVocê foi convocado para o jogo:\n*{{1}}*\nNo dia: *{{2}}*\nBora confirmar e bater uma bola com a galera?";
 
 export const EVENT_CALL_CARD_TEMPLATE_V1 = {
   key: "event_call",
@@ -41,17 +41,23 @@ export const EVENT_CALL_CARD_TEMPLATE_V1 = {
     variables: {
       "1": "Treino de sexta",
       "2": "02/08/2030 às 19:00",
-      // Domínio fixo no template aprovado pela Meta; {{3}} e {{4}} carregam só o caminho.
+      // {{3}} = path do link (botão), {{4}} = path da imagem (header).
+      // Domínio fixo no template aprovado pela Meta.
       "3": "e/00000000-0000-4000-8000-000000000000#c=exemplo",
       "4": "e/00000000-0000-4000-8000-000000000000/convite.png",
     },
     types: {
-      "twilio/card": {
-        title: eventCallBody,
+      "whatsapp/card": {
+        body: eventCallCardBody,
+        footer: "Mudou de idéia? Entre no link e ajuste a resposta...",
         media: ["https://deutime.app/{{4}}"],
-      },
-      "twilio/text": {
-        body: eventCallBody,
+        actions: [
+          {
+            type: "URL",
+            title: "Clique para Confirmar",
+            url: "https://deutime.app/{{3}}",
+          },
+        ],
       },
     },
   },

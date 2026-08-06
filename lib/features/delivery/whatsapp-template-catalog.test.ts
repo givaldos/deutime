@@ -66,7 +66,7 @@ describe("catálogo de templates do WhatsApp", () => {
     });
   });
 
-  it("define card com imagem e fallback textual usando as mesmas variáveis", () => {
+  it("define card com imagem no header, botão de URL e footer", () => {
     expect(EVENT_CALL_CARD_TEMPLATE_V1).toMatchObject({
       key: "event_call",
       version: "card_v1",
@@ -74,13 +74,33 @@ describe("catálogo de templates do WhatsApp", () => {
         friendly_name: "deutime_event_call_card_v1",
         language: "pt_BR",
       },
+      approval: { name: "deutime_event_call_card_v1", category: "UTILITY" },
     });
-    expect(EVENT_CALL_CARD_TEMPLATE_V1.content.types["twilio/card"].media).toEqual([
-      "https://deutime.app/{{4}}",
+
+    const card = EVENT_CALL_CARD_TEMPLATE_V1.content.types["whatsapp/card"];
+
+    // body usa negrito do WhatsApp e as variáveis {{1}} e {{2}}
+    expect(card.body).toContain("{{1}}");
+    expect(card.body).toContain("{{2}}");
+    expect(card.body).toContain("*Fala Craque*");
+
+    // header é imagem via variável {{4}}
+    expect(card.media).toEqual(["https://deutime.app/{{4}}"]);
+
+    // footer fixo
+    expect(card.footer).toContain("Mudou de idéia");
+
+    // botão de URL com variável {{3}}
+    expect(card.actions).toEqual([
+      {
+        type: "URL",
+        title: "Clique para Confirmar",
+        url: "https://deutime.app/{{3}}",
+      },
     ]);
-    expect(EVENT_CALL_CARD_TEMPLATE_V1.content.types["twilio/card"].title).toBe(
-      EVENT_CALL_CARD_TEMPLATE_V1.content.types["twilio/text"].body,
-    );
+
+    // amostras: {{3}} é path do link, {{4}} é path da imagem
+    expect(EVENT_CALL_CARD_TEMPLATE_V1.content.variables["3"]).toMatch(/^e\//);
     expect(EVENT_CALL_CARD_TEMPLATE_V1.content.variables["4"]).toMatch(
       /^e\/.+\/convite\.png$/,
     );
