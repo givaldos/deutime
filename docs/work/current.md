@@ -9,22 +9,31 @@ completed_ac: ["AC-R04-01","AC-R04-02","AC-R04-03","AC-R04-04","AC-R04-06","AC-R
 dirty_files:
   - supabase/migrations/202608070001_r04_match_expansion.sql
   - supabase/migrations/202608070002_r04_match_rpc.sql
+  - supabase/migrations/202608070003_r04_match_public_mode.sql
+  - supabase/migrations/202608070004_public_match_view.sql
+  - supabase/migrations/202608070005_craque_voting.sql
+  - supabase/tests/031_r04_match_expansion.test.sql
   - lib/features/match/validation.ts
   - lib/features/match/server.ts
+  - lib/features/match/stats.ts
   - app/app/[teamSlug]/events/[eventId]/match/match-actions.ts
   - lib/data/matches.ts
   - lib/data/public-matches.ts
   - components/match-forms.tsx
   - app/app/[teamSlug]/events/[eventId]/match/page.tsx
   - app/e/[publicId]/page.tsx
+  - docs/decisions/DEC-ANONYMOUS-RETENTION.md
+  - docs/releases/R02-confirmacao-pelo-link.md
 tests:
   - "lint 0"
   - "typecheck 0"
   - "219/219 vitest pass"
   - "migration-integrity origin/dev HEAD OK"
-  - "CP4 public-matches DAL: live/final_result sem identidade"
+  - "CP4 public-matches via privileged"
+  - "R04 piloto prod: event_matches=true, 2 partidas (1 finalized live, 1 scheduled externo), 1 participação + 1 gol"
+  - "R05 draft craque_votes (hash+salt, recibo 7d)"
 blocker: null
-next_action: "Piloto físico Demo Campo: ligar flag event_matches, criar 1→2 partidas (adversário externo), registrar lances ao vivo e validar N/N-1."
+next_action: "D+1 AC-R02-09 amanhã + push 5 migrations via deploy-database.yml, depois finalizar R04 e aceitar DEC-ANONYMOUS-RETENTION para R05."
 ---
 
 # Trabalho atual

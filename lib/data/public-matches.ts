@@ -1,5 +1,5 @@
 import "server-only";
-import { createClient } from "@/lib/supabase/server";
+import { createPrivilegedClient } from "@/lib/supabase/privileged";
 
 export type PublicMatchView = {
   id: string;
@@ -11,10 +11,10 @@ export type PublicMatchView = {
 };
 
 // Projeção anônima: só retorna partidas com public_mode != 'private' e sem identidade.
-// Quando flag event_matches desligada ou sem partidas públicas, retorna null/[] e fallback mantém página mínima.
+// Usa privileged client para ler sem depender de RLS anon (DEC-PUBLIC-PRIVACY garante filtragem server-side).
 export async function getPublicEventMatches(publicId: string): Promise<PublicMatchView[] | null> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase: any = await createClient();
+  const supabase: any = createPrivilegedClient();
   const { data: event } = await supabase.from("public_event_directory").select("public_id").eq("public_id", publicId).maybeSingle();
   if (!event) return null;
   // tenta ler event_matches via public_id -> event_id; se tabela/coluna não existir (N-1), retorna null
