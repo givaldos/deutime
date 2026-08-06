@@ -1,9 +1,29 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ getPublicEvent: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  getPublicEvent: vi.fn(),
+  createPrivilegedClient: vi.fn(() => ({
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          maybeSingle: vi.fn(() => Promise.resolve({ data: null })),
+        })),
+      })),
+    })),
+    storage: {
+      from: vi.fn(() => ({
+        createSignedUrl: vi.fn(() => Promise.resolve({ data: null })),
+      })),
+    },
+  })),
+}));
+
 vi.mock("@/lib/data/public-event", () => ({
   getPublicEvent: mocks.getPublicEvent,
+}));
+vi.mock("@/lib/supabase/privileged", () => ({
+  createPrivilegedClient: mocks.createPrivilegedClient,
 }));
 
 import { GET, HEAD, InviteImage } from "./route";
@@ -39,6 +59,17 @@ describe("imagem pública do convite", () => {
     expect(html).not.toContain("opponent");
     expect(html).not.toContain("attendance");
     expect(html).not.toContain("athlete");
+  });
+
+  it("exibe logo do time quando fornecido e inicial quando ausente", () => {
+    const withLogo = renderToStaticMarkup(
+      <InviteImage event={event} teamLogoUrl="https://cdn.example.com/logo.png" />,
+    );
+    expect(withLogo).toContain("https://cdn.example.com/logo.png");
+
+    const withoutLogo = renderToStaticMarkup(<InviteImage event={event} />);
+    // fallback mostra a inicial do time
+    expect(withoutLogo).toContain("S"); // inicial de "Society United"
   });
 
   it("mantém fallback genérico sem consultar ID inválido", async () => {

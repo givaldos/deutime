@@ -140,7 +140,7 @@ describe("public event route", () => {
     const html = renderToStaticMarkup(await PublicEventPage(props()));
 
     expect(html).toContain('data-testid="public-event-header"');
-    expect(html).toContain("pb-14 pt-5");
+    expect(html).toContain("pb-16 pt-5");
     expect(html).toContain('data-testid="public-event-content"');
     expect(html).toContain("relative z-10");
     expect(html).toContain("-mt-8");
@@ -213,8 +213,10 @@ describe("public event route", () => {
 
     const html = renderToStaticMarkup(await PublicEventPage(props()));
 
+    // recognized-access aparece dentro do conteúdo, antes do bloco de horário
+    expect(html).toContain('data-testid="recognized-event-access"');
     expect(html.indexOf('data-testid="recognized-event-access"')).toBeLessThan(
-      html.indexOf('id="event-date"'),
+      html.indexOf("Início às"),
     );
     expect(html).toContain("SIM");
     expect(html).toContain("NÃO");
