@@ -1183,6 +1183,18 @@ link de evento exigida por `AC-R02-09`.
 - testar primeira abertura, retorno, navegador interno, navegador padrão, link encaminhado, aparelho novo, revogação, evento cancelado e cross-tenant;
 - registrar evidência de que Open Graph e crawlers recebem somente a URL pública limpa.
 
+## Evidência `AC-R02-09` — prova física D (06/08/2026)
+
+- sonda prod `get_event_capability_pilot_health` em `21:08:41Z` (pré-RSVP): `active_credentials:5`, `active_capability_sessions:4`, `rsvp_writes_24h:0`, `last_rsvp_at:2026-07-31T13:06:54Z`, `last_exchange_at:2026-08-06T19:14:24Z` — gates `global/team_exchange/team_rsvp` todos `true`;
+- sonda prod em `21:12:35Z` (pós-RSVP via link `#c=` em navegador interno + padrão): `active_capability_sessions:6`, `capability_sessions_created_24h:7`, `rsvp_writes_24h:4`, `last_exchange_at:2026-08-06T21:12:21Z`, `last_rsvp_at:2026-08-06T21:12:25Z`;
+- matriz D concluída em Android/iPhone (interno + padrão) com RSVP SIM/NÃO/TALVEZ idempotente; link encaminhado não criou sessão global (coberto por `AC-R02-07`);
+- retorno D+1 pendente para fechar `AC-R02-09` definitivamente (capability reutilizada sem OTP em outro dia).
+
+## Evidência `AC-R03-06/09` — sender próprio live (06/08/2026)
+
+- `POST https://deutime.app/api/internal/whatsapp/worker` com `Authorization: Bearer ******` retornou `{"status":"worker executado","summary":{"mode":"live",...,"claimed":0}}` na segunda chamada (idempotência, sem duplicata); primeira chamada entregou mensagem no celular via sender próprio (não Sandbox `+14155238886`), card `event_call:v1` (3 vars pt-BR) com link R02 `#c=` e fallback `twilio/text`, sem PII/endereço — `AC-R03-06` materialmente validado;
+- segunda chamada com `claimed:0 prepared:0 accepted:0` prova `AC-R03-04` (sem retry pós-barreira).
+
 ## Rollout, fallback e rollback
 
 - ativar primeiro para um time de teste;
