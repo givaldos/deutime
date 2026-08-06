@@ -7,6 +7,7 @@ import {
   getEventAccessContext,
 } from "@/lib/data/event-access";
 import { getPublicEvent } from "@/lib/data/public-event";
+import { getTeamLogoUrlByEventPublicId } from "@/lib/data/team-logo";
 import {
   formatPublicEventDate,
   formatPublicEventTime,
@@ -121,18 +122,19 @@ export default async function PublicEventPage({
 
   const event = await getPublicEvent(publicId);
   if (!event) notFound();
-  const access = await getEventAccessContext(publicId);
 
-  const status = publicEventStatusPresentation[event.status];
+  // Busca logo e acesso em paralelo
+  const [access, teamLogoUrl] = await Promise.all([
+    getEventAccessContext(publicId),
+    getTeamLogoUrlByEventPublicId(publicId),
+  ]);
+
+  const ev = { ...event, team_logo_url: teamLogoUrl };
+
+  const status = publicEventStatusPresentation[ev.status];
   const style = statusStyles[status.tone];
-  const startsAtLabel = formatPublicEventTime(
-    event.starts_at,
-    event.team_timezone,
-  );
-  const endsAtLabel = formatPublicEventTime(
-    event.ends_at,
-    event.team_timezone,
-  );
+  const startsAtLabel = formatPublicEventTime(ev.starts_at, ev.team_timezone);
+  const endsAtLabel = formatPublicEventTime(ev.ends_at, ev.team_timezone);
 
   return (
     <main className="min-h-svh bg-[#f5f4ef] pb-10 text-graphite">
@@ -140,22 +142,19 @@ export default async function PublicEventPage({
         data-testid="public-event-header"
         className="relative overflow-hidden bg-[#0d2b22] px-5 pb-16 pt-5 text-white sm:pb-20 sm:pt-6"
       >
-        {/* Faixa verde lima — mesma do opengraph */}
-        <div className="pointer-events-none absolute left-0 top-0 h-full w-1.5 bg-lime" />
-
-        {/* Blobs decorativos */}
+        {/* Faixa volt — mesma identidade do opengraph */}
+        <div className="pointer-events-none absolute left-0 top-0 h-full w-1.5 bg-volt" />
         <div className="pointer-events-none absolute -right-24 -top-28 size-72 rounded-full bg-emerald-400/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-lime/5 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-20 size-64 rounded-full bg-volt/5 blur-3xl" />
 
         <div className="relative mx-auto max-w-xl pl-3">
-
-          {/* Linha superior: logo do time + nome + brand */}
+          {/* Linha superior: logo + nome do time + brand */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              {event.team_logo_url ? (
+              {ev.team_logo_url ? (
                 <Image
-                  src={event.team_logo_url}
-                  alt={`Escudo ${event.team_name}`}
+                  src={ev.team_logo_url}
+                  alt={`Escudo ${ev.team_name}`}
                   width={48}
                   height={48}
                   className="size-12 rounded-xl object-cover"
@@ -164,17 +163,17 @@ export default async function PublicEventPage({
               ) : (
                 <div
                   aria-hidden
-                  className="grid size-12 shrink-0 place-items-center rounded-xl border border-lime/30 bg-lime/10 text-lg font-black text-lime"
+                  className="grid size-12 shrink-0 place-items-center rounded-xl border border-volt/30 bg-volt/10 text-lg font-black text-volt"
                 >
-                  {event.team_name.charAt(0).toUpperCase()}
+                  {ev.team_name.charAt(0).toUpperCase()}
                 </div>
               )}
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-400">
                   Convocação
                 </p>
-                <p className="text-base font-black leading-tight text-lime">
-                  {event.team_name}
+                <p className="text-base font-black leading-tight text-volt">
+                  {ev.team_name}
                 </p>
               </div>
             </div>
@@ -183,61 +182,58 @@ export default async function PublicEventPage({
 
           {/* Título do evento */}
           <h1 className="mt-7 break-words text-4xl font-black leading-[0.95] tracking-[-0.04em] sm:text-5xl">
-            {event.title}
+            {ev.title}
           </h1>
 
-          {/* Badges: status + formato */}
+          {/* Badges */}
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className={`rounded-full px-3 py-1.5 text-xs font-black ${style.badge}`}>
               {status.label}
             </span>
             <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-200">
-              {publicEventFormatLabels[event.sport_format]}
+              {publicEventFormatLabels[ev.sport_format]}
             </span>
             <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-200">
-              {publicEventKindLabels[event.kind]}
+              {publicEventKindLabels[ev.kind]}
             </span>
           </div>
 
-          {/* Bloco de data — destaque, igual ao opengraph */}
+          {/* Bloco de data — destaque máximo */}
           <div className="mt-6 flex items-stretch overflow-hidden rounded-2xl">
-            {/* Dia + mês */}
-            <div className="flex min-w-[72px] flex-col items-center justify-center bg-lime px-4 py-4 text-center text-[#0d2b22]">
+            <div className="flex min-w-[72px] flex-col items-center justify-center bg-volt px-4 py-4 text-center text-[#0d2b22]">
               <time
-                dateTime={event.starts_at}
+                dateTime={ev.starts_at}
                 className="text-3xl font-black leading-none"
               >
                 {new Intl.DateTimeFormat("pt-BR", {
                   day: "2-digit",
-                  timeZone: event.team_timezone,
-                }).format(new Date(event.starts_at))}
+                  timeZone: ev.team_timezone,
+                }).format(new Date(ev.starts_at))}
               </time>
               <span className="mt-1 text-[0.6rem] font-black uppercase tracking-widest">
                 {new Intl.DateTimeFormat("pt-BR", {
                   month: "short",
-                  timeZone: event.team_timezone,
+                  timeZone: ev.team_timezone,
                 })
-                  .format(new Date(event.starts_at))
+                  .format(new Date(ev.starts_at))
                   .replace(".", "")}
               </span>
             </div>
-
-            {/* Dia da semana + horário */}
-            <div className="flex flex-col justify-center bg-lime/15 px-5 py-3">
+            <div className="flex flex-col justify-center bg-volt/15 px-5 py-3">
               <p className="text-sm font-black capitalize text-white">
                 {new Intl.DateTimeFormat("pt-BR", {
                   weekday: "long",
-                  timeZone: event.team_timezone,
-                }).format(new Date(event.starts_at))}
+                  timeZone: ev.team_timezone,
+                }).format(new Date(ev.starts_at))}
               </p>
-              <p className="mt-0.5 text-2xl font-black text-lime">
+              <p className="mt-0.5 text-2xl font-black text-volt">
                 {startsAtLabel}
                 <span className="ml-1 text-sm font-bold text-emerald-300">
                   às {endsAtLabel}
                 </span>
               </p>
               <p className="mt-0.5 text-[11px] text-emerald-400">
-                Horário de {formatPublicEventTimeZone(event.team_timezone)}
+                Horário de {formatPublicEventTimeZone(ev.team_timezone)}
               </p>
             </div>
           </div>
@@ -257,11 +253,10 @@ export default async function PublicEventPage({
           <RecognizedEventAccess context={access.context} />
         ) : null}
 
-        {/* Adversário — só aparece quando houver */}
-        {event.opponent_name ? (
+        {ev.opponent_name ? (
           <section className="app-surface p-5">
             <div className="flex items-center gap-3">
-              <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-grass text-lime">
+              <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-grass text-volt">
                 <Swords className="size-5" aria-hidden />
               </span>
               <div>
@@ -269,14 +264,13 @@ export default async function PublicEventPage({
                   Adversário
                 </p>
                 <p className="mt-0.5 font-black text-slate-900">
-                  {event.opponent_name}
+                  {ev.opponent_name}
                 </p>
               </div>
             </div>
           </section>
         ) : null}
 
-        {/* Horário de término + fuso */}
         <section className="app-surface p-5">
           <div className="flex flex-col gap-2">
             <p className="flex items-center gap-2 text-sm text-slate-600">
@@ -289,7 +283,7 @@ export default async function PublicEventPage({
             </p>
             <p className="flex items-center gap-2 text-sm text-slate-500">
               <ShieldCheck className="size-4 shrink-0 text-emerald-700" aria-hidden />
-              Horário de {formatPublicEventTimeZone(event.team_timezone)}
+              Horário de {formatPublicEventTimeZone(ev.team_timezone)}
             </p>
           </div>
           <div className="mt-4 border-t border-slate-100 pt-4">
@@ -314,7 +308,7 @@ export default async function PublicEventPage({
             </p>
             <Button
               asChild
-              className="mt-5 min-h-12 w-full rounded-xl bg-lime font-black text-[#0d2b22] hover:bg-lime/90"
+              className="mt-5 min-h-12 w-full rounded-xl bg-volt font-black text-[#0d2b22] hover:bg-volt/90"
             >
               <Link href="/me/agenda">
                 <LogIn aria-hidden /> Abrir minha agenda

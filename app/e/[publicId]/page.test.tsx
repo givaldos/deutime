@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getPublicEvent: vi.fn(),
   getEventAccessContext: vi.fn(),
+  getTeamLogoUrlByEventPublicId: vi.fn().mockResolvedValue(null),
 }));
 
 vi.mock("@/lib/data/public-event", () => ({
@@ -11,6 +12,9 @@ vi.mock("@/lib/data/public-event", () => ({
 }));
 vi.mock("@/lib/data/event-access", () => ({
   getEventAccessContext: mocks.getEventAccessContext,
+}));
+vi.mock("@/lib/data/team-logo", () => ({
+  getTeamLogoUrlByEventPublicId: mocks.getTeamLogoUrlByEventPublicId,
 }));
 vi.mock("next/navigation", () => ({
   notFound: () => {
