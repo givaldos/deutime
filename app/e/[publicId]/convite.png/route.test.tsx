@@ -25,6 +25,7 @@ vi.mock("@/lib/data/public-event", () => ({
 }));
 vi.mock("@/lib/data/team-logo", () => ({
   getTeamLogoUrlByEventPublicId: mocks.getTeamLogoUrlByEventPublicId,
+  getTeamLogoPngDataUrlByEventPublicId: mocks.getTeamLogoUrlByEventPublicId,
 }));
 vi.mock("@/lib/supabase/privileged", () => ({
   createPrivilegedClient: mocks.createPrivilegedClient,

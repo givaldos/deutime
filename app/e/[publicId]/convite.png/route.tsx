@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- next/og renderiza o ativo oficial por meio de img. */
 import { getPublicEvent, type PublicEvent } from "@/lib/data/public-event";
-import { getTeamLogoUrlByEventPublicId } from "@/lib/data/team-logo";
+import { getTeamLogoPngDataUrlByEventPublicId } from "@/lib/data/team-logo";
 import {
   formatPublicEventTime,
   isPublicEventId,
@@ -32,7 +32,7 @@ export async function GET(
 
   const [event, teamLogoUrl] = await Promise.all([
     isValid ? getPublicEvent(publicId).catch(() => null) : Promise.resolve(null),
-    isValid ? getTeamLogoUrlByEventPublicId(publicId) : Promise.resolve(null),
+    isValid ? getTeamLogoPngDataUrlByEventPublicId(publicId) : Promise.resolve(null),
   ]);
 
   const brandLogoUrl = new URL(
