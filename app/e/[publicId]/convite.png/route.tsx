@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- next/og renderiza o ativo oficial por meio de img. */
 import { getPublicEvent, type PublicEvent } from "@/lib/data/public-event";
+import { createPrivilegedClient } from "@/lib/supabase/privileged";
 import {
   formatPublicEventTime,
   isPublicEventId,
@@ -22,21 +23,53 @@ type InviteImageRouteContext = {
   params: Promise<{ publicId: string }>;
 };
 
+async function getTeamLogoUrl(publicId: string): Promise<string | null> {
+  try {
+    const privileged = createPrivilegedClient();
+    // Busca o logo_path do time via join com events usando o public_id
+    const { data } = await privileged
+      .from("events")
+      .select("team_id")
+      .eq("public_id", publicId)
+      .maybeSingle();
+    if (!data?.team_id) return null;
+
+    const { data: mediaData } = await privileged
+      .from("team_media")
+      .select("storage_path")
+      .eq("team_id", data.team_id)
+      .eq("kind", "logo")
+      .maybeSingle();
+    if (!mediaData?.storage_path) return null;
+
+    const { data: signed } = await privileged.storage
+      .from("team_media")
+      .createSignedUrl(mediaData.storage_path, 600);
+    return signed?.signedUrl ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(
   request: Request,
   context: InviteImageRouteContext,
 ) {
   const { publicId } = await context.params;
-  const event = isPublicEventId(publicId)
-    ? await getPublicEvent(publicId).catch(() => null)
-    : null;
+  const isValid = isPublicEventId(publicId);
+
+  const [event, teamLogoUrl] = await Promise.all([
+    isValid ? getPublicEvent(publicId).catch(() => null) : Promise.resolve(null),
+    isValid ? getTeamLogoUrl(publicId) : Promise.resolve(null),
+  ]);
+
   const brandLogoUrl = new URL(
     "/brand/logo-deutime-email-640-fundo-escuro.png",
     request.url,
   ).toString();
 
   return new ImageResponse(
-    <InviteImage event={event} brandLogoUrl={brandLogoUrl} />,
+    <InviteImage event={event} brandLogoUrl={brandLogoUrl} teamLogoUrl={teamLogoUrl} />,
     {
       width: 1200,
       height: 630,
@@ -52,9 +85,11 @@ export async function HEAD() {
 export function InviteImage({
   event,
   brandLogoUrl = "/brand/logo-deutime-email-640-fundo-escuro.png",
+  teamLogoUrl = null,
 }: {
   event: PublicEvent | null;
   brandLogoUrl?: string;
+  teamLogoUrl?: string | null;
 }) {
   const status = event
     ? publicEventStatusPresentation[event.status]
@@ -70,74 +105,141 @@ export function InviteImage({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
-        padding: "58px 68px",
         background: "#0d2b22",
         color: "#f7f5ed",
         fontFamily: "sans-serif",
+        position: "relative",
       }}
     >
+      {/* Faixa lateral verde lima à esquerda */}
       <div
         style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width: 12,
+          height: "100%",
+          background: "#bdf63c",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
         }}
-      >
-        <img
-          src={brandLogoUrl}
-          alt="DeuTime"
-          style={{
-            width: 360,
-            height: 87,
-            objectFit: "contain",
-            objectPosition: "left center",
-          }}
-        />
-        <span style={{ fontSize: 18, color: "#a9c6b8" }}>
-          Convocação do time
-        </span>
-      </div>
+      />
 
+      {/* Conteúdo principal */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 16,
-          maxWidth: 1040,
+          flex: 1,
+          padding: "52px 68px 52px 80px",
+          gap: 0,
         }}
       >
-        <span
+        {/* Header: logo do time + nome do time + brand */}
+        <div
           style={{
-            color: "#bdf63c",
-            fontSize: 22,
-            fontWeight: 900,
-            letterSpacing: 2,
-            textTransform: "uppercase",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 40,
           }}
         >
-          {event ? event.team_name : "Convite para o evento"}
-        </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            {teamLogoUrl ? (
+              <img
+                src={teamLogoUrl}
+                alt=""
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 20,
+                  objectFit: "cover",
+                  background: "#1a3d2e",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 20,
+                  background: "rgba(189, 246, 60, 0.12)",
+                  border: "2px solid rgba(189, 246, 60, 0.3)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 32,
+                  fontWeight: 900,
+                  color: "#bdf63c",
+                }}
+              >
+                {event ? event.team_name.charAt(0).toUpperCase() : "D"}
+              </div>
+            )}
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span
+                style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: "#a9c6b8",
+                  letterSpacing: 2,
+                  textTransform: "uppercase",
+                }}
+              >
+                Convocação
+              </span>
+              <span
+                style={{
+                  fontSize: 28,
+                  fontWeight: 900,
+                  color: "#bdf63c",
+                  letterSpacing: -0.5,
+                }}
+              >
+                {event ? event.team_name : "DeuTime"}
+              </span>
+            </div>
+          </div>
+
+          <img
+            src={brandLogoUrl}
+            alt="DeuTime"
+            style={{
+              width: 220,
+              height: 53,
+              objectFit: "contain",
+              objectPosition: "right center",
+              opacity: 0.7,
+            }}
+          />
+        </div>
+
+        {/* Nome do evento — grande */}
         <span
           style={{
-            fontSize: event && event.title.length > 55 ? 54 : 68,
-            lineHeight: 1.02,
+            fontSize: event && event.title.length > 35 ? 72 : 88,
+            lineHeight: 0.96,
             fontWeight: 900,
-            letterSpacing: -2,
+            letterSpacing: -3,
+            color: "#f7f5ed",
+            maxWidth: 900,
+            marginBottom: 36,
           }}
         >
           {event?.title ?? "Você foi convocado"}
         </span>
 
-        {/* Destaque de data — essencial pois a data não vai no corpo do template card */}
+        {/* Bloco de data e hora — destaque máximo */}
         <div
           style={{
             display: "flex",
-            alignItems: "center",
-            gap: 16,
-            marginTop: 4,
+            alignItems: "stretch",
+            gap: 0,
+            borderRadius: 24,
+            overflow: "hidden",
+            width: "fit-content",
           }}
         >
+          {/* Dia + mês */}
           <div
             style={{
               display: "flex",
@@ -146,81 +248,100 @@ export function InviteImage({
               justifyContent: "center",
               background: "#bdf63c",
               color: "#0d2b22",
-              borderRadius: 16,
-              padding: "10px 20px",
-              minWidth: 80,
+              padding: "20px 28px",
+              minWidth: 110,
               lineHeight: 1,
+              gap: 4,
             }}
           >
-            {event ? (
-              <>
-                <span style={{ fontSize: 36, fontWeight: 900 }}>
-                  {new Intl.DateTimeFormat("pt-BR", {
+            <span style={{ fontSize: 56, fontWeight: 900 }}>
+              {event
+                ? new Intl.DateTimeFormat("pt-BR", {
                     day: "2-digit",
                     timeZone: event.team_timezone,
-                  }).format(new Date(event.starts_at))}
-                </span>
-                <span
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 900,
-                    textTransform: "uppercase",
-                    letterSpacing: 1,
-                    marginTop: 2,
-                  }}
-                >
-                  {new Intl.DateTimeFormat("pt-BR", {
+                  }).format(new Date(event.starts_at))
+                : "--"}
+            </span>
+            <span
+              style={{
+                fontSize: 18,
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: 2,
+              }}
+            >
+              {event
+                ? new Intl.DateTimeFormat("pt-BR", {
                     month: "short",
                     timeZone: event.team_timezone,
                   })
                     .format(new Date(event.starts_at))
-                    .replace(".", "")}
-                </span>
-              </>
-            ) : (
-              <span style={{ fontSize: 24, fontWeight: 900 }}>?</span>
-            )}
+                    .replace(".", "")
+                : "---"}
+            </span>
           </div>
+
+          {/* Dia da semana + horário */}
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: 4,
+              justifyContent: "center",
+              background: "rgba(189, 246, 60, 0.12)",
+              padding: "20px 32px",
+              gap: 6,
             }}
           >
-            <span style={{ fontSize: 30, fontWeight: 900, color: "#f7f5ed" }}>
+            <span
+              style={{
+                fontSize: 34,
+                fontWeight: 900,
+                color: "#f7f5ed",
+                textTransform: "capitalize",
+              }}
+            >
               {event
                 ? new Intl.DateTimeFormat("pt-BR", {
                     weekday: "long",
                     timeZone: event.team_timezone,
                   }).format(new Date(event.starts_at))
-                : "Confira os detalhes"}
+                : "A confirmar"}
             </span>
-            <span style={{ fontSize: 24, color: "#a9c6b8", fontWeight: 700 }}>
+            <span
+              style={{
+                fontSize: 42,
+                fontWeight: 900,
+                color: "#bdf63c",
+                letterSpacing: -1,
+              }}
+            >
               {event && time ? `às ${time}` : ""}
             </span>
           </div>
         </div>
       </div>
 
+      {/* Rodapé */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          padding: "20px 68px 20px 80px",
+          borderTop: "1px solid rgba(255,255,255,0.08)",
         }}
       >
-        <span style={{ fontSize: 21, color: "#a9c6b8" }}>
+        <span style={{ fontSize: 18, color: "#a9c6b8", fontWeight: 600 }}>
           {event ? publicEventKindLabels[event.kind] : "deutime.app"}
         </span>
         <span
           style={{
             borderRadius: 999,
-            padding: "12px 24px",
+            padding: "10px 22px",
             background: "rgba(189, 246, 60, 0.12)",
-            border: "2px solid rgba(189, 246, 60, 0.45)",
+            border: "2px solid rgba(189, 246, 60, 0.35)",
             color: "#bdf63c",
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: 800,
           }}
         >
