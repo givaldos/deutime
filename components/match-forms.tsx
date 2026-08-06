@@ -43,6 +43,27 @@ export function ParticipationForm({ teamSlug, matchId, athletes, sides }: { team
   );
 }
 
+export function PublicModeForm({ teamSlug, matchId, currentMode }: { teamSlug: string; matchId: string; currentMode: string }) {
+  const [state, action, pending] = useActionState(async (_: unknown, fd: FormData) => {
+    const supabase = (await import("@/lib/supabase/client")).createClient();
+    const { error } = await (supabase as unknown as { rpc: (a: string, b: unknown) => Promise<{ error: { message: string } | null }> }).rpc("set_match_public_mode", { requested_match_id: fd.get("matchId") as string, requested_mode: fd.get("mode") as string });
+    return { outcome: error ? "error" as const : "success" as const, message: error ? error.message : `Modo ${fd.get("mode")} salvo.` };
+  }, {} as { outcome?: string; message?: string });
+  return (
+    <form action={action} className="flex items-center gap-2 rounded-2xl border border-slate-200 p-3">
+      <input type="hidden" name="teamSlug" value={teamSlug} />
+      <input type="hidden" name="matchId" value={matchId} />
+      <select name="mode" defaultValue={currentMode} className="h-9 rounded-xl border border-slate-200 px-3 text-sm">
+        <option value="private">Privado</option>
+        <option value="final_result">Só final</option>
+        <option value="live">Ao vivo</option>
+      </select>
+      <Button type="submit" disabled={pending} size="sm" variant="outline">{pending ? "..." : "Publicar"}</Button>
+      {state.message && <span className="text-xs text-slate-500">{state.message}</span>}
+    </form>
+  );
+}
+
 export function RecordEventForm({ teamSlug, matchId, sides, athletes }: { teamSlug: string; matchId: string; sides: { id: string; label: string; side_index: number }[]; athletes: { id: string; name: string }[] }) {
   const [state, action, pending] = useActionState(recordEventAction, {});
   return (

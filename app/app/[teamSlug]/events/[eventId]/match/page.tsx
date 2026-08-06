@@ -4,7 +4,7 @@ import {
   MatchScoreForm,
 } from "@/components/admin-match-report";
 import { getEventMatches } from "@/lib/data/matches";
-import { CreateMatchForm, ParticipationForm, RecordEventForm } from "@/components/match-forms";
+import { CreateMatchForm, ParticipationForm, PublicModeForm, RecordEventForm } from "@/components/match-forms";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { AppContainer } from "@/components/ui/app-shell";
 import { TeamAppHeader } from "@/components/team-app-header";
@@ -423,6 +423,7 @@ export default async function MatchReportPage({
                       {(m.sides.find((s) => s.side_index === 1)?.label ?? "Time A")} × {(m.sides.find((s) => s.side_index === 2)?.label ?? "Time B")}
                     </p>
                     <p className="mt-1 text-xs text-slate-400">{m.events.length} lances · {m.participations.length} participantes</p>
+                    <PublicModeForm teamSlug={team.slug} matchId={m.id} currentMode={m.public_mode} />
                     <div className="mt-3 space-y-3">
                       <ParticipationForm
                         teamSlug={team.slug}
