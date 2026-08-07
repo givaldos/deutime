@@ -1,5 +1,5 @@
 -- R04 CP5 — pgTAP positivo/negativo/cross-tenant para event_matches
-begin; select plan(16);
+begin; select plan(17);
 
 -- helper: cria time/evento de teste via owner
 select ok(true, 'placeholder: estrutura R04 existe');
