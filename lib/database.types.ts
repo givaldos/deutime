@@ -285,6 +285,87 @@ export type Database = {
           },
         ]
       }
+      craque_vote_receipts: {
+        Row: {
+          created_at: string
+          expires_at: string
+          token_hash: string
+          vote_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          token_hash: string
+          vote_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          token_hash?: string
+          vote_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "craque_vote_receipts_vote_id_fkey"
+            columns: ["vote_id"]
+            isOneToOne: false
+            referencedRelation: "craque_votes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      craque_votes: {
+        Row: {
+          candidate_athlete_id: string
+          created_at: string
+          id: string
+          match_id: string
+          receipt_token_hash: string
+          team_id: string
+          voter_hash: string
+        }
+        Insert: {
+          candidate_athlete_id: string
+          created_at?: string
+          id?: string
+          match_id: string
+          receipt_token_hash: string
+          team_id: string
+          voter_hash: string
+        }
+        Update: {
+          candidate_athlete_id?: string
+          created_at?: string
+          id?: string
+          match_id?: string
+          receipt_token_hash?: string
+          team_id?: string
+          voter_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "craque_votes_candidate_athlete_id_fkey"
+            columns: ["candidate_athlete_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "craque_votes_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "event_matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "craque_votes_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "public_match_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_access_credentials: {
         Row: {
           athlete_id: string
@@ -624,6 +705,65 @@ export type Database = {
           },
         ]
       }
+      event_matches: {
+        Row: {
+          created_at: string
+          created_by: string
+          event_id: string
+          external_opponent_name: string | null
+          finalized_at: string | null
+          finalized_by: string | null
+          id: string
+          ordinal: number
+          public_mode: Database["public"]["Enums"]["match_public_mode"]
+          status: Database["public"]["Enums"]["match_status"]
+          team_id: string
+          updated_at: string
+          video_id: string | null
+          video_provider: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          event_id: string
+          external_opponent_name?: string | null
+          finalized_at?: string | null
+          finalized_by?: string | null
+          id?: string
+          ordinal: number
+          public_mode?: Database["public"]["Enums"]["match_public_mode"]
+          status?: Database["public"]["Enums"]["match_status"]
+          team_id: string
+          updated_at?: string
+          video_id?: string | null
+          video_provider?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          event_id?: string
+          external_opponent_name?: string | null
+          finalized_at?: string | null
+          finalized_by?: string | null
+          id?: string
+          ordinal?: number
+          public_mode?: Database["public"]["Enums"]["match_public_mode"]
+          status?: Database["public"]["Enums"]["match_status"]
+          team_id?: string
+          updated_at?: string
+          video_id?: string | null
+          video_provider?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_matches_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
       event_series: {
         Row: {
           attendance_deadline_offset: string
@@ -916,6 +1056,90 @@ export type Database = {
           },
         ]
       }
+      match_events: {
+        Row: {
+          assist_athlete_id: string | null
+          athlete_id: string | null
+          created_at: string
+          created_by: string
+          delta: number | null
+          event_id: string
+          id: string
+          kind: Database["public"]["Enums"]["match_event_kind"]
+          match_id: string
+          minute: number | null
+          notes: string | null
+          side_id: string | null
+          team_id: string
+        }
+        Insert: {
+          assist_athlete_id?: string | null
+          athlete_id?: string | null
+          created_at?: string
+          created_by: string
+          delta?: number | null
+          event_id: string
+          id?: string
+          kind: Database["public"]["Enums"]["match_event_kind"]
+          match_id: string
+          minute?: number | null
+          notes?: string | null
+          side_id?: string | null
+          team_id: string
+        }
+        Update: {
+          assist_athlete_id?: string | null
+          athlete_id?: string | null
+          created_at?: string
+          created_by?: string
+          delta?: number | null
+          event_id?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["match_event_kind"]
+          match_id?: string
+          minute?: number | null
+          notes?: string | null
+          side_id?: string | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_events_assist_athlete_id_team_id_fkey"
+            columns: ["assist_athlete_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "match_events_athlete_id_team_id_fkey"
+            columns: ["athlete_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "match_events_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "event_matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_events_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "public_match_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_events_side_id_fkey"
+            columns: ["side_id"]
+            isOneToOne: false
+            referencedRelation: "match_sides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       match_incidents: {
         Row: {
           assist_athlete_id: string | null
@@ -983,6 +1207,68 @@ export type Database = {
           },
         ]
       }
+      match_participations: {
+        Row: {
+          athlete_id: string
+          created_at: string
+          created_by: string
+          event_id: string
+          id: string
+          match_id: string
+          side_id: string
+          team_id: string
+        }
+        Insert: {
+          athlete_id: string
+          created_at?: string
+          created_by: string
+          event_id: string
+          id?: string
+          match_id: string
+          side_id: string
+          team_id: string
+        }
+        Update: {
+          athlete_id?: string
+          created_at?: string
+          created_by?: string
+          event_id?: string
+          id?: string
+          match_id?: string
+          side_id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_participations_athlete_id_team_id_fkey"
+            columns: ["athlete_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "match_participations_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "event_matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_participations_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "public_match_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_participations_side_id_fkey"
+            columns: ["side_id"]
+            isOneToOne: false
+            referencedRelation: "match_sides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       match_reports: {
         Row: {
           created_at: string
@@ -1036,6 +1322,64 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "events"
             referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
+      match_sides: {
+        Row: {
+          created_at: string
+          event_id: string
+          external_snapshot: Json | null
+          id: string
+          label: string
+          match_id: string
+          side_index: number
+          squad_id: string | null
+          team_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          external_snapshot?: Json | null
+          id?: string
+          label: string
+          match_id: string
+          side_index: number
+          squad_id?: string | null
+          team_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          external_snapshot?: Json | null
+          id?: string
+          label?: string
+          match_id?: string
+          side_index?: number
+          squad_id?: string | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_sides_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "event_matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_sides_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "public_match_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_sides_squad_id_fkey"
+            columns: ["squad_id"]
+            isOneToOne: false
+            referencedRelation: "event_squads"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1736,6 +2080,26 @@ export type Database = {
         }
         Relationships: []
       }
+      public_match_directory: {
+        Row: {
+          event_id: string | null
+          id: string | null
+          ordinal: number | null
+          public_id: string | null
+          public_mode: Database["public"]["Enums"]["match_public_mode"] | null
+          status: Database["public"]["Enums"]["match_status"] | null
+          team_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_matches_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
       public_player_directory: {
         Row: {
           bio: string | null
@@ -1926,6 +2290,16 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_event_match: {
+        Args: {
+          requested_event_id: string
+          requested_external_opponent_name?: string
+          requested_ordinal?: number
+          requested_side_a_label?: string
+          requested_side_b_label?: string
+        }
+        Returns: string
+      }
       create_team_for_current_user: {
         Args: {
           sport_format: Database["public"]["Enums"]["sport_format"]
@@ -1993,6 +2367,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      finalize_event_match: {
+        Args: { requested_match_id: string }
+        Returns: undefined
       }
       get_event_capability_pilot_health: {
         Args: { requested_team_id: string }
@@ -2124,6 +2502,19 @@ export type Database = {
           template_payload: Json
           template_version: string
         }[]
+      }
+      record_match_event: {
+        Args: {
+          requested_assist_athlete_id?: string
+          requested_athlete_id?: string
+          requested_delta?: number
+          requested_kind: Database["public"]["Enums"]["match_event_kind"]
+          requested_match_id: string
+          requested_minute?: number
+          requested_notes?: string
+          requested_side_index: number
+        }
+        Returns: string
       }
       record_notification_callback: {
         Args: {
@@ -2278,6 +2669,21 @@ export type Database = {
         }
         Returns: Database["public"]["Enums"]["attendance_status"]
       }
+      set_match_participation: {
+        Args: {
+          requested_athlete_id: string
+          requested_match_id: string
+          requested_side_index: number
+        }
+        Returns: string
+      }
+      set_match_public_mode: {
+        Args: {
+          requested_match_id: string
+          requested_mode: Database["public"]["Enums"]["match_public_mode"]
+        }
+        Returns: undefined
+      }
       set_runtime_control: {
         Args: {
           requested_control: Database["public"]["Enums"]["runtime_control_key"]
@@ -2421,6 +2827,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      void_event_match: {
+        Args: { requested_match_id: string; requested_reason: string }
+        Returns: undefined
+      }
     }
     Enums: {
       athlete_status: "pending" | "active" | "inactive" | "rejected"
@@ -2432,6 +2842,7 @@ export type Database = {
         | "maybe"
         | "waitlist"
       consent_status: "granted" | "revoked"
+      craque_vote_status: "counted" | "revoked"
       event_change_kind:
         | "created"
         | "details_updated"
@@ -2458,8 +2869,19 @@ export type Database = {
         | "public_event_page"
         | "event_capability_exchange"
         | "event_capability_rsvp"
+        | "event_matches"
       lineup_slot_kind: "starter" | "substitute"
+      match_event_kind:
+        | "goal"
+        | "own_goal"
+        | "yellow_card"
+        | "red_card"
+        | "substitution"
+        | "score_adjustment"
+        | "note"
       match_incident_kind: "goal" | "yellow_card" | "red_card"
+      match_public_mode: "private" | "final_result" | "live"
+      match_status: "scheduled" | "live" | "finalized" | "void"
       membership_status: "invited" | "active" | "suspended"
       message_channel: "whatsapp" | "email" | "push"
       message_status: "pending" | "processing" | "sent" | "failed" | "cancelled"
@@ -2624,6 +3046,7 @@ export const Constants = {
         "waitlist",
       ],
       consent_status: ["granted", "revoked"],
+      craque_vote_status: ["counted", "revoked"],
       event_change_kind: [
         "created",
         "details_updated",
@@ -2652,9 +3075,21 @@ export const Constants = {
         "public_event_page",
         "event_capability_exchange",
         "event_capability_rsvp",
+        "event_matches",
       ],
       lineup_slot_kind: ["starter", "substitute"],
+      match_event_kind: [
+        "goal",
+        "own_goal",
+        "yellow_card",
+        "red_card",
+        "substitution",
+        "score_adjustment",
+        "note",
+      ],
       match_incident_kind: ["goal", "yellow_card", "red_card"],
+      match_public_mode: ["private", "final_result", "live"],
+      match_status: ["scheduled", "live", "finalized", "void"],
       membership_status: ["invited", "active", "suspended"],
       message_channel: ["whatsapp", "email", "push"],
       message_status: ["pending", "processing", "sent", "failed", "cancelled"],
