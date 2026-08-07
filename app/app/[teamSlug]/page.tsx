@@ -661,7 +661,7 @@ function buildActivity({
         title: `${event.title} foi encerrado`,
         description: "Súmula e estatísticas da partida estão disponíveis.",
         at: event.updated_at,
-        href: `/app/${teamSlug}/events/${event.id}/match`,
+        href: `/app/${teamSlug}/events/${event.id}/matches`,
       };
     }
     if (event.status === "cancelled") {

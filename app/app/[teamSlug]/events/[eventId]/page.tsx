@@ -235,8 +235,8 @@ export default async function EventDetailPage({
           <div className="flex items-center gap-2">
             {isScheduled || event.status === "completed" ? (
               <Button asChild className="bg-grass hover:bg-slate-800">
-                <Link href={`/app/${team.slug}/events/${event.id}/match`}>
-                  <NotebookTabs aria-hidden /> Súmula
+                <Link href={`/app/${team.slug}/events/${event.id}/matches`}>
+                  <NotebookTabs aria-hidden /> Partidas
                 </Link>
               </Button>
             ) : null}

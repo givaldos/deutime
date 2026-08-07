@@ -560,12 +560,12 @@ export async function deleteMatchIncident(formData: FormData) {
   });
   if (error) {
     redirect(
-      `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}/match?incidentError=1`,
+      `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}/matches?incidentError=1`,
     );
   }
   revalidateMatchPages(parsed.data.teamSlug, parsed.data.eventId);
   redirect(
-    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}/match?incident=deleted`,
+    `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}/matches?incident=deleted`,
   );
 }
 
@@ -573,6 +573,7 @@ function revalidateMatchPages(teamSlug: string, eventId: string) {
   revalidatePath(`/app/${teamSlug}`);
   revalidatePath(`/app/${teamSlug}/events`);
   revalidatePath(`/app/${teamSlug}/events/${eventId}`);
+  revalidatePath(`/app/${teamSlug}/events/${eventId}/matches`);
   revalidatePath(`/app/${teamSlug}/events/${eventId}/match`);
   revalidatePath("/me");
   revalidatePath("/me/agenda");
