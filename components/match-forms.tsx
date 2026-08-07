@@ -43,6 +43,41 @@ export function ParticipationForm({ teamSlug, matchId, athletes, sides }: { team
   );
 }
 
+export function VoidMatchForm({ teamSlug, matchId, status }: { teamSlug: string; matchId: string; status: string }) {
+  const [state, action, pending] = useActionState(async (_: unknown, fd: FormData) => {
+    const supabase = (await import("@/lib/supabase/client")).createClient();
+    const { error } = await (supabase as unknown as { rpc: (a: string, b: unknown) => Promise<{ error: { message: string } | null }> }).rpc("void_event_match", { requested_match_id: fd.get("matchId") as string, requested_reason: fd.get("reason") as string });
+    return { outcome: error ? "error" as const : "success" as const, message: error ? error.message : "Partida anulada." };
+  }, {} as { outcome?: string; message?: string });
+  if (status === "void") return <p className="text-xs text-slate-400">Partida anulada.</p>;
+  return (
+    <form action={action} className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-3">
+      <input type="hidden" name="teamSlug" value={teamSlug} />
+      <input type="hidden" name="matchId" value={matchId} />
+      <Input name="reason" placeholder="Motivo da anulação (3-500)" required minLength={3} maxLength={500} className="h-9 flex-1" />
+      <Button type="submit" disabled={pending} size="sm" variant="outline" className="border-amber-300 text-amber-800">{pending ? "..." : "Anular"}</Button>
+      {state.message && <span className="text-xs text-amber-800">{state.message}</span>}
+    </form>
+  );
+}
+
+export function FinalizeMatchForm({ teamSlug, matchId, status }: { teamSlug: string; matchId: string; status: string }) {
+  const [state, action, pending] = useActionState(async (_: unknown, fd: FormData) => {
+    const supabase = (await import("@/lib/supabase/client")).createClient();
+    const { error } = await (supabase as unknown as { rpc: (a: string, b: unknown) => Promise<{ error: { message: string } | null }> }).rpc("finalize_event_match", { requested_match_id: fd.get("matchId") as string });
+    return { outcome: error ? "error" as const : "success" as const, message: error ? error.message : "Partida finalizada." };
+  }, {} as { outcome?: string; message?: string });
+  if (status === "finalized" || status === "void") return <p className="text-xs text-slate-400">Partida {status}.</p>;
+  return (
+    <form action={action} className="flex items-center gap-2">
+      <input type="hidden" name="teamSlug" value={teamSlug} />
+      <input type="hidden" name="matchId" value={matchId} />
+      <Button type="submit" disabled={pending} size="sm" className="bg-emerald-700">{pending ? "..." : "Encerrar partida"}</Button>
+      {state.message && <span className="text-xs text-slate-500">{state.message}</span>}
+    </form>
+  );
+}
+
 export function PublicModeForm({ teamSlug, matchId, currentMode }: { teamSlug: string; matchId: string; currentMode: string }) {
   const [state, action, pending] = useActionState(async (_: unknown, fd: FormData) => {
     const supabase = (await import("@/lib/supabase/client")).createClient();

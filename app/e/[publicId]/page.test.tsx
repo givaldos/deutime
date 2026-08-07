@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   getPublicEvent: vi.fn(),
   getEventAccessContext: vi.fn(),
   getTeamLogoUrlByEventPublicId: vi.fn().mockResolvedValue(null),
+  getPublicEventMatches: vi.fn().mockResolvedValue(null),
 }));
 
 vi.mock("@/lib/data/public-event", () => ({
@@ -15,6 +16,9 @@ vi.mock("@/lib/data/event-access", () => ({
 }));
 vi.mock("@/lib/data/team-logo", () => ({
   getTeamLogoUrlByEventPublicId: mocks.getTeamLogoUrlByEventPublicId,
+}));
+vi.mock("@/lib/data/public-matches", () => ({
+  getPublicEventMatches: mocks.getPublicEventMatches,
 }));
 vi.mock("next/navigation", () => ({
   notFound: () => {
