@@ -3,7 +3,10 @@
 -- Backfill cria 1 partida padrão por súmula legada; eventos sem súmula permanecem com zero partidas.
 
 -- Enum de feature flag para R04
-alter type public.feature_key add value if not exists 'event_matches';
+do $$ begin
+  perform 1 from pg_enum where enumlabel='event_matches' and enumtypid='public.feature_key'::regtype;
+  if not found then alter type public.feature_key add value 'event_matches'; end if;
+exception when duplicate_object then null; end $$;
 
 -- Tipos
 do $$ begin
