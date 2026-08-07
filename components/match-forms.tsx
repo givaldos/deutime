@@ -1,9 +1,9 @@
 "use client";
-import { createMatchAction, recordEventAction, setParticipationAction } from "@/app/app/[teamSlug]/events/[eventId]/match/match-actions";
+import { createMatchAction, recordEventAction, setParticipationAction } from "@/app/app/[teamSlug]/events/[eventId]/matches/match-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 
 export function CreateMatchForm({ teamSlug, eventId }: { teamSlug: string; eventId: string }) {
   const [state, action, pending] = useActionState(createMatchAction, {});
@@ -44,48 +44,72 @@ export function ParticipationForm({ teamSlug, matchId, athletes, sides }: { team
 }
 
 export function VoidMatchForm({ teamSlug, matchId, status }: { teamSlug: string; matchId: string; status: string }) {
-  const [state, action, pending] = useActionState(async (_: unknown, fd: FormData) => {
-    const supabase = (await import("@/lib/supabase/client")).createClient();
-    const { error } = await (supabase as unknown as { rpc: (a: string, b: unknown) => Promise<{ error: { message: string } | null }> }).rpc("void_event_match", { requested_match_id: fd.get("matchId") as string, requested_reason: fd.get("reason") as string });
-    return { outcome: error ? "error" as const : "success" as const, message: error ? error.message : "Partida anulada." };
-  }, {} as { outcome?: string; message?: string });
+  const [message, setMessage] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
   if (status === "void") return <p className="text-xs text-slate-400">Partida anulada.</p>;
   return (
-    <form action={action} className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-3">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget as HTMLFormElement);
+        startTransition(async () => {
+          const supabase = (await import("@/lib/supabase/client")).createClient();
+          const { error } = await (supabase as unknown as { rpc: (a: string, b: unknown) => Promise<{ error: { message: string } | null }> }).rpc("void_event_match", { requested_match_id: fd.get("matchId") as string, requested_reason: fd.get("reason") as string });
+          setMessage(error ? error.message : "Partida anulada.");
+        });
+      }}
+      className="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-3"
+    >
       <input type="hidden" name="teamSlug" value={teamSlug} />
       <input type="hidden" name="matchId" value={matchId} />
       <Input name="reason" placeholder="Motivo da anulação (3-500)" required minLength={3} maxLength={500} className="h-9 flex-1" />
       <Button type="submit" disabled={pending} size="sm" variant="outline" className="border-amber-300 text-amber-800">{pending ? "..." : "Anular"}</Button>
-      {state.message && <span className="text-xs text-amber-800">{state.message}</span>}
+      {message && <span className="text-xs text-amber-800">{message}</span>}
     </form>
   );
 }
 
 export function FinalizeMatchForm({ teamSlug, matchId, status }: { teamSlug: string; matchId: string; status: string }) {
-  const [state, action, pending] = useActionState(async (_: unknown, fd: FormData) => {
-    const supabase = (await import("@/lib/supabase/client")).createClient();
-    const { error } = await (supabase as unknown as { rpc: (a: string, b: unknown) => Promise<{ error: { message: string } | null }> }).rpc("finalize_event_match", { requested_match_id: fd.get("matchId") as string });
-    return { outcome: error ? "error" as const : "success" as const, message: error ? error.message : "Partida finalizada." };
-  }, {} as { outcome?: string; message?: string });
+  const [message, setMessage] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
   if (status === "finalized" || status === "void") return <p className="text-xs text-slate-400">Partida {status}.</p>;
   return (
-    <form action={action} className="flex items-center gap-2">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget as HTMLFormElement);
+        startTransition(async () => {
+          const supabase = (await import("@/lib/supabase/client")).createClient();
+          const { error } = await (supabase as unknown as { rpc: (a: string, b: unknown) => Promise<{ error: { message: string } | null }> }).rpc("finalize_event_match", { requested_match_id: fd.get("matchId") as string });
+          setMessage(error ? error.message : "Partida finalizada.");
+        });
+      }}
+      className="flex items-center gap-2"
+    >
       <input type="hidden" name="teamSlug" value={teamSlug} />
       <input type="hidden" name="matchId" value={matchId} />
       <Button type="submit" disabled={pending} size="sm" className="bg-emerald-700">{pending ? "..." : "Encerrar partida"}</Button>
-      {state.message && <span className="text-xs text-slate-500">{state.message}</span>}
+      {message && <span className="text-xs text-slate-500">{message}</span>}
     </form>
   );
 }
 
 export function PublicModeForm({ teamSlug, matchId, currentMode }: { teamSlug: string; matchId: string; currentMode: string }) {
-  const [state, action, pending] = useActionState(async (_: unknown, fd: FormData) => {
-    const supabase = (await import("@/lib/supabase/client")).createClient();
-    const { error } = await (supabase as unknown as { rpc: (a: string, b: unknown) => Promise<{ error: { message: string } | null }> }).rpc("set_match_public_mode", { requested_match_id: fd.get("matchId") as string, requested_mode: fd.get("mode") as string });
-    return { outcome: error ? "error" as const : "success" as const, message: error ? error.message : `Modo ${fd.get("mode")} salvo.` };
-  }, {} as { outcome?: string; message?: string });
+  const [message, setMessage] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
   return (
-    <form action={action} className="flex items-center gap-2 rounded-2xl border border-slate-200 p-3">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget as HTMLFormElement);
+        startTransition(async () => {
+          const supabase = (await import("@/lib/supabase/client")).createClient();
+          const { error } = await (supabase as unknown as { rpc: (a: string, b: unknown) => Promise<{ error: { message: string } | null }> }).rpc("set_match_public_mode", { requested_match_id: fd.get("matchId") as string, requested_mode: fd.get("mode") as string });
+          setMessage(error ? error.message : `Modo ${fd.get("mode")} salvo.`);
+        });
+      }}
+      className="flex items-center gap-2 rounded-2xl border border-slate-200 p-3"
+    >
       <input type="hidden" name="teamSlug" value={teamSlug} />
       <input type="hidden" name="matchId" value={matchId} />
       <select name="mode" defaultValue={currentMode} className="h-9 rounded-xl border border-slate-200 px-3 text-sm">
@@ -94,13 +118,14 @@ export function PublicModeForm({ teamSlug, matchId, currentMode }: { teamSlug: s
         <option value="live">Ao vivo</option>
       </select>
       <Button type="submit" disabled={pending} size="sm" variant="outline">{pending ? "..." : "Publicar"}</Button>
-      {state.message && <span className="text-xs text-slate-500">{state.message}</span>}
+      {message && <span className="text-xs text-slate-500">{message}</span>}
     </form>
   );
 }
 
 export function RecordEventForm({ teamSlug, matchId, sides, athletes }: { teamSlug: string; matchId: string; sides: { id: string; label: string; side_index: number }[]; athletes: { id: string; name: string }[] }) {
-  const [state, action, pending] = useActionState(recordEventAction, {});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [state, action, pending] = useActionState(recordEventAction as any, {} as any);
   return (
     <form action={action} className="space-y-3 rounded-2xl border border-slate-200 p-4">
       <input type="hidden" name="teamSlug" value={teamSlug} />
