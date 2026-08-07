@@ -2202,6 +2202,15 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      cast_craque_vote: {
+        Args: {
+          requested_candidate_athlete_id: string
+          requested_match_id: string
+          requested_receipt_hash: string
+          requested_voter_hash: string
+        }
+        Returns: string
+      }
       claim_notification_batch: {
         Args: { requested_lease_seconds?: number; requested_limit?: number }
         Returns: {

@@ -5,6 +5,7 @@ import {
 } from "@/components/admin-match-report";
 import { getEventMatches } from "@/lib/data/matches";
 import { CreateMatchForm, FinalizeMatchForm, ParticipationForm, PublicModeForm, RecordEventForm, VoidMatchForm } from "@/components/match-forms";
+import { CraqueVoteForm } from "@/components/craque-vote-form";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { AppContainer } from "@/components/ui/app-shell";
 import { TeamAppHeader } from "@/components/team-app-header";
@@ -441,6 +442,12 @@ export default async function MatchReportPage({
                         sides={m.sides}
                         athletes={(athletes ?? []).map((a) => ({ id: a.id, name: a.preferred_name || a.full_name }))}
                       />
+                      {m.status === "finalized" && (
+                        <CraqueVoteForm
+                          matchId={m.id}
+                          candidates={(athletes ?? []).filter((a) => m.participations.some((p) => p.athlete_id === a.id)).map((a) => ({ id: a.id, name: a.preferred_name || a.full_name }))}
+                        />
+                      )}
                     </div>
                   </div>
                 ))}
