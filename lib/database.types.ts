@@ -316,31 +316,34 @@ export type Database = {
       }
       craque_votes: {
         Row: {
+          anonymized_at: string | null
           candidate_athlete_id: string
           created_at: string
           id: string
           match_id: string
           receipt_token_hash: string
           team_id: string
-          voter_hash: string
+          voter_hash: string | null
         }
         Insert: {
+          anonymized_at?: string | null
           candidate_athlete_id: string
           created_at?: string
           id?: string
           match_id: string
           receipt_token_hash: string
           team_id: string
-          voter_hash: string
+          voter_hash?: string | null
         }
         Update: {
+          anonymized_at?: string | null
           candidate_athlete_id?: string
           created_at?: string
           id?: string
           match_id?: string
           receipt_token_hash?: string
           team_id?: string
-          voter_hash?: string
+          voter_hash?: string | null
         }
         Relationships: [
           {
@@ -349,6 +352,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "athletes"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "craque_votes_candidate_team_fkey"
+            columns: ["candidate_athlete_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id", "team_id"]
           },
           {
             foreignKeyName: "craque_votes_match_id_fkey"
@@ -363,6 +373,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "public_match_directory"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "craque_votes_match_team_fkey"
+            columns: ["match_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "event_matches"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "craque_votes_match_team_fkey"
+            columns: ["match_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "public_match_directory"
+            referencedColumns: ["id", "team_id"]
           },
         ]
       }
@@ -707,6 +731,7 @@ export type Database = {
       }
       event_matches: {
         Row: {
+          craque_voting_closes_at: string | null
           created_at: string
           created_by: string
           event_id: string
@@ -723,6 +748,7 @@ export type Database = {
           video_provider: string | null
         }
         Insert: {
+          craque_voting_closes_at?: string | null
           created_at?: string
           created_by: string
           event_id: string
@@ -739,6 +765,7 @@ export type Database = {
           video_provider?: string | null
         }
         Update: {
+          craque_voting_closes_at?: string | null
           created_at?: string
           created_by?: string
           event_id?: string
@@ -2202,15 +2229,27 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      cast_craque_vote: {
-        Args: {
-          requested_candidate_athlete_id: string
-          requested_match_id: string
-          requested_receipt_hash: string
-          requested_voter_hash: string
-        }
-        Returns: string
-      }
+      cast_craque_vote:
+        | {
+            Args: {
+              requested_candidate_athlete_id: string
+              requested_match_id: string
+            }
+            Returns: {
+              receipt_expires_at: string
+              receipt_token: string
+              vote_id: string
+            }[]
+          }
+        | {
+            Args: {
+              requested_candidate_athlete_id: string
+              requested_match_id: string
+              requested_receipt_hash: string
+              requested_voter_hash: string
+            }
+            Returns: string
+          }
       claim_notification_batch: {
         Args: { requested_lease_seconds?: number; requested_limit?: number }
         Returns: {

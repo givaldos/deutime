@@ -105,6 +105,22 @@ OTP. Os detalhes, ameaças e critérios de teste estão no ADR canônico.
 
 A credencial reconhece a elegibilidade no evento; ela não concede por si só sessão global, comentário, voto, papel administrativo nem acesso depois que o vínculo ou a fase deixarem de permitir a ação.
 
+## Voto anônimo do Craque
+
+O voto R05 usa sessão verificada e snapshot privado de SIM/TALVEZ. A RPC deriva
+o atleta da sessão, exige candidato em `match_participations`, revalida time,
+flag `voting`, partida finalizada e janela aberta. Staff só vota quando também é
+atleta elegível.
+
+- cliente nunca envia UUID ou hash do eleitor;
+- salt aleatório por partida permanece no schema `private`;
+- cédulas e recibos não possuem leitura direta para `anon` ou `authenticated`;
+- a assinatura legada que aceitava hashes arbitrários perde `EXECUTE` antes da
+  interface consumidora;
+- recibo persiste somente como hash e não contém candidato;
+- FK composta e pgTAP negativo impedem candidato e voto cross-tenant;
+- a flag desligada falha fechado e mantém a súmula como fallback.
+
 O identificador de `/e/{public_id}` não é credencial. Conforme
 [`DEC-EVENT-PUBLIC-MINIMUM`](decisions/DEC-EVENT-PUBLIC-MINIMUM.md), o GET
 anônimo omite endereço do local, chamada, atletas, presença e prazo interno,

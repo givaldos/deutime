@@ -1,7 +1,7 @@
 ---
 id: R04
 type: vertical
-status: active
+status: completed
 outcome: "Registrar uma ou mais partidas no mesmo evento, acompanhar placar e lances ao vivo e preservar uma súmula final auditável na URL estável."
 depends_on:
   - R02

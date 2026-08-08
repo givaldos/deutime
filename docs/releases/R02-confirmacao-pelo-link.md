@@ -1,6 +1,6 @@
 ---
 id: R02
-status: active
+status: completed
 outcome: "Permitir confirmar e acompanhar um evento pelo mesmo link do WhatsApp, com acesso persistente e revogável."
 depends_on:
   - R00

@@ -1,33 +1,55 @@
 ---
 release: R05
-work_package: WP-R05-01
-scope: craque_voting
+work_package: WP-R05-02
+scope: mobile_craque_voting_flow
 branch_or_commit: "dev"
-checkpoint: CP1
-status: active
-completed_ac: ["AC-R05-01", "AC-R02-09", "AC-R03-06", "AC-R03-09", "AC-R04-01", "AC-R04-02", "AC-R04-03", "AC-R04-04", "AC-R04-05", "AC-R04-06", "AC-R04-07", "AC-R04-08", "AC-R04-09", "AC-R04-10"]
+checkpoint: CP0
+status: idle
+completed_ac:
+  - "AC-R02-09"
+  - "AC-R03-06"
+  - "AC-R03-09"
+  - "AC-R04-01"
+  - "AC-R04-02"
+  - "AC-R04-03"
+  - "AC-R04-04"
+  - "AC-R04-05"
+  - "AC-R04-06"
+  - "AC-R04-07"
+  - "AC-R04-08"
+  - "AC-R04-09"
+  - "AC-R04-10"
+  - "AC-R05-01"
+  - "AC-R05-02"
+  - "AC-R05-03"
+  - "AC-R05-04"
+  - "AC-R05-05"
+  - "AC-R05-08"
 dirty_files: []
 tests:
-  - "lint 0"
-  - "typecheck 0"
-  - "219/219 vitest pass"
-  - "migration-integrity origin/dev HEAD OK"
-  - "CP4 public-matches via privileged"
-  - "R04 piloto prod: event_matches=true, 2 partidas (1 finalized live, 1 scheduled externo), 1 participação + 1 gol"
-  - "R05 draft craque_votes (hash+salt, recibo 7d) + 202608080001 cast_craque_vote"
-  - "DEC-ANONYMOUS-RETENTION accepted 2026-08-08"
-  - "032_craque_voting pgTAP 14 (RLS, grants, RPC, unique)"
-  - "lib/features/craque validation+server (craque_voting flag, voter_hash)"
+  - "migrations:check: somente expansão forward-only"
+  - "db:reset: 54 migrations recompostas"
+  - "pgTAP focado: 27/27"
+  - "pgTAP completo: 32 arquivos, 686 testes"
+  - "Vitest: 39 arquivos, 221 testes"
+  - "lint, typecheck e build: aprovados"
+  - "npm audit: 0 vulnerabilidades"
 blocker: null
-next_action: "commit bloqueado (.git/index.lock sandbox) — push 8 migrations pendente, depois Actions craque + vitest + db:test finais"
+next_action: "Implementar Action e interface mobile-first de voto/recibo, consumindo somente cast_craque_vote(uuid,uuid), atrás da flag voting desligada."
 ---
 
 # Trabalho atual
 
-R02 concluído: AC-R02-09 fechado com retorno D+1 07/08 capability reutilizada sem OTP (Android/iPhone interno+padrão).
+R02, R03 e R04 estão concluídas. O sender próprio do WhatsApp foi validado e o
+número oficial normalizado é `+551132300101`.
 
-R03 concluído: AC-R03-06 template `event_call:v1` + link R02 validado via sender próprio live (idempotência `claimed:0` na 2ª chamada), AC-R03-09 Sandbox→sender próprio aprovado.
+R05 está ativa. A auditoria encontrou que a assinatura
+`cast_craque_vote(uuid,uuid,text,text)` publicada em produção aceitava hashes do
+cliente e não interrompia o usuário inelegível. Ainda não existe interface
+consumidora e a flag canônica `voting` permanece desligada.
 
-R04 concluído: WP-R04-01 CP1-CP5 com 10/10 ACs, 219/219 vitest, piloto prod 2 partidas. Pacote R04 atualizado com evidências CP1-CP5.
-
-R05 ativo: DEC-ANONYMOUS-RETENTION aceita 08/08, WP-R05-01 CP1 (craque_votes hash+salt + recibo 7d, `202608080001` cast_craque_vote). Próximo: push 8 migrations via `deploy-database.yml` (merge dev→main) e CP2 pgTAP 032.
+A correção forward-only `202608080002` revoga a assinatura insegura e introduz
+uma RPC que deriva eleitor, hash e recibo no banco, exige snapshot SIM/TALVEZ,
+candidato participante, flag e janela. A recomposição completa e todos os gates
+locais foram aprovados. O próximo pacote é a Action e a interface mobile de
+voto/recibo, ainda com `voting` desligada.

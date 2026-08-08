@@ -1,7 +1,7 @@
 ---
 id: R03
 type: vertical
-status: active
+status: completed
 outcome: "Enviar uma chamada real pelo WhatsApp, com consentimento, retry, entrega observável e retorno pelo link estável do evento."
 depends_on:
   - R01
