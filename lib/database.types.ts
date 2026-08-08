@@ -2436,6 +2436,14 @@ export type Database = {
           team_rsvp_enabled: boolean
         }[]
       }
+      get_my_craque_vote_status: {
+        Args: { requested_match_id: string }
+        Returns: {
+          already_voted: boolean
+          eligible: boolean
+          voting_closes_at: string
+        }[]
+      }
       get_my_player_statistics: {
         Args: never
         Returns: {
@@ -2873,6 +2881,10 @@ export type Database = {
           requested_website_url: string
           requested_youtube_url: string
         }
+        Returns: boolean
+      }
+      verify_craque_vote_receipt: {
+        Args: { requested_receipt_token: string }
         Returns: boolean
       }
       void_event_match: {

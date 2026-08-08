@@ -1,6 +1,8 @@
 import { LiveMatchRefresh } from "@/components/live-match-refresh";
+import { CraqueVoteForm } from "@/components/craque-vote-form";
 import { AppContainer } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
+import { getMyCraqueBallots } from "@/lib/data/craque";
 import { createClient } from "@/lib/supabase/server";
 import {
   ArrowLeft,
@@ -105,6 +107,9 @@ export default async function PlayerMatchPage({
   const started =
     new Date(event.starts_at).valueOf() <= new Date().valueOf();
   const live = started && !finalized && event.status === "scheduled";
+  const craqueBallots = !cancelled
+    ? await getMyCraqueBallots(event.team_id, event.id)
+    : null;
 
   return (
     <AppContainer narrow>
@@ -266,6 +271,49 @@ export default async function PlayerMatchPage({
           </div>
         )}
       </section>
+
+      {craqueBallots?.some((ballot) => ballot.eligible) ? (
+        <section className="space-y-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-amber-700">
+              Reconhecimento
+            </p>
+            <h2 className="mt-1 text-xl font-black tracking-tight">
+              Craque da Galera
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-slate-500">
+              Cada partida tem um voto independente. Só participantes reais aparecem na lista.
+            </p>
+          </div>
+          {craqueBallots
+            .filter((ballot) => ballot.eligible)
+            .map((ballot) => {
+              const closed =
+                !ballot.closesAt ||
+                new Date(ballot.closesAt).valueOf() <= new Date().valueOf();
+              const closesLabel = ballot.closesAt
+                ? new Intl.DateTimeFormat("pt-BR", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                    timeZone: teamLink.team_timezone,
+                  }).format(new Date(ballot.closesAt))
+                : null;
+
+              return (
+                <CraqueVoteForm
+                  key={ballot.matchId}
+                  eventId={event.id}
+                  matchId={ballot.matchId}
+                  matchLabel={`Partida ${ballot.ordinal}`}
+                  candidates={ballot.candidates}
+                  closesLabel={closesLabel}
+                  alreadyVoted={ballot.alreadyVoted}
+                  closed={closed}
+                />
+              );
+            })}
+        </section>
+      ) : null}
 
       {report?.notes && (
         <section className="app-surface p-5">

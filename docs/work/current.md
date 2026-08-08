@@ -1,7 +1,7 @@
 ---
 release: R05
-work_package: WP-R05-02
-scope: mobile_craque_voting_flow
+work_package: WP-R05-03
+scope: aggregate_result_and_retention
 branch_or_commit: "dev"
 checkpoint: CP0
 status: idle
@@ -24,7 +24,9 @@ completed_ac:
   - "AC-R05-03"
   - "AC-R05-04"
   - "AC-R05-05"
+  - "AC-R05-06"
   - "AC-R05-08"
+  - "AC-R05-10"
 dirty_files: []
 tests:
   - "migrations:check: somente expansão forward-only"
@@ -36,8 +38,12 @@ tests:
   - "npm audit: 0 vulnerabilidades"
   - "sender de automação retificado em produção para +15553101875"
   - "smoke pós-redeploy: aprovado"
+  - "db:reset: 55 migrations recompostas"
+  - "pgTAP R05: 40/40; completo: 32 arquivos, 699 testes"
+  - "Vitest: 40 arquivos, 227 testes"
+  - "R05 CP2: lint, typecheck, build e audit aprovados"
 blocker: null
-next_action: "Implementar Action e interface mobile-first de voto/recibo, consumindo somente cast_craque_vote(uuid,uuid), atrás da flag voting desligada."
+next_action: "Implementar resultado agregado somente após o fechamento e rotina de expiração/anonimização, sem expor cédula individual."
 ---
 
 # Trabalho atual
@@ -54,6 +60,7 @@ consumidora e a flag canônica `voting` permanece desligada.
 
 A correção forward-only `202608080002` revoga a assinatura insegura e introduz
 uma RPC que deriva eleitor, hash e recibo no banco, exige snapshot SIM/TALVEZ,
-candidato participante, flag e janela. A recomposição completa e todos os gates
-locais foram aprovados. O próximo pacote é a Action e a interface mobile de
-voto/recibo, ainda com `voting` desligada.
+candidato participante, flag e janela. `202608080003` entrega a leitura mínima,
+a Action e a interface mobile de voto/recibo em `/me/agenda/[eventId]`. A flag
+`voting` continua desligada. O próximo pacote é resultado agregado após o
+fechamento e retenção automática.
