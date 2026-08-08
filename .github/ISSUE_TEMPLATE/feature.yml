@@ -16,6 +16,11 @@ body:
         - R00 — Fundação de entrega
         - R01 — Evento sob controle
         - R02 — Confirmação pelo link
+        - R03 — WhatsApp ponta a ponta
+        - R03R — Lembretes econômicos
+        - R04 — Partida ao vivo e pós-jogo
+        - R05 — Craque da Galera
+        - R06 — Conversa da súmula
     validations:
       required: true
   - type: input
