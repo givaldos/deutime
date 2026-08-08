@@ -34,14 +34,18 @@ tests:
   - "Vitest: 39 arquivos, 221 testes"
   - "lint, typecheck e build: aprovados"
   - "npm audit: 0 vulnerabilidades"
+  - "sender de automação retificado em produção para +15553101875"
+  - "smoke pós-redeploy: aprovado"
 blocker: null
 next_action: "Implementar Action e interface mobile-first de voto/recibo, consumindo somente cast_craque_vote(uuid,uuid), atrás da flag voting desligada."
 ---
 
 # Trabalho atual
 
-R02, R03 e R04 estão concluídas. O sender próprio do WhatsApp foi validado e o
-número oficial normalizado é `+551132300101`.
+R02, R03 e R04 estão concluídas. Os números oficiais têm papéis distintos:
+`+15553101875` é o sender das automações e notificações pelo WhatsApp;
+`+551132300101` é o contato comercial com a comunidade e não deve ser usado
+como `TWILIO_WHATSAPP_FROM`.
 
 R05 está ativa. A auditoria encontrou que a assinatura
 `cast_craque_vote(uuid,uuid,text,text)` publicada em produção aceitava hashes do

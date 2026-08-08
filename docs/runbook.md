@@ -203,6 +203,10 @@ TWILIO_CONTENT_SID_EVENT_CALL_V1=HX...
 TWILIO_TEMPLATE_PROFILE=sandbox_appointment
 ```
 
+Em produção, `TWILIO_WHATSAPP_FROM=+15553101875` identifica o sender dedicado a
+automações e notificações. O número `+551132300101` é contato comercial humano
+e não deve ser configurado no worker.
+
 Antes do primeiro envio, confirme:
 
 1. cada número demo enviou `join <código>` ao Sandbox nas últimas 72 horas;

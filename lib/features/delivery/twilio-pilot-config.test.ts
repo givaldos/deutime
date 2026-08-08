@@ -84,19 +84,19 @@ describe("configuração do piloto Twilio", () => {
   });
 
   it("aceita o sender próprio de produção e falha com perfil desconhecido", () => {
-    // número próprio (+55 11 3230-0101) agora é válido
+    // Sender oficial dedicado a automações e notificações.
     expect(() =>
       parseTwilioPilotConfig({
         ...sandboxEnv,
-        TWILIO_WHATSAPP_FROM: "+551132300101",
+        TWILIO_WHATSAPP_FROM: "+15553101875",
       }),
     ).not.toThrow();
     expect(
       parseTwilioPilotConfig({
         ...sandboxEnv,
-        TWILIO_WHATSAPP_FROM: "+551132300101",
+        TWILIO_WHATSAPP_FROM: "+15553101875",
       })?.from,
-    ).toBe("+551132300101");
+    ).toBe("+15553101875");
 
     // perfil desconhecido continua falhando fechado
     expect(() =>
