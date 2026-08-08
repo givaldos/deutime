@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(44);
+select plan(52);
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password,
@@ -121,6 +121,14 @@ select ok(
   'authenticated acessa apenas a projeção segura'
 );
 select ok(
+  not has_function_privilege('anon', 'public.get_match_conversation_state(uuid)', 'EXECUTE'),
+  'anon não consulta estado da conversa'
+);
+select ok(
+  has_function_privilege('authenticated', 'public.get_match_conversation_state(uuid)', 'EXECUTE'),
+  'authenticated consulta somente estado mínimo'
+);
+select ok(
   not has_function_privilege('anon', 'public.create_match_comment(uuid,text,uuid,uuid)', 'EXECUTE'),
   'anon não cria comentário'
 );
@@ -157,6 +165,20 @@ select is(
   (select count(*) from public.get_match_conversation('06400000-0000-4000-8000-000000000001')),
   0::bigint,
   'SIM acessa a conversa inicialmente vazia'
+);
+select is(
+  (select accessible from public.get_match_conversation_state('06400000-0000-4000-8000-000000000001')),
+  true,
+  'estado mínimo confirma acesso do SIM'
+);
+select is(
+  (select writable from public.get_match_conversation_state('06400000-0000-4000-8000-000000000001')),
+  true,
+  'estado mínimo abre escrita dentro da janela'
+);
+select ok(
+  (select closes_at is not null from public.get_match_conversation_state('06400000-0000-4000-8000-000000000001')),
+  'estado mínimo informa fechamento para pessoa autorizada'
 );
 select lives_ok(
   $$select set_config(
@@ -240,6 +262,11 @@ select is(
   (select count(*) from public.get_match_conversation('06400000-0000-4000-8000-000000000001')),
   0::bigint,
   'PENDENTE não lê a conversa'
+);
+select is(
+  (select accessible from public.get_match_conversation_state('06400000-0000-4000-8000-000000000001')),
+  false,
+  'estado mínimo não autoriza PENDENTE'
 );
 select throws_ok(
   $$select public.create_match_comment('06400000-0000-4000-8000-000000000001', 'Não deveria entrar', '06600000-0000-4000-8000-000000000005')$$,
@@ -341,6 +368,11 @@ select is(
   2::bigint,
   'leitura continua depois da janela de sete dias'
 );
+select is(
+  (select writable from public.get_match_conversation_state('06400000-0000-4000-8000-000000000001')),
+  false,
+  'estado mínimo fecha escrita depois de sete dias'
+);
 select throws_ok(
   $$select public.create_match_comment('06400000-0000-4000-8000-000000000001', 'Fora da janela', '06600000-0000-4000-8000-000000000007')$$,
   '55000', null,
@@ -359,6 +391,11 @@ select is(
   (select count(*) from public.get_match_conversation('06400000-0000-4000-8000-000000000001')),
   0::bigint,
   'kill switch remove a conversa da projeção'
+);
+select is(
+  (select accessible from public.get_match_conversation_state('06400000-0000-4000-8000-000000000001')),
+  false,
+  'kill switch também revoga o estado mínimo'
 );
 select throws_ok(
   $$select public.create_match_comment('06400000-0000-4000-8000-000000000001', 'Flag desligada', '06600000-0000-4000-8000-000000000008')$$,

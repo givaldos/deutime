@@ -2606,6 +2606,14 @@ export type Database = {
           status: Database["public"]["Enums"]["match_comment_status"]
         }[]
       }
+      get_match_conversation_state: {
+        Args: { requested_match_id: string }
+        Returns: {
+          accessible: boolean
+          closes_at: string
+          writable: boolean
+        }[]
+      }
       get_my_craque_vote_status: {
         Args: { requested_match_id: string }
         Returns: {
