@@ -1,8 +1,10 @@
 import { LiveMatchRefresh } from "@/components/live-match-refresh";
+import { MatchConversation } from "@/components/match-conversation";
 import { CraqueVoteForm } from "@/components/craque-vote-form";
 import { AppContainer } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
 import { getMyCraqueBallots } from "@/lib/data/craque";
+import { getMatchConversations } from "@/lib/data/match-conversation";
 import { createClient } from "@/lib/supabase/server";
 import {
   ArrowLeft,
@@ -16,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { randomUUID } from "node:crypto";
 
 const kindLabels = {
   weekly_match: "Racha semanal",
@@ -107,9 +110,12 @@ export default async function PlayerMatchPage({
   const started =
     new Date(event.starts_at).valueOf() <= new Date().valueOf();
   const live = started && !finalized && event.status === "scheduled";
-  const craqueBallots = !cancelled
-    ? await getMyCraqueBallots(event.team_id, event.id)
-    : null;
+  const [craqueBallots, matchConversations] = !cancelled
+    ? await Promise.all([
+        getMyCraqueBallots(event.team_id, event.id),
+        getMatchConversations(event.team_id, event.id),
+      ])
+    : [null, null];
 
   return (
     <AppContainer narrow>
@@ -188,6 +194,25 @@ export default async function PlayerMatchPage({
           )}
         </div>
       </section>
+
+      {matchConversations?.length ? (
+        <div className="space-y-3">
+          {matchConversations.map((conversation) => (
+            <MatchConversation
+              key={conversation.matchId}
+              eventId={event.id}
+              conversation={conversation}
+              timeZone={teamLink.team_timezone}
+              rootRequestId={randomUUID()}
+              replyRequestIds={Object.fromEntries(
+                conversation.comments
+                  .filter((comment) => !comment.parentId)
+                  .map((comment) => [comment.id, randomUUID()]),
+              )}
+            />
+          ))}
+        </div>
+      ) : null}
 
       <section>
         <div className="flex items-end justify-between gap-3">

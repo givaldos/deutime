@@ -124,11 +124,11 @@ composta inclui `team_id` e `match_id`.
 - [x] `AC-R06-03` — Autoria vem da sessão e a projeção mostra nome interno sem expor `user_id`.
 - [x] `AC-R06-04` — Comentário pertence à partida/time e replay concorrente não duplica escrita.
 - [x] `AC-R06-05` — Resposta possui um nível e raiz obrigatoriamente na mesma partida.
-- [ ] `AC-R06-06` — Escrita fecha sete dias após a finalização; leitura autorizada continua.
-- [ ] `AC-R06-07` — Autor apaga sem remover respostas; texto oculto não volta na projeção comum.
+- [x] `AC-R06-06` — Escrita fecha sete dias após a finalização; leitura autorizada continua.
+- [x] `AC-R06-07` — Autor apaga sem remover respostas; texto oculto não volta na projeção comum.
 - [ ] `AC-R06-08` — Denúncia é única e staff modera/restaura com motivo e auditoria sem corpo integral.
 - [ ] `AC-R06-09` — Limites antiabuso e retenção de dois anos funcionam sem vazamento em logs.
-- [ ] `AC-R06-10` — Flag desligada preserva súmula somente leitura e rollback não apaga histórico.
+- [x] `AC-R06-10` — Flag desligada preserva súmula somente leitura e rollback não apaga histórico.
 
 ## Riscos e controles
 
@@ -198,3 +198,29 @@ npm run security:audit
 - `npm run security:audit`: zero vulnerabilidades;
 - próxima ação: `WP-R06-02`, consumir o contrato na agenda mobile atrás da
   flag `comments`, com fallback silencioso para a súmula atual.
+
+### `DP-R06-03` — CP2 concluído
+
+- migration forward-only `202608080006` adiciona estado mínimo de acesso,
+  escrita e fechamento para distinguir conversa vazia de acesso negado;
+- o DAL consulta primeiro a flag, tolera banco N−1 e omite silenciosamente a
+  capacidade diante de RPC ausente ou falha de autorização;
+- Server Actions validam IDs e texto, nunca recebem autor/time e delegam
+  comentário, resposta, remoção e denúncia às RPCs transacionais;
+- conversa aparece imediatamente abaixo do placar, antes dos lances, com
+  autoria, respostas de um nível, marcador removido e estado somente leitura;
+- formulários usam alvos de toque de pelo menos 40–44 px, labels explícitos,
+  mensagens `status`/`alert`, texto simples e feedback de envio;
+- viewport local 390×844: layout, header e navegação inferior não cobriram a
+  jornada; comentário, resposta e remoção passaram ponta a ponta;
+- fallback local com `comments=false`: conversa ausente, placar e resumo
+  preservados e nenhuma falha de aplicação no console;
+- `npm run migrations:check -- origin/main HEAD`: passou;
+- `npm run db:reset`: passou;
+- `npm run db:lint`: passou com os dois avisos preexistentes;
+- `npm run db:test`: 33 arquivos e 772 testes passaram; pgTAP 033 com 52 provas;
+- testes focados: 4 arquivos e 29 testes passaram;
+- `npm run verify`: 44 arquivos, 254 testes, typecheck e build passaram;
+- `npm run security:audit`: zero vulnerabilidades;
+- próxima ação: `WP-R06-03`, moderação staff, retenção de dois anos, runbook e
+  validação física antes do piloto.
