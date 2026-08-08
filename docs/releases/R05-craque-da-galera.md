@@ -96,8 +96,8 @@ desligada. Nenhum app N−1 consome a assinatura revogada.
 - banco: `craque_votes`, `craque_vote_receipts`,
   `private.craque_vote_eligibility`, `private.craque_vote_salts` e migrations
   `202608070005`, `202608080001`, `202608080002`;
-- aplicação: `lib/features/craque/validation.ts`,
-  `lib/features/craque/server.ts` e futura Action na página do evento;
+- aplicação: `lib/features/craque/validation.ts`, `lib/data/craque.ts`, Action
+  em `/me/agenda/[eventId]` e componente mobile de voto;
 - testes: `supabase/tests/032_craque_voting.test.sql` e testes Vitest focados;
 - documentação: decisões de voto/retenção, segurança e este pacote.
 
@@ -116,11 +116,11 @@ desligada. Nenhum app N−1 consome a assinatura revogada.
 - [x] `AC-R05-03` — Cada eleitor vota uma vez, o voto é imutável e autovoto funciona.
 - [x] `AC-R05-04` — A janela fecha no máximo 12 horas após o jogo e falha fechado fora dela.
 - [x] `AC-R05-05` — Cliente não fornece identidade/hash do eleitor e staff não relaciona cédula a pessoa pela aplicação.
-- [ ] `AC-R05-06` — Recibo de 256 bits confirma somente que o voto foi computado, expira em sete dias e não revela candidato.
+- [x] `AC-R05-06` — Recibo de 256 bits confirma somente que o voto foi computado, expira em sete dias e não revela candidato.
 - [ ] `AC-R05-07` — Resultado fica oculto durante a votação e depois mostra apenas quantidade e percentual.
 - [x] `AC-R05-08` — RLS, grants, RPC e FKs negam acesso direto, anônimo, inelegível e cross-tenant.
 - [ ] `AC-R05-09` — Recibos expiram e pseudônimo do eleitor é removido após 90 dias sem alterar totais.
-- [ ] `AC-R05-10` — Flag desligada preserva a súmula sem votação e rollback não apaga votos computados.
+- [x] `AC-R05-10` — Flag desligada preserva a súmula sem votação e rollback não apaga votos computados.
 
 ## Riscos e controles
 
@@ -171,3 +171,20 @@ npm run security:audit
   pacote;
 - próxima ação: `WP-R05-02`, Action e interface mobile de votação com flag
   desligada.
+
+### `WP-R05-02` — CP2 concluído
+
+- o formulário provisório foi removido da área administrativa; atleta vota em
+  `/me/agenda/[eventId]`, onde o vínculo global já foi verificado;
+- a Action envia à RPC somente `match_id` e `candidate_athlete_id`; identidade,
+  salt e hashes continuam exclusivos do banco;
+- a leitura mínima retorna apenas elegibilidade, “já votou” e fechamento;
+  candidatos vêm de `match_participations` e a cédula nunca é consultável;
+- o estado de sucesso aparece imediatamente no topo do bloco e não repete o
+  nome escolhido; o recibo autenticado confirma somente “voto computado”;
+- flag `voting` desligada omite completamente o bloco e mantém súmula/agenda;
+- banco recomposto com 55 migrations; pgTAP focado 40/40 e suíte completa 32
+  arquivos/699 testes;
+- aplicação: 40 arquivos/227 testes, lint, typecheck, build e auditoria
+  aprovados;
+- próxima ação: `WP-R05-03`, resultado agregado fechado e retenção automática.

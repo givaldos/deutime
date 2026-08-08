@@ -118,6 +118,8 @@ atleta elegível.
 - a assinatura legada que aceitava hashes arbitrários perde `EXECUTE` antes da
   interface consumidora;
 - recibo persiste somente como hash e não contém candidato;
+- a página autenticada do recibo usa o token bearer somente para confirmar
+  “voto computado”, com `noindex` e `no-referrer`, sem consultar a escolha;
 - FK composta e pgTAP negativo impedem candidato e voto cross-tenant;
 - a flag desligada falha fechado e mantém a súmula como fallback.
 

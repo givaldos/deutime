@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(27);
+select plan(40);
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password,
@@ -131,6 +131,22 @@ select ok(
   'authenticated usa somente a RPC segura'
 );
 select ok(
+  not has_function_privilege('anon', 'public.get_my_craque_vote_status(uuid)', 'EXECUTE'),
+  'anon não consulta estado do voto'
+);
+select ok(
+  has_function_privilege('authenticated', 'public.get_my_craque_vote_status(uuid)', 'EXECUTE'),
+  'authenticated consulta somente o próprio estado'
+);
+select ok(
+  not has_function_privilege('anon', 'public.verify_craque_vote_receipt(text)', 'EXECUTE'),
+  'anon não verifica recibo'
+);
+select ok(
+  has_function_privilege('authenticated', 'public.verify_craque_vote_receipt(text)', 'EXECUTE'),
+  'authenticated pode verificar recibo bearer'
+);
+select ok(
   not has_function_privilege('authenticated', 'public.cast_craque_vote(uuid,uuid,text,text)', 'EXECUTE'),
   'assinatura que aceitava hashes do cliente foi revogada'
 );
@@ -154,6 +170,16 @@ select ok(
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '05000000-0000-4000-8000-000000000002', true);
+select is(
+  (select eligible from public.get_my_craque_vote_status('05400000-0000-4000-8000-000000000001')),
+  true,
+  'SIM aparece elegível na leitura mínima'
+);
+select is(
+  (select already_voted from public.get_my_craque_vote_status('05400000-0000-4000-8000-000000000001')),
+  false,
+  'estado começa sem voto computado'
+);
 select lives_ok(
   $$select * from public.cast_craque_vote('05400000-0000-4000-8000-000000000001', '05200000-0000-4000-8000-000000000001')$$,
   'SIM participante pode votar em si mesmo'
@@ -163,6 +189,15 @@ select throws_ok(
   '23505',
   null,
   'segundo voto da mesma pessoa falha'
+);
+reset role;
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '05000000-0000-4000-8000-000000000002', true);
+select is(
+  (select already_voted from public.get_my_craque_vote_status('05400000-0000-4000-8000-000000000001')),
+  true,
+  'estado próprio informa voto já computado sem revelar candidato'
 );
 reset role;
 
@@ -182,6 +217,44 @@ select ok(
   'recibo persiste somente como hash'
 );
 
+insert into public.craque_vote_receipts (token_hash, vote_id, expires_at)
+select
+  encode(extensions.digest(decode(repeat('a', 64), 'hex'), 'sha256'), 'hex'),
+  vote.id,
+  now() + interval '7 days'
+from public.craque_votes vote
+where vote.match_id = '05400000-0000-4000-8000-000000000001'
+limit 1;
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '05000000-0000-4000-8000-000000000002', true);
+select is(
+  public.verify_craque_vote_receipt(repeat('a', 64)),
+  true,
+  'recibo válido confirma apenas que o voto foi computado'
+);
+select is(
+  public.verify_craque_vote_receipt(repeat('z', 64)),
+  false,
+  'token fora do formato falha fechado'
+);
+reset role;
+
+update public.craque_vote_receipts
+set expires_at = now() - interval '1 second'
+where token_hash = encode(
+  extensions.digest(decode(repeat('a', 64), 'hex'), 'sha256'),
+  'hex'
+);
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '05000000-0000-4000-8000-000000000002', true);
+select is(
+  public.verify_craque_vote_receipt(repeat('a', 64)),
+  false,
+  'recibo expirado não confirma a cédula'
+);
+reset role;
+
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '05000000-0000-4000-8000-000000000003', true);
 select throws_ok(
@@ -200,6 +273,11 @@ reset role;
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '05000000-0000-4000-8000-000000000004', true);
+select is(
+  (select eligible from public.get_my_craque_vote_status('05400000-0000-4000-8000-000000000001')),
+  false,
+  'PENDENTE recebe somente estado inelegível'
+);
 select throws_ok(
   $$select * from public.cast_craque_vote('05400000-0000-4000-8000-000000000001', '05200000-0000-4000-8000-000000000004')$$,
   '42501',
@@ -210,6 +288,11 @@ reset role;
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '05000000-0000-4000-8000-000000000005', true);
+select is(
+  (select count(*) from public.get_my_craque_vote_status('05400000-0000-4000-8000-000000000001')),
+  0::bigint,
+  'usuário cross-tenant não recebe estado da votação'
+);
 select throws_ok(
   $$select * from public.cast_craque_vote('05400000-0000-4000-8000-000000000001', '05200000-0000-4000-8000-000000000004')$$,
   '42501',
@@ -224,6 +307,11 @@ where team_id = '05100000-0000-4000-8000-000000000001'
   and feature = 'voting';
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '05000000-0000-4000-8000-000000000003', true);
+select is(
+  (select count(*) from public.get_my_craque_vote_status('05400000-0000-4000-8000-000000000001')),
+  0::bigint,
+  'flag desligada omite também o estado da votação'
+);
 select throws_ok(
   $$select * from public.cast_craque_vote('05400000-0000-4000-8000-000000000001', '05200000-0000-4000-8000-000000000004')$$,
   '55000',
