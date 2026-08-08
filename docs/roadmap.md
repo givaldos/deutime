@@ -24,19 +24,19 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | **R03 — WhatsApp ponta a ponta** | ✅ `completed` | Sender oficial, template, envio, retry seguro, callback, observabilidade e fallback manual. | [Abrir](releases/R03-whatsapp-ponta-a-ponta.md) |
 | **R04 — Partida ao vivo e pós-jogo** | ✅ `completed` | Partidas 0..N por evento, presença real, YouTube/Vimeo, placar, lances, timeline e súmula auditável. | [Abrir](releases/R04-partida-ao-vivo-e-pos-jogo.md) |
 | **R05 — Craque da Galera** | ✅ `completed` | Voto único anônimo, autovoto, janela de até 12 h, resultado agregado e retenção segura. | [Abrir](releases/R05-craque-da-galera.md) |
-| **R06 — Conversa da súmula** | 🟡 `active` — 10/10 critérios, CP6 pendente | Jornada privada, moderação, retenção, iPhone/Android e rollback comprovados; falta somente o encerramento documental. | [Abrir](releases/R06-conversa-da-sumula.md) |
+| **R06 — Conversa da súmula** | ✅ `completed` | Jornada privada, moderação, retenção, iPhone/Android, rollout controlado e rollback comprovados. | [Abrir](releases/R06-conversa-da-sumula.md) |
 | **R07 — Times manuais compartilháveis** | ⬜ `next` | Transformar confirmados em equipes, escalação e imagem compartilhável sem depender do algoritmo automático. | Pacote ainda não promovido |
 
 ## O que falta para o MVP completo
 
-### 1. Concluir R06 — conversa segura
+### 1. R06 concluída — conversa segura
 
 - [x] `AC-R06-08`: staff oculta e restaura conteúdo com motivo e auditoria, sem registrar o corpo integral;
 - [x] `AC-R06-09`: limites antiabuso e limpeza transacional após dois anos foram comprovados sem vazamento em logs;
 - [x] runbook de retenção, falha e rollback publicado; cron diário retorna somente contadores redigidos;
 - [x] jornada física validada em iPhone e Android, incluindo comentário, resposta, denúncia, remoção e moderação;
 - [x] piloto e rollback concluídos: `comments` voltou a ficar desligada em todos os times, preservando histórico, placar, lances e auditoria;
-- [ ] executar CP6: consolidar as evidências, definir o rollout futuro, marcar R06 como concluída e limpar o checkpoint.
+- [x] CP6 concluído: evidências consolidadas, rollout futuro definido, R06 concluída e checkpoint em `idle`.
 
 ### 2. Entregar dois lembretes econômicos pelo WhatsApp
 
@@ -76,11 +76,10 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 
 ## Ordem recomendada para uma única frente
 
-1. executar o CP6 e encerrar formalmente R06;
-2. promover e entregar o pacote dos dois lembretes;
-3. promover e entregar R07 com divisão manual, publicação e imagem;
-4. fechar escudo e Open Graph sobre os estados já estabilizados;
-5. executar o gate integrado e declarar o MVP completo.
+1. promover e entregar o pacote dos dois lembretes;
+2. promover e entregar R07 com divisão manual, publicação e imagem;
+3. fechar escudo e Open Graph sobre os estados já estabilizados;
+4. executar o gate integrado e declarar o MVP completo.
 
 Essa ordem termina fatias pequenas antes de abrir a próxima, reutiliza os contratos comprovados e evita que divisão automática, campeonato ou marketplace atrasem o piloto.
 

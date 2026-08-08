@@ -3,7 +3,7 @@ release: R06
 work_package: WP-R06-03
 scope: match_conversation_moderation_retention
 branch_or_commit: "dev"
-checkpoint: CP5
+checkpoint: CP6
 status: idle
 completed_ac:
   - "AC-R06-01"
@@ -16,8 +16,7 @@ completed_ac:
   - "AC-R06-08"
   - "AC-R06-09"
   - "AC-R06-10"
-dirty_files:
-  - "docs/roadmap.md (alteração preexistente do usuário; fora do pacote)"
+dirty_files: []
 tests:
   - "npm run migrations:check -- origin/main HEAD: passou"
   - "npm run db:reset: passou"
@@ -42,7 +41,7 @@ tests:
   - "produção: rollback final deixou 0 times com comments ativa e preservou 5 comentários e 1 denúncia"
   - "npm run smoke:production: passou após rollback final; evento público não configurado"
 blocker: null
-next_action: "Executar CP6: consolidar a conclusão de R06, definir o rollout futuro e limpar o checkpoint."
+next_action: "Promover o pacote dos dois lembretes econômicos pelo WhatsApp e iniciar seu CP0."
 ---
 
 # Trabalho atual
@@ -53,9 +52,8 @@ ocultar/restaurar e não projeta identidade do denunciante. O cron diário
 existente executa a limpeza transacional depois de dois anos e devolve apenas
 contadores; app e banco toleram as duas ordens de deploy.
 
-O CP4 físico e o CP5 operacional foram concluídos. A terceira partida da Copa
-do Mundo foi finalizada depois da ativação e congelou 12 atletas elegíveis, sem
-backfill das partidas anteriores. Criação, resposta, denúncia, remoção,
-ocultação/restauração e fallback passaram no iPhone e Android. O rollback final
-deixou `comments` desligada em todos os times, com histórico e auditoria
-preservados. A próxima ação é o fechamento documental de R06 em CP6.
+R06 está concluída com os dez critérios aceitos e checkpoint CP6 em `idle`.
+`comments` permanece desligada em todos os times; rollout futuro será manual,
+por time e sem backfill, com rollback pela RPC auditada que preserva o
+histórico. A próxima frente é promover o pacote dos dois lembretes econômicos
+pelo WhatsApp e iniciar seu CP0.
