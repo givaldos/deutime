@@ -174,7 +174,7 @@ localmente:
 Anexe ao pacote da release os IDs das execuções, deployment promovido, horários
 e resultado. Sem essa evidência, o ensaio de rollback não está concluído.
 
-### Retenção do Craque da Galera — R05
+### Retenção diária — R05/R06
 
 A Vercel chama `GET /api/internal/craque/retention` uma vez por dia, às
 `05:17 UTC`. O cron existe somente no deployment de produção e envia
@@ -183,17 +183,23 @@ automaticamente `Authorization: Bearer <CRON_SECRET>`. Configure
 sem quebra de linha. Sem esse segredo a rota falha fechado com `401` e não
 acessa o banco.
 
-A rota usa `service_role` para chamar `cleanup_craque_voting_retention(500)`.
-Cada execução:
+A rota preserva o caminho histórico de R05, mas usa `service_role` para chamar
+as duas rotinas: `cleanup_craque_voting_retention(500)` e
+`cleanup_match_conversation_retention(500)`. Cada execução:
 
 - remove até 500 recibos cuja validade de sete dias terminou;
 - seleciona até 500 partidas finalizadas há pelo menos 90 dias;
 - apaga `voter_hash`, o hash do recibo, snapshot de elegibilidade e salt;
 - preserva candidato, quantidade e percentual agregados;
+- seleciona até 500 partidas finalizadas há mais de dois anos e elimina
+  comentários, respostas, denúncias, snapshot de elegibilidade e auditorias
+  vinculadas aos comentários;
 - pode ser repetida com segurança quando um cron falhar.
 
 O retorno esperado é `200` com `status: retenção executada` e contadores sem
-PII. Para verificar pendências sem consultar hashes:
+PII. Durante a ordem app N/banco N−1, a conversa retorna temporariamente
+`status: contrato pendente` e a retenção de R05 continua normalmente. Para
+verificar pendências sem consultar hashes, corpos ou identidades:
 
 ```sql
 select count(*) as recibos_expirados
@@ -205,6 +211,20 @@ from public.craque_votes vote
 join public.event_matches match on match.id = vote.match_id
 where match.finalized_at <= now() - interval '90 days'
   and vote.anonymized_at is null;
+
+select count(distinct match.id) as conversas_vencidas
+from public.event_matches match
+where match.finalized_at <= now() - interval '2 years'
+  and (
+    exists (
+      select 1 from public.match_comments comment
+      where comment.match_id = match.id
+    )
+    or exists (
+      select 1 from private.match_conversation_eligibility eligibility
+      where eligibility.match_id = match.id
+    )
+  );
 ```
 
 Se a execução automática falhar, corrija a configuração e repita manualmente:
@@ -215,9 +235,16 @@ curl --fail-with-body \
   -H 'Authorization: Bearer <CRON_SECRET>'
 ```
 
-Não copie o segredo ou hashes para logs/evidências. Para interromper a rotina,
-desabilite o cron na Vercel ou remova `CRON_SECRET`; isso não apaga votos nem
-altera a súmula. Correção de banco continua forward-only.
+Não copie o segredo, hashes, motivos, corpos ou identificadores pessoais para
+logs/evidências. O JSON operacional deve conter apenas contadores. Se a parte
+da conversa falhar fora da janela de compatibilidade, a rota devolve `503` e
+nenhum lote parcialmente executado por uma RPC é mantido; corrija o contrato e
+repita, pois ambas as rotinas são idempotentes.
+
+Para interromper a rotina, desabilite o cron na Vercel ou remova
+`CRON_SECRET`; isso não apaga votos nem altera a súmula. Desligar `comments`
+remove imediatamente leitura, escrita e painel, mas preserva o histórico até a
+retenção. Correção de banco continua forward-only.
 
 ### Preparação do piloto WhatsApp — R03
 

@@ -16,13 +16,38 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { data, error } = await createPrivilegedClient().rpc(
+    const supabase = createPrivilegedClient();
+    const { data: craque, error: craqueError } = await supabase.rpc(
       "cleanup_craque_voting_retention",
       { requested_limit: 500 },
     );
+    if (craqueError) throw craqueError;
 
-    if (error) throw error;
-    return response({ status: "retenção executada", summary: data }, 200);
+    const { data: conversation, error: conversationError } = await supabase.rpc(
+      "cleanup_match_conversation_retention",
+      { requested_limit: 500 },
+    );
+    const conversationContractPending =
+      conversationError?.code === "PGRST202" ||
+      conversationError?.code === "42883";
+    if (conversationError && !conversationContractPending) {
+      throw conversationError;
+    }
+
+    return response(
+      {
+        status: "retenção executada",
+        summary: {
+          ...(craque && typeof craque === "object" && !Array.isArray(craque)
+            ? craque
+            : { craque }),
+          conversation: conversationContractPending
+            ? { status: "contrato pendente" }
+            : conversation,
+        },
+      },
+      200,
+    );
   } catch {
     return response({ status: "retenção indisponível" }, 503);
   }

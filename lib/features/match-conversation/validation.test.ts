@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createMatchCommentSchema,
   deleteMatchCommentSchema,
+  moderateMatchCommentSchema,
   reportMatchCommentSchema,
 } from "./validation";
 
@@ -74,6 +75,25 @@ describe("validação da conversa da súmula", () => {
     expect(
       deleteMatchCommentSchema.safeParse({ eventId, commentId: "comentário" })
         .success,
+    ).toBe(false);
+  });
+
+  it("exige motivo e contexto válido para a decisão de staff", () => {
+    expect(
+      moderateMatchCommentSchema.safeParse({
+        eventId,
+        teamSlug: "campo-fc",
+        commentId,
+        reason: "Conteúdo desrespeitoso",
+      }).success,
+    ).toBe(true);
+    expect(
+      moderateMatchCommentSchema.safeParse({
+        eventId,
+        teamSlug: "Campo FC",
+        commentId,
+        reason: "x",
+      }).success,
     ).toBe(false);
   });
 });
