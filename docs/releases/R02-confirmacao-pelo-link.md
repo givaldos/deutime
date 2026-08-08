@@ -1,6 +1,6 @@
 ---
 id: R02
-status: active
+status: completed
 outcome: "Permitir confirmar e acompanhar um evento pelo mesmo link do WhatsApp, com acesso persistente e revogável."
 depends_on:
   - R00
@@ -1161,7 +1161,7 @@ link de evento exigida por `AC-R02-09`.
 - [x] `AC-R02-06` — Revogar aparelho, credencial ou vínculo remove imediatamente as permissões correspondentes.
 - [x] `AC-R02-07` — Link encaminhado, replay, concorrência e tentativa cross-tenant não criam sessão global nem ampliam o acesso além daquele evento.
 - [x] `AC-R02-08` — Depois da troca, o segredo não aparece na URL limpa, OG, analytics, logs controlados pela aplicação, histórico desnecessário ou `Referer`; visibilidade inevitável ao provedor é documentada no threat model e no DPA.
-- [ ] `AC-R02-09` — Fluxo passa em Android, iPhone, navegador interno e navegador padrão, inclusive retorno em outro dia.
+- [x] `AC-R02-09` — Fluxo passa em Android, iPhone, navegador interno e navegador padrão, inclusive retorno em outro dia.
 - [x] `AC-R02-10` — Evento cancelado permanece informativo e não aceita resposta.
 
 ## Riscos e controles
@@ -1188,7 +1188,7 @@ link de evento exigida por `AC-R02-09`.
 - sonda prod `get_event_capability_pilot_health` em `21:08:41Z` (pré-RSVP): `active_credentials:5`, `active_capability_sessions:4`, `rsvp_writes_24h:0`, `last_rsvp_at:2026-07-31T13:06:54Z`, `last_exchange_at:2026-08-06T19:14:24Z` — gates `global/team_exchange/team_rsvp` todos `true`;
 - sonda prod em `21:12:35Z` (pós-RSVP via link `#c=` em navegador interno + padrão): `active_capability_sessions:6`, `capability_sessions_created_24h:7`, `rsvp_writes_24h:4`, `last_exchange_at:2026-08-06T21:12:21Z`, `last_rsvp_at:2026-08-06T21:12:25Z`;
 - matriz D concluída em Android/iPhone (interno + padrão) com RSVP SIM/NÃO/TALVEZ idempotente; link encaminhado não criou sessão global (coberto por `AC-R02-07`);
-- retorno D+1 pendente para fechar `AC-R02-09` definitivamente (capability reutilizada sem OTP em outro dia).
+- retorno D+1 em 07/08/2026: capability reutilizada sem OTP em Android/iPhone (outro dia), confirma `AC-R02-09` — link `#c=` permanece válido até revogação/expiração, sem novo OTP.
 
 ## Evidência `AC-R03-06/09` — sender próprio live (06/08/2026)
 

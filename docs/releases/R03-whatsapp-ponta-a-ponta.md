@@ -1,7 +1,7 @@
 ---
 id: R03
 type: vertical
-status: active
+status: completed
 outcome: "Enviar uma chamada real pelo WhatsApp, com consentimento, retry, entrega observável e retorno pelo link estável do evento."
 depends_on:
   - R01
@@ -185,10 +185,10 @@ resultado ambíguo após a barreira fica `failed` e `requires_review = true`.
 - [x] `AC-R03-03` — Somente atleta ativo, com telefone e consentimento vigente, entra na outbox do próprio time.
 - [x] `AC-R03-04` — Claims concorrentes não executam a mesma intenção; retry anterior ao efeito é seguro e resultado ambíguo nunca é reenviado automaticamente.
 - [x] `AC-R03-05` — Callback com assinatura e token válidos atualiza somente a tentativa vinculada; inválido, repetido, fora de ordem e cross-tenant falham fechado.
-- [ ] `AC-R03-06` — Template aprovado contém contexto mínimo e o link personalizado, sem resposta, PII extra ou endereço privado.
+- [x] `AC-R03-06` — Template aprovado contém contexto mínimo e o link personalizado, sem resposta, PII extra ou endereço privado.
 - [x] `AC-R03-07` — Kill switches de produzir e consumir funcionam independentemente e preservam a distribuição manual.
 - [x] `AC-R03-08` — Operação observa pendente, aceito, enviado, entregue, lido e falho sem registrar telefone, corpo ou credencial.
-- [ ] `AC-R03-09` — Sandbox passa com dados demo em Android e iPhone; sender próprio e template ficam aprovados antes de atletas reais.
+- [x] `AC-R03-09` — Sandbox passa com dados demo em Android e iPhone; sender próprio e template ficam aprovados antes de atletas reais.
 - [x] `AC-R03-10` — Cancelamento, remarcação, opt-out e remoção impedem novos envios incompatíveis sem reescrever histórico.
 
 ## Riscos e controles

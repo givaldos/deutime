@@ -36,6 +36,7 @@ Alterar uma invariante exige decisão explícita, atualização do roadmap, thre
 - [`DEC-UNCLAIMED-IDENTITY`](decisions/DEC-UNCLAIMED-IDENTITY.md): atleta administrativo sem `user_id` pode responder por capability limitada ao atleta-evento; somente OTP reivindica a identidade e preserva o mesmo `athlete_id`.
 - [`DEC-EVENT-MATCH`](decisions/DEC-EVENT-MATCH.md): evento permanece como ocorrência e URL estável de zero a muitas partidas; cada partida possui exatamente dois lados, participação real própria e fatos esportivos append-only.
 - [`DEC-PUBLIC-PRIVACY`](decisions/DEC-PUBLIC-PRIVACY.md): placar e fatos por lado podem ser publicados pelo time, mas identidade e atividade esportiva exigem consentimentos próprios, específicos, versionados e revogáveis; capability pessoal não revela terceiros e staff não consente pelo atleta.
+- [`DEC-ANONYMOUS-RETENTION`](decisions/DEC-ANONYMOUS-RETENTION.md): voto usa pseudônimo derivado no servidor com salt privado por partida; recibo opaco expira em sete dias e o pseudônimo é removido após 90 dias sem alterar o agregado.
 - `DEC-FIXED-SHIRTS`: camisas têm identidade permanente, enquanto o elenco pode ser redistribuído a cada rodada.
 - `DEC-WHATSAPP-BEFORE-AUTO-SPLIT`: confirmação confiável pelo WhatsApp precede a divisão automática como prioridade de produto.
 - `DEC-PLAYER-EVALUATION`: características não formam ranking, podem ser revisadas pelo atleta e um peso de equilíbrio permanece reservado à diretoria na experiência comum.
@@ -52,7 +53,6 @@ Alterar uma invariante exige decisão explícita, atualização do roadmap, thre
 - [`DEC-WHATSAPP-PROVIDER`](decisions/DEC-WHATSAPP-PROVIDER.md) — `accepted`: R03 usa Twilio Programmable Messaging + Content API atrás de adapter provider-neutral; OTP do Supabase permanece separado, Sandbox é somente demo e produção real exige sender próprio, template aprovado e webhook assinado.
 - [`DEC-WHATSAPP-DISPATCH-SAFETY`](decisions/DEC-WHATSAPP-DISPATCH-SAFETY.md) — `accepted`: retry automático termina antes da barreira de efeito; resultado externo ambíguo exige reconciliação manual e credenciais personalizadas nunca são persistidas em claro.
 - `DEC-CONVERSATION-LIFETIME` — `open`: definir duração de escrita e renovação de acesso da conversa antes de R06.
-- `DEC-ANONYMOUS-RETENTION` — `open`: definir descarte de recibos/cédulas e retenção de comentários antes de R05/R06.
 - `DEC-BALANCE-OBJECTIVE` — `open`: definir restrições, preferências e medida de equilíbrio antes de R08.
 
 Lembrete de pendência, regra de arredondamento, textos, layouts, thresholds de retry/rate limit e parâmetros de métricas podem ser fechados no pacote correspondente; não bloqueiam a arquitetura anterior.

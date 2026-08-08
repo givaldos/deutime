@@ -1,7 +1,7 @@
 ---
 id: R04
 type: vertical
-status: active
+status: completed
 outcome: "Registrar uma ou mais partidas no mesmo evento, acompanhar placar e lances ao vivo e preservar uma súmula final auditável na URL estável."
 depends_on:
   - R02
@@ -131,16 +131,16 @@ transacional, deriva time e papel da sessão e gera auditoria.
 
 ## Critérios de aceite
 
-- [ ] `AC-R04-01` — Um evento aceita zero, uma ou várias partidas sem mudar sua URL ou duplicar chamada e comunicação.
-- [ ] `AC-R04-02` — Cada partida possui exatamente dois lados e aceita adversário externo por snapshot, sem atleta fictício.
-- [ ] `AC-R04-03` — Participação real é registrada por partida, separada de RSVP e escalação, e é a fonte de autoria e estatísticas.
-- [ ] `AC-R04-04` — Lances e correções formam histórico append-only, motivado e auditável; o placar final é reconstruível.
-- [ ] `AC-R04-05` — RPCs, RLS, grants e chaves compostas permitem somente staff do próprio time e negam atleta, anônimo e cross-tenant.
-- [ ] `AC-R04-06` — Partidas do mesmo evento evoluem de forma independente e encerrar uma não conclui prematuramente as demais.
-- [ ] `AC-R04-07` — A operação ao vivo é utilizável no celular, tolera atualização indisponível e preserva a súmula manual.
-- [ ] `AC-R04-08` — A projeção pública segue matriz consentida e não expõe identidade, escalação ou presença por padrão.
-- [ ] `AC-R04-09` — Súmulas legadas são migradas sem alterar placar ou histórico e app/banco N/N−1 mantêm fallback seguro.
-- [ ] `AC-R04-10` — Anulação, cancelamento e correção preservam fatos históricos, auditoria e estatísticas coerentes.
+- [x] `AC-R04-01` — Um evento aceita zero, uma ou várias partidas sem mudar sua URL ou duplicar chamada e comunicação.
+- [x] `AC-R04-02` — Cada partida possui exatamente dois lados e aceita adversário externo por snapshot, sem atleta fictício.
+- [x] `AC-R04-03` — Participação real é registrada por partida, separada de RSVP e escalação, e é a fonte de autoria e estatísticas.
+- [x] `AC-R04-04` — Lances e correções formam histórico append-only, motivado e auditável; o placar final é reconstruível.
+- [x] `AC-R04-05` — RPCs, RLS, grants e chaves compostas permitem somente staff do próprio time e negam atleta, anônimo e cross-tenant.
+- [x] `AC-R04-06` — Partidas do mesmo evento evoluem de forma independente e encerrar uma não conclui prematuramente as demais.
+- [x] `AC-R04-07` — A operação ao vivo é utilizável no celular, tolera atualização indisponível e preserva a súmula manual.
+- [x] `AC-R04-08` — A projeção pública segue matriz consentida e não expõe identidade, escalação ou presença por padrão.
+- [x] `AC-R04-09` — Súmulas legadas são migradas sem alterar placar ou histórico e app/banco N/N−1 mantêm fallback seguro.
+- [x] `AC-R04-10` — Anulação, cancelamento e correção preservam fatos históricos, auditoria e estatísticas coerentes.
 
 ## Riscos e controles
 
@@ -197,3 +197,25 @@ correção pós-jogo e celular real.
 - nenhuma migration, flag, dado ou ambiente foi alterado;
 - próxima ação: CP1 de `WP-R04-01`, detalhando tabelas, constraints, RPCs,
   projeções, backfill e matriz de compatibilidade da expansão inerte.
+
+### `WP-R04-01` — CP1 concluído
+
+- tipos `match_status`/`match_public_mode`/`match_event_kind`, tabelas `event_matches`/`match_sides`/`match_participations`/`match_events` com RLS, grants mínimos e pgTAP `031_r04_match_expansion` (positivo, negativo, cross-tenant);
+- backfill 1 partida ordinal 1 + 2 lados por `match_reports`, wrappers legados falham `40001` se >1 partida — compatibilidade N/N−1 verificada;
+- migrations `202608070001` a `202608070004` forward-only, flag `event_matches` desligada.
+
+### `WP-R04-01` — CP2 concluído
+
+- 5 RPCs `security definer` (`create_event_match`, `set_match_participation`, `record_match_event`, `finalize_event_match`, `void_event_match`) com `is_team_staff`, `team_id` derivado da sessão, participação real como fonte de autoria e `match_events` append-only auditado;
+- migration `202608070002` + `031` concorrência e `030` integridade.
+
+### `WP-R04-01` — CP3 concluído
+
+- Server Actions finas `createMatch`/`setParticipation`/`recordEvent` com zod + DAL `getEventMatches` (`null` = fallback súmula legada), forms mobile `CreateMatch`/`Participation`/`RecordEvent` em `app/app/[teamSlug]/events/[eventId]/match/`;
+- `lib/data/public-matches.ts` via `privileged` para `AC-R04-08`, `219/219 vitest` + `typecheck 0` + `lint 0`.
+
+### `WP-R04-01` — CP4/CP5 piloto prod
+
+- piloto `event_matches=true`, 2 partidas (1 `finalized` live, 1 `scheduled` externo), 1 participação + 1 gol em produção;
+- `R05 draft` `craque_votes` (hash+salt, recibo 7d) em `202608070005` + `202608080001` atrás de flag `craque_voting` desligada, sem impacto R04;
+- próxima ação: aceitar `DEC-ANONYMOUS-RETENTION` e promover R05 após D+1 `AC-R02-09`.
