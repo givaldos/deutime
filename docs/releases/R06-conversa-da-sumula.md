@@ -119,11 +119,11 @@ composta inclui `team_id` e `match_id`.
 
 ## Critérios de aceite
 
-- [ ] `AC-R06-01` — Somente staff ativo e atleta verificado do snapshot SIM/TALVEZ acessam a conversa.
-- [ ] `AC-R06-02` — Capability, anônimo, NÃO/PENDENTE, removido e cross-tenant falham fechado.
-- [ ] `AC-R06-03` — Autoria vem da sessão e a projeção mostra nome interno sem expor `user_id`.
-- [ ] `AC-R06-04` — Comentário pertence à partida/time e replay concorrente não duplica escrita.
-- [ ] `AC-R06-05` — Resposta possui um nível e raiz obrigatoriamente na mesma partida.
+- [x] `AC-R06-01` — Somente staff ativo e atleta verificado do snapshot SIM/TALVEZ acessam a conversa.
+- [x] `AC-R06-02` — Capability, anônimo, NÃO/PENDENTE, removido e cross-tenant falham fechado.
+- [x] `AC-R06-03` — Autoria vem da sessão e a projeção mostra nome interno sem expor `user_id`.
+- [x] `AC-R06-04` — Comentário pertence à partida/time e replay concorrente não duplica escrita.
+- [x] `AC-R06-05` — Resposta possui um nível e raiz obrigatoriamente na mesma partida.
 - [ ] `AC-R06-06` — Escrita fecha sete dias após a finalização; leitura autorizada continua.
 - [ ] `AC-R06-07` — Autor apaga sem remover respostas; texto oculto não volta na projeção comum.
 - [ ] `AC-R06-08` — Denúncia é única e staff modera/restaura com motivo e auditoria sem corpo integral.
@@ -172,3 +172,29 @@ npm run security:audit
 - `comments` já existe como flag tipada e permanece desligada;
 - entrypoints, três pacotes e dez critérios de aceite definidos;
 - próxima ação: `WP-R06-01`, expansão inerte do contrato e pgTAP 033.
+
+### `DP-R06-02` — CP1 concluído
+
+- migration `202608080005` cria snapshot privado independente da votação,
+  comentários/respostas e denúncias com FKs compostas por partida/time;
+- tabelas usam RLS sem policies e não concedem acesso direto a `anon` ou
+  `authenticated`; as RPCs recalculam sessão, vínculo atual, snapshot e flag;
+- autoria e idempotência são derivadas no banco; advisory lock por
+  autor/partida serializa replay e limite de cinco escritas por minuto;
+- projeção mínima omite `user_id`, denúncias e corpo removido; resposta fica
+  limitada a um nível e a uma raiz da mesma partida;
+- autor pode remover sem apagar respostas; denúncia é única e não oculta o
+  comentário automaticamente; moderação e retenção continuam em `WP-R06-03`;
+- `comments` continua desligada por padrão, não houve backfill de partidas
+  finalizadas e o app N−1 permanece compatível;
+- `npm run migrations:check -- origin/main HEAD`: passou;
+- `npm run db:reset`: passou;
+- `npm run db:lint`: passou, mantendo apenas dois avisos preexistentes em
+  `create_event_as_staff` e `record_match_event`;
+- `npm run db:test`: 33 arquivos e 764 testes passaram; o pgTAP 033 final
+  possui 44 provas focadas;
+- `npm run verify`: lint, typecheck e 230 testes passaram; build passou com
+  acesso às fontes externas;
+- `npm run security:audit`: zero vulnerabilidades;
+- próxima ação: `WP-R06-02`, consumir o contrato na agenda mobile atrás da
+  flag `comments`, com fallback silencioso para a súmula atual.

@@ -1083,6 +1083,139 @@ export type Database = {
           },
         ]
       }
+      match_comment_reports: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          match_id: string
+          reason: string
+          reporter_user_id: string | null
+          resolution_reason: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["match_comment_report_status"]
+          team_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          match_id: string
+          reason: string
+          reporter_user_id?: string | null
+          resolution_reason?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["match_comment_report_status"]
+          team_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          match_id?: string
+          reason?: string
+          reporter_user_id?: string | null
+          resolution_reason?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["match_comment_report_status"]
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_comment_reports_comment_id_match_id_team_id_fkey"
+            columns: ["comment_id", "match_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "match_comments"
+            referencedColumns: ["id", "match_id", "team_id"]
+          },
+        ]
+      }
+      match_comments: {
+        Row: {
+          author_athlete_id: string | null
+          author_display_name: string
+          author_user_id: string | null
+          body: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          idempotency_key: string
+          match_id: string
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_reason: string | null
+          parent_comment_id: string | null
+          status: Database["public"]["Enums"]["match_comment_status"]
+          team_id: string
+        }
+        Insert: {
+          author_athlete_id?: string | null
+          author_display_name: string
+          author_user_id?: string | null
+          body: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          idempotency_key: string
+          match_id: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_reason?: string | null
+          parent_comment_id?: string | null
+          status?: Database["public"]["Enums"]["match_comment_status"]
+          team_id: string
+        }
+        Update: {
+          author_athlete_id?: string | null
+          author_display_name?: string
+          author_user_id?: string | null
+          body?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          idempotency_key?: string
+          match_id?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_reason?: string | null
+          parent_comment_id?: string | null
+          status?: Database["public"]["Enums"]["match_comment_status"]
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_comments_author_athlete_id_team_id_fkey"
+            columns: ["author_athlete_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "match_comments_match_id_team_id_fkey"
+            columns: ["match_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "event_matches"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "match_comments_match_id_team_id_fkey"
+            columns: ["match_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "public_match_directory"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "match_comments_parent_comment_id_match_id_team_id_fkey"
+            columns: ["parent_comment_id", "match_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "match_comments"
+            referencedColumns: ["id", "match_id", "team_id"]
+          },
+        ]
+      }
       match_events: {
         Row: {
           assist_athlete_id: string | null
@@ -2352,6 +2485,15 @@ export type Database = {
         }
         Returns: string
       }
+      create_match_comment: {
+        Args: {
+          requested_body: string
+          requested_idempotency_key: string
+          requested_match_id: string
+          requested_parent_comment_id?: string
+        }
+        Returns: string
+      }
       create_team_for_current_user: {
         Args: {
           sport_format: Database["public"]["Enums"]["sport_format"]
@@ -2374,6 +2516,10 @@ export type Database = {
       }
       delete_match_incident_as_staff: {
         Args: { requested_incident_id: string }
+        Returns: boolean
+      }
+      delete_my_match_comment: {
+        Args: { requested_comment_id: string }
         Returns: boolean
       }
       delivery_foundation_probe: {
@@ -2446,6 +2592,18 @@ export type Database = {
           rsvp_writes_24h: number
           team_exchange_enabled: boolean
           team_rsvp_enabled: boolean
+        }[]
+      }
+      get_match_conversation: {
+        Args: { requested_match_id: string }
+        Returns: {
+          author_display_name: string
+          body: string
+          can_delete: boolean
+          comment_id: string
+          created_at: string
+          parent_comment_id: string
+          status: Database["public"]["Enums"]["match_comment_status"]
         }[]
       }
       get_my_craque_vote_status: {
@@ -2644,6 +2802,10 @@ export type Database = {
           requested_storage_path: string
           requested_team_id: string
         }
+        Returns: string
+      }
+      report_match_comment: {
+        Args: { requested_comment_id: string; requested_reason: string }
         Returns: string
       }
       resolve_event_access_for_verified_session: {
@@ -2943,6 +3105,8 @@ export type Database = {
         | "event_capability_rsvp"
         | "event_matches"
       lineup_slot_kind: "starter" | "substitute"
+      match_comment_report_status: "open" | "resolved" | "dismissed"
+      match_comment_status: "active" | "author_deleted" | "moderated"
       match_event_kind:
         | "goal"
         | "own_goal"
@@ -3150,6 +3314,8 @@ export const Constants = {
         "event_matches",
       ],
       lineup_slot_kind: ["starter", "substitute"],
+      match_comment_report_status: ["open", "resolved", "dismissed"],
+      match_comment_status: ["active", "author_deleted", "moderated"],
       match_event_kind: [
         "goal",
         "own_goal",
