@@ -1192,7 +1192,7 @@ link de evento exigida por `AC-R02-09`.
 
 ## Evidência `AC-R03-06/09` — sender próprio live (06/08/2026)
 
-- `POST https://deutime.app/api/internal/whatsapp/worker` com `Authorization: Bearer ******` retornou `{"status":"worker executado","summary":{"mode":"live",...,"claimed":0}}` na segunda chamada (idempotência, sem duplicata); primeira chamada entregou mensagem no celular via sender próprio (não Sandbox `+14155238886`), card `event_call:v1` (3 vars pt-BR) com link R02 `#c=` e fallback `twilio/text`, sem PII/endereço — `AC-R03-06` materialmente validado;
+- `POST https://deutime.app/api/internal/whatsapp/worker` com `Authorization: Bearer ******` retornou `{"status":"worker executado","summary":{"mode":"live",...,"claimed":0}}` na segunda chamada (idempotência, sem duplicata); primeira chamada entregou mensagem no celular via sender próprio (não Sandbox `+14155238886`), card `event_call:v1` (3 vars pt-BR) com link R02 `#c=` e fallback `twilio/text`, sem PII/endereço — `AC-R03-06` materialmente validado. O sender operacional correto é `+15553101875`; `+551132300101` é somente contato comercial;
 - segunda chamada com `claimed:0 prepared:0 accepted:0` prova `AC-R03-04` (sem retry pós-barreira).
 
 ## Rollout, fallback e rollback

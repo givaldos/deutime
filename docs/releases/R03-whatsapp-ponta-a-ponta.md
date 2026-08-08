@@ -246,6 +246,15 @@ de timeout, retry, assinatura, replay, status fora de ordem e kill switches.
 
 ## Evidências e checkpoint
 
+### Retificação operacional dos números oficiais (08/08/2026)
+
+- `+15553101875`: sender exclusivo de automações e notificações; este é o valor
+  esperado em `TWILIO_WHATSAPP_FROM` no ambiente de produção;
+- `+551132300101`: contato comercial com a comunidade para vendas e conversas
+  humanas; não participa do worker nem dos templates transacionais;
+- credenciais, Content SIDs e números continuam server-only e configurados no
+  ambiente, nunca fixados no código da aplicação.
+
 ### `DP-R03-01` — CP0
 
 - Twilio escolhido como provider operacional atrás de adapter;
