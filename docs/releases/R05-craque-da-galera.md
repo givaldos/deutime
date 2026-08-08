@@ -1,7 +1,7 @@
 ---
 id: R05
 type: vertical
-status: active
+status: completed
 outcome: "Permitir que cada atleta elegível vote uma vez no Craque da Galera e veja um resultado agregado sem revelar a cédula individual."
 depends_on:
   - R04
@@ -117,9 +117,9 @@ desligada. Nenhum app N−1 consome a assinatura revogada.
 - [x] `AC-R05-04` — A janela fecha no máximo 12 horas após o jogo e falha fechado fora dela.
 - [x] `AC-R05-05` — Cliente não fornece identidade/hash do eleitor e staff não relaciona cédula a pessoa pela aplicação.
 - [x] `AC-R05-06` — Recibo de 256 bits confirma somente que o voto foi computado, expira em sete dias e não revela candidato.
-- [ ] `AC-R05-07` — Resultado fica oculto durante a votação e depois mostra apenas quantidade e percentual.
+- [x] `AC-R05-07` — Resultado fica oculto durante a votação e depois mostra apenas quantidade e percentual.
 - [x] `AC-R05-08` — RLS, grants, RPC e FKs negam acesso direto, anônimo, inelegível e cross-tenant.
-- [ ] `AC-R05-09` — Recibos expiram e pseudônimo do eleitor é removido após 90 dias sem alterar totais.
+- [x] `AC-R05-09` — Recibos expiram e pseudônimo do eleitor é removido após 90 dias sem alterar totais.
 - [x] `AC-R05-10` — Flag desligada preserva a súmula sem votação e rollback não apaga votos computados.
 
 ## Riscos e controles
@@ -188,3 +188,22 @@ npm run security:audit
 - aplicação: 40 arquivos/227 testes, lint, typecheck, build e auditoria
   aprovados;
 - próxima ação: `WP-R05-03`, resultado agregado fechado e retenção automática.
+
+### `WP-R05-03` — CP3 concluído
+
+- `get_craque_vote_result` falha fechado antes do término, com flag desligada,
+  para anônimo e cross-tenant; depois retorna somente quantidade e percentual;
+- a agenda mobile troca confirmação/formulário pelo resultado fechado e trata
+  todos os empatados na maior contagem como vencedores;
+- `cleanup_craque_voting_retention` é exclusiva de `service_role`, idempotente
+  e preserva o agregado ao apagar recibos expirados, pseudônimos, salts e
+  snapshots vencidos;
+- cron diário de produção protegido por `CRON_SECRET`, limitado a 500 itens e
+  com repetição manual documentada no runbook;
+- banco recomposto com 56 migrations; pgTAP focado 61/61 e suíte completa 32
+  arquivos/720 testes;
+- aplicação: 41 arquivos/230 testes, lint, typecheck, build e auditoria
+  aprovados;
+- `db:lint`: sem alerta novo da R05; permanecem dois avisos legados fora do
+  pacote;
+- flag `voting` permanece desligada; rollback conserva votos e súmula.

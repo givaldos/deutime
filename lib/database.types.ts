@@ -321,7 +321,7 @@ export type Database = {
           created_at: string
           id: string
           match_id: string
-          receipt_token_hash: string
+          receipt_token_hash: string | null
           team_id: string
           voter_hash: string | null
         }
@@ -331,7 +331,7 @@ export type Database = {
           created_at?: string
           id?: string
           match_id: string
-          receipt_token_hash: string
+          receipt_token_hash?: string | null
           team_id: string
           voter_hash?: string | null
         }
@@ -341,7 +341,7 @@ export type Database = {
           created_at?: string
           id?: string
           match_id?: string
-          receipt_token_hash?: string
+          receipt_token_hash?: string | null
           team_id?: string
           voter_hash?: string | null
         }
@@ -2271,6 +2271,10 @@ export type Database = {
           outbox_id: string
         }[]
       }
+      cleanup_craque_voting_retention: {
+        Args: { requested_limit?: number }
+        Returns: Json
+      }
       complete_verified_athlete_registration: {
         Args: {
           accepts_privacy_terms: boolean
@@ -2419,6 +2423,14 @@ export type Database = {
       finalize_event_match: {
         Args: { requested_match_id: string }
         Returns: undefined
+      }
+      get_craque_vote_result: {
+        Args: { requested_match_id: string }
+        Returns: {
+          candidate_athlete_id: string
+          vote_count: number
+          vote_percentage: number
+        }[]
       }
       get_event_capability_pilot_health: {
         Args: { requested_team_id: string }

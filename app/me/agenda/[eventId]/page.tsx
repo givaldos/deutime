@@ -272,7 +272,12 @@ export default async function PlayerMatchPage({
         )}
       </section>
 
-      {craqueBallots?.some((ballot) => ballot.eligible) ? (
+      {craqueBallots?.some(
+        (ballot) =>
+          ballot.eligible ||
+          !ballot.closesAt ||
+          new Date(ballot.closesAt).valueOf() <= new Date().valueOf(),
+      ) ? (
         <section className="space-y-3">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-amber-700">
@@ -286,7 +291,12 @@ export default async function PlayerMatchPage({
             </p>
           </div>
           {craqueBallots
-            .filter((ballot) => ballot.eligible)
+            .filter(
+              (ballot) =>
+                ballot.eligible ||
+                !ballot.closesAt ||
+                new Date(ballot.closesAt).valueOf() <= new Date().valueOf(),
+            )
             .map((ballot) => {
               const closed =
                 !ballot.closesAt ||
@@ -309,6 +319,7 @@ export default async function PlayerMatchPage({
                   closesLabel={closesLabel}
                   alreadyVoted={ballot.alreadyVoted}
                   closed={closed}
+                  results={ballot.results}
                 />
               );
             })}

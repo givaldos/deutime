@@ -19,6 +19,7 @@ export function CraqueVoteForm({
   closesLabel,
   alreadyVoted,
   closed,
+  results,
 }: {
   eventId: string;
   matchId: string;
@@ -27,6 +28,7 @@ export function CraqueVoteForm({
   closesLabel: string | null;
   alreadyVoted: boolean;
   closed: boolean;
+  results: { id: string; name: string; votes: number; percentage: number }[];
 }) {
   const [state, action, pending] = useActionState(
     castCraqueVoteAction,
@@ -37,6 +39,62 @@ export function CraqueVoteForm({
     alreadyVoted ||
     state.outcome === "success" ||
     state.outcome === "already_voted";
+
+  if (closed) {
+    return (
+      <section className="rounded-[1.5rem] border border-amber-200 bg-amber-50 p-5">
+        <div className="flex items-start gap-3">
+          <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-white text-amber-700 shadow-sm">
+            <Trophy className="size-6" aria-hidden />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-amber-700">
+              {matchLabel}
+            </p>
+            <h2 className="mt-1 text-lg font-black text-amber-950">
+              Resultado da galera
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-amber-900/80">
+              {results.length
+                ? "A votação terminou. O resultado mostra somente totais agregados."
+                : "A votação terminou sem votos computados."}
+            </p>
+          </div>
+        </div>
+        {results.length ? (
+          <ol className="mt-5 space-y-3">
+            {results.map((result) => (
+              <li key={result.id} className="rounded-2xl bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-bold text-slate-900">
+                    {result.votes === results[0]?.votes ? "🏆 " : ""}
+                    {result.name}
+                  </span>
+                  <span className="shrink-0 text-sm font-black text-amber-800">
+                    {result.percentage.toLocaleString("pt-BR", {
+                      maximumFractionDigits: 1,
+                    })}%
+                  </span>
+                </div>
+                <div
+                  className="mt-2 h-2 overflow-hidden rounded-full bg-amber-100"
+                  aria-hidden
+                >
+                  <div
+                    className="h-full rounded-full bg-amber-500"
+                    style={{ width: `${result.percentage}%` }}
+                  />
+                </div>
+                <p className="mt-2 text-xs text-slate-500">
+                  {result.votes} {result.votes === 1 ? "voto" : "votos"}
+                </p>
+              </li>
+            ))}
+          </ol>
+        ) : null}
+      </section>
+    );
+  }
 
   if (voteConfirmed) {
     return (
@@ -71,19 +129,17 @@ export function CraqueVoteForm({
     );
   }
 
-  if (closed || !candidates.length) {
+  if (!candidates.length) {
     return (
       <section className="rounded-[1.5rem] border border-slate-200 bg-white p-5">
         <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
           {matchLabel}
         </p>
         <h2 className="mt-1 font-black">
-          {closed ? "Votação encerrada" : "Votação indisponível"}
+          Votação indisponível
         </h2>
         <p className="mt-1 text-sm leading-6 text-slate-500">
-          {closed
-            ? "O resultado agregado será exibido quando a apuração estiver disponível."
-            : "Ainda não há participantes elegíveis para receber votos."}
+          Ainda não há participantes elegíveis para receber votos.
         </p>
       </section>
     );

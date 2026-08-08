@@ -10,6 +10,7 @@ export type CraqueBallot = {
   eligible: boolean;
   alreadyVoted: boolean;
   candidates: { id: string; name: string }[];
+  results: { id: string; name: string; votes: number; percentage: number }[];
 };
 
 export async function getMyCraqueBallots(
@@ -61,11 +62,19 @@ export async function getMyCraqueBallots(
       }),
     ),
   );
+  const resultResults = await Promise.all(
+    matches.map((match) =>
+      supabase.rpc("get_craque_vote_result", {
+        requested_match_id: match.id,
+      }),
+    ),
+  );
 
   return matches.flatMap((match, index) => {
     const statusResult = statusResults[index];
     const status = statusResult?.error ? null : statusResult?.data?.[0];
     if (!status) return [];
+    const resultResult = resultResults[index];
 
     const candidates = (participations ?? [])
       .filter((item) => item.match_id === match.id)
@@ -74,6 +83,20 @@ export async function getMyCraqueBallots(
         return name ? [{ id: item.athlete_id, name }] : [];
       })
       .sort((left, right) => left.name.localeCompare(right.name, "pt-BR"));
+    const results = (resultResult?.error ? [] : (resultResult?.data ?? []))
+      .flatMap((result) => {
+        const name = athleteById.get(result.candidate_athlete_id);
+        return name
+          ? [
+              {
+                id: result.candidate_athlete_id,
+                name,
+                votes: Number(result.vote_count),
+                percentage: Number(result.vote_percentage),
+              },
+            ]
+          : [];
+      });
 
     return [
       {
@@ -83,6 +106,7 @@ export async function getMyCraqueBallots(
         eligible: status.eligible,
         alreadyVoted: status.already_voted,
         candidates,
+        results,
       },
     ];
   });
