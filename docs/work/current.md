@@ -1,75 +1,29 @@
 ---
-release: R05
-work_package: WP-R05-03
-scope: r05_completed
-branch_or_commit: "dev"
-checkpoint: CP3
+release: R06
+work_package: WP-R06-01
+scope: match_conversation_contract
+branch_or_commit: "dev@50c7646"
+checkpoint: CP0
 status: idle
-completed_ac:
-  - "AC-R02-09"
-  - "AC-R03-06"
-  - "AC-R03-09"
-  - "AC-R04-01"
-  - "AC-R04-02"
-  - "AC-R04-03"
-  - "AC-R04-04"
-  - "AC-R04-05"
-  - "AC-R04-06"
-  - "AC-R04-07"
-  - "AC-R04-08"
-  - "AC-R04-09"
-  - "AC-R04-10"
-  - "AC-R05-01"
-  - "AC-R05-02"
-  - "AC-R05-03"
-  - "AC-R05-04"
-  - "AC-R05-05"
-  - "AC-R05-06"
-  - "AC-R05-07"
-  - "AC-R05-08"
-  - "AC-R05-09"
-  - "AC-R05-10"
+completed_ac: []
 dirty_files: []
 tests:
-  - "migrations:check: somente expansão forward-only"
-  - "db:reset: 54 migrations recompostas"
-  - "pgTAP focado: 27/27"
-  - "pgTAP completo: 32 arquivos, 686 testes"
-  - "Vitest: 39 arquivos, 221 testes"
-  - "lint, typecheck e build: aprovados"
-  - "npm audit: 0 vulnerabilidades"
-  - "sender de automação retificado em produção para +15553101875"
-  - "smoke pós-redeploy: aprovado"
-  - "db:reset: 55 migrations recompostas"
-  - "pgTAP R05: 40/40; completo: 32 arquivos, 699 testes"
-  - "Vitest: 40 arquivos, 227 testes"
-  - "R05 CP2: lint, typecheck, build e audit aprovados"
-  - "db:reset: 56 migrations recompostas"
-  - "pgTAP R05: 61/61; completo: 32 arquivos, 720 testes"
-  - "Vitest: 41 arquivos, 230 testes"
-  - "R05 CP3: lint, typecheck, build e audit aprovados"
-  - "CRON_SECRET sensível configurado somente em Production na Vercel"
+  - "CP0 documental: decisão, audiência, retenção, riscos, entrypoints e critérios fechados"
 blocker: null
-next_action: "Promover R05 com a flag voting desligada e, após o smoke, iniciar o CP0 da R06."
+next_action: "Criar a migration 202608080005 com snapshot privado, comentários/respostas, denúncia e RPCs mínimas; manter comments desligada e provar RLS/cross-tenant no pgTAP 033."
 ---
 
 # Trabalho atual
 
-R02, R03 e R04 estão concluídas. Os números oficiais têm papéis distintos:
-`+15553101875` é o sender das automações e notificações pelo WhatsApp;
-`+551132300101` é o contato comercial com a comunidade e não deve ser usado
-como `TWILIO_WHATSAPP_FROM`.
+R05 está concluída em produção no commit `50c7646`; `main` e `dev` estão
+sincronizadas, o smoke passou e `voting` permanece desligada.
 
-R05 foi concluída. A auditoria encontrou que a assinatura
-`cast_craque_vote(uuid,uuid,text,text)` publicada em produção aceitava hashes do
-cliente e não interrompia o usuário inelegível. Ainda não existe interface
-consumidora e a flag canônica `voting` permanece desligada.
+R06 está pronta. `DEC-CONVERSATION-LIFETIME` fecha escrita por sete dias,
+leitura privada durante a retenção de dois anos, identidade completa obrigatória
+e ausência de token próprio da conversa. Staff ativo e atletas do snapshot
+SIM/TALVEZ formam a audiência; capability, anônimo e vínculos removidos falham
+fechado.
 
-A correção forward-only `202608080002` revoga a assinatura insegura e introduz
-uma RPC que deriva eleitor, hash e recibo no banco, exige snapshot SIM/TALVEZ,
-candidato participante, flag e janela. `202608080003` entrega a leitura mínima,
-a Action e a interface mobile de voto/recibo em `/me/agenda/[eventId]`. A flag
-`voting` continua desligada. `202608080004` libera somente o agregado após o
-fechamento e executa retenção diária protegida por segredo, removendo recibos
-expirados e pseudônimos com mais de 90 dias sem alterar totais. O próximo
-trabalho de produto começa no CP0 da R06, após a promoção e o smoke da R05.
+O primeiro pacote é somente expansão inerte: schema, snapshot independente da
+votação, RPCs e pgTAP. Nenhuma interface deve consumir o contrato antes de o
+banco N aceitar o app N−1 e a flag `comments` continuar desligada.

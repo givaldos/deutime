@@ -54,7 +54,7 @@ A lista será recalculada imediatamente antes de produzir a outbox. Cada atleta 
 |---|---|---|---|---|---|
 | **R04 — Partida ao vivo e pós-jogo** | ⚪ `não iniciado` | Presença real, transmissão opcional, lances em tempo real e timeline final na mesma página. | R02 | `DEC-EVENT-MATCH`, `DEC-PUBLIC-PRIVACY` | Súmula administrativa e atualização manual |
 | **R05 — Craque da Galera** | ⚪ `não iniciado` | Voto único anônimo, candidatos presentes e resultado agregado. | R04 | `DEC-ANONYMOUS-RETENTION` | Súmula sem votação |
-| **R06 — Conversa da súmula** | ⚪ `não iniciado` | Comentários identificados, respostas, denúncia e moderação. | R02, R04 | `DEC-CONVERSATION-LIFETIME`, `DEC-ANONYMOUS-RETENTION` | Súmula somente leitura |
+| **R06 — Conversa da súmula** | 🟢 `ready` | Comentários identificados, respostas, denúncia e moderação. | R02, R04 | `DEC-CONVERSATION-LIFETIME`, `DEC-ANONYMOUS-RETENTION` aceitas | Súmula somente leitura |
 | **R07 — Times manuais compartilháveis** | ⚪ `não iniciado` | Divisão acessível, publicação e imagem pelo mesmo link. | R02 | `DEC-EVENT-MATCH` | Lista de confirmados |
 | **R08 — Divisão automática** | ⚪ `não iniciado` | Sugestão reproduzível, ajustável e explicável. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Divisão manual |
 | **R09 — Campeonatos, camisas e tabela** | ⚪ `não iniciado` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento e histórico. | R04, R07 | `DEC-EVENT-MATCH` e modelo de campeonato | Histórico por partida |

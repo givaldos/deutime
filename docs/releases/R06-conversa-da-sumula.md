@@ -1,0 +1,174 @@
+---
+id: R06
+type: vertical
+status: ready
+outcome: "Permitir que participantes elegíveis conversem na súmula por tempo limitado, com autoria, denúncia e moderação privadas."
+depends_on:
+  - R02
+  - R04
+baseline:
+  - BASE-IDENTITY
+  - BASE-ATTENDANCE
+  - BASE-WRITES
+verified_at: "50c7646"
+decisions:
+  - DEC-MATCH-CONVERSATION
+  - DEC-CONVERSATION-LIFETIME
+  - DEC-ANONYMOUS-RETENTION
+  - DEC-PERSISTENT-ACCESS
+invariants:
+  - INV-MOBILE-WHATSAPP-FIRST
+  - INV-RLS-MULTI-TIME
+  - INV-DEPLOY-COMPATIBLE
+  - INV-HISTORICAL-EVENTS
+  - INV-CANONICAL-EVENT-URL
+  - INV-PRIVATE-BY-DEFAULT
+  - INV-POSITIVE-GAMIFICATION
+  - INV-MANUAL-FALLBACK
+---
+
+# R06 — Conversa da súmula
+
+## Resultado demonstrável
+
+Depois que a partida termina, staff e atletas do snapshot SIM/TALVEZ podem
+comentar e responder na agenda autenticada. A conversa identifica autores,
+aceita denúncia e permite moderação sem expor conteúdo publicamente. Novas
+mensagens fecham após sete dias; a súmula continua legível quando a capacidade
+está indisponível.
+
+## Três tempos
+
+### Passado a preservar
+
+- R02 separa capability do evento e identidade verificada; comentário exige
+  step-up por OTP;
+- R04 fornece partida finalizada, URL estável e área privada da agenda;
+- `event_attendance` é a fonte de SIM/TALVEZ e `comments` já existe como flag
+  tipada desligada;
+- R05 demonstrou snapshot privado na finalização, RPCs mínimas e retenção
+  automática sem ampliar acesso;
+- a súmula permanece útil sem conversa.
+
+### Presente a resolver
+
+- congelar audiência privada por partida sem depender da votação;
+- persistir comentários e respostas identificados, idempotentes e isolados por
+  time;
+- permitir denúncia, soft-delete do autor e moderação auditável;
+- fechar escrita em sete dias e eliminar conteúdo/identidade após dois anos;
+- oferecer jornada mobile sem tornar conversa ou autoria públicas.
+
+### Futuro compatível
+
+- notificações de resposta podem reutilizar outbox em release posterior;
+- reações positivas podem ser adicionadas sem mudar autoria ou retenção;
+- chat geral, mensagens privadas e anexos não usam este contrato.
+
+## Escopo
+
+### Incluído
+
+- snapshot privado de SIM/TALVEZ por partida, independente de `voting`;
+- comentários identificados de texto simples e respostas de um nível;
+- escrita por sete dias e leitura privada durante a retenção;
+- soft-delete pelo autor, denúncia única e moderação por staff;
+- idempotência, limites antiabuso, auditoria e limpeza após dois anos;
+- flag `comments` desligada e fallback para súmula somente leitura.
+
+### Fora
+
+- comentário por capability, visitante ou atleta NÃO/PENDENTE;
+- publicação em `/e/{public_id}`, Open Graph ou perfil público;
+- edição, anexos, HTML, links clicáveis, reações, chat geral ou mensagem direta;
+- push/WhatsApp de comentário ou resposta;
+- moderação automatizada e análise de conteúdo por terceiros.
+
+## Contratos e decisões
+
+[`DEC-CONVERSATION-LIFETIME`](../decisions/DEC-CONVERSATION-LIFETIME.md)
+fecha janela, renovação de acesso, retenção e moderação.
+`DEC-MATCH-CONVERSATION` limita a audiência a staff e ao snapshot SIM/TALVEZ.
+[`DEC-PERSISTENT-ACCESS`](../decisions/DEC-PERSISTENT-ACCESS.md) exige identidade
+completa, e
+[`DEC-ANONYMOUS-RETENTION`](../decisions/DEC-ANONYMOUS-RETENTION.md) fixa
+retenção de dois anos.
+
+O banco deriva autoria da sessão e escreve por RPC transacional. Tabelas não
+têm acesso direto para `anon` ou `authenticated`; projeções de leitura nunca
+retornam `user_id`, identidade do denunciante ou texto removido. Toda chave
+composta inclui `team_id` e `match_id`.
+
+## Entry points
+
+- banco: `event_matches`, `event_attendance`, `team_feature_flags`,
+  `audit_logs` e nova migration `202608080005`;
+- aplicação: `app/me/agenda/[eventId]/page.tsx`, nova Action no mesmo segmento,
+  `lib/data/match-conversation.ts` e `components/match-conversation.tsx`;
+- moderação: `app/app/[teamSlug]/events/[eventId]/matches/page.tsx`;
+- testes: novo `supabase/tests/033_match_conversation.test.sql` e Vitest focado;
+- documentação: decisão de ciclo de vida, segurança, runbook e este pacote.
+
+## Pacotes de trabalho
+
+| Pacote | Critérios | Entry points principais | Validação |
+|---|---|---|---|
+| `WP-R06-01` — contrato e audiência | `AC-R06-01` a `05`, `09`, `10` | migration 005, snapshot, RPCs e pgTAP 033 | `VAL-DB`, negativo e cross-tenant |
+| `WP-R06-02` — conversa mobile | `AC-R06-01` a `07`, `10` | agenda, Action, DAL e componente | `VAL-APP`, Android/iPhone |
+| `WP-R06-03` — moderação e retenção | `AC-R06-06` a `10` | denúncia, painel, cleanup e runbook | `VAL-APP` + `VAL-DB`, abuso e rollback |
+
+## Critérios de aceite
+
+- [ ] `AC-R06-01` — Somente staff ativo e atleta verificado do snapshot SIM/TALVEZ acessam a conversa.
+- [ ] `AC-R06-02` — Capability, anônimo, NÃO/PENDENTE, removido e cross-tenant falham fechado.
+- [ ] `AC-R06-03` — Autoria vem da sessão e a projeção mostra nome interno sem expor `user_id`.
+- [ ] `AC-R06-04` — Comentário pertence à partida/time e replay concorrente não duplica escrita.
+- [ ] `AC-R06-05` — Resposta possui um nível e raiz obrigatoriamente na mesma partida.
+- [ ] `AC-R06-06` — Escrita fecha sete dias após a finalização; leitura autorizada continua.
+- [ ] `AC-R06-07` — Autor apaga sem remover respostas; texto oculto não volta na projeção comum.
+- [ ] `AC-R06-08` — Denúncia é única e staff modera/restaura com motivo e auditoria sem corpo integral.
+- [ ] `AC-R06-09` — Limites antiabuso e retenção de dois anos funcionam sem vazamento em logs.
+- [ ] `AC-R06-10` — Flag desligada preserva súmula somente leitura e rollback não apaga histórico.
+
+## Riscos e controles
+
+| Risco | Controle | Evidência |
+|---|---|---|
+| link encaminhado publica como atleta | identidade completa + sessão derivada no banco | negativo capability/anon |
+| comentário ou resposta cross-tenant | FKs compostas + RPC/RLS | pgTAP cross-match/time |
+| spam e clique repetido | idempotency key + limites por autor/time | concorrência e rate limit |
+| denúncia usada para censura | não oculta automaticamente + uma por pessoa | testes de estado/moderação |
+| corpo aparece em log ou auditoria | telemetria somente com IDs/estado | inspeção de payload/log |
+| conversa vira ranking negativo | sem reações negativas, contagem pública ou perfil | revisão de produto/UI |
+
+## Validação
+
+```bash
+npm run migrations:check -- origin/main HEAD
+npm run db:reset
+npm run db:lint
+npm run db:test
+npm run db:types
+npm run verify
+npm run security:audit
+```
+
+## Rollout, fallback e rollback
+
+- `comments` permanece desligada por padrão e é conferida no servidor e RPC;
+- piloto usa somente time e usuários demo com partida criada após ativação;
+- telemetria agrega criação, denúncia, moderação e bloqueio sem texto/identidade;
+- fallback omite a conversa e mantém a súmula privada somente leitura;
+- não há integração externa nem escrita de smoke em produção;
+- rollback desliga `comments`, preserva histórico e aplica correção forward-only;
+- expansão aceita app N−1; app novo trata RPC ausente como capacidade desligada.
+
+## Evidências e checkpoint
+
+### `DP-R06-01` — CP0 concluído
+
+- dependências R02/R04 e baseline R05 verificadas no commit `50c7646`;
+- decisão de janela, acesso, retenção, abuso e moderação aceita;
+- `comments` já existe como flag tipada e permanece desligada;
+- entrypoints, três pacotes e dez critérios de aceite definidos;
+- próxima ação: `WP-R06-01`, expansão inerte do contrato e pgTAP 033.

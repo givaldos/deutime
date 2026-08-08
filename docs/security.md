@@ -136,6 +136,35 @@ Essa capability não cria identidade; a reivindicação exige OTP no telefone
 verificado pelo Auth, preserva o `athlete_id` e revoga/rotaciona acessos emitidos
 antes da reivindicação. Conflito ou ambiguidade falha de forma fechada.
 
+## Conversa privada da súmula
+
+A R06 exige sessão de identidade completa. Capability do evento, URL pública e
+sessão anônima nunca leem nem escrevem comentários. Cada RPC recalcula time,
+vínculo ativo, staff ou atleta do snapshot SIM/TALVEZ, flag `comments`, partida
+e prazo; o cliente não envia autoria, papel ou escopo.
+
+- comentários e denúncias não possuem acesso direto para `anon` ou
+  `authenticated`; somente projeções e RPCs mínimas atravessam a fronteira;
+- conteúdo, identidade e denunciante nunca entram em página pública, Open
+  Graph, analytics, logs, erro ou auditoria integral;
+- comentário aceita somente texto simples limitado; HTML, anexos e links
+  clicáveis ficam fora do MVP;
+- respostas pertencem à mesma partida e têm um nível, impedido encadeamento
+  arbitrário ou referência cross-tenant;
+- denúncia não remove automaticamente conteúdo. Staff modera com motivo e
+  auditoria por IDs; a conversa comum não revela quem denunciou;
+- escrita é idempotente e limitada por autor/time. Replay e concorrência não
+  criam duplicata;
+- desligar a flag ou remover vínculo revoga acesso imediatamente; soft-delete
+  e moderação preservam marcador sem devolver o texto oculto;
+- escrita termina após sete dias. Conteúdo e identidade são eliminados após
+  dois anos ou remoção do time por rotina privilegiada e idempotente.
+
+O contrato completo está em
+[`DEC-CONVERSATION-LIFETIME`](decisions/DEC-CONVERSATION-LIFETIME.md). A
+expansão nasce inerte; partidas antigas sem snapshot não recebem backfill de
+audiência.
+
 ### Registro do fornecedor nos pilotos R02/R03
 
 Revisado em 31/07/2026 para o piloto com dados demo:
