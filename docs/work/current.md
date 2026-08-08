@@ -16,8 +16,10 @@ tests:
   - "R04 piloto prod: event_matches=true, 2 partidas (1 finalized live, 1 scheduled externo), 1 participação + 1 gol"
   - "R05 draft craque_votes (hash+salt, recibo 7d) + 202608080001 cast_craque_vote"
   - "DEC-ANONYMOUS-RETENTION accepted 2026-08-08"
+  - "032_craque_voting pgTAP 14 (RLS, grants, RPC, unique)"
+  - "lib/features/craque validation+server (craque_voting flag, voter_hash)"
 blocker: null
-next_action: "push 8 migrations via deploy-database.yml (main), depois CP2 R05 — pgTAP 032 craque_voting + Actions"
+next_action: "commit bloqueado (.git/index.lock sandbox) — push 8 migrations pendente, depois Actions craque + vitest + db:test finais"
 ---
 
 # Trabalho atual
