@@ -151,14 +151,16 @@ e prazo; o cliente não envia autoria, papel ou escopo.
   clicáveis ficam fora do MVP;
 - respostas pertencem à mesma partida e têm um nível, impedido encadeamento
   arbitrário ou referência cross-tenant;
-- denúncia não remove automaticamente conteúdo. Staff modera com motivo e
-  auditoria por IDs; a conversa comum não revela quem denunciou;
+- denúncia não remove automaticamente conteúdo. Staff oculta ou restaura com
+  motivo; a auditoria guarda IDs e motivo sanitizado, nunca corpo ou identidade
+  do denunciante;
 - escrita é idempotente e limitada por autor/time. Replay e concorrência não
   criam duplicata;
 - desligar a flag ou remover vínculo revoga acesso imediatamente; soft-delete
   e moderação preservam marcador sem devolver o texto oculto;
-- escrita termina após sete dias. Conteúdo e identidade são eliminados após
-  dois anos ou remoção do time por rotina privilegiada e idempotente.
+- escrita termina após sete dias. Conteúdo, identidade, denúncia, snapshot e
+  auditoria vinculada são eliminados após dois anos por lote transacional,
+  idempotente e exclusivo de `service_role`.
 
 O contrato completo está em
 [`DEC-CONVERSATION-LIFETIME`](decisions/DEC-CONVERSATION-LIFETIME.md). A

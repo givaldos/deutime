@@ -1,7 +1,7 @@
 ---
 id: R06
 type: vertical
-status: ready
+status: active
 outcome: "Permitir que participantes elegíveis conversem na súmula por tempo limitado, com autoria, denúncia e moderação privadas."
 depends_on:
   - R02
@@ -126,8 +126,8 @@ composta inclui `team_id` e `match_id`.
 - [x] `AC-R06-05` — Resposta possui um nível e raiz obrigatoriamente na mesma partida.
 - [x] `AC-R06-06` — Escrita fecha sete dias após a finalização; leitura autorizada continua.
 - [x] `AC-R06-07` — Autor apaga sem remover respostas; texto oculto não volta na projeção comum.
-- [ ] `AC-R06-08` — Denúncia é única e staff modera/restaura com motivo e auditoria sem corpo integral.
-- [ ] `AC-R06-09` — Limites antiabuso e retenção de dois anos funcionam sem vazamento em logs.
+- [x] `AC-R06-08` — Denúncia é única e staff modera/restaura com motivo e auditoria sem corpo integral.
+- [x] `AC-R06-09` — Limites antiabuso e retenção de dois anos funcionam sem vazamento em logs.
 - [x] `AC-R06-10` — Flag desligada preserva súmula somente leitura e rollback não apaga histórico.
 
 ## Riscos e controles
@@ -224,3 +224,30 @@ npm run security:audit
 - `npm run security:audit`: zero vulnerabilidades;
 - próxima ação: `WP-R06-03`, moderação staff, retenção de dois anos, runbook e
   validação física antes do piloto.
+
+### `DP-R06-04` — CP3 concluído
+
+- migration forward-only `202608080007` adiciona fila privada por evento,
+  ocultação/restauração transacional e cleanup exclusivo de `service_role`;
+- fila mostra apenas denúncia aberta ou item ocultado, agrega motivos sem
+  retornar identidade do denunciante e desaparece quando `comments=false`;
+- staff do mesmo time decide com motivo obrigatório; denúncia muda para
+  resolvida ao ocultar e descartada ao restaurar, sem esconder automaticamente;
+- auditoria registra ator, IDs, ação e motivo sanitizado, nunca corpo; o lote
+  elimina comentários, respostas, denúncias, snapshot e auditoria vinculada
+  após dois anos;
+- cron diário existente executa R05 e R06, retorna somente contadores e tolera
+  app N/banco N−1 com `contrato pendente`;
+- viewport local 390×844: painel sem overflow horizontal; ocultar, restaurar e
+  estado vazio passaram, sem erros no console;
+- `npm run migrations:check -- origin/main HEAD`: passou;
+- `npm run db:reset`: passou;
+- `npm run db:lint`: passou com os dois avisos preexistentes;
+- `npm run db:test`: 34 arquivos e 802 testes passaram; pgTAP 034 possui 30
+  provas focadas;
+- testes focados: 5 arquivos e 23 testes passaram;
+- `npm run verify`: 47 arquivos, 267 testes, typecheck e build passaram;
+- `npm run security:audit`: zero vulnerabilidades;
+- próxima ação: CP4 físico em iPhone e Android com dados demo, cobrindo leitura,
+  resposta, denúncia, remoção, ocultação/restauração staff e fallback com a
+  flag desligada antes de qualquer piloto.

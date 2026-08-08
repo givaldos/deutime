@@ -30,3 +30,14 @@ export const reportMatchCommentSchema = z.object({
   commentId: z.string().uuid(),
   reason: z.string().trim().min(2).max(500),
 });
+
+export const moderateMatchCommentSchema = z.object({
+  eventId: z.string().uuid(),
+  teamSlug: z.string().regex(/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])$/),
+  commentId: z.string().uuid(),
+  reason: z
+    .string()
+    .trim()
+    .min(2, "Explique o motivo da decisão.")
+    .max(500, "Use no máximo 500 caracteres."),
+});

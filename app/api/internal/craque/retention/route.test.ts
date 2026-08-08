@@ -38,10 +38,15 @@ describe("retenção automática do Craque da Galera", () => {
   it("executa a rotina com service role e lote limitado", async () => {
     process.env.CRON_SECRET = secret;
     mocks.createPrivilegedClient.mockReturnValue({ rpc: mocks.rpc });
-    mocks.rpc.mockResolvedValue({
-      data: { anonymizedVotes: 2, deletedReceipts: 3 },
-      error: null,
-    });
+    mocks.rpc
+      .mockResolvedValueOnce({
+        data: { anonymizedVotes: 2, deletedReceipts: 3 },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: { deletedComments: 4, deletedReports: 1 },
+        error: null,
+      });
 
     const response = await GET(request());
 
@@ -50,16 +55,53 @@ describe("retenção automática do Craque da Galera", () => {
       "cleanup_craque_voting_retention",
       { requested_limit: 500 },
     );
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      "cleanup_match_conversation_retention",
+      { requested_limit: 500 },
+    );
     await expect(response.json()).resolves.toEqual({
       status: "retenção executada",
-      summary: { anonymizedVotes: 2, deletedReceipts: 3 },
+      summary: {
+        anonymizedVotes: 2,
+        deletedReceipts: 3,
+        conversation: { deletedComments: 4, deletedReports: 1 },
+      },
+    });
+  });
+
+  it("mantém o cron compatível enquanto o banco N-1 não possui a conversa", async () => {
+    process.env.CRON_SECRET = secret;
+    mocks.createPrivilegedClient.mockReturnValue({ rpc: mocks.rpc });
+    mocks.rpc
+      .mockResolvedValueOnce({
+        data: { anonymizedVotes: 0, deletedReceipts: 0 },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: null,
+        error: { code: "PGRST202" },
+      });
+
+    const response = await GET(request());
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      status: "retenção executada",
+      summary: {
+        anonymizedVotes: 0,
+        deletedReceipts: 0,
+        conversation: { status: "contrato pendente" },
+      },
     });
   });
 
   it("falha fechado quando o banco não executa a rotina", async () => {
     process.env.CRON_SECRET = secret;
     mocks.createPrivilegedClient.mockReturnValue({ rpc: mocks.rpc });
-    mocks.rpc.mockResolvedValue({ data: null, error: new Error("falha") });
+    mocks.rpc.mockResolvedValueOnce({
+      data: null,
+      error: new Error("falha"),
+    });
 
     const response = await GET(request());
 

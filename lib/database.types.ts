@@ -2408,6 +2408,10 @@ export type Database = {
         Args: { requested_limit?: number }
         Returns: Json
       }
+      cleanup_match_conversation_retention: {
+        Args: { requested_limit?: number }
+        Returns: Json
+      }
       complete_verified_athlete_registration: {
         Args: {
           accepts_privacy_terms: boolean
@@ -2606,6 +2610,22 @@ export type Database = {
           status: Database["public"]["Enums"]["match_comment_status"]
         }[]
       }
+      get_match_conversation_moderation: {
+        Args: { requested_event_id: string }
+        Returns: {
+          author_display_name: string
+          body: string
+          comment_id: string
+          created_at: string
+          match_id: string
+          match_ordinal: number
+          moderation_reason: string
+          parent_comment_id: string
+          report_count: number
+          report_reasons: string[]
+          status: Database["public"]["Enums"]["match_comment_status"]
+        }[]
+      }
       get_match_conversation_state: {
         Args: { requested_match_id: string }
         Returns: {
@@ -2713,6 +2733,10 @@ export type Database = {
           requires_review: boolean
           updated_at: string
         }[]
+      }
+      moderate_match_comment: {
+        Args: { requested_comment_id: string; requested_reason: string }
+        Returns: boolean
       }
       nack_notification: {
         Args: {
@@ -2859,6 +2883,10 @@ export type Database = {
       respond_to_team_invitation: {
         Args: { invitation_response: string; requested_invitation_id: string }
         Returns: string
+      }
+      restore_match_comment: {
+        Args: { requested_comment_id: string; requested_reason: string }
+        Returns: boolean
       }
       review_athlete_registration: {
         Args: { decision: string; requested_athlete_id: string }

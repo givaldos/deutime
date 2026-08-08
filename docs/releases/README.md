@@ -22,7 +22,7 @@ Cada arquivo desta pasta é o contexto autossuficiente de uma release prestes a 
 | [R03 — WhatsApp ponta a ponta](R03-whatsapp-ponta-a-ponta.md) | `completed` | Envio, callback e operação pelo sender oficial entregues |
 | [R04 — Partida ao vivo e pós-jogo](R04-partida-ao-vivo-e-pos-jogo.md) | `completed` | Súmula por partida, placar, timeline e privacidade entregues |
 | [R05 — Craque da Galera](R05-craque-da-galera.md) | `completed` | Voto anônimo, resultado agregado e retenção entregues |
-| [R06 — Conversa da súmula](R06-conversa-da-sumula.md) | `ready` | CP0 concluído; próximo passo é expansão inerte do contrato privado |
+| [R06 — Conversa da súmula](R06-conversa-da-sumula.md) | `active` | CP3 concluído; próxima ação é validação física da jornada privada |
 
 R07 em diante só recebe arquivo próprio quando a release anterior estabilizar seus contratos. Ao promover uma delas, adicione-a também ao dropdown do template de issue. Isso evita abrir trabalho sem pacote, reduz especificação prematura e limita o contexto mantido.
 

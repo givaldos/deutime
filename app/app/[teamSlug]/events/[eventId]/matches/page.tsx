@@ -3,6 +3,8 @@ import {
   MatchIncidentForm,
   MatchScoreForm,
 } from "@/components/admin-match-report";
+import { MatchConversationModeration } from "@/components/match-conversation-moderation";
+import { getMatchConversationModeration } from "@/lib/data/match-conversation-moderation";
 import { getEventMatches } from "@/lib/data/matches";
 import { CreateMatchForm, FinalizeMatchForm, ParticipationForm, PublicModeForm, RecordEventForm, VoidMatchForm } from "@/components/match-forms";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
@@ -114,7 +116,10 @@ export default async function MatchReportPage({
       .order("sort_order")
       .limit(2),
   ]);
-  const eventMatches = await getEventMatches(team.id, event.id);
+  const [eventMatches, moderationItems] = await Promise.all([
+    getEventMatches(team.id, event.id),
+    getMatchConversationModeration(team.id, event.id),
+  ]);
 
   const confirmedAthleteIds = (attendance ?? []).map(
     (item) => item.athlete_id,
@@ -455,6 +460,15 @@ export default async function MatchReportPage({
             <p className="mt-3 text-xs text-slate-400">Recurso atrás de flag <code>event_matches</code> desligada por padrão; fallback mantém súmula legada.</p>
           </section>
         )}
+
+        {moderationItems !== null ? (
+          <MatchConversationModeration
+            items={moderationItems}
+            eventId={event.id}
+            teamSlug={team.slug}
+            timeZone={team.timezone}
+          />
+        ) : null}
 
         <p className="app-surface flex items-start gap-2 p-4 text-xs leading-5 text-slate-500">
           <CalendarDays
