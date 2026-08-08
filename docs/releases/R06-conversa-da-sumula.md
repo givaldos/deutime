@@ -251,3 +251,21 @@ npm run security:audit
 - próxima ação: CP4 físico em iPhone e Android com dados demo, cobrindo leitura,
   resposta, denúncia, remoção, ocultação/restauração staff e fallback com a
   flag desligada antes de qualquer piloto.
+
+### `DP-R06-05` — CP4 e CP5 concluídos
+
+- piloto isolado ativou `comments` somente no Demo Campo por RPC auditada;
+- partida demo foi finalizada depois da ativação e congelou 12 atletas
+  elegíveis, sem backfill das partidas anteriores;
+- iPhone e Android passaram em criação, leitura após reabertura, sincronização,
+  resposta e remoção pelo autor;
+- denúncia física de comentário de outro autor persistiu sem expor o
+  denunciante; ocultação e restauração staff resolveram e descartaram a
+  denúncia conforme o contrato, com motivo e ator auditados;
+- rollback físico escondeu a conversa sem afetar placar ou lances e preservou
+  cinco comentários, uma denúncia e o snapshot de elegibilidade;
+- rollback final deixou zero times com `comments` ativa;
+- `npm run smoke:production` passou depois dos dois rollbacks; o evento público
+  opcional não está configurado;
+- próxima ação: CP6 documental, com definição explícita do rollout futuro e
+  checkpoint limpo.
