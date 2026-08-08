@@ -20,9 +20,10 @@ Cada arquivo desta pasta é o contexto autossuficiente de uma release prestes a 
 | [R01 — Evento sob controle](R01-evento-sob-controle.md) | `completed` | Edição, remarcação e cancelamento entregues |
 | [R02 — Confirmação pelo link](R02-confirmacao-pelo-link.md) | `completed` | Confirmação persistente pelo mesmo link entregue |
 | [R03 — WhatsApp ponta a ponta](R03-whatsapp-ponta-a-ponta.md) | `completed` | Envio, callback e operação pelo sender oficial entregues |
+| [R03R — Lembretes econômicos](R03R-lembretes-economicos.md) | `ready` | CP0 concluído; próxima ação é a expansão inerte das duas cotas |
 | [R04 — Partida ao vivo e pós-jogo](R04-partida-ao-vivo-e-pos-jogo.md) | `completed` | Súmula por partida, placar, timeline e privacidade entregues |
 | [R05 — Craque da Galera](R05-craque-da-galera.md) | `completed` | Voto anônimo, resultado agregado e retenção entregues |
-| [R06 — Conversa da súmula](R06-conversa-da-sumula.md) | `active` | CP3 concluído; próxima ação é validação física da jornada privada |
+| [R06 — Conversa da súmula](R06-conversa-da-sumula.md) | `completed` | Conversa privada, moderação, retenção e validação física entregues |
 
 R07 em diante só recebe arquivo próprio quando a release anterior estabilizar seus contratos. Ao promover uma delas, adicione-a também ao dropdown do template de issue. Isso evita abrir trabalho sem pacote, reduz especificação prematura e limita o contexto mantido.
 

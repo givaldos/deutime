@@ -25,6 +25,7 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | **R04 — Partida ao vivo e pós-jogo** | ✅ `completed` | Partidas 0..N por evento, presença real, YouTube/Vimeo, placar, lances, timeline e súmula auditável. | [Abrir](releases/R04-partida-ao-vivo-e-pos-jogo.md) |
 | **R05 — Craque da Galera** | ✅ `completed` | Voto único anônimo, autovoto, janela de até 12 h, resultado agregado e retenção segura. | [Abrir](releases/R05-craque-da-galera.md) |
 | **R06 — Conversa da súmula** | ✅ `completed` | Jornada privada, moderação, retenção, iPhone/Android, rollout controlado e rollback comprovados. | [Abrir](releases/R06-conversa-da-sumula.md) |
+| **R03R — Lembretes econômicos** | 🟢 `ready` — CP0 concluído | Duas cotas configuráveis, somente para pendentes, com envio manual/automático idempotente e custo agregado. | [Abrir](releases/R03R-lembretes-economicos.md) |
 | **R07 — Times manuais compartilháveis** | ⬜ `next` | Transformar confirmados em equipes, escalação e imagem compartilhável sem depender do algoritmo automático. | Pacote ainda não promovido |
 
 ## O que falta para o MVP completo
