@@ -1,7 +1,7 @@
 ---
 id: R06
 type: vertical
-status: active
+status: completed
 outcome: "Permitir que participantes elegíveis conversem na súmula por tempo limitado, com autoria, denúncia e moderação privadas."
 depends_on:
   - R02
@@ -10,7 +10,7 @@ baseline:
   - BASE-IDENTITY
   - BASE-ATTENDANCE
   - BASE-WRITES
-verified_at: "50c7646"
+verified_at: "d2fdc83"
 decisions:
   - DEC-MATCH-CONVERSATION
   - DEC-CONVERSATION-LIFETIME
@@ -269,3 +269,18 @@ npm run security:audit
   opcional não está configurado;
 - próxima ação: CP6 documental, com definição explícita do rollout futuro e
   checkpoint limpo.
+
+### `DP-R06-06` — CP6 concluído
+
+- os dez critérios de aceite possuem evidência de contrato, interface,
+  autorização, robustez, retenção, operação e validação física;
+- `comments` permanece desligada por padrão e em todos os times de produção;
+- rollout futuro exige aprovação operacional explícita e ativação por time; a
+  primeira conversa de cada coorte nasce somente em partida finalizada depois
+  da ativação, sem backfill de partidas antigas;
+- a observação inicial deve acompanhar erros das Actions/RPCs, denúncias
+  abertas, decisões de moderação, auditoria e execução diária da retenção;
+- rollback continua sendo desligar `comments` por RPC auditada, preservando
+  súmula, comentários, denúncias e snapshot até a retenção contratada;
+- R06 está concluída e o checkpoint voltou a `idle`; a próxima frente é
+  promover o pacote dos dois lembretes econômicos pelo WhatsApp.
