@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(40);
+select plan(61);
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password,
@@ -147,6 +147,22 @@ select ok(
   'authenticated pode verificar recibo bearer'
 );
 select ok(
+  not has_function_privilege('anon', 'public.get_craque_vote_result(uuid)', 'EXECUTE'),
+  'anon não consulta resultado agregado'
+);
+select ok(
+  has_function_privilege('authenticated', 'public.get_craque_vote_result(uuid)', 'EXECUTE'),
+  'authenticated consulta resultado somente pela RPC segura'
+);
+select ok(
+  not has_function_privilege('authenticated', 'public.cleanup_craque_voting_retention(integer)', 'EXECUTE'),
+  'authenticated não executa retenção privilegiada'
+);
+select ok(
+  has_function_privilege('service_role', 'public.cleanup_craque_voting_retention(integer)', 'EXECUTE'),
+  'service role executa retenção em lote'
+);
+select ok(
   not has_function_privilege('authenticated', 'public.cast_craque_vote(uuid,uuid,text,text)', 'EXECUTE'),
   'assinatura que aceitava hashes do cliente foi revogada'
 );
@@ -216,6 +232,15 @@ select ok(
    from public.craque_votes where match_id = '05400000-0000-4000-8000-000000000001'),
   'recibo persiste somente como hash'
 );
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '05000000-0000-4000-8000-000000000002', true);
+select is(
+  (select count(*) from public.get_craque_vote_result('05400000-0000-4000-8000-000000000001')),
+  0::bigint,
+  'resultado permanece oculto enquanto a janela está aberta'
+);
+reset role;
 
 insert into public.craque_vote_receipts (token_hash, vote_id, expires_at)
 select
@@ -293,6 +318,11 @@ select is(
   0::bigint,
   'usuário cross-tenant não recebe estado da votação'
 );
+select is(
+  (select count(*) from public.get_craque_vote_result('05400000-0000-4000-8000-000000000001')),
+  0::bigint,
+  'usuário cross-tenant não recebe resultado agregado'
+);
 select throws_ok(
   $$select * from public.cast_craque_vote('05400000-0000-4000-8000-000000000001', '05200000-0000-4000-8000-000000000004')$$,
   '42501',
@@ -312,6 +342,11 @@ select is(
   0::bigint,
   'flag desligada omite também o estado da votação'
 );
+select is(
+  (select count(*) from public.get_craque_vote_result('05400000-0000-4000-8000-000000000001')),
+  0::bigint,
+  'flag desligada omite o resultado sem apagar cédulas'
+);
 select throws_ok(
   $$select * from public.cast_craque_vote('05400000-0000-4000-8000-000000000001', '05200000-0000-4000-8000-000000000004')$$,
   '55000',
@@ -319,6 +354,11 @@ select throws_ok(
   'flag desligada falha fechado'
 );
 reset role;
+select is(
+  (select count(*) from public.craque_votes where match_id = '05400000-0000-4000-8000-000000000001'),
+  1::bigint,
+  'rollback pela flag preserva o voto computado'
+);
 
 update public.team_feature_flags
 set enabled = true
@@ -334,6 +374,99 @@ select throws_ok(
   '55000',
   null,
   'janela encerrada falha fechado'
+);
+select is(
+  (select candidate_athlete_id from public.get_craque_vote_result('05400000-0000-4000-8000-000000000001')),
+  '05200000-0000-4000-8000-000000000001'::uuid,
+  'resultado fechado retorna somente o candidato agregado'
+);
+select is(
+  (select vote_count from public.get_craque_vote_result('05400000-0000-4000-8000-000000000001')),
+  1::bigint,
+  'resultado fechado retorna a quantidade agregada'
+);
+select is(
+  (select vote_percentage from public.get_craque_vote_result('05400000-0000-4000-8000-000000000001')),
+  100.0::numeric,
+  'resultado fechado retorna o percentual agregado'
+);
+reset role;
+
+select throws_ok(
+  $$select public.cleanup_craque_voting_retention(0)$$,
+  '22023',
+  null,
+  'retenção rejeita lote fora do limite operacional'
+);
+
+update public.event_matches
+set finalized_at = now() - interval '91 days'
+where id = '05400000-0000-4000-8000-000000000001';
+
+set local role service_role;
+select is(
+  public.cleanup_craque_voting_retention(500),
+  jsonb_build_object(
+    'deletedReceipts', 2,
+    'anonymizedVotes', 1,
+    'deletedEligibility', 3,
+    'deletedSalts', 1
+  ),
+  'retenção remove recibo, pseudônimo e artefatos privados vencidos'
+);
+reset role;
+
+select is(
+  (select count(*) from public.craque_vote_receipts),
+  0::bigint,
+  'recibo expirado é descartado'
+);
+select ok(
+  (select voter_hash is null and receipt_token_hash is null and anonymized_at is not null
+   from public.craque_votes where match_id = '05400000-0000-4000-8000-000000000001'),
+  'pseudônimo e hash do recibo são removidos irreversivelmente após 90 dias'
+);
+select is(
+  (select count(*) from public.craque_votes where match_id = '05400000-0000-4000-8000-000000000001'),
+  1::bigint,
+  'anonimização preserva a cédula agregável'
+);
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '05000000-0000-4000-8000-000000000002', true);
+select is(
+  (select vote_count from public.get_craque_vote_result('05400000-0000-4000-8000-000000000001')),
+  1::bigint,
+  'resultado preserva a quantidade depois da anonimização'
+);
+select is(
+  (select vote_percentage from public.get_craque_vote_result('05400000-0000-4000-8000-000000000001')),
+  100.0::numeric,
+  'resultado preserva o percentual depois da anonimização'
+);
+reset role;
+
+select is(
+  (select count(*) from private.craque_vote_eligibility where match_id = '05400000-0000-4000-8000-000000000001'),
+  0::bigint,
+  'snapshot privado é descartado depois da retenção'
+);
+select is(
+  (select count(*) from private.craque_vote_salts where match_id = '05400000-0000-4000-8000-000000000001'),
+  0::bigint,
+  'salt privado é descartado depois da retenção'
+);
+
+set local role service_role;
+select is(
+  public.cleanup_craque_voting_retention(500),
+  jsonb_build_object(
+    'deletedReceipts', 0,
+    'anonymizedVotes', 0,
+    'deletedEligibility', 0,
+    'deletedSalts', 0
+  ),
+  'retenção é idempotente'
 );
 reset role;
 

@@ -174,6 +174,51 @@ localmente:
 Anexe ao pacote da release os IDs das execuções, deployment promovido, horários
 e resultado. Sem essa evidência, o ensaio de rollback não está concluído.
 
+### Retenção do Craque da Galera — R05
+
+A Vercel chama `GET /api/internal/craque/retention` uma vez por dia, às
+`05:17 UTC`. O cron existe somente no deployment de produção e envia
+automaticamente `Authorization: Bearer <CRON_SECRET>`. Configure
+`CRON_SECRET` apenas em Production, com pelo menos 32 caracteres aleatórios e
+sem quebra de linha. Sem esse segredo a rota falha fechado com `401` e não
+acessa o banco.
+
+A rota usa `service_role` para chamar `cleanup_craque_voting_retention(500)`.
+Cada execução:
+
+- remove até 500 recibos cuja validade de sete dias terminou;
+- seleciona até 500 partidas finalizadas há pelo menos 90 dias;
+- apaga `voter_hash`, o hash do recibo, snapshot de elegibilidade e salt;
+- preserva candidato, quantidade e percentual agregados;
+- pode ser repetida com segurança quando um cron falhar.
+
+O retorno esperado é `200` com `status: retenção executada` e contadores sem
+PII. Para verificar pendências sem consultar hashes:
+
+```sql
+select count(*) as recibos_expirados
+from public.craque_vote_receipts
+where expires_at <= now();
+
+select count(*) as votos_a_anonimizar
+from public.craque_votes vote
+join public.event_matches match on match.id = vote.match_id
+where match.finalized_at <= now() - interval '90 days'
+  and vote.anonymized_at is null;
+```
+
+Se a execução automática falhar, corrija a configuração e repita manualmente:
+
+```bash
+curl --fail-with-body \
+  'https://deutime.app/api/internal/craque/retention' \
+  -H 'Authorization: Bearer <CRON_SECRET>'
+```
+
+Não copie o segredo ou hashes para logs/evidências. Para interromper a rotina,
+desabilite o cron na Vercel ou remova `CRON_SECRET`; isso não apaga votos nem
+altera a súmula. Correção de banco continua forward-only.
+
 ### Preparação do piloto WhatsApp — R03
 
 O Sandbox da Twilio é somente para teste e não aceita template personalizado.
