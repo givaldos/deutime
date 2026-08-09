@@ -10,10 +10,19 @@ const sandboxSchema = z.object({
     .string()
     .regex(/^HX[A-Fa-f0-9]{32}$/)
     .optional(),
+  TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1: z
+    .string()
+    .regex(/^HX[A-Fa-f0-9]{32}$/)
+    .optional(),
+  TWILIO_CONTENT_SID_EVENT_CALL_CARD_V2: z
+    .string()
+    .regex(/^HX[A-Fa-f0-9]{32}$/)
+    .optional(),
   TWILIO_TEMPLATE_PROFILE: z.enum([
     "sandbox_appointment",
     "event_call_v1",
     "event_call_card_v1",
+    "event_call_card_v2",
   ] satisfies TwilioTemplateProfile[]),
   WHATSAPP_PILOT_TEAM_ID: z.string().uuid(),
   WHATSAPP_PILOT_RECIPIENT: z.string().regex(/^\+[1-9]\d{7,14}$/),
@@ -29,6 +38,18 @@ const productionSchema = z.object({
     .regex(/^HX[A-Fa-f0-9]{32}$/)
     .optional(),
   TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1: z
+    .string()
+    .regex(/^HX[A-Fa-f0-9]{32}$/)
+    .optional(),
+  TWILIO_CONTENT_SID_EVENT_CALL_CARD_V2: z
+    .string()
+    .regex(/^HX[A-Fa-f0-9]{32}$/)
+    .optional(),
+  TWILIO_CONTENT_SID_EVENT_CALL_CARD_FIRST_REMEMBER_V2: z
+    .string()
+    .regex(/^HX[A-Fa-f0-9]{32}$/)
+    .optional(),
+  TWILIO_CONTENT_SID_EVENT_CALL_CARD_LAST_REMEMBER_V2: z
     .string()
     .regex(/^HX[A-Fa-f0-9]{32}$/)
     .optional(),
@@ -73,14 +94,25 @@ export function parseTwilioPilotConfig(
   }
 
   const profile = parsed.data.TWILIO_TEMPLATE_PROFILE;
-  const isCard = profile === "event_call_card_v1";
-  const contentSid = isCard
-    ? env.TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1
-    : parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_V1;
+  const selected =
+    profile === "event_call_card_v1"
+      ? {
+          contentSid: parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1,
+          templateIdentifier: "event_call:card_v1",
+        }
+      : profile === "event_call_card_v2"
+        ? {
+            contentSid: parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_CARD_V2,
+            templateIdentifier: "event_call:card_v2",
+          }
+        : {
+            contentSid: parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_V1,
+            templateIdentifier: "event_call:v1",
+          };
+  const { contentSid, templateIdentifier } = selected;
   if (!contentSid || !/^HX[A-Fa-f0-9]{32}$/.test(contentSid)) {
     throw new Error("Configuração do piloto Sandbox inválida.");
   }
-  const templateIdentifier = isCard ? "event_call:card_v1" : "event_call:v1";
 
   return {
     accountSid: parsed.data.TWILIO_ACCOUNT_SID,
@@ -127,6 +159,26 @@ export function parseTwilioProductionConfig(
     templates["event_call:card_v1"] = {
       contentSid: parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1,
       profile: "event_call_card_v1",
+    };
+  }
+  if (parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_CARD_V2) {
+    templates["event_call:card_v2"] = {
+      contentSid: parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_CARD_V2,
+      profile: "event_call_card_v2",
+    };
+  }
+  if (parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_CARD_FIRST_REMEMBER_V2) {
+    templates["event_reminder:first_card_v2"] = {
+      contentSid:
+        parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_CARD_FIRST_REMEMBER_V2,
+      profile: "event_call_card_first_remember_v2",
+    };
+  }
+  if (parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_CARD_LAST_REMEMBER_V2) {
+    templates["event_reminder:last_card_v2"] = {
+      contentSid:
+        parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_CARD_LAST_REMEMBER_V2,
+      profile: "event_call_card_last_remember_v2",
     };
   }
 

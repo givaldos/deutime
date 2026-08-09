@@ -95,8 +95,8 @@ reprocessamento nunca criam um terceiro lembrete nem duplicam atleta e cota.
   time/evento/cota/atleta/template;
 - reagendamento das cotas pendentes e cancelamento seguro diante de remarcação,
   cancelamento, prazo encerrado, opt-out, telefone inválido ou vínculo removido;
-- dois templates utilitários distintos, `event_reminder:first_card_v1` e
-  `event_reminder:last_card_v1`, cada um com fallback textual, nome do evento,
+- dois templates utilitários distintos, `event_reminder:first_card_v2` e
+  `event_reminder:last_card_v2`, cada um com fallback textual, nome do evento,
   data/hora, link R02 e imagem pública do Open Graph;
 - operação agregada por cota com destinatários, entrega, falhas e custo
   disponível/estimado claramente identificado.
@@ -135,10 +135,10 @@ reprocessamento nunca criam um terceiro lembrete nem duplicam atleta e cota.
   template aprovado `event_call_card_v2`; seu Content SID é configuração de
   ambiente em `TWILIO_CONTENT_SID_EVENT_CALL_CARD_V2`, nunca parâmetro da UI,
   do banco ou do chamador;
-- `reminder_1` seleciona exclusivamente `event_reminder:first_card_v1`, com
-  nome Twilio `event_reminder_first_card_v1`; `reminder_2` seleciona
-  exclusivamente `event_reminder:last_card_v1`, com nome Twilio
-  `event_reminder_last_card_v1`;
+- `reminder_1` seleciona exclusivamente `event_reminder:first_card_v2`, com
+  nome Twilio `event_call_card_first_remember_v2`; `reminder_2` seleciona
+  exclusivamente `event_reminder:last_card_v2`, com nome Twilio
+  `event_call_card_last_remember_v2`;
 - os dois lembretes são `UTILITY`, `pt_BR`, e compartilham o contrato de
   variáveis `{{1}}` evento, `{{2}}` data/hora, `{{3}}` caminho do link estável e
   `{{4}}` caminho público da imagem Open Graph; cada SID entra somente por
@@ -166,8 +166,8 @@ reprocessamento nunca criam um terceiro lembrete nem duplicam atleta e cota.
 | Intenção | Chave e versão internas | Nome Twilio | Estado |
 |---|---|---|---|
 | convite inicial | `event_call:card_v2` | `event_call_card_v2` | aprovado e testado |
-| primeiro lembrete | `event_reminder:first_card_v1` | `event_reminder_first_card_v1` | criar e homologar |
-| última chamada | `event_reminder:last_card_v1` | `event_reminder_last_card_v1` | criar e homologar |
+| primeiro lembrete | `event_reminder:first_card_v2` | `event_call_card_first_remember_v2` | aprovado |
+| última chamada | `event_reminder:last_card_v2` | `event_call_card_last_remember_v2` | aprovado |
 
 Os dois novos cards usam imagem em `https://deutime.app/{{4}}` e botão URL em
 `https://deutime.app/{{3}}`. O corpo do primeiro lembrete é:
@@ -306,8 +306,11 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
   integração externa precisa ser substituída;
 - o inventário externo registra `event_call_card_v2`
   (`HX9724ffb03ba01e7280c6d70bbf801ff4`) como convite inicial aprovado e
-  testado; os dois lembretes possuem intenções e versões próprias e continuam
-  pendentes de criação e aprovação;
+  testado; os lembretes `event_call_card_first_remember_v2`
+  (`HXe996a905e307cd768134231543fc7916`) e
+  `event_call_card_last_remember_v2`
+  (`HXbde1f80e9702f94766b70b56015920bf`) também estão aprovados e possuem
+  intenções e versões próprias;
 - não há decisão bloqueadora aberta: os detalhes de lembrete permitidos por
   `DEC-DEFAULT-DEADLINES` foram fechados neste pacote;
 - nenhuma migration, configuração, flag, template externo ou envio foi
