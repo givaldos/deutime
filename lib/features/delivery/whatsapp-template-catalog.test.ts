@@ -115,6 +115,19 @@ describe("catálogo de templates do WhatsApp", () => {
     });
   });
 
+  it.each([
+    "event_call_card_v2",
+    "event_call_card_first_remember_v2",
+    "event_call_card_last_remember_v2",
+  ] as const)("mantém o contrato de quatro variáveis no perfil %s", (profile) => {
+    expect(renderTwilioTemplateVariables(command, profile)).toEqual({
+      "1": "Racha de sexta",
+      "2": "02/08/2030, 19:00",
+      "3": "e/example#c=secret",
+      "4": "e/example/convite.png",
+    });
+  });
+
   it("adapta o mesmo comando ao template pré-aprovado do Sandbox", () => {
     expect(
       renderTwilioTemplateVariables(command, "sandbox_appointment"),

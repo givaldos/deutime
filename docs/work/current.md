@@ -25,8 +25,8 @@ sem provedor e cotas vitalícias que não reiniciam após remarcação.
 
 O convite inicial homologado é `event_call:card_v2` (`event_call_card_v2`,
 Content SID `HX9724ffb03ba01e7280c6d70bbf801ff4`). Ele não consome lembretes.
-`reminder_1` usará `event_reminder:first_card_v1`, com tom de lembrete, e
-`reminder_2` usará `event_reminder:last_card_v1`, com tom de última chamada.
+`reminder_1` usará `event_reminder:first_card_v2`, com tom de lembrete, e
+`reminder_2` usará `event_reminder:last_card_v2`, com tom de última chamada.
 Chave, versão e SID nunca são escolhidos pelo chamador; a cota define a intenção
 no servidor e cada SID só entra por ambiente depois da aprovação.
 

@@ -3,6 +3,9 @@ import type { WhatsAppDispatchCommand } from "./dispatch-contract";
 export type TwilioTemplateProfile =
   | "event_call_v1"
   | "event_call_card_v1"
+  | "event_call_card_v2"
+  | "event_call_card_first_remember_v2"
+  | "event_call_card_last_remember_v2"
   | "sandbox_appointment";
 
 export const EVENT_CALL_TEMPLATE_V1 = {
@@ -86,7 +89,12 @@ export function renderTwilioTemplateVariables(
     };
   }
 
-  if (profile === "event_call_card_v1") {
+  if (
+    profile === "event_call_card_v1" ||
+    profile === "event_call_card_v2" ||
+    profile === "event_call_card_first_remember_v2" ||
+    profile === "event_call_card_last_remember_v2"
+  ) {
     const eventMediaUrl = required(variables.event_media_url);
     return {
       "1": eventTitle,

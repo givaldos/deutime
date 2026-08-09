@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { parseTwilioPilotConfig } from "./twilio-pilot-config";
+import {
+  parseTwilioPilotConfig,
+  parseTwilioProductionConfig,
+} from "./twilio-pilot-config";
 
 const sandboxEnv = {
   WHATSAPP_PILOT_MODE: "sandbox",
@@ -8,6 +11,7 @@ const sandboxEnv = {
   TWILIO_WHATSAPP_FROM: "+14155238886",
   TWILIO_CONTENT_SID_EVENT_CALL_V1: `HX${"b".repeat(32)}`,
   TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1: `HX${"c".repeat(32)}`,
+  TWILIO_CONTENT_SID_EVENT_CALL_CARD_V2: `HX${"d".repeat(32)}`,
   TWILIO_TEMPLATE_PROFILE: "sandbox_appointment",
   WHATSAPP_PILOT_TEAM_ID: "11111111-1111-4111-8111-111111111111",
   WHATSAPP_PILOT_RECIPIENT: "+5511992362273",
@@ -58,6 +62,20 @@ describe("configuração do piloto Twilio", () => {
       "event_call:card_v1": {
         contentSid: sandboxEnv.TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1,
         profile: "event_call_card_v1",
+      },
+    });
+  });
+
+  it("seleciona o convite card_v2 homologado sem substituir o card_v1", () => {
+    expect(
+      parseTwilioPilotConfig({
+        ...sandboxEnv,
+        TWILIO_TEMPLATE_PROFILE: "event_call_card_v2",
+      })?.templates,
+    ).toEqual({
+      "event_call:card_v2": {
+        contentSid: sandboxEnv.TWILIO_CONTENT_SID_EVENT_CALL_CARD_V2,
+        profile: "event_call_card_v2",
       },
     });
   });
@@ -121,5 +139,33 @@ describe("configuração do piloto Twilio", () => {
         TWILIO_CONTENT_SID_EVENT_CALL_CARD_V1: undefined,
       }),
     ).toThrow("Configuração do piloto Sandbox inválida.");
+  });
+});
+
+describe("catálogo de produção Twilio", () => {
+  it("registra convite e lembretes v2 em intenções separadas", () => {
+    const config = parseTwilioProductionConfig({
+      TWILIO_ACCOUNT_SID: sandboxEnv.TWILIO_ACCOUNT_SID,
+      TWILIO_AUTH_TOKEN: sandboxEnv.TWILIO_AUTH_TOKEN,
+      TWILIO_WHATSAPP_FROM: "+15553101875",
+      TWILIO_CONTENT_SID_EVENT_CALL_CARD_V2: `HX${"d".repeat(32)}`,
+      TWILIO_CONTENT_SID_EVENT_CALL_CARD_FIRST_REMEMBER_V2: `HX${"e".repeat(32)}`,
+      TWILIO_CONTENT_SID_EVENT_CALL_CARD_LAST_REMEMBER_V2: `HX${"f".repeat(32)}`,
+    });
+
+    expect(config?.templates).toEqual({
+      "event_call:card_v2": {
+        contentSid: `HX${"d".repeat(32)}`,
+        profile: "event_call_card_v2",
+      },
+      "event_reminder:first_card_v2": {
+        contentSid: `HX${"e".repeat(32)}`,
+        profile: "event_call_card_first_remember_v2",
+      },
+      "event_reminder:last_card_v2": {
+        contentSid: `HX${"f".repeat(32)}`,
+        profile: "event_call_card_last_remember_v2",
+      },
+    });
   });
 });
