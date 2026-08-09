@@ -235,14 +235,14 @@ quebra de linha e nunca começam ou encerram o corpo.
 
 ## Critérios de aceite
 
-- [ ] `AC-R03R-01` — Owner/admin configura dois horários válidos no time; evento herda ou registra override auditado.
-- [ ] `AC-R03R-02` — Cada evento possui no máximo duas cotas vitalícias, inclusive após remarcação, retry, clique repetido e concorrência.
-- [ ] `AC-R03R-03` — Destinatários são recalculados no envio e incluem somente pendentes elegíveis com consentimento e telefone válidos.
-- [ ] `AC-R03R-04` — Envio manual com zero não consome; com destinatários consome somente a próxima cota e cancela seu automático.
+- [x] `AC-R03R-01` — Owner/admin configura dois horários válidos no time; evento herda ou registra override auditado.
+- [x] `AC-R03R-02` — Cada evento possui no máximo duas cotas vitalícias, inclusive após remarcação, retry, clique repetido e concorrência.
+- [x] `AC-R03R-03` — Destinatários são recalculados no envio e incluem somente pendentes elegíveis com consentimento e telefone válidos.
+- [x] `AC-R03R-04` — Envio manual com zero não consome; com destinatários consome somente a próxima cota e cancela seu automático.
 - [ ] `AC-R03R-05` — Automático vazio termina `skipped` sem adapter; atraso acima de seis horas ou prazo fechado também não envia.
-- [ ] `AC-R03R-06` — Remarcação, cancelamento, opt-out e remoção cancelam ou rematerializam cotas sem reescrever histórico.
-- [ ] `AC-R03R-07` — Outbox garante no máximo uma mensagem por atleta/cota durante toda a vida do evento e preserva a barreira de efeito da R03.
-- [ ] `AC-R03R-08` — Admin vê estados e agregados redigidos de destinatários, entrega, falhas e custo, sem PII ou payload.
+- [x] `AC-R03R-06` — Remarcação, cancelamento, opt-out e remoção cancelam ou rematerializam cotas sem reescrever histórico.
+- [x] `AC-R03R-07` — Outbox garante no máximo uma mensagem por atleta/cota durante toda a vida do evento e preserva a barreira de efeito da R03.
+- [x] `AC-R03R-08` — Admin vê estados e agregados redigidos de destinatários, entrega, falhas e custo, sem PII ou payload.
 - [ ] `AC-R03R-09` — Convite, primeiro lembrete, última chamada e seus fallbacks abrem o link estável em WhatsApp real no iPhone e Android; a cota sempre seleciona a intenção correta sem expor segredo ou SID em preview ou logs.
 - [ ] `AC-R03R-10` — Flags e kill switches falham fechados; compartilhamento manual funciona e rollback preserva cotas e outbox.
 
@@ -340,3 +340,30 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
   passaram; `npm run security:audit`: zero vulnerabilidades;
 - próxima ação: `WP-R03R-02`, interface mobile e RPC de consumo manual da
   próxima cota, mantendo produção e consumo desligados.
+
+### `WP-R03R-02` — CP2 concluído
+
+- a configuração do time e o override do evento agora possuem formulários
+  mobile-first, visíveis somente a owner/admin quando `whatsapp_reminders`
+  estiver habilitada;
+- a página do evento apresenta as duas cotas, horário, estado, destinatários
+  elegíveis e agregados redigidos de preparo, entrega e falha, sem telefone,
+  payload, capability ou SID;
+- a RPC `enqueue_next_event_whatsapp_reminder` serializa o evento, exige
+  request id, recalcula pendentes elegíveis dentro da transação e consome
+  somente a próxima cota; zero destinatários preserva a cota e replay não
+  duplica comando nem outbox;
+- a barreira imediatamente anterior ao efeito externo foi reforçada para
+  cancelar a mensagem se o atleta respondeu, perdeu consentimento, telefone,
+  vínculo ou se a feature foi desligada depois do enqueue;
+- `whatsapp_reminders`, `whatsapp_delivery`, `integration_produce` e
+  `integration_consume` falham fechados nos seus pontos correspondentes; a
+  feature permanece desligada e nenhum envio externo foi realizado;
+- `npm run migrations:check -- origin/main HEAD`, `npm run db:reset` e tipos
+  regenerados: passaram; `npm run db:lint` manteve somente os dois avisos
+  legados;
+- pgTAP focado: 31 provas; suíte completa: 36 arquivos e 881 testes;
+- `npm run verify`: lint, typecheck, 277 testes e build passaram;
+  `npm run security:audit`: zero vulnerabilidades;
+- próxima ação: `WP-R03R-03`, conectar execução automática, catálogo dos dois
+  templates, operação e piloto físico controlado Android/iPhone.

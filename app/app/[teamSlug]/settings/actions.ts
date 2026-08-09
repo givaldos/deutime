@@ -7,6 +7,8 @@ import {
   normalizeWebsiteUrl,
   updateTeamSchema,
 } from "@/lib/validation/onboarding";
+import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
+import { teamReminderSettingsSchema } from "@/lib/validation/whatsapp-reminders";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -28,6 +30,59 @@ export type UpdateTeamState = {
     >
   >;
 };
+
+export type ReminderSettingsActionState = {
+  outcome?: "success" | "error";
+  message?: string;
+};
+
+export async function updateTeamWhatsAppReminderSettings(
+  _previousState: ReminderSettingsActionState,
+  formData: FormData,
+): Promise<ReminderSettingsActionState> {
+  await requireUser();
+  const parsed = teamReminderSettingsSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    firstHours: formData.get("firstHours"),
+    secondHours: formData.get("secondHours"),
+  });
+  if (!parsed.success) {
+    return {
+      outcome: "error",
+      message: parsed.error.issues[0]?.message ?? "Revise os horários.",
+    };
+  }
+
+  if (!(await isTeamFeatureEnabled(parsed.data.teamId, "whatsapp_reminders"))) {
+    return {
+      outcome: "error",
+      message: "Os lembretes ainda não estão disponíveis para este time.",
+    };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc(
+    "set_team_whatsapp_reminder_settings",
+    {
+      requested_team_id: parsed.data.teamId,
+      requested_first_offset_minutes: parsed.data.firstHours * 60,
+      requested_second_offset_minutes: parsed.data.secondHours * 60,
+    },
+  );
+  if (error) {
+    return {
+      outcome: "error",
+      message:
+        error.code === "42501"
+          ? "Você não tem permissão para configurar os lembretes."
+          : "Não foi possível salvar os horários.",
+    };
+  }
+
+  revalidatePath(`/app/${parsed.data.teamSlug}/settings`);
+  return { outcome: "success", message: "Horários dos lembretes salvos." };
+}
 
 export async function updateTeam(
   _previousState: UpdateTeamState,

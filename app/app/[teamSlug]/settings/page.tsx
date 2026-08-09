@@ -4,11 +4,13 @@ import { TeamAppHeader } from "@/components/team-app-header";
 import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { TeamMediaManager } from "@/components/team-media-manager";
 import { TeamSettingsForm } from "@/components/team-settings-form";
+import { WhatsAppReminderSettingsForm } from "@/components/whatsapp-reminder-settings-form";
 import { AppContainer } from "@/components/ui/app-shell";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -83,6 +85,22 @@ export default async function TeamSettingsPage({
   if (membership.role === "manager") redirect(`/app/${team.slug}`);
   if (invitationsError || profileError || mediaError) {
     throw new Error("Não foi possível carregar as configurações do time.");
+  }
+
+  const whatsappRemindersEnabled = await isTeamFeatureEnabled(
+    team.id,
+    "whatsapp_reminders",
+  );
+  const { data: reminderSettings, error: reminderSettingsError } =
+    whatsappRemindersEnabled
+      ? await supabase
+          .from("team_whatsapp_reminder_settings")
+          .select("first_offset_minutes, second_offset_minutes")
+          .eq("team_id", team.id)
+          .maybeSingle()
+      : { data: null, error: null };
+  if (reminderSettingsError) {
+    throw new Error("Não foi possível carregar os lembretes do time.");
   }
 
   const mediaPaths = (media ?? []).map((item) => item.storage_path);
@@ -171,6 +189,15 @@ export default async function TeamSettingsPage({
             })}
           />
         </section>
+
+        {whatsappRemindersEnabled && reminderSettings ? (
+          <WhatsAppReminderSettingsForm
+            teamId={team.id}
+            teamSlug={team.slug}
+            firstHours={reminderSettings.first_offset_minutes / 60}
+            secondHours={reminderSettings.second_offset_minutes / 60}
+          />
+        ) : null}
 
         <section className="app-surface p-5 sm:p-7">
           <div className="mb-6 flex items-center justify-between gap-4">

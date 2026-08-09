@@ -16,8 +16,13 @@ import {
   matchReportSchema,
   updateEventSchema,
 } from "@/lib/validation/operations";
+import {
+  eventReminderSettingsSchema,
+  sendEventReminderSchema,
+} from "@/lib/validation/whatsapp-reminders";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { randomUUID } from "node:crypto";
 
 export type CreateEventState = {
   attempt?: number;
@@ -42,6 +47,141 @@ export type EventSeriesExtensionState = {
   message?: string;
   errors?: Record<string, string[] | undefined>;
 };
+
+export type EventReminderActionState = {
+  attempt?: number;
+  outcome?: "success" | "error";
+  message?: string;
+  nextRequestId?: string;
+};
+
+export async function updateEventWhatsAppReminderSettings(
+  previousState: EventReminderActionState,
+  formData: FormData,
+): Promise<EventReminderActionState> {
+  await requireUser();
+  const attempt = (previousState.attempt ?? 0) + 1;
+  const parsed = eventReminderSettingsSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    eventId: formData.get("eventId"),
+    mode: formData.get("mode"),
+    firstHours: formData.get("firstHours") || undefined,
+    secondHours: formData.get("secondHours") || undefined,
+  });
+  if (!parsed.success) {
+    return {
+      attempt,
+      outcome: "error",
+      message: parsed.error.issues[0]?.message ?? "Revise os horários.",
+    };
+  }
+
+  if (!(await isTeamFeatureEnabled(parsed.data.teamId, "whatsapp_reminders"))) {
+    return {
+      attempt,
+      outcome: "error",
+      message: "Os lembretes ainda não estão disponíveis para este time.",
+    };
+  }
+
+  const supabase = await createClient();
+  const custom = parsed.data.mode === "custom";
+  const { error } = await supabase.rpc(
+    "set_event_whatsapp_reminder_override",
+    {
+      requested_team_id: parsed.data.teamId,
+      requested_event_id: parsed.data.eventId,
+      requested_first_offset_minutes: custom
+        ? parsed.data.firstHours! * 60
+        : undefined,
+      requested_second_offset_minutes: custom
+        ? parsed.data.secondHours! * 60
+        : undefined,
+    },
+  );
+  if (error) {
+    return {
+      attempt,
+      outcome: "error",
+      message:
+        error.code === "22023"
+          ? "Os horários precisam acontecer antes do fechamento da chamada."
+          : error.code === "42501"
+            ? "Você não tem permissão para configurar este evento."
+            : "Não foi possível salvar os horários do evento.",
+    };
+  }
+
+  revalidatePath(`/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}`);
+  return {
+    attempt,
+    outcome: "success",
+    message: custom
+      ? "Horários personalizados salvos."
+      : "O evento voltou a usar o padrão do time.",
+  };
+}
+
+export async function sendNextEventWhatsAppReminder(
+  previousState: EventReminderActionState,
+  formData: FormData,
+): Promise<EventReminderActionState> {
+  await requireUser();
+  const attempt = (previousState.attempt ?? 0) + 1;
+  const parsed = sendEventReminderSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    eventId: formData.get("eventId"),
+    requestId: formData.get("requestId"),
+  });
+  if (!parsed.success) {
+    return { attempt, outcome: "error", message: "Solicitação inválida." };
+  }
+
+  if (!(await isTeamFeatureEnabled(parsed.data.teamId, "whatsapp_reminders"))) {
+    return {
+      attempt,
+      outcome: "error",
+      message: "Os lembretes ainda não estão disponíveis para este time.",
+    };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc(
+    "enqueue_next_event_whatsapp_reminder",
+    {
+      requested_event_id: parsed.data.eventId,
+      request_id: parsed.data.requestId,
+    },
+  );
+  if (error || !data) {
+    return {
+      attempt,
+      outcome: "error",
+      message:
+        error?.code === "55000"
+          ? "O envio está desligado, fora do prazo ou sem cota disponível."
+          : error?.code === "42501"
+            ? "Você não tem permissão para enviar este lembrete."
+            : "Não foi possível preparar o lembrete.",
+    };
+  }
+
+  revalidatePath(`/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}`);
+  const count = data.inserted_count;
+  return {
+    attempt,
+    outcome: "success",
+    nextRequestId: randomUUID(),
+    message:
+      count === 0
+        ? "Ninguém está pendente e elegível. A cota foi preservada."
+        : count === 1
+          ? "Lembrete preparado para uma pessoa."
+          : `Lembrete preparado para ${count} pessoas.`,
+  };
+}
 
 export async function createEvent(
   previousState: CreateEventState,
