@@ -12,7 +12,7 @@ baseline:
   - BASE-ATTENDANCE
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "82b1fd3"
+verified_at: "bd92118"
 decisions:
   - DEC-DEFAULT-DEADLINES
   - DEC-PERSISTENT-ACCESS
@@ -51,6 +51,9 @@ reprocessamento nunca criam um terceiro lembrete nem duplicam atleta e cota.
   respondeu; espera também representa resposta já realizada;
 - `whatsapp_delivery`, `integration_produce` e `integration_consume` continuam
   falhando fechados.
+- o convite inicial aprovado e testado permanece identificado por
+  `event_call:card_v2`; no Twilio/Meta ele é `event_call_card_v2`, Content SID
+  `HX9724ffb03ba01e7280c6d70bbf801ff4`;
 
 ### Presente a resolver
 
@@ -60,8 +63,9 @@ reprocessamento nunca criam um terceiro lembrete nem duplicam atleta e cota.
   da próxima cota;
 - a RPC de chamada existente não diferencia cota, não filtra somente pendentes
   e não fornece visão operacional por lembrete;
-- o worker e o callback são reutilizáveis, mas o template de lembrete ainda não
-  existe no catálogo provider-neutral nem no Twilio.
+- o worker e o callback são reutilizáveis, mas os templates de primeiro
+  lembrete e última chamada ainda não existem no catálogo provider-neutral nem
+  estão aprovados no Twilio/Meta.
 
 ### Futuro compatível
 
@@ -91,8 +95,9 @@ reprocessamento nunca criam um terceiro lembrete nem duplicam atleta e cota.
   time/evento/cota/atleta/template;
 - reagendamento das cotas pendentes e cancelamento seguro diante de remarcação,
   cancelamento, prazo encerrado, opt-out, telefone inválido ou vínculo removido;
-- template utilitário `event_reminder:card_v1`, com fallback textual, nome do
-  evento, data/hora, link R02 e imagem pública do Open Graph;
+- dois templates utilitários distintos, `event_reminder:first_card_v1` e
+  `event_reminder:last_card_v1`, cada um com fallback textual, nome do evento,
+  data/hora, link R02 e imagem pública do Open Graph;
 - operação agregada por cota com destinatários, entrega, falhas e custo
   disponível/estimado claramente identificado.
 
@@ -126,11 +131,72 @@ reprocessamento nunca criam um terceiro lembrete nem duplicam atleta e cota.
 - `whatsapp_reminders` nasce como flag nova desligada e exige também
   `whatsapp_delivery`, `integration_produce` e `integration_consume` nos pontos
   correspondentes;
-- o template definitivo é `deutime_event_reminder_card_v1`, categoria
-  `UTILITY`, `pt_BR`, com variáveis `{{1}}` evento, `{{2}}` data/hora, `{{3}}`
-  link e `{{4}}` Media URL; aprovação no Twilio é gate do piloto live;
+- o convite inicial usa exclusivamente `event_call:card_v2`, correspondente ao
+  template aprovado `event_call_card_v2`; seu Content SID é configuração de
+  ambiente em `TWILIO_CONTENT_SID_EVENT_CALL_CARD_V2`, nunca parâmetro da UI,
+  do banco ou do chamador;
+- `reminder_1` seleciona exclusivamente `event_reminder:first_card_v1`, com
+  nome Twilio `event_reminder_first_card_v1`; `reminder_2` seleciona
+  exclusivamente `event_reminder:last_card_v1`, com nome Twilio
+  `event_reminder_last_card_v1`;
+- os dois lembretes são `UTILITY`, `pt_BR`, e compartilham o contrato de
+  variáveis `{{1}}` evento, `{{2}}` data/hora, `{{3}}` caminho do link estável e
+  `{{4}}` caminho público da imagem Open Graph; cada SID entra somente por
+  configuração de ambiente após aprovação no Twilio/Meta;
+- o primeiro lembrete usa o texto **“Ainda dá tempo de confirmar”**, informa
+  que o time está fechando a lista e oferece a ação **“Confirmar presença”**;
+  o fallback textual preserva a mesma intenção e o link;
+- o segundo usa **“Última chamada”**, informa que a confirmação fecha em breve
+  e oferece **“Responder agora”**; o fallback informa que esta é a última
+  cobrança automática, sem inventar prazo ou contagem regressiva;
+- a escolha do template deriva do tipo imutável da cota dentro do servidor;
+  admin, Action, job e payload externo não podem fornecer chave, versão ou SID;
+- convite inicial não consome cota de lembrete. Envio manual consome a próxima
+  cota pendente e, portanto, usa o template correspondente a ela;
+- chave, versão e intenção usadas ficam persistidas no slot/outbox. Trocar uma
+  versão aprovada afeta apenas cotas futuras ainda não consumidas e nunca
+  reinterpreta ou renderiza novamente um outbox histórico;
+- entrega, falha, ambiguidade e custo são agregados separadamente por intenção
+  e versão de template;
 - toda escrita sensível e decisão de cota fica em RPC transacional; Actions
   validam entrada, delegam e revalidam a página.
+
+### Catálogo de mensagens
+
+| Intenção | Chave e versão internas | Nome Twilio | Estado |
+|---|---|---|---|
+| convite inicial | `event_call:card_v2` | `event_call_card_v2` | aprovado e testado |
+| primeiro lembrete | `event_reminder:first_card_v1` | `event_reminder_first_card_v1` | criar e homologar |
+| última chamada | `event_reminder:last_card_v1` | `event_reminder_last_card_v1` | criar e homologar |
+
+Os dois novos cards usam imagem em `https://deutime.app/{{4}}` e botão URL em
+`https://deutime.app/{{3}}`. O corpo do primeiro lembrete é:
+
+```text
+⏰ *Ainda dá tempo de confirmar*
+O evento *{{1}}* acontece em *{{2}}*.
+O time está fechando a lista. Confirme sua presença agora.
+```
+
+O botão é **Confirmar presença** e o footer é **Se já respondeu, não enviaremos
+outro igual.** O fallback textual usa o mesmo título e contexto, seguido por
+`Confirme agora: https://deutime.app/{{3}}`.
+
+O corpo da última chamada é:
+
+```text
+🚨 *Última chamada*
+O evento *{{1}}* acontece em *{{2}}*.
+A confirmação fecha em breve. Registre sua resposta agora.
+```
+
+O botão é **Responder agora** e o footer é **Última cobrança automática deste
+evento.** O fallback textual usa o mesmo título e contexto, seguido por
+`Responda agora: https://deutime.app/{{3}}`.
+
+As amostras submetidas à aprovação devem usar caminhos públicos válidos para o
+botão e para uma imagem `.png`; as quatro variáveis são sequenciais, não possuem
+quebra de linha e nunca começam ou encerram o corpo.
 
 ## Entry points
 
@@ -177,7 +243,7 @@ reprocessamento nunca criam um terceiro lembrete nem duplicam atleta e cota.
 - [ ] `AC-R03R-06` — Remarcação, cancelamento, opt-out e remoção cancelam ou rematerializam cotas sem reescrever histórico.
 - [ ] `AC-R03R-07` — Outbox garante no máximo uma mensagem por atleta/cota durante toda a vida do evento e preserva a barreira de efeito da R03.
 - [ ] `AC-R03R-08` — Admin vê estados e agregados redigidos de destinatários, entrega, falhas e custo, sem PII ou payload.
-- [ ] `AC-R03R-09` — Template e fallback abrem o link estável em WhatsApp real no iPhone e Android sem expor segredo em preview ou logs.
+- [ ] `AC-R03R-09` — Convite, primeiro lembrete, última chamada e seus fallbacks abrem o link estável em WhatsApp real no iPhone e Android; a cota sempre seleciona a intenção correta sem expor segredo ou SID em preview ou logs.
 - [ ] `AC-R03R-10` — Flags e kill switches falham fechados; compartilhamento manual funciona e rollback preserva cotas e outbox.
 
 ## Riscos e controles
@@ -191,6 +257,8 @@ reprocessamento nunca criam um terceiro lembrete nem duplicam atleta e cota.
 | disparo tardio ou depois do prazo | janela de seis horas e checagem do deadline no consumo | relógio controlado e casos negativos |
 | vazar PII ou capability | projeções agregadas e payload redigido | testes de contrato, logs e UI |
 | custo inesperado | duas cotas máximas, prévia e agregado por cota | piloto demo e limite operacional |
+| usar convite ou urgência errada | mapeamento servidor-side imutável entre cota e intenção | teste unitário do catálogo e pgTAP do consumo manual/automático |
+| alterar histórico ao trocar template | persistir chave e versão no slot/outbox; mudança somente prospectiva | teste N/N−1 e replay de outbox antigo |
 | ordem independente de deploy | expansão inerte e consumidor tolerante a contrato ausente | matriz App/DB N/N−1 |
 
 ## Validação
@@ -214,7 +282,8 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
 - flag `whatsapp_reminders` desligada por padrão e conferida na UI, Actions,
   RPCs e consumidor;
 - piloto somente no Demo Campo e com pessoas demo, uma cota manual antes da
-  automática;
+  automática; cada lembrete exige seu próprio Content SID aprovado e
+  configurado antes de habilitar a produção;
 - telemetria: cotas por estado, pendentes atuais, intents criadas, entrega,
   falha, ambiguidade, latência de resposta e custo agregado;
 - fallback: copiar o link público e cobrar manualmente pelo WhatsApp;
@@ -232,11 +301,16 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
 ### `DP-R03R-01` — CP0 concluído
 
 - lacuna, resultado, escopo, defaults, estados, autorização, riscos, entrypoints
-  e dez critérios de aceite foram fechados sobre o commit `82b1fd3`;
+  e dez critérios de aceite foram fechados e reconferidos sobre `bd92118`;
 - R01/R02/R03 fornecem prazo, link, outbox, worker, callback e fallback; nenhuma
   integração externa precisa ser substituída;
+- o inventário externo registra `event_call_card_v2`
+  (`HX9724ffb03ba01e7280c6d70bbf801ff4`) como convite inicial aprovado e
+  testado; os dois lembretes possuem intenções e versões próprias e continuam
+  pendentes de criação e aprovação;
 - não há decisão bloqueadora aberta: os detalhes de lembrete permitidos por
   `DEC-DEFAULT-DEADLINES` foram fechados neste pacote;
-- nenhuma migration, configuração, flag, template ou envio foi alterado;
+- nenhuma migration, configuração, flag, template externo ou envio foi
+  alterado por este refinamento;
 - próxima ação: `WP-R03R-01`, expansão inerte do contrato e pgTAP com a feature
   desligada.
