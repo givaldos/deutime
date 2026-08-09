@@ -1,27 +1,29 @@
 ---
 release: R03R
-work_package: DP-R03R-01
+work_package: WP-R03R-01
 scope: two_economic_whatsapp_reminders
 branch_or_commit: "dev"
-checkpoint: CP0
+checkpoint: CP1
 status: idle
 completed_ac: []
 dirty_files: []
 tests:
-  - "inventário de entrypoints e contratos R01/R02/R03 conferido em bd92118"
-  - "convite homologado event_call:card_v2 registrado; lembretes separados por intenção e cota"
-  - "git diff --check: passou"
-  - "parse YAML de .github/ISSUE_TEMPLATE/feature.yml: passou"
+  - "npm run migrations:check -- origin/main HEAD: passou"
+  - "npm run db:reset: passou"
+  - "npm run db:lint: passou sem alerta novo; dois avisos legados"
+  - "npm run db:test: 35 arquivos, 850 testes; pgTAP focado 48/48"
+  - "npm run verify: lint, typecheck, 272 testes e build passaram"
+  - "npm run security:audit: zero vulnerabilidades"
 blocker: null
-next_action: "Implementar WP-R03R-01: expansão inerte de configurações, cotas e RPCs com pgTAP, mantendo a flag desligada."
+next_action: "Implementar WP-R03R-02: leitura/configuração mobile e consumo manual transacional da próxima cota, mantendo a flag e os kill switches desligados."
 ---
 
 # Trabalho atual
 
-R03R foi promovida com CP0 concluído. O pacote define duas cotas máximas de
-lembrete, defaults T−72 h/T−48 h, fechamento padrão T−24 h, recálculo dos
-pendentes no envio, consumo manual da próxima cota, execução automática vazia
-sem provedor e cotas vitalícias que não reiniciam após remarcação.
+R03R está em CP1. O banco já possui defaults T−72 h/T−48 h por time, cópia
+efetiva por evento e duas cotas vitalícias `reminder_1`/`reminder_2`. Eventos
+novos materializam as cotas; remarcação e cancelamento alteram somente as ainda
+agendadas; outbox impede duplicação por atleta/cota.
 
 O convite inicial homologado é `event_call:card_v2` (`event_call_card_v2`,
 Content SID `HX9724ffb03ba01e7280c6d70bbf801ff4`). Ele não consome lembretes.
@@ -30,6 +32,7 @@ Content SID `HX9724ffb03ba01e7280c6d70bbf801ff4`). Ele não consome lembretes.
 Chave, versão e SID nunca são escolhidos pelo chamador; a cota define a intenção
 no servidor e cada SID só entra por ambiente depois da aprovação.
 
-Nenhum efeito externo, migration, template externo ou configuração foi
-alterado. A próxima ação é publicar a expansão inerte de banco de `WP-R03R-01`, com RLS,
-grants mínimos, concorrência, matriz N/N−1 e `whatsapp_reminders` desligada.
+As migrations são expansivas e inertes. `whatsapp_reminders` permanece sem
+habilitação, nenhum consumidor foi conectado e não ocorreu efeito externo. A
+próxima ação é `WP-R03R-02`: interface mobile, leitura agregada e consumo manual
+transacional da próxima cota, ainda atrás da flag e dos kill switches.
