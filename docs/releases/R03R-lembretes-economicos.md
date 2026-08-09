@@ -12,7 +12,7 @@ baseline:
   - BASE-ATTENDANCE
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "bd92118"
+verified_at: "6f80df8"
 decisions:
   - DEC-DEFAULT-DEADLINES
   - DEC-PERSISTENT-ACCESS
@@ -317,3 +317,26 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
   alterado por este refinamento;
 - próxima ação: `WP-R03R-01`, expansão inerte do contrato e pgTAP com a feature
   desligada.
+
+### `WP-R03R-01` — CP1 concluído
+
+- migrations `202608080008` e `202608080009` adicionam a flag tipada, defaults
+  T−72 h/T−48 h por time, cópia efetiva por evento e exatamente duas cotas
+  vitalícias com templates `first_card_v2`/`last_card_v2`;
+- triggers materializam eventos novos e sincronizam apenas cotas agendadas em
+  remarcação, alteração de prazo ou cancelamento; cotas consumidas permanecem
+  históricas e mudanças do padrão do time não reescrevem eventos existentes;
+- o outbox recebeu referência opcional à cota e unicidade por
+  `reminder_slot_id`/atleta, impedindo duplicação mesmo com outra dedupe key;
+- configurações e cotas usam RLS, grants mínimos e RPCs restritas a
+  owner/admin; leitura e escrita cross-tenant foram negadas no banco;
+- `whatsapp_reminders` permanece sem linha habilitada e nenhum consumidor foi
+  conectado, preservando App N−1 e ausência de efeito externo;
+- `npm run migrations:check -- origin/main HEAD`: passou;
+- `npm run db:reset`: passou; `npm run db:lint` não adicionou alertas aos dois
+  avisos legados de `create_event_as_staff` e `record_match_event`;
+- pgTAP focado: 48 provas; suíte completa: 35 arquivos e 850 testes;
+- tipos regenerados; `npm run verify`: lint, typecheck, 272 testes e build
+  passaram; `npm run security:audit`: zero vulnerabilidades;
+- próxima ação: `WP-R03R-02`, interface mobile e RPC de consumo manual da
+  próxima cota, mantendo produção e consumo desligados.

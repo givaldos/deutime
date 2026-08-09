@@ -916,6 +916,106 @@ export type Database = {
           },
         ]
       }
+      event_whatsapp_reminder_settings: {
+        Row: {
+          configured_by: string
+          created_at: string
+          event_id: string
+          first_offset_minutes: number
+          is_override: boolean
+          second_offset_minutes: number
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          configured_by: string
+          created_at?: string
+          event_id: string
+          first_offset_minutes: number
+          is_override?: boolean
+          second_offset_minutes: number
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          configured_by?: string
+          created_at?: string
+          event_id?: string
+          first_offset_minutes?: number
+          is_override?: boolean
+          second_offset_minutes?: number
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_whatsapp_reminder_settings_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
+      event_whatsapp_reminder_slots: {
+        Row: {
+          consumed_at: string | null
+          created_at: string
+          event_id: string
+          id: string
+          observed_schedule_version: number
+          scheduled_for: string
+          slot_key: Database["public"]["Enums"]["event_reminder_slot_key"]
+          status: Database["public"]["Enums"]["event_reminder_slot_status"]
+          status_reason: string | null
+          team_id: string
+          template_key: string
+          template_version: string
+          triggered_manually: boolean
+          updated_at: string
+        }
+        Insert: {
+          consumed_at?: string | null
+          created_at?: string
+          event_id: string
+          id?: string
+          observed_schedule_version: number
+          scheduled_for: string
+          slot_key: Database["public"]["Enums"]["event_reminder_slot_key"]
+          status?: Database["public"]["Enums"]["event_reminder_slot_status"]
+          status_reason?: string | null
+          team_id: string
+          template_key: string
+          template_version: string
+          triggered_manually?: boolean
+          updated_at?: string
+        }
+        Update: {
+          consumed_at?: string | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          observed_schedule_version?: number
+          scheduled_for?: string
+          slot_key?: Database["public"]["Enums"]["event_reminder_slot_key"]
+          status?: Database["public"]["Enums"]["event_reminder_slot_status"]
+          status_reason?: string | null
+          team_id?: string
+          template_key?: string
+          template_version?: string
+          triggered_manually?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_whatsapp_reminder_slots_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
       events: {
         Row: {
           attendance_deadline: string | null
@@ -1658,6 +1758,7 @@ export type Database = {
           processed_at: string | null
           provider_message_id: string | null
           recipient: string
+          reminder_slot_id: string | null
           requested_by: string | null
           requires_review: boolean
           status: Database["public"]["Enums"]["message_status"]
@@ -1685,6 +1786,7 @@ export type Database = {
           processed_at?: string | null
           provider_message_id?: string | null
           recipient: string
+          reminder_slot_id?: string | null
           requested_by?: string | null
           requires_review?: boolean
           status?: Database["public"]["Enums"]["message_status"]
@@ -1712,6 +1814,7 @@ export type Database = {
           processed_at?: string | null
           provider_message_id?: string | null
           recipient?: string
+          reminder_slot_id?: string | null
           requested_by?: string | null
           requires_review?: boolean
           status?: Database["public"]["Enums"]["message_status"]
@@ -1733,6 +1836,13 @@ export type Database = {
             columns: ["event_id", "team_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "notification_outbox_reminder_slot_team_fk"
+            columns: ["reminder_slot_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "event_whatsapp_reminder_slots"
             referencedColumns: ["id", "team_id"]
           },
           {
@@ -2094,6 +2204,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "team_public_profiles_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: true
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_whatsapp_reminder_settings: {
+        Row: {
+          created_at: string
+          first_offset_minutes: number
+          second_offset_minutes: number
+          team_id: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          created_at?: string
+          first_offset_minutes?: number
+          second_offset_minutes?: number
+          team_id: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          created_at?: string
+          first_offset_minutes?: number
+          second_offset_minutes?: number
+          team_id?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_whatsapp_reminder_settings_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: true
             referencedRelation: "teams"
@@ -2935,6 +3080,30 @@ export type Database = {
         }
         Returns: Database["public"]["Enums"]["attendance_status"]
       }
+      set_event_whatsapp_reminder_override: {
+        Args: {
+          requested_event_id: string
+          requested_first_offset_minutes?: number
+          requested_second_offset_minutes?: number
+          requested_team_id: string
+        }
+        Returns: {
+          configured_by: string
+          created_at: string
+          event_id: string
+          first_offset_minutes: number
+          is_override: boolean
+          second_offset_minutes: number
+          team_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "event_whatsapp_reminder_settings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_match_participation: {
         Args: {
           requested_athlete_id: string
@@ -2991,6 +3160,27 @@ export type Database = {
       set_team_featured_media: {
         Args: { requested_media_id: string }
         Returns: boolean
+      }
+      set_team_whatsapp_reminder_settings: {
+        Args: {
+          requested_first_offset_minutes: number
+          requested_second_offset_minutes: number
+          requested_team_id: string
+        }
+        Returns: {
+          created_at: string
+          first_offset_minutes: number
+          second_offset_minutes: number
+          team_id: string
+          updated_at: string
+          updated_by: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "team_whatsapp_reminder_settings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       submit_athlete_registration: {
         Args: {
@@ -3127,6 +3317,13 @@ export type Database = {
         | "tournament"
         | "training"
         | "other"
+      event_reminder_slot_key: "reminder_1" | "reminder_2"
+      event_reminder_slot_status:
+        | "scheduled"
+        | "processing"
+        | "enqueued"
+        | "skipped"
+        | "cancelled"
       event_status: "scheduled" | "cancelled" | "completed"
       feature_key:
         | "persistent_event_access"
@@ -3140,6 +3337,7 @@ export type Database = {
         | "event_capability_exchange"
         | "event_capability_rsvp"
         | "event_matches"
+        | "whatsapp_reminders"
       lineup_slot_kind: "starter" | "substitute"
       match_comment_report_status: "open" | "resolved" | "dismissed"
       match_comment_status: "active" | "author_deleted" | "moderated"
@@ -3335,6 +3533,14 @@ export const Constants = {
         "training",
         "other",
       ],
+      event_reminder_slot_key: ["reminder_1", "reminder_2"],
+      event_reminder_slot_status: [
+        "scheduled",
+        "processing",
+        "enqueued",
+        "skipped",
+        "cancelled",
+      ],
       event_status: ["scheduled", "cancelled", "completed"],
       feature_key: [
         "persistent_event_access",
@@ -3348,6 +3554,7 @@ export const Constants = {
         "event_capability_exchange",
         "event_capability_rsvp",
         "event_matches",
+        "whatsapp_reminders",
       ],
       lineup_slot_kind: ["starter", "substitute"],
       match_comment_report_status: ["open", "resolved", "dismissed"],
