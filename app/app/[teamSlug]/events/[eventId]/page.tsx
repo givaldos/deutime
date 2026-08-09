@@ -2,6 +2,7 @@ import { setEventAttendance } from "@/app/app/[teamSlug]/events/actions";
 import { EventCancelForm } from "@/components/event-cancel-form";
 import { EventSeriesExtensionForm } from "@/components/event-series-extension-form";
 import { PublicEventLinkCard } from "@/components/public-event-link-card";
+import { EventWhatsAppReminders } from "@/components/event-whatsapp-reminders";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Button } from "@/components/ui/button";
 import { AppContainer } from "@/components/ui/app-shell";
@@ -150,6 +151,30 @@ export default async function EventDetailPage({
   const publicEventUrl = publicEventPageEnabled
     ? new URL(`/e/${event.public_id}`, getAppUrl()).toString()
     : null;
+  const whatsappRemindersEnabled =
+    isEditable &&
+    membership.role !== "manager" &&
+    (await isTeamFeatureEnabled(team.id, "whatsapp_reminders"));
+  const [reminderSettingsResult, reminderStateResult] =
+    whatsappRemindersEnabled
+      ? await Promise.all([
+          supabase
+            .from("event_whatsapp_reminder_settings")
+            .select("first_offset_minutes, second_offset_minutes, is_override")
+            .eq("event_id", event.id)
+            .eq("team_id", team.id)
+            .maybeSingle(),
+          supabase.rpc("get_event_whatsapp_reminder_state", {
+            requested_event_id: event.id,
+          }),
+        ])
+      : [
+          { data: null, error: null },
+          { data: null, error: null },
+        ];
+  if (reminderSettingsResult.error || reminderStateResult.error) {
+    throw new Error("Não foi possível carregar os lembretes do evento.");
+  }
   const currentSeriesOccurrences = seriesOccurrenceCount ?? 0;
   const maxAdditionalOccurrences = Math.max(
     0,
@@ -276,6 +301,31 @@ export default async function EventDetailPage({
 
         {publicEventUrl ? (
           <PublicEventLinkCard publicUrl={publicEventUrl} />
+        ) : null}
+
+        {whatsappRemindersEnabled && reminderSettingsResult.data ? (
+          <EventWhatsAppReminders
+            teamId={team.id}
+            teamSlug={team.slug}
+            eventId={event.id}
+            timezone={team.timezone}
+            isOverride={reminderSettingsResult.data.is_override}
+            firstHours={reminderSettingsResult.data.first_offset_minutes / 60}
+            secondHours={reminderSettingsResult.data.second_offset_minutes / 60}
+            slots={(reminderStateResult.data ?? []).map((slot) => ({
+              slotId: slot.slot_id,
+              slotKey: slot.slot_key,
+              status: slot.status,
+              scheduledFor: slot.scheduled_for,
+              triggeredManually: slot.triggered_manually,
+              consumedAt: slot.consumed_at,
+              eligibleCount: slot.eligible_count,
+              outboxCount: slot.outbox_count,
+              pendingCount: slot.pending_count,
+              sentCount: slot.sent_count,
+              failedCount: slot.failed_count,
+            }))}
+          />
         ) : null}
 
         <section className="grid grid-cols-4 gap-2">

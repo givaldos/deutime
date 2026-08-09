@@ -916,6 +916,61 @@ export type Database = {
           },
         ]
       }
+      event_whatsapp_reminder_commands: {
+        Row: {
+          actor_id: string
+          created_at: string
+          event_id: string
+          id: string
+          request_id: string
+          result: Json
+          slot_id: string | null
+          team_id: string
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          event_id: string
+          id?: string
+          request_id: string
+          result: Json
+          slot_id?: string | null
+          team_id: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          request_id?: string
+          result?: Json
+          slot_id?: string | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_whatsapp_reminder_commands_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_whatsapp_reminder_commands_slot_id_team_id_fkey"
+            columns: ["slot_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "event_whatsapp_reminder_slots"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_whatsapp_reminder_commands_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_whatsapp_reminder_settings: {
         Row: {
           configured_by: string
@@ -2690,6 +2745,16 @@ export type Database = {
           outbox_id: string
         }[]
       }
+      enqueue_next_event_whatsapp_reminder: {
+        Args: { request_id: string; requested_event_id: string }
+        Returns: Database["public"]["CompositeTypes"]["event_whatsapp_reminder_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_whatsapp_reminder_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       exchange_event_access_credential: {
         Args: {
           requested_credential_secret: string
@@ -2741,6 +2806,25 @@ export type Database = {
           rsvp_writes_24h: number
           team_exchange_enabled: boolean
           team_rsvp_enabled: boolean
+        }[]
+      }
+      get_event_whatsapp_reminder_state: {
+        Args: { requested_event_id: string }
+        Returns: {
+          consumed_at: string
+          cost_amount: number
+          cost_kind: string
+          eligible_count: number
+          failed_count: number
+          outbox_count: number
+          pending_count: number
+          scheduled_for: string
+          sent_count: number
+          slot_id: string
+          slot_key: Database["public"]["Enums"]["event_reminder_slot_key"]
+          status: Database["public"]["Enums"]["event_reminder_slot_status"]
+          template_version: string
+          triggered_manually: boolean
         }[]
       }
       get_match_conversation: {
@@ -3377,6 +3461,14 @@ export type Database = {
         series_id: string | null
         affected_count: number | null
         max_schedule_version: number | null
+        replayed: boolean | null
+      }
+      event_whatsapp_reminder_command_result: {
+        request_id: string | null
+        slot_id: string | null
+        slot_key: Database["public"]["Enums"]["event_reminder_slot_key"] | null
+        eligible_count: number | null
+        inserted_count: number | null
         replayed: boolean | null
       }
     }
