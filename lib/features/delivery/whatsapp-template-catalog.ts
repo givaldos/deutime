@@ -70,6 +70,75 @@ export const EVENT_CALL_CARD_TEMPLATE_V1 = {
   },
 } as const;
 
+const reminderSamples = {
+  "1": "Treino de sexta",
+  "2": "02/08/2030 às 19:00",
+  "3": "e/00000000-0000-4000-8000-000000000000#c=exemplo",
+  "4": "e/00000000-0000-4000-8000-000000000000/convite.png",
+} as const;
+
+export const EVENT_REMINDER_FIRST_CARD_TEMPLATE_V2 = {
+  key: "event_reminder",
+  version: "first_card_v2",
+  content: {
+    friendly_name: "event_call_card_first_remember_v2",
+    language: "pt_BR",
+    variables: reminderSamples,
+    types: {
+      "whatsapp/card": {
+        body: "⏰ *Ainda dá tempo de confirmar*\nO evento *{{1}}* acontece em *{{2}}*.\nO time está fechando a lista. Confirme sua presença agora.",
+        footer: "Se já respondeu, não enviaremos outro igual.",
+        media: ["https://deutime.app/{{4}}"],
+        actions: [
+          {
+            type: "URL",
+            title: "Confirmar presença",
+            url: "https://deutime.app/{{3}}",
+          },
+        ],
+      },
+      "twilio/text": {
+        body: "⏰ Ainda dá tempo de confirmar\nO evento {{1}} acontece em {{2}}. O time está fechando a lista. Confirme agora: https://deutime.app/{{3}}",
+      },
+    },
+  },
+  approval: {
+    name: "event_call_card_first_remember_v2",
+    category: "UTILITY",
+  },
+} as const;
+
+export const EVENT_REMINDER_LAST_CARD_TEMPLATE_V2 = {
+  key: "event_reminder",
+  version: "last_card_v2",
+  content: {
+    friendly_name: "event_call_card_last_remember_v2",
+    language: "pt_BR",
+    variables: reminderSamples,
+    types: {
+      "whatsapp/card": {
+        body: "🚨 *Última chamada*\nO evento *{{1}}* acontece em *{{2}}*.\nA confirmação fecha em breve. Registre sua resposta agora.",
+        footer: "Última cobrança automática deste evento.",
+        media: ["https://deutime.app/{{4}}"],
+        actions: [
+          {
+            type: "URL",
+            title: "Responder agora",
+            url: "https://deutime.app/{{3}}",
+          },
+        ],
+      },
+      "twilio/text": {
+        body: "🚨 Última chamada\nO evento {{1}} acontece em {{2}}. A confirmação fecha em breve. Responda agora: https://deutime.app/{{3}}",
+      },
+    },
+  },
+  approval: {
+    name: "event_call_card_last_remember_v2",
+    category: "UTILITY",
+  },
+} as const;
+
 export function renderTwilioTemplateVariables(
   command: WhatsAppDispatchCommand,
   profile: TwilioTemplateProfile,

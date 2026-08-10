@@ -78,6 +78,7 @@ describe("executor interno do WhatsApp", () => {
     );
     await expect(response.json()).resolves.toEqual({
       status: "dry-run concluído",
+      reminderTemplates: "indisponíveis",
       summary: { mode: "dry-run", claimed: 0 },
     });
   });
@@ -85,7 +86,13 @@ describe("executor interno do WhatsApp", () => {
   it("usa live quando as credenciais Twilio estão configuradas", async () => {
     process.env.WHATSAPP_WORKER_SECRET = secret;
     mocks.consumptionEnabled.mockResolvedValue(true);
-    const fakeConfig = { accountSid: "AC123", templates: {} };
+    const fakeConfig = {
+      accountSid: "AC123",
+      templates: {
+        "event_reminder:first_card_v2": { contentSid: "HX1" },
+        "event_reminder:last_card_v2": { contentSid: "HX2" },
+      },
+    };
     mocks.parseProductionConfig.mockReturnValue(fakeConfig);
     const fakeAdapter = { send: vi.fn() };
     mocks.createAdapter.mockReturnValue(fakeAdapter);
@@ -94,10 +101,38 @@ describe("executor interno do WhatsApp", () => {
 
     expect(response.status).toBe(200);
     expect(mocks.runWorker).toHaveBeenCalledWith(
-      expect.objectContaining({ mode: "live", adapter: fakeAdapter }),
+      expect.objectContaining({
+        mode: "live",
+        adapter: fakeAdapter,
+        produceReminders: true,
+      }),
     );
     await expect(response.json()).resolves.toMatchObject({
       status: "worker executado",
+      reminderTemplates: "prontos",
+    });
+  });
+
+  it("mantém produção automática inerte se faltar um dos templates", async () => {
+    process.env.WHATSAPP_WORKER_SECRET = secret;
+    mocks.consumptionEnabled.mockResolvedValue(true);
+    mocks.parseProductionConfig.mockReturnValue({
+      accountSid: "AC123",
+      templates: {
+        "event_reminder:first_card_v2": { contentSid: "HX1" },
+      },
+    });
+    mocks.createAdapter.mockReturnValue({ send: vi.fn() });
+    mocks.runWorker.mockResolvedValue({ mode: "live", claimed: 0 });
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(200);
+    expect(mocks.runWorker).toHaveBeenCalledWith(
+      expect.objectContaining({ produceReminders: false }),
+    );
+    await expect(response.json()).resolves.toMatchObject({
+      reminderTemplates: "indisponíveis",
     });
   });
 

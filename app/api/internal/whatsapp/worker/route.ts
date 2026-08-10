@@ -10,6 +10,11 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const reminderTemplateIds = [
+  "event_reminder:first_card_v2",
+  "event_reminder:last_card_v2",
+] as const;
+
 export async function POST(request: NextRequest) {
   if (
     !isAuthorizedWorkerRequest(
@@ -32,6 +37,11 @@ export async function POST(request: NextRequest) {
   }
 
   const mode = config ? "live" : "dry-run";
+  const reminderTemplatesReady =
+    config !== null &&
+    reminderTemplateIds.every((identifier) =>
+      Boolean(config.templates[identifier]),
+    );
 
   try {
     const summary = await runWhatsAppWorker({
@@ -43,8 +53,18 @@ export async function POST(request: NextRequest) {
             appUrl: getAppUrl(),
           }
         : {}),
+      produceReminders: reminderTemplatesReady,
     });
-    return response({ status: mode === "live" ? "worker executado" : "dry-run concluído", summary }, 200);
+    return response(
+      {
+        status: mode === "live" ? "worker executado" : "dry-run concluído",
+        reminderTemplates: reminderTemplatesReady
+          ? "prontos"
+          : "indisponíveis",
+        summary,
+      },
+      200,
+    );
   } catch {
     return response({ status: "worker indisponível" }, 503);
   }

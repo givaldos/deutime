@@ -1,0 +1,44 @@
+name: WhatsApp worker
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: whatsapp-worker-production
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: ${{ vars.WHATSAPP_AUTOMATION_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Execute production worker
+        env:
+          WORKER_SECRET: ${{ secrets.WHATSAPP_WORKER_SECRET }}
+        run: |
+          if [ -z "$WORKER_SECRET" ]; then
+            echo "WHATSAPP_WORKER_SECRET não configurado." >&2
+            exit 1
+          fi
+
+          response_file="$(mktemp)"
+          http_code="$(curl --silent --show-error \
+            --output "$response_file" \
+            --write-out '%{http_code}' \
+            --request POST \
+            --header "Authorization: Bearer $WORKER_SECRET" \
+            'https://deutime.app/api/internal/whatsapp/worker')"
+
+          if [ "$http_code" = "200" ] || [ "$http_code" = "409" ]; then
+            echo "Worker concluído com estado operacional HTTP $http_code."
+            exit 0
+          fi
+
+          echo "Worker indisponível: HTTP $http_code." >&2
+          exit 1

@@ -10,7 +10,17 @@ export type ClaimedNotification = {
   attemptNumber: number;
 };
 
+export type AutomaticReminderProduction = {
+  contractAvailable: boolean;
+  scannedSlots: number;
+  enqueuedSlots: number;
+  emptySlots: number;
+  skippedSlots: number;
+  enqueuedMessages: number;
+};
+
 export interface WhatsAppDeliveryRepository {
+  produceDueReminders(limit: number): Promise<AutomaticReminderProduction>;
   recoverExpiredLeases(): Promise<{ safeRetryCount: number; reviewCount: number }>;
   claimBatch(limit: number, leaseSeconds: number): Promise<ClaimedNotification[]>;
   releaseClaim(claim: ClaimedNotification): Promise<boolean>;
@@ -32,6 +42,7 @@ export type WorkerMode = "dry-run" | "live";
 
 export type WorkerSummary = {
   mode: WorkerMode;
+  automatic: AutomaticReminderProduction & { requested: boolean };
   recoveredSafe: number;
   recoveredForReview: number;
   claimed: number;
@@ -50,6 +61,8 @@ type RunWorkerOptions = {
   appUrl?: URL;
   batchSize?: number;
   leaseSeconds?: number;
+  produceReminders?: boolean;
+  reminderLimit?: number;
 };
 
 export async function runWhatsAppWorker({
@@ -59,6 +72,8 @@ export async function runWhatsAppWorker({
   appUrl,
   batchSize = 10,
   leaseSeconds = 60,
+  produceReminders = false,
+  reminderLimit = 25,
 }: RunWorkerOptions): Promise<WorkerSummary> {
   if (mode === "live" && (!adapter || !appUrl)) {
     throw new Error("Adapter e APP_URL são obrigatórios no modo live.");
@@ -66,11 +81,24 @@ export async function runWhatsAppWorker({
   if (!Number.isInteger(batchSize) || batchSize < 1 || batchSize > 100) {
     throw new Error("Tamanho de lote inválido.");
   }
+  if (
+    !Number.isInteger(reminderLimit) ||
+    reminderLimit < 1 ||
+    reminderLimit > 100
+  ) {
+    throw new Error("Limite de lembretes inválido.");
+  }
+
+  const automatic =
+    mode === "live" && produceReminders
+      ? await repository.produceDueReminders(reminderLimit)
+      : emptyAutomaticProduction(true);
 
   const recovered = await repository.recoverExpiredLeases();
   const claims = await repository.claimBatch(batchSize, leaseSeconds);
   const summary: WorkerSummary = {
     mode,
+    automatic: { requested: mode === "live" && produceReminders, ...automatic },
     recoveredSafe: recovered.safeRetryCount,
     recoveredForReview: recovered.reviewCount,
     claimed: claims.length,
@@ -144,4 +172,17 @@ export async function runWhatsAppWorker({
   }
 
   return summary;
+}
+
+function emptyAutomaticProduction(
+  contractAvailable: boolean,
+): AutomaticReminderProduction {
+  return {
+    contractAvailable,
+    scannedSlots: 0,
+    enqueuedSlots: 0,
+    emptySlots: 0,
+    skippedSlots: 0,
+    enqueuedMessages: 0,
+  };
 }

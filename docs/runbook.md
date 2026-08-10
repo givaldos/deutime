@@ -387,6 +387,157 @@ interno, URL removida após a troca, RSVP, `accepted/sent/delivered/read` quando
 disponível e ausência de duplicata. Não copie telefone, link personalizado ou
 corpo completo para a evidência.
 
+### Dois lembretes econômicos — R03R
+
+O workflow `WhatsApp worker` do GitHub Actions chama
+`POST /api/internal/whatsapp/worker` a cada 15 minutos. Ele só executa quando a
+Repository Variable `WHATSAPP_AUTOMATION_ENABLED` é exatamente `true` e usa o
+Repository Secret `WHATSAPP_WORKER_SECRET`, igual ao valor da Vercel
+Production. Com `integration_consume=false`, a rota responde `409`; o workflow
+trata esse estado desligado como saudável, sem produzir outbox nem reservar
+mensagens. Qualquer outro erro HTTP falha a execução.
+
+O agendador fica inerte por padrão porque a variável não existe ou permanece
+`false`. Isso evita depender do cron de alta frequência da Vercel no plano do
+MVP; uma migração futura para o agendador do provedor fica no backlog técnico.
+
+O produtor automático só roda em modo live quando os dois Content SIDs estão
+válidos na Vercel Production:
+
+```dotenv
+TWILIO_CONTENT_SID_EVENT_CALL_CARD_FIRST_REMEMBER_V2=HXe996a905e307cd768134231543fc7916
+TWILIO_CONTENT_SID_EVENT_CALL_CARD_LAST_REMEMBER_V2=HXbde1f80e9702f94766b70b56015920bf
+```
+
+Esses valores pertencem ao cofre da Vercel; não entram no banco, na interface,
+no payload, nos logs ou em argumentos de Actions/RPCs. O produtor deriva
+`first_card_v2` e `last_card_v2` da cota imutável. App N tolera banco N−1 e
+registra `contractAvailable=false`, sem impedir o consumo de outboxes antigos.
+
+Antes de habilitar o workflow, cadastre o mesmo segredo do worker no GitHub e
+mantenha a variável desligada:
+
+```text
+Repository Secret:   WHATSAPP_WORKER_SECRET=<mesmo valor da Vercel>
+Repository Variable: WHATSAPP_AUTOMATION_ENABLED=false
+```
+
+Antes do piloto, confirme que nenhuma cota está ativa em outro time e que a
+fila não contém trabalho inesperado:
+
+```sql
+select team_id, feature, enabled
+from public.team_feature_flags
+where feature in ('whatsapp_delivery', 'whatsapp_reminders')
+  and enabled
+order by team_id, feature;
+
+select template_key, template_version, status, count(*) as quantidade
+from public.notification_outbox
+where channel = 'whatsapp'
+  and status in ('pending', 'processing', 'failed')
+group by template_key, template_version, status
+order by template_key, template_version, status;
+
+select control, enabled
+from public.runtime_controls
+where control in ('integration_produce', 'integration_consume')
+order by control;
+```
+
+O resultado inicial esperado é nenhuma flag de lembrete habilitada, nenhuma
+fila inesperada e ambos os controles `false`. Escolha somente um time demo com
+owner/admin presente, evento futuro e números físicos autorizados. Habilite as
+flags pela RPC auditada, mantendo os controles desligados:
+
+```sql
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '<OPERATOR_ID>', true);
+select public.set_team_feature_flag(
+  '<TEAM_ID>'::uuid,
+  'whatsapp_delivery',
+  true
+);
+select public.set_team_feature_flag(
+  '<TEAM_ID>'::uuid,
+  'whatsapp_reminders',
+  true
+);
+commit;
+```
+
+No celular, revise a prévia na página do evento. Para provar uma cota manual
+sem abrir o cron automático, ligue somente produção, use **Enviar lembrete
+agora** uma vez e desligue produção imediatamente. Confirme que a quantidade
+do outbox é exatamente a prevista antes de liberar consumo:
+
+```sql
+select public.set_runtime_control('integration_produce', true);
+-- Executar uma única vez pela interface do evento.
+select public.set_runtime_control('integration_produce', false);
+
+select slot.slot_key, slot.status, slot.triggered_manually,
+       count(outbox.id) as mensagens
+from public.event_whatsapp_reminder_slots slot
+left join public.notification_outbox outbox
+  on outbox.reminder_slot_id = slot.id
+where slot.event_id = '<EVENT_ID>'::uuid
+group by slot.id
+order by slot.slot_key;
+```
+
+Se a contagem estiver correta, ligue consumo, execute uma vez o worker manual e
+desligue consumo. Não repita uma resposta ambígua:
+
+```bash
+curl --fail-with-body \
+  -X POST 'https://deutime.app/api/internal/whatsapp/worker' \
+  -H 'Authorization: Bearer <WHATSAPP_WORKER_SECRET>'
+```
+
+```sql
+select public.set_runtime_control('integration_consume', false);
+```
+
+Para provar o automático, configure a próxima cota para uma janela futura,
+confirme a prévia e só então ligue `integration_produce` e
+`integration_consume`. Depois altere `WHATSAPP_AUTOMATION_ENABLED=true`; cada
+execução processa no máximo uma cota por evento. Ao encerrar o piloto, volte a
+variável para `false` antes de desligar os controles do banco.
+Cota vazia vira `skipped`; atraso superior a seis horas, prazo fechado, evento
+encerrado, opt-out, telefone removido ou RSVP já respondido nunca chama o
+adapter. O produtor e a barreira de efeito fazem verificações independentes.
+
+Monitore apenas agregados, sem telefone ou URL personalizada:
+
+```sql
+select slot.slot_key, slot.status, slot.status_reason,
+       count(outbox.id) as total,
+       count(outbox.id) filter (where outbox.status = 'sent') as enviados,
+       count(outbox.id) filter (where outbox.status = 'failed') as falhas,
+       count(outbox.id) filter (where outbox.requires_review) as revisar
+from public.event_whatsapp_reminder_slots slot
+left join public.notification_outbox outbox
+  on outbox.reminder_slot_id = slot.id
+where slot.event_id = '<EVENT_ID>'::uuid
+group by slot.id
+order by slot.slot_key;
+```
+
+Interrompa se houver destinatário inesperado, duplicata, `requires_review`,
+template divergente da cota, callback sem correlação ou falha repetida. Ordem
+de contenção: desligar `whatsapp_reminders` no time, depois
+`integration_produce` e `integration_consume`; preservar outbox/tentativas;
+voltar ao compartilhamento manual do link. Migration não é revertida e cotas
+consumidas não são recriadas.
+
+Registre a prova do primeiro e do último lembrete separadamente em Android e
+iPhone: card ou fallback textual, branding da imagem, data/hora local, botão,
+abertura do link estável, RSVP persistido após fechar/reabrir e ausência de
+nova cobrança para quem já respondeu. A evidência não inclui telefone, corpo
+completo, link com capability, SID ou credencial.
+
 ### Piloto de `event_control` — R01
 
 O deploy da R01 deve chegar com `event_control` desligada para todos os times.

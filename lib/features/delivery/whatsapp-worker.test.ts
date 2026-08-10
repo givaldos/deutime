@@ -32,6 +32,14 @@ function repository(
   overrides: Partial<WhatsAppDeliveryRepository> = {},
 ): WhatsAppDeliveryRepository {
   return {
+    produceDueReminders: vi.fn(async () => ({
+      contractAvailable: true,
+      scannedSlots: 0,
+      enqueuedSlots: 0,
+      emptySlots: 0,
+      skippedSlots: 0,
+      enqueuedMessages: 0,
+    })),
     recoverExpiredLeases: vi.fn(async () => ({
       safeRetryCount: 0,
       reviewCount: 0,
@@ -46,6 +54,53 @@ function repository(
 }
 
 describe("worker WhatsApp", () => {
+  it("produz cotas automáticas antes de reivindicar o outbox no modo live", async () => {
+    const repo = repository({
+      produceDueReminders: vi.fn(async () => ({
+        contractAvailable: true,
+        scannedSlots: 2,
+        enqueuedSlots: 1,
+        emptySlots: 1,
+        skippedSlots: 1,
+        enqueuedMessages: 3,
+      })),
+      claimBatch: vi.fn(async () => []),
+    });
+    const adapter: WhatsAppAdapter = { send: vi.fn() };
+
+    const summary = await runWhatsAppWorker({
+      mode: "live",
+      repository: repo,
+      adapter,
+      appUrl: new URL("https://deutime.app"),
+      produceReminders: true,
+    });
+
+    expect(repo.produceDueReminders).toHaveBeenCalledWith(25);
+    expect(summary.automatic).toEqual({
+      requested: true,
+      contractAvailable: true,
+      scannedSlots: 2,
+      enqueuedSlots: 1,
+      emptySlots: 1,
+      skippedSlots: 1,
+      enqueuedMessages: 3,
+    });
+  });
+
+  it("não produz automaticamente em dry-run", async () => {
+    const repo = repository({ claimBatch: vi.fn(async () => []) });
+
+    const summary = await runWhatsAppWorker({
+      mode: "dry-run",
+      repository: repo,
+      produceReminders: true,
+    });
+
+    expect(repo.produceDueReminders).not.toHaveBeenCalled();
+    expect(summary.automatic.requested).toBe(false);
+  });
+
   it("dry-run reivindica e libera sem preparar segredo ou chamar adapter", async () => {
     const repo = repository();
     const adapter: WhatsAppAdapter = { send: vi.fn() };
