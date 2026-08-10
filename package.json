@@ -9,6 +9,7 @@
   },
   "packageManager": "npm@11.17.0",
   "scripts": {
+    "context:brief": "node .agents/skills/executar-release-deutime/scripts/context-brief.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

@@ -69,18 +69,47 @@ Preparar o futuro significa preservar extensibilidade e reversibilidade, não co
 
 Nesta seção, “tokens” significa contexto consumido por agentes de desenvolvimento. Credenciais de autenticação seguem o contrato separado de `DEC-PERSISTENT-ACCESS` e os controles de `security.md`.
 
+Comece por `npm run context:brief`. O comando mostra estado da worktree, release,
+pacote atual, checkpoint, próxima ação, IDs canônicos e linhas das seções sem
+copiar os documentos para a conversa.
+
 Para uma feature comum, carregue nesta ordem:
 
-1. `AGENTS.md` e o pacote da release;
-2. somente os IDs de contexto e decisões referenciados pelo pacote;
-3. `docs/work/current.md` se o trabalho estiver sendo retomado;
-4. a seção deste playbook correspondente ao checkpoint ou risco atual;
-5. entrypoints de código e testes listados no pacote;
-6. histórico apenas dos caminhos que serão alterados.
+1. `AGENTS.md` e o resumo de contexto;
+2. frontmatter, resultado e pacote de trabalho atual da release;
+3. apenas contratos, critérios, riscos e entrypoints da camada afetada;
+4. somente os IDs de contexto e decisões referenciados pelo pacote;
+5. a seção deste playbook correspondente ao checkpoint ou risco atual;
+6. inicialmente até três entrypoints de código e dois testes;
+7. histórico apenas dos caminhos que serão alterados.
 
-O roadmap completo é lido para planejamento do produto, não em toda implementação. Resultados de auditoria, decisões e comandos não devem ficar apenas na conversa: registre o mínimo duradouro no pacote ou no checkpoint. Evite repetir a mesma regra em vários documentos; referencie seu identificador ou fonte canônica.
+O limite inicial é uma heurística de descoberta, não um teto de correção. Antes
+de abrir mais arquivos, registre a hipótese ou dependência que exige a expansão.
+Use `rg -n` com padrão e caminho específicos, leia o entorno da ocorrência e
+limite a saída de comandos. Em testes longos, preserve somente comando, resumo,
+falha e linhas acionáveis; a saída integral fica fora do contexto principal.
 
-O checkpoint de retomada é substituído, não acumulado como diário. Ele deve dizer o que está pronto, o que falhou e a próxima ação concreta em poucas linhas.
+### Roteamento proporcional
+
+| Classe | Sinal | Execução | Validação inicial |
+|---|---|---|---|
+| consulta | explicação ou diagnóstico sem escrita | agente principal, sem plano formal | inspeção somente leitura |
+| local | um domínio e poucos arquivos | hipótese, edição focada | teste focado |
+| transversal | UI + servidor, banco, integração, autorização ou rollout | plano curto e checkpoint | perfis `VAL-*` afetados |
+| paralela | duas ou mais perguntas independentes e predominantemente de leitura | subagentes com escopo isolado | agente principal integra evidências |
+
+Subagentes reduzem poluição do contexto principal e tempo de parede, mas elevam
+o consumo total. Não os use para uma mudança serial, um único caminho ou como
+substituto de uma hipótese. Prefira delegar exploração, triagem de logs e testes;
+mantenha escritas sobrepostas no agente principal. Cada delegação informa um
+objetivo verificável, caminhos permitidos, contexto mínimo e retorno em forma de
+conclusão, arquivo/linha, risco e próxima ação, sem logs brutos.
+
+### Memória duradoura
+
+O roadmap completo é lido para planejamento do produto, não em toda implementação. Resultados de auditoria, decisões e comandos não devem ficar apenas na conversa: registre o mínimo duradouro no pacote, no arquivo de evidências ou no checkpoint. Evite repetir a mesma regra em vários documentos; referencie seu identificador ou fonte canônica.
+
+O checkpoint de retomada é substituído, não acumulado como diário. Ele deve dizer o que está pronto, o que falhou e a próxima ação concreta em poucas linhas. Evidências de checkpoints concluídos vão para `docs/releases/evidence/` quando começarem a ocultar o contrato atual.
 
 ## Unidade autossuficiente de entrega
 

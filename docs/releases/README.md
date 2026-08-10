@@ -1,6 +1,6 @@
 # Pacotes de release
 
-Cada arquivo desta pasta é o contexto autossuficiente de uma release prestes a ser executada. O roadmap mantém o horizonte completo; aqui ficam somente releases ativas ou próximas o bastante para terem contratos confiáveis.
+Cada arquivo desta pasta é o contexto operacional autossuficiente de uma release prestes a ser executada. O roadmap mantém o horizonte completo; aqui ficam somente releases ativas ou próximas o bastante para terem contratos confiáveis. Evidências antigas podem ser movidas para [`evidence/`](evidence/) quando começarem a ocultar contrato, riscos e trabalho atual; a execução não carrega esse arquivo salvo para auditoria, regressão ou passagem de checkpoint.
 
 ## Estados
 

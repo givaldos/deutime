@@ -1,0 +1,4 @@
+interface:
+  display_name: "Executar release DeuTime"
+  short_description: "Entrega releases com contexto mínimo"
+  default_prompt: "Use $executar-release-deutime para implementar ou retomar uma release do DeuTime com contexto e validação proporcionais."

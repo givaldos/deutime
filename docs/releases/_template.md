@@ -104,3 +104,8 @@ Preencher durante a execução com comandos, IDs de workflows/deployments,
 resultado do smoke, coorte, fallback e próximo passo. O estado efêmero fica em
 `docs/work/current.md`. CP5 exige evidência do ambiente real; código de workflow
 sem execução não substitui o piloto.
+
+Manter aqui somente o checkpoint em curso e o resumo necessário do anterior.
+Quando o histórico começar a ocultar o contrato atual, movê-lo sem perda para
+`docs/releases/evidence/RXX.md` e deixar um link. Consultar o arquivo histórico
+somente para auditoria, regressão ou passagem de checkpoint.
