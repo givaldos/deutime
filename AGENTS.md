@@ -1,34 +1,43 @@
 # Instruções de desenvolvimento do DeuTime
 
-## Contexto mínimo
+## Entrada com contexto mínimo
 
-Antes de implementar uma feature:
+Antes de agir:
 
 1. confira `git status --short` e preserve alterações existentes;
-2. leia somente o pacote ativo em `docs/releases/`;
-3. consulte em `docs/product-context.md` somente os IDs referenciados;
-4. leia `docs/work/current.md` se estiver retomando trabalho;
-5. consulte em `docs/development.md` apenas o checkpoint ou gate necessário;
-6. abra apenas decisões, entrypoints e testes referenciados pelo pacote;
-7. use `rg` e `git log -- <caminho>` antes de ampliar a busca.
+2. execute `npm run context:brief` para localizar release, pacote, checkpoint, IDs e seções relevantes;
+3. leia no pacote ativo somente frontmatter, resultado, pacote de trabalho atual e trechos ligados ao pedido;
+4. consulte em `docs/product-context.md` somente os IDs referenciados;
+5. leia em `docs/development.md` somente o checkpoint ou perfil `VAL-*` necessário;
+6. abra inicialmente até três entrypoints de código e dois testes do pacote;
+7. amplie a busca apenas por evidência, usando `rg` e `git log -- <caminho>`.
 
-Não carregue `docs/roadmap.md` nem `docs/development.md` inteiros para uma issue comum. O pacote da release deve ser autossuficiente; esses documentos servem para planejamento ou consulta pontual.
+Não carregue por prevenção arquivos completos de roadmap, development, architecture, runbook, pacotes concluídos, evidências históricas ou logs. Saídas extensas devem ser filtradas para comando, causa e linhas acionáveis.
+
+## Roteamento da tarefa
+
+- Consulta, diagnóstico ou documentação local: agente principal, sem plano formal e validação mínima.
+- Mudança em um domínio: hipótese explícita, edição focada e teste focado.
+- Mudança entre camadas, banco, integração externa, autorização ou rollout: plano curto e checkpoints CP0–CP6.
+- Subagentes: somente para duas ou mais frentes independentes de leitura, teste ou triagem. Envie objetivo, caminhos e formato de retorno, não o histórico inteiro. Escritas sobrepostas ficam no agente principal.
+
+Esses limites são o ponto de partida, não licença para ignorar dependências descobertas. Expanda somente quando houver motivo verificável.
 
 ## Regras permanentes
 
 - Produto, interface, mensagens e documentação voltada ao usuário ficam em português.
 - Toda jornada nasce mobile-first e WhatsApp-first.
-- Preserve o isolamento multi-time e derive identidade da sessão verificada.
-- Server Actions validam e delegam; invariantes e escritas sensíveis ficam em RPCs transacionais e RLS.
+- Preserve isolamento multi-time e derive identidade da sessão verificada.
+- Actions validam e delegam; invariantes e escritas sensíveis ficam em RPCs transacionais e RLS.
 - Tabela nova nasce com RLS, grants mínimos e pgTAP positivo, negativo e cross-tenant.
 - Nunca edite migration aplicada; use expand/contract e correção forward-only.
-- Prefira expansão inerte publicada antes do app consumidor; se app e banco saírem juntos, ambos precisam tolerar as duas ordens de deploy.
+- App e banco toleram as duas ordens de deploy; prefira expansão inerte antes do consumidor.
 - Integração externa exige adapter, idempotência, retry, observabilidade e kill switch.
-- Feature nova nasce desligada e possui fallback até o piloto provar estabilidade.
-- Não declare pronto se faltarem interface, autorização, testes, telemetria ou recuperação operacional da jornada.
+- Feature nova nasce desligada e mantém fallback até o piloto provar estabilidade.
+- Não declare pronto sem interface, autorização, testes, telemetria e recuperação operacional aplicáveis.
 
-## Execução
+## Execução e retomada
 
-Trabalhe pelos checkpoints CP0–CP6 e perfis `VAL-*` de `docs/development.md`. Código novo respeita as fronteiras registradas em `docs/architecture.md`; evite ampliar Actions que já misturam domínios.
+Use a skill `$executar-release-deutime` em implementação, correção, validação ou retomada de release. Respeite as fronteiras de `docs/architecture.md`, abrindo apenas a seção relacionada; evite ampliar Actions que misturam domínios.
 
-Ao interromper, substitua `docs/work/current.md` pelo último resultado e a próxima ação concreta. Antes do merge, registre as evidências no pacote e devolva o checkpoint a `idle`.
+Ao interromper, substitua `docs/work/current.md` pelo último resultado e a próxima ação concreta. Antes do merge, registre evidências no arquivo da release e devolva o checkpoint a `idle`.
