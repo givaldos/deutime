@@ -239,12 +239,12 @@ quebra de linha e nunca começam ou encerram o corpo.
 - [x] `AC-R03R-02` — Cada evento possui no máximo duas cotas vitalícias, inclusive após remarcação, retry, clique repetido e concorrência.
 - [x] `AC-R03R-03` — Destinatários são recalculados no envio e incluem somente pendentes elegíveis com consentimento e telefone válidos.
 - [x] `AC-R03R-04` — Envio manual com zero não consome; com destinatários consome somente a próxima cota e cancela seu automático.
-- [ ] `AC-R03R-05` — Automático vazio termina `skipped` sem adapter; atraso acima de seis horas ou prazo fechado também não envia.
+- [x] `AC-R03R-05` — Automático vazio termina `skipped` sem adapter; atraso acima de seis horas ou prazo fechado também não envia.
 - [x] `AC-R03R-06` — Remarcação, cancelamento, opt-out e remoção cancelam ou rematerializam cotas sem reescrever histórico.
 - [x] `AC-R03R-07` — Outbox garante no máximo uma mensagem por atleta/cota durante toda a vida do evento e preserva a barreira de efeito da R03.
 - [x] `AC-R03R-08` — Admin vê estados e agregados redigidos de destinatários, entrega, falhas e custo, sem PII ou payload.
 - [ ] `AC-R03R-09` — Convite, primeiro lembrete, última chamada e seus fallbacks abrem o link estável em WhatsApp real no iPhone e Android; a cota sempre seleciona a intenção correta sem expor segredo ou SID em preview ou logs.
-- [ ] `AC-R03R-10` — Flags e kill switches falham fechados; compartilhamento manual funciona e rollback preserva cotas e outbox.
+- [x] `AC-R03R-10` — Flags e kill switches falham fechados; compartilhamento manual funciona e rollback preserva cotas e outbox.
 
 ## Riscos e controles
 
@@ -367,3 +367,34 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
   `npm run security:audit`: zero vulnerabilidades;
 - próxima ação: `WP-R03R-03`, conectar execução automática, catálogo dos dois
   templates, operação e piloto físico controlado Android/iPhone.
+
+### `WP-R03R-03` — CP3 concluído; CP4 pendente
+
+- migration `202608090002` adiciona produtor automático restrito a
+  `service_role`, processa no máximo uma cota por evento/execução e exige
+  `whatsapp_reminders`, `whatsapp_delivery` e `integration_produce`;
+- cota sem elegíveis vira `skipped` sem outbox; prazo encerrado, evento
+  inválido ou atraso superior a seis horas também encerram sem adapter;
+- o produtor reutiliza a unicidade atleta/cota, persiste origem automática e
+  auditoria agregada sem PII; o trigger de outbox acrescenta somente o fuso do
+  time para a renderização correta de data/hora;
+- o worker só chama o produtor em modo live e quando os dois Content SIDs dos
+  lembretes estão configurados; banco N−1 retorna contrato indisponível sem
+  interromper a fila anterior;
+- GitHub Actions agenda o `POST /api/internal/whatsapp/worker` a cada 15
+  minutos, mas o job só executa quando a variável
+  `WHATSAPP_AUTOMATION_ENABLED=true`; o endpoint conserva
+  `WHATSAPP_WORKER_SECRET` e `409` desligado é estado saudável do agendador;
+- catálogo provider-neutral registra primeiro lembrete e última chamada como
+  cards `UTILITY` `pt_BR`, com imagem, botão e fallback textual usando o mesmo
+  contrato de quatro variáveis;
+- runbook registra inventário, ativação controlada, métricas agregadas,
+  contenção, fallback manual, rollback forward-only e matriz física sem PII;
+- `npm run migrations:check -- origin/main HEAD`, `npm run db:reset`, tipos e
+  `npm run db:lint`: passaram; lint manteve somente dois avisos legados;
+- pgTAP focado: 30 provas; suíte completa: 37 arquivos e 911 testes;
+- `npm run verify`: lint, typecheck, 285 testes e build passaram;
+  `npm run security:audit`: zero vulnerabilidades;
+- `whatsapp_reminders` e os kill switches permanecem desligados; nenhum efeito
+  externo ocorreu. CP4 depende da prova física do primeiro/último lembrete e
+  fallbacks em Android e iPhone antes de qualquer rollout contínuo.

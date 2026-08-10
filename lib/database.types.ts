@@ -2990,6 +2990,16 @@ export type Database = {
           template_version: string
         }[]
       }
+      produce_due_event_whatsapp_reminders: {
+        Args: { requested_limit?: number }
+        Returns: {
+          empty_slots: number
+          enqueued_messages: number
+          enqueued_slots: number
+          scanned_slots: number
+          skipped_slots: number
+        }[]
+      }
       record_match_event: {
         Args: {
           requested_assist_athlete_id?: string

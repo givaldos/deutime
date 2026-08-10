@@ -12,6 +12,32 @@ export function createSupabaseDeliveryRepository(
   client: Client = createPrivilegedClient(),
 ): WhatsAppDeliveryRepository {
   return {
+    async produceDueReminders(limit) {
+      const { data, error } = await client.rpc(
+        "produce_due_event_whatsapp_reminders",
+        { requested_limit: limit },
+      );
+      if (error?.code === "PGRST202" || error?.code === "42883") {
+        return {
+          contractAvailable: false,
+          scannedSlots: 0,
+          enqueuedSlots: 0,
+          emptySlots: 0,
+          skippedSlots: 0,
+          enqueuedMessages: 0,
+        };
+      }
+      if (error) throw operationFailed("reminder-production");
+      const row = data?.[0];
+      return {
+        contractAvailable: true,
+        scannedSlots: row?.scanned_slots ?? 0,
+        enqueuedSlots: row?.enqueued_slots ?? 0,
+        emptySlots: row?.empty_slots ?? 0,
+        skippedSlots: row?.skipped_slots ?? 0,
+        enqueuedMessages: row?.enqueued_messages ?? 0,
+      };
+    },
     async recoverExpiredLeases() {
       const { data, error } = await client.rpc(
         "recover_expired_notification_leases",
@@ -85,6 +111,16 @@ export function createSupabasePilotDeliveryRepository(
   const repository = createSupabaseDeliveryRepository(client);
   return {
     ...repository,
+    async produceDueReminders() {
+      return {
+        contractAvailable: true,
+        scannedSlots: 0,
+        enqueuedSlots: 0,
+        emptySlots: 0,
+        skippedSlots: 0,
+        enqueuedMessages: 0,
+      };
+    },
     async recoverExpiredLeases() {
       return { safeRetryCount: 0, reviewCount: 0 };
     },

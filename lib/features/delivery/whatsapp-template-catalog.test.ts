@@ -3,6 +3,8 @@ import type { WhatsAppDispatchCommand } from "./dispatch-contract";
 import {
   EVENT_CALL_CARD_TEMPLATE_V1,
   EVENT_CALL_TEMPLATE_V1,
+  EVENT_REMINDER_FIRST_CARD_TEMPLATE_V2,
+  EVENT_REMINDER_LAST_CARD_TEMPLATE_V2,
   renderTwilioTemplateVariables,
 } from "./whatsapp-template-catalog";
 
@@ -126,6 +128,66 @@ describe("catálogo de templates do WhatsApp", () => {
       "3": "e/example#c=secret",
       "4": "e/example/convite.png",
     });
+  });
+
+  it.each([
+    [
+      EVENT_REMINDER_FIRST_CARD_TEMPLATE_V2,
+      "first_card_v2",
+      "event_call_card_first_remember_v2",
+      "Ainda dá tempo de confirmar",
+      "Confirmar presença",
+    ],
+    [
+      EVENT_REMINDER_LAST_CARD_TEMPLATE_V2,
+      "last_card_v2",
+      "event_call_card_last_remember_v2",
+      "Última chamada",
+      "Responder agora",
+    ],
+  ] as const)(
+    "define card e fallback textual homologáveis para %s",
+    (template, version, name, title, actionTitle) => {
+      expect(template).toMatchObject({
+        key: "event_reminder",
+        version,
+        content: { friendly_name: name, language: "pt_BR" },
+        approval: { name, category: "UTILITY" },
+      });
+      const card = template.content.types["whatsapp/card"];
+      const fallback = template.content.types["twilio/text"];
+      expect(card.body).toContain(title);
+      expect(card.media).toEqual(["https://deutime.app/{{4}}"]);
+      expect(card.actions[0]).toMatchObject({
+        title: actionTitle,
+        url: "https://deutime.app/{{3}}",
+      });
+      expect(fallback.body).toContain(title);
+      expect(fallback.body).toContain("https://deutime.app/{{3}}");
+      expect(template.content.variables).toEqual({
+        "1": "Treino de sexta",
+        "2": "02/08/2030 às 19:00",
+        "3": expect.stringMatching(/^e\//),
+        "4": expect.stringMatching(/convite\.png$/),
+      });
+    },
+  );
+
+  it("não inclui PII nem resposta atual nos lembretes", () => {
+    const serialized = JSON.stringify([
+      EVENT_REMINDER_FIRST_CARD_TEMPLATE_V2,
+      EVENT_REMINDER_LAST_CARD_TEMPLATE_V2,
+    ]).toLowerCase();
+    for (const forbidden of [
+      "telefone",
+      "nascimento",
+      "endereço",
+      "confirmed",
+      "declined",
+      "resposta atual",
+    ]) {
+      expect(serialized).not.toContain(forbidden);
+    }
   });
 
   it("adapta o mesmo comando ao template pré-aprovado do Sandbox", () => {
