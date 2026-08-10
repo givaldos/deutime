@@ -302,4 +302,12 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
   [arquivo histórico de R03R](evidence/R03R.md).
 - CP4 permanece pendente do disparo manual controlado do primeiro e do último
   lembrete, incluindo fallbacks, em Android e iPhone.
+- Em 2026-08-10, o rollout contínuo foi autorizado para os três times demo e
+  `WHATSAPP_AUTOMATION_ENABLED` passou a `true`; a primeira execução observada
+  do workflow `#144` concluiu em cinco segundos sem erro operacional.
+- A leitura agregada posterior confirmou 3/3 times habilitados, 2/2 kill
+  switches ligados, nenhuma cota vencida e nenhuma mensagem de lembrete na
+  outbox. Havia 26 cotas futuras; a próxima estava prevista para
+  2026-08-12 10:00 UTC. O rollback imediato continua sendo definir
+  `WHATSAPP_AUTOMATION_ENABLED=false`.
 - O estado operacional e a próxima ação ficam em [`docs/work/current.md`](../work/current.md).

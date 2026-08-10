@@ -23,8 +23,10 @@ tests:
   - "npm run db:test: 37 arquivos, 911 testes; pgTAP automático 30/30"
   - "npm run verify: lint, typecheck, 285 testes e build passaram"
   - "npm run security:audit: zero vulnerabilidades"
+  - "npx vitest run whatsapp-worker + worker route: 2 arquivos, 13 testes passaram"
+  - "APP_URL=https://deutime.app npm run smoke:production: passou após habilitar o rollout"
 blocker: null
-next_action: "Executar CP4 controlado: disparar manualmente primeiro e último lembrete, validar cards/fallbacks, link e RSVP em Android/iPhone; manter a automação contínua desligada até a evidência física."
+next_action: "Observar a primeira cota automática em 2026-08-12 10:00 UTC e executar CP4 físico dos dois lembretes e fallbacks em Android/iPhone; desligar WHATSAPP_AUTOMATION_ENABLED diante de falha, ambiguidade ou custo inesperado."
 ---
 
 # Trabalho atual
@@ -43,11 +45,17 @@ no servidor e cada SID só entra por ambiente depois da aprovação.
 
 Em 2026-08-10, `whatsapp_reminders` foi habilitada via RPC auditada nos três
 times demo de produção. `integration_produce` e `integration_consume` estão
-ligados. A ativação não enfileirou mensagens, e a variável GitHub
-`WHATSAPP_AUTOMATION_ENABLED` permanece `false`, portanto o worker agendado
-continua sem produzir efeito externo.
+ligados. Depois da autorização de rollout, a variável GitHub
+`WHATSAPP_AUTOMATION_ENABLED` passou a `true`.
 
 O job agora declara o environment GitHub `production` para receber
-`WHATSAPP_WORKER_SECRET`. A próxima ação é executar uma janela física manual e
-controlada dos dois lembretes e fallbacks em Android/iPhone. A automação
-contínua só pode ser ligada depois dessa evidência.
+`WHATSAPP_WORKER_SECRET`. A primeira execução observada, workflow `#144`,
+concluiu em cinco segundos. A telemetria agregada posterior mostrou 3/3 times
+habilitados, 2/2 kill switches ligados, zero cotas vencidas e zero mensagens de
+lembrete na outbox. Há 26 cotas futuras; a próxima estava prevista para
+2026-08-12 10:00 UTC.
+
+A próxima ação é observar essa primeira cota automática e executar CP4 físico
+dos dois lembretes e fallbacks em Android/iPhone. Diante de falha, ambiguidade
+ou custo inesperado, o rollback imediato é definir
+`WHATSAPP_AUTOMATION_ENABLED=false`.
