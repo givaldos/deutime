@@ -395,6 +395,11 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
 - pgTAP focado: 30 provas; suíte completa: 37 arquivos e 911 testes;
 - `npm run verify`: lint, typecheck, 285 testes e build passaram;
   `npm run security:audit`: zero vulnerabilidades;
-- `whatsapp_reminders` e os kill switches permanecem desligados; nenhum efeito
-  externo ocorreu. CP4 depende da prova física do primeiro/último lembrete e
-  fallbacks em Android e iPhone antes de qualquer rollout contínuo.
+- em 2026-08-10, `whatsapp_reminders` foi habilitada via RPC auditada nos três
+  times demo de produção. `integration_produce` e `integration_consume` já
+  estavam ligados, mas `WHATSAPP_AUTOMATION_ENABLED` permanece `false`, de
+  modo que a ativação da interface não dispara o worker agendado;
+- o job passou a declarar o ambiente GitHub `production`, necessário para ler
+  `WHATSAPP_WORKER_SECRET` do environment. CP4 ainda depende do disparo manual
+  controlado do primeiro/último lembrete e dos fallbacks em Android e iPhone
+  antes de qualquer rollout contínuo.

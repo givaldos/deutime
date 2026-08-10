@@ -15,6 +15,7 @@ concurrency:
 jobs:
   dispatch:
     if: ${{ vars.WHATSAPP_AUTOMATION_ENABLED == 'true' }}
+    environment: production
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
