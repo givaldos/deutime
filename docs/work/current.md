@@ -24,7 +24,7 @@ tests:
   - "npm run verify: lint, typecheck, 285 testes e build passaram"
   - "npm run security:audit: zero vulnerabilidades"
 blocker: null
-next_action: "Publicar CP3 de forma inerte e executar CP4 controlado: primeiro e último lembrete, cards/fallbacks, link e RSVP em Android/iPhone; manter a automação contínua desligada até a evidência física."
+next_action: "Executar CP4 controlado: disparar manualmente primeiro e último lembrete, validar cards/fallbacks, link e RSVP em Android/iPhone; manter a automação contínua desligada até a evidência física."
 ---
 
 # Trabalho atual
@@ -41,9 +41,13 @@ Content SID `HX9724ffb03ba01e7280c6d70bbf801ff4`). Ele não consome lembretes.
 Chave, versão e SID nunca são escolhidos pelo chamador; a cota define a intenção
 no servidor e cada SID só entra por ambiente depois da aprovação.
 
-O workflow autenticado existe, mas sua variável de habilitação,
-`whatsapp_reminders`, `integration_produce` e `integration_consume` permanecem
-desligados; nenhum efeito externo ocorreu. A próxima ação é CP4: publicar a
-expansão inerte e executar uma janela física controlada dos dois lembretes e
-fallbacks em Android/iPhone. A automação contínua só pode ser ligada depois
-dessa evidência.
+Em 2026-08-10, `whatsapp_reminders` foi habilitada via RPC auditada nos três
+times demo de produção. `integration_produce` e `integration_consume` estão
+ligados. A ativação não enfileirou mensagens, e a variável GitHub
+`WHATSAPP_AUTOMATION_ENABLED` permanece `false`, portanto o worker agendado
+continua sem produzir efeito externo.
+
+O job agora declara o environment GitHub `production` para receber
+`WHATSAPP_WORKER_SECRET`. A próxima ação é executar uma janela física manual e
+controlada dos dois lembretes e fallbacks em Android/iPhone. A automação
+contínua só pode ser ligada depois dessa evidência.
