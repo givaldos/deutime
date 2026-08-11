@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/app/[teamSlug]/events/lineup-actions", () => ({
   saveEventLineupDraft: vi.fn(),
+  saveTeamSquadPresets: vi.fn(),
   linkEventLineupSquadToMatchSide: vi.fn(),
   publishEventLineup: vi.fn(),
   withdrawEventLineupPublication: vi.fn(),
@@ -25,8 +26,8 @@ describe("EventLineupEditor", () => {
         initialRequestId="d7500000-0000-4000-8000-000000000001"
         initialSquads={squads}
         athletes={[
-          { id: "d7400000-0000-4000-8000-000000000001", name: "Neymar", shirtNumber: 10, destination: "d7600000-0000-4000-8000-000000000001" },
-          { id: "d7400000-0000-4000-8000-000000000002", name: "Pelé", shirtNumber: 9, destination: "unassigned" },
+          { id: "d7400000-0000-4000-8000-000000000001", name: "Neymar", shirtNumber: 10, destination: "d7600000-0000-4000-8000-000000000001", isGoalkeeper: false },
+          { id: "d7400000-0000-4000-8000-000000000002", name: "Pelé", shirtNumber: 9, destination: "unassigned", isGoalkeeper: false },
         ]}
         matchSides={[]}
       />,
@@ -34,7 +35,9 @@ describe("EventLineupEditor", () => {
 
     expect(html).toContain("Dividir os times");
     expect(html).toContain("Configure de 2 a 12 times");
-    expect(html).toContain("Distribua os confirmados");
+    expect(html).toContain("Refazer divisão automática");
+    expect(html).toContain("Mover → Branco");
+    expect(html).toContain("Escolher time manualmente");
     expect(html).toContain("Destino de Neymar");
     expect(html).toContain("Fora desta divisão");
     expect(html).toContain("Sem time");
@@ -42,6 +45,24 @@ describe("EventLineupEditor", () => {
     expect(html).toContain("Salvar rascunho");
     expect(html).not.toContain("drag");
     expect(html).not.toContain("telefone");
+  });
+
+  it("oferece modelos reutilizáveis somente para owner/admin", () => {
+    const html = renderToStaticMarkup(
+      <EventLineupEditor
+        teamId="d7200000-0000-4000-8000-000000000001"
+        teamSlug="society-united"
+        eventId="d7300000-0000-4000-8000-000000000001"
+        initialRequestId="d7500000-0000-4000-8000-000000000001"
+        initialSquads={squads}
+        athletes={[]}
+        matchSides={[]}
+        canManagePresets
+      />,
+    );
+    expect(html).toContain("Times dos próximos eventos");
+    expect(html).toContain("Salvar estes times como padrão");
+    expect(html).toContain("Eventos já divididos não serão alterados");
   });
 
   it("explica que o vínculo com partida não altera presença", () => {

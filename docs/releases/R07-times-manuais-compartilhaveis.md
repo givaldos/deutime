@@ -2,7 +2,7 @@
 id: R07
 type: vertical
 status: ready
-outcome: "Permitir que a diretoria divida manualmente os confirmados em equipes, publique a escalação no link do evento e compartilhe uma imagem segura pelo WhatsApp."
+outcome: "Permitir que a diretoria reutilize modelos de times, receba uma divisão automática ajustável por toque, publique a escalação e compartilhe uma imagem segura pelo WhatsApp."
 depends_on:
   - R02
   - R04
@@ -17,6 +17,7 @@ decisions:
   - DEC-EVENT-MATCH
   - DEC-PUBLIC-PRIVACY
   - DEC-STABLE-EVENT-LINK
+  - DEC-BALANCE-OBJECTIVE
 invariants:
   - INV-MOBILE-WHATSAPP-FIRST
   - INV-RLS-MULTI-TIME
@@ -28,15 +29,15 @@ invariants:
   - INV-MANUAL-FALLBACK
 ---
 
-# R07 — Times manuais compartilháveis
+# R07 — Times reutilizáveis e divisão compartilhável
 
 ## Resultado demonstrável
 
-No celular, staff cria de duas a doze equipes, distribui somente atletas com
-RSVP **SIM**, marca quem ficará fora e salva o rascunho sem arrastar. Owner ou
-admin revisa e publica uma versão da escalação. O mesmo link do evento passa a
-mostrar a versão publicada para a audiência autorizada e oferece uma imagem
-com a marca DeuTime, pronta para compartilhar no WhatsApp.
+No celular, staff parte de modelos reutilizáveis de duas a doze equipes e recebe
+automaticamente uma sugestão equilibrada somente com atletas de RSVP **SIM**.
+Um toque move a pessoa entre os times; seleção explícita continua como fallback
+acessível. Owner ou admin revisa e publica uma versão da escalação. O mesmo link
+do evento mostra a versão publicada e oferece uma imagem DeuTime para WhatsApp.
 
 ## Três tempos
 
@@ -56,6 +57,11 @@ com a marca DeuTime, pronta para compartilhar no WhatsApp.
 
 ### Presente a resolver
 
+- o piloto físico mostrou que a seleção individual por `select` é lenta e
+  confusa; ela cumpre o fallback acessível, mas não o caminho primário por toque;
+- nomes e cores precisam ser repetidos em cada evento e não há sugestão inicial,
+  fazendo o usuário executar manualmente uma decisão mecânica;
+
 - as tabelas legadas permitem escrita direta ampla e não impõem, em uma única
   transação, RSVP SIM, vínculo ativo, isolamento e quantidade de equipes;
 - não existe exclusão explícita, revisão publicada, auditoria de publicação ou
@@ -70,25 +76,29 @@ com a marca DeuTime, pronta para compartilhar no WhatsApp.
 
 ### Futuro compatível
 
-- R08 poderá sugerir uma divisão reproduzível sobre o mesmo rascunho, sem
-  substituir edição manual, exclusões ou publicação explícita;
+- a sugestão automática usa o mesmo rascunho e nunca substitui edição manual,
+  exclusões ou publicação explícita;
 - camisas permanentes e campeonatos poderão referenciar equipes publicadas sem
   transformar equipe do evento em presença real;
 - novas imagens por fase poderão reutilizar a revisão publicada e a projeção
   pública mínima;
-- algoritmo automático, balanceamento, histórico de afinidade, campeonato e
-  envio automático da escalação ficam fora desta release.
+- avaliações técnicas subjetivas, histórico de afinidade, campeonato e envio
+  automático da escalação ficam fora desta release.
 
 ## Escopo
 
 ### Incluído
 
+- cadastrar de dois a doze modelos reutilizáveis de time por organização, com
+  nome, cor e ordem, sem reescrever eventos já salvos;
+- sugerir automaticamente uma divisão reproduzível: somente elegíveis,
+  preferência de goleiro distribuída primeiro, diferença de quantidade máxima
+  de uma pessoa e ordem estável derivada do evento;
 - criar, renomear, colorir, ordenar e remover de duas a doze equipes no evento;
 - distribuir somente atletas ativos do mesmo time com RSVP `yes`, mantendo
   lista explícita de confirmados ainda não distribuídos e de quem ficará fora;
-- controles por toque para mover atleta, além de alternativa acessível por
-  seleção de equipe; drag and drop pode existir como atalho, nunca como único
-  caminho;
+- cartões por time e controles por toque para colocar ou mover atleta, além de
+  alternativa acessível por seleção; drag and drop nunca é necessário;
 - salvar rascunho idempotente por RPC transacional e auditar agregados sem
   nomes, telefones ou conteúdo integral;
 - relacionar opcionalmente equipes aos lados de cada partida do evento, sem
@@ -110,7 +120,7 @@ com a marca DeuTime, pronta para compartilhar no WhatsApp.
 
 - dividir atletas com `pending`, `no`, `maybe` ou `waitlist`;
 - converter escalação planejada em RSVP ou participação real;
-- sugestão automática, nota técnica, ranking, capitão automático ou rodízio;
+- nota técnica, ranking, capitão automático ou afinidade histórica;
 - publicar telefone, e-mail, foto, bio, posição, capability ou localização
   privada na página, imagem, metadata, logs ou analytics;
 - imagem editável livremente, upload de arte arbitrária ou template externo;
@@ -121,6 +131,11 @@ com a marca DeuTime, pronta para compartilhar no WhatsApp.
 
 - `events` continua dono de chamada, escalação e URL; `event_squads` continua
   sendo a identidade estável das equipes planejadas;
+- `team_squad_presets` guarda somente modelos reutilizáveis. Ao salvar o
+  rascunho, o evento mantém sua própria equipe e não referencia o modelo;
+- a sugestão é determinística por `event_id`, espalha goleiros e equilibra
+  quantidade. Ela não persiste nada até `save_event_lineup_draft` validar o
+  estado completo;
 - uma migration forward-only acrescentará o mínimo necessário para exclusões,
   revisão publicada e idempotência. Migration aplicada nunca será editada;
 - o rascunho é mutável enquanto o evento não estiver encerrado. Publicar cria
@@ -170,19 +185,22 @@ com a marca DeuTime, pronta para compartilhar no WhatsApp.
 | `WP-R07-02` — divisão manual mobile | `AC-R07-01` a `06`, `09` | página do evento, Actions, validação | `VAL-APP` + `VAL-DB`, acessibilidade |
 | `WP-R07-03` — publicação e imagem | `AC-R07-03`, `07`, `08`, `09` | página pública, projeção e imagem | `VAL-PUBLIC` + Android/iPhone |
 | `WP-R07-04` — piloto e conclusão | `AC-R07-08` a `10` | telemetria, runbook, rollout e evidências | `VAL-APP`, `VAL-DB`, smoke e rollback |
+| `WP-R07-05` — experiência completa | `AC-R07-01`, `04`, `05`, `10`, `11`, `12` | presets, sugestão automática, cartões por toque e novo piloto | `VAL-APP` + `VAL-DB` + Android/iPhone |
 
 ## Critérios de aceite
 
 - [x] `AC-R07-01` — Staff cria e ordena de 2 a 12 equipes válidas, com nomes únicos no evento e cores opcionais válidas.
 - [x] `AC-R07-02` — Somente vínculo ativo do mesmo time com RSVP SIM pode ser distribuído; indisponíveis e excluídos nunca entram por cliente adulterado ou concorrência.
 - [x] `AC-R07-03` — Manager edita o rascunho; somente owner/admin publica ou retira publicação, sempre pela sessão e com auditoria agregada.
-- [x] `AC-R07-04` — No celular, mover, retirar e recolocar atleta funciona por toque e por alternativa acessível sem depender de arrastar.
+- [ ] `AC-R07-04` — No celular, colocar, mover, retirar e recolocar atleta funciona por toque e por alternativa acessível sem depender de arrastar.
 - [x] `AC-R07-05` — Salvar, repetir, concorrer ou reenviar a mesma solicitação produz um único estado completo, sem atleta duplicado ou cross-tenant.
 - [x] `AC-R07-06` — Equipe pode ser ligada a um lado de partida sem alterar RSVP, presença real, lances ou estatísticas.
 - [x] `AC-R07-07` — Publicação cria revisão explícita; edição de rascunho não muda a revisão ativa e revogação de consentimento remove identidade da projeção seguinte.
 - [x] `AC-R07-08` — Imagem compartilhável respeita branding, revisão, consentimento e fallback de escudo, sem PII, capability ou segredo em HTML, URL, metadata e logs.
 - [x] `AC-R07-09` — Flag desligada, revisão ausente ou falha de imagem preserva lista de confirmados, link canônico e jornada privada utilizável.
 - [ ] `AC-R07-10` — RLS, grants mínimos, N/N−1, telemetria redigida, piloto Android/iPhone, smoke e rollback por flag possuem evidência.
+- [x] `AC-R07-11` — Owner/admin salva modelos reutilizáveis do próprio time; outro time não lê nem altera, e eventos históricos não mudam quando o modelo muda.
+- [x] `AC-R07-12` — Evento novo nasce com sugestão reproduzível, espalha preferências de goleiro e mantém diferença máxima de uma pessoa, sem nota oculta e sem persistir antes de salvar.
 
 ## Riscos e controles
 
@@ -194,6 +212,8 @@ com a marca DeuTime, pronta para compartilhar no WhatsApp.
 | rascunho alterar arte já compartilhada | revisão publicada imutável | teste de edição após publicação |
 | atleta duplicado ou cross-tenant | unicidade, FKs compostas, RLS e RPC | pgTAP concorrente e dois times |
 | interface impossível no celular | controles por toque e alternativa ao drag | Android, iPhone e teclado/leitor |
+| algoritmo parecer arbitrário | regra curta, reproduzível e explicada na UI | teste puro com mesmos dados e eventos diferentes |
+| modelo reescrever histórico | cópia para `event_squads`, sem FK do evento ao preset | pgTAP de alteração posterior |
 | imagem vazar capability ou PII | rota derivada do `public_id` e projeção mínima | testes de metadata, cache e logs |
 | custo ou abuso de renderização | limites, revisão versionada e cache controlado | teste de rate/limite e observação piloto |
 | deploy quebrar app antigo | expansão inerte antes da contração | matriz App/DB N/N−1 |
@@ -383,3 +403,26 @@ do WhatsApp.
   revisões em zero;
 - piloto permanece ligado somente nessa coorte. Próxima evidência: publicar uma
   divisão demo pela interface e validar URL/imagem em Android e iPhone.
+
+### `WP-R07-05` — CP4 implementação local concluída
+
+- a migration forward-only `202608110005_r07_reusable_squad_presets.sql`
+  adiciona times padrão isolados por time, ledger idempotente e RPC transacional
+  exclusiva de owner/admin; mudanças futuras não reescrevem eventos históricos;
+- evento ainda sem rascunho copia nome, cor e ordem dos times padrão para IDs
+  próprios do evento e recebe sugestão determinística: goleiros primeiro,
+  diferença máxima de uma pessoa e nenhuma nota subjetiva ou escrita automática;
+- o caminho primário mobile passou a ser cartões por toque: tocar move ao próximo
+  time, retirar/recolocar tem ação própria e o `select` permanece recolhido como
+  alternativa acessível;
+- ensaio responsivo em `390×844` com `Society United`: sugestão inicial `14×14`,
+  mover `14×14 → 13×15`, retirar/recolocar, salvar times padrão, salvar rascunho
+  e recarregar preservando a divisão;
+- gates verdes: 3 arquivos/15 testes focados, 55 arquivos/316 testes Vitest,
+  41 arquivos/998 testes pgTAP, `db:reset`, tipos, ESLint, TypeScript, build de
+  produção com Webpack e auditoria npm sem vulnerabilidades;
+- `db:lint` mantém somente os dois avisos legados em `create_event_as_staff` e
+  `record_match_event`; Turbopack mantém a limitação conhecida de bind local e
+  o build equivalente com Webpack passou integralmente;
+- próximo passo: promover expansão e consumidor juntos, executar smoke e repetir
+  o fluxo por toque em Android/iPhone antes de concluir `AC-R07-04` e `AC-R07-10`.

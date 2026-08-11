@@ -105,7 +105,7 @@ export default async function EventDetailPage({
         ])
       : [{ data: null }, { count: 0 }];
 
-  const [{ data: athletes }, { data: attendance }, { data: venue }] = await Promise.all([
+  const [{ data: athletes }, { data: attendance }, { data: venue }, { data: positionPreferences }] = await Promise.all([
     supabase
       .from("athletes")
       .select("id, full_name, preferred_name, shirt_number, status")
@@ -121,6 +121,11 @@ export default async function EventDetailPage({
     event.venue_id
       ? supabase.from("venues").select("name, address").eq("id", event.venue_id).maybeSingle()
       : Promise.resolve({ data: null }),
+    supabase
+      .from("athlete_position_preferences")
+      .select("athlete_id, position_code")
+      .eq("team_id", team.id)
+      .eq("sport_format", event.sport_format),
   ]);
 
   const attendanceByAthlete = new Map((attendance ?? []).map((response) => [response.athlete_id, response]));
@@ -140,6 +145,11 @@ export default async function EventDetailPage({
     pending: call.filter((item) => item.response.status === "pending").length,
   };
   const confirmed = call.filter((item) => item.response.status === "confirmed");
+  const goalkeeperAthletes = new Set(
+    (positionPreferences ?? [])
+      .filter((preference) => preference.position_code === "GK")
+      .map((preference) => preference.athlete_id),
+  );
   const isScheduled = event.status === "scheduled";
   const isEditable =
     isScheduled && new Date(event.starts_at).valueOf() > new Date().valueOf();
@@ -165,6 +175,7 @@ export default async function EventDetailPage({
     matchesResult,
     sidesResult,
     activeRevisionResult,
+    presetsResult,
   ] =
     teamDivisionEnabled
       ? await Promise.all([
@@ -204,8 +215,14 @@ export default async function EventDetailPage({
             .eq("team_id", team.id)
             .eq("is_active", true)
             .maybeSingle(),
+          supabase
+            .from("team_squad_presets")
+            .select("name, color, sort_order")
+            .eq("team_id", team.id)
+            .order("sort_order"),
         ])
       : [
+          { data: null, error: null },
           { data: null, error: null },
           { data: null, error: null },
           { data: null, error: null },
@@ -227,7 +244,14 @@ export default async function EventDetailPage({
     color: squad.color ?? "#0D9488",
     sortOrder: squad.sort_order,
   }));
-  const initialSquads = [...savedSquads];
+  const initialSquads = savedSquads.length > 0
+    ? [...savedSquads]
+    : (presetsResult.data ?? []).map((preset) => ({
+        id: crypto.randomUUID(),
+        name: preset.name,
+        color: preset.color,
+        sortOrder: preset.sort_order,
+      }));
   const defaultSquadColors = ["#0D9488", "#2563EB"];
   while (initialSquads.length < 2) {
     const index = initialSquads.length;
@@ -463,6 +487,7 @@ export default async function EventDetailPage({
                 destination:
                   spotByAthlete.get(athlete.id) ??
                   (excludedAthletes.has(athlete.id) ? "excluded" : "unassigned"),
+                isGoalkeeper: goalkeeperAthletes.has(athlete.id),
               }))}
             matchSides={savedSquads.length > 0 ? lineupMatchSides : []}
             canPublish={membership.role !== "manager"}
@@ -470,6 +495,8 @@ export default async function EventDetailPage({
               revision: activeRevisionResult.data.revision,
               publishedAt: activeRevisionResult.data.published_at,
             } : null}
+            canManagePresets={membership.role !== "manager"}
+            autoSuggestOnLoad={savedSquads.length === 0}
           />
         ) : null}
 

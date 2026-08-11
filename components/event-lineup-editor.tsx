@@ -4,19 +4,23 @@ import {
   linkEventLineupSquadToMatchSide,
   publishEventLineup,
   saveEventLineupDraft,
+  saveTeamSquadPresets,
   type EventLineupActionState,
   withdrawEventLineupPublication,
 } from "@/app/app/[teamSlug]/events/lineup-actions";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
+import { suggestAutomaticDestinations } from "@/lib/features/team-division/automatic";
 import {
   ArrowDown,
   ArrowUp,
   BadgeCheck,
+  Bookmark,
   CircleOff,
   Globe2,
   Plus,
   Save,
   ShieldCheck,
+  Sparkles,
   Trash2,
   Undo2,
   UsersRound,
@@ -35,6 +39,7 @@ export type EventLineupAthlete = {
   name: string;
   shirtNumber: number | null;
   destination: string;
+  isGoalkeeper: boolean;
 };
 
 export type EventLineupMatchSide = {
@@ -60,6 +65,8 @@ export function EventLineupEditor({
   matchSides,
   canPublish = false,
   activeRevision = null,
+  canManagePresets = false,
+  autoSuggestOnLoad = false,
 }: {
   teamId: string;
   teamSlug: string;
@@ -71,6 +78,8 @@ export function EventLineupEditor({
   matchSides: EventLineupMatchSide[];
   canPublish?: boolean;
   activeRevision?: { revision: number; publishedAt: string } | null;
+  canManagePresets?: boolean;
+  autoSuggestOnLoad?: boolean;
 }) {
   const [actionState, formAction] = useActionState(
     saveEventLineupDraft,
@@ -79,9 +88,23 @@ export function EventLineupEditor({
   const [squads, setSquads] = useState(() =>
     initialSquads.slice().sort((a, b) => a.sortOrder - b.sortOrder),
   );
-  const [destinations, setDestinations] = useState<Record<string, string>>(
-    () => Object.fromEntries(athletes.map((athlete) => [athlete.id, athlete.destination])),
+  const [destinations, setDestinations] = useState<Record<string, string>>(() => {
+    const initial = Object.fromEntries(
+      athletes.map((athlete) => [athlete.id, athlete.destination]),
+    );
+    if (!autoSuggestOnLoad || athletes.some((athlete) => athlete.destination !== UNASSIGNED)) {
+      return initial;
+    }
+    return {
+      ...initial,
+      ...suggestAutomaticDestinations(eventId, squads, athletes),
+    };
+  });
+  const [presetState, presetAction] = useActionState(
+    saveTeamSquadPresets,
+    initialActionState,
   );
+  const [initialPresetRequestId] = useState(() => crypto.randomUUID());
   const requestId = actionState.nextRequestId ?? initialRequestId;
 
   const assignments = useMemo(
@@ -162,6 +185,39 @@ export function EventLineupEditor({
     ]);
   }
 
+  function automaticallyDistribute() {
+    const eligible = athletes.filter(
+      (athlete) => destinations[athlete.id] !== EXCLUDED,
+    );
+    const suggestion = suggestAutomaticDestinations(eventId, squads, eligible);
+    setDestinations((current) => ({ ...current, ...suggestion }));
+  }
+
+  function moveAthleteByTouch(athleteId: string) {
+    setDestinations((current) => {
+      const currentSquadIndex = squads.findIndex(
+        (squad) => squad.id === current[athleteId],
+      );
+      if (currentSquadIndex >= 0) {
+        return {
+          ...current,
+          [athleteId]: squads[(currentSquadIndex + 1) % squads.length]?.id ?? UNASSIGNED,
+        };
+      }
+
+      const target = squads.reduce((best, candidate) => {
+        const candidateCount = athletes.filter(
+          (athlete) => current[athlete.id] === candidate.id,
+        ).length;
+        const bestCount = athletes.filter(
+          (athlete) => current[athlete.id] === best.id,
+        ).length;
+        return candidateCount < bestCount ? candidate : best;
+      });
+      return { ...current, [athleteId]: target.id };
+    });
+  }
+
   const serializedSquads = squads.map((squad, index) => ({
     id: squad.id,
     name: squad.name,
@@ -201,6 +257,24 @@ export function EventLineupEditor({
           canPublish={canPublish}
           activeRevision={activeRevision}
         />
+      ) : null}
+
+      {canManagePresets ? (
+        <form action={presetAction} className="mt-4 rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+          <input type="hidden" name="teamId" value={teamId} />
+          <input type="hidden" name="teamSlug" value={teamSlug} />
+          <input type="hidden" name="eventId" value={eventId} />
+          <input type="hidden" name="requestId" value={presetState.nextRequestId ?? initialPresetRequestId} />
+          <input type="hidden" name="presets" value={JSON.stringify(squads.map((squad, index) => ({ id: squad.id, name: squad.name, color: squad.color, sort_order: index + 1 })))} />
+          <p className="text-sm font-black text-slate-900">Times dos próximos eventos</p>
+          <p className="mt-1 text-xs leading-5 text-slate-600">
+            Salve nomes e cores como times padrão. Eventos já divididos não serão alterados.
+          </p>
+          {presetState.message ? <ActionMessage state={presetState} compact /> : null}
+          <AsyncSubmitButton pendingLabel="Salvando times padrão..." variant="outline" className="mt-3 min-h-12 w-full">
+            <Bookmark aria-hidden /> Salvar estes times como padrão
+          </AsyncSubmitButton>
+        </form>
       ) : null}
 
       <form action={formAction} className="mt-5 space-y-6">
@@ -271,33 +345,72 @@ export function EventLineupEditor({
         <fieldset>
           <legend className="font-black text-slate-900">2. Distribua os confirmados</legend>
           <p className="mt-1 text-xs leading-5 text-slate-600">
-            “Sem time” mantém a decisão pendente. “Fora desta divisão” registra a exclusão.
+            A sugestão equilibra quantidade e espalha goleiros. Toque em uma pessoa para movê-la ao próximo time.
           </p>
-          <div className="mt-3 grid gap-2 lg:grid-cols-2">
-            {athletes.map((athlete) => (
-              <label key={athlete.id} className="flex min-h-16 items-center gap-3 rounded-2xl bg-white p-3 shadow-sm">
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-sm font-black text-slate-600">
-                  {athlete.shirtNumber ?? "–"}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-bold text-slate-900">{athlete.name}</span>
-                  <span className="block text-xs text-slate-500">Destino na divisão</span>
-                </span>
-                <select
-                  aria-label={`Destino de ${athlete.name}`}
-                  value={destinations[athlete.id] ?? UNASSIGNED}
-                  onChange={(event) =>
-                    setDestinations((current) => ({ ...current, [athlete.id]: event.target.value }))
-                  }
-                  className="min-h-12 max-w-[48%] rounded-xl border border-slate-200 bg-white px-2 text-sm font-bold text-slate-800 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
-                >
-                  <option value={UNASSIGNED}>Sem time</option>
-                  <option value={EXCLUDED}>Fora desta divisão</option>
-                  {squads.map((squad) => <option key={squad.id} value={squad.id}>{squad.name}</option>)}
-                </select>
-              </label>
-            ))}
+          <button type="button" onClick={automaticallyDistribute} disabled={athletes.length === 0} className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-black text-white disabled:opacity-40">
+            <Sparkles className="size-4" aria-hidden /> Refazer divisão automática
+          </button>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {squads.map((squad) => {
+              const members = athletes.filter(
+                (athlete) => destinations[athlete.id] === squad.id,
+              );
+              return (
+                <article key={squad.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <div className="flex items-center justify-between gap-3 px-4 py-3" style={{ borderTop: `5px solid ${squad.color}` }}>
+                    <h3 className="font-black text-slate-900">{squad.name}</h3>
+                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{members.length}</span>
+                  </div>
+                  <div className="space-y-2 border-t border-slate-100 p-3">
+                    {members.length ? members.map((athlete) => (
+                      <AthleteTouchCard key={athlete.id} athlete={athlete} nextSquadName={squads[(squads.findIndex((item) => item.id === squad.id) + 1) % squads.length]?.name ?? "outro time"} onMove={() => moveAthleteByTouch(athlete.id)} onExclude={() => setDestinations((current) => ({ ...current, [athlete.id]: EXCLUDED }))} />
+                    )) : <p className="p-3 text-center text-xs text-slate-500">Nenhum atleta neste time.</p>}
+                  </div>
+                </article>
+              );
+            })}
           </div>
+
+          {athletes.some((athlete) => !destinations[athlete.id] || destinations[athlete.id] === UNASSIGNED) ? (
+            <div className="mt-3 rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-3">
+              <h3 className="text-sm font-black text-amber-950">Sem time</h3>
+              <div className="mt-2 space-y-2">
+                {athletes.filter((athlete) => !destinations[athlete.id] || destinations[athlete.id] === UNASSIGNED).map((athlete) => (
+                  <AthleteTouchCard key={athlete.id} athlete={athlete} nextSquadName="o time com menos atletas" onMove={() => moveAthleteByTouch(athlete.id)} onExclude={() => setDestinations((current) => ({ ...current, [athlete.id]: EXCLUDED }))} />
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {exclusions.length ? (
+            <div className="mt-3 rounded-2xl bg-slate-100 p-3">
+              <h3 className="text-sm font-black text-slate-800">Fora desta divisão</h3>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {athletes.filter((athlete) => destinations[athlete.id] === EXCLUDED).map((athlete) => (
+                  <button key={athlete.id} type="button" onClick={() => moveAthleteByTouch(athlete.id)} className="min-h-11 rounded-xl bg-white px-3 text-sm font-bold text-slate-700 shadow-sm">
+                    Recolocar {athlete.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <details className="mt-3 rounded-2xl bg-white p-3 shadow-sm">
+            <summary className="min-h-11 cursor-pointer py-2 text-sm font-black text-slate-700">Escolher time manualmente</summary>
+            <div className="mt-2 grid gap-2">
+              {athletes.map((athlete) => (
+                <label key={athlete.id} className="flex items-center justify-between gap-3 text-sm font-bold text-slate-800">
+                  <span className="truncate">{athlete.name}</span>
+                  <select aria-label={`Destino de ${athlete.name}`} value={destinations[athlete.id] ?? UNASSIGNED} onChange={(event) => setDestinations((current) => ({ ...current, [athlete.id]: event.target.value }))} className="min-h-11 max-w-[55%] rounded-xl border border-slate-200 bg-white px-2 text-sm font-bold">
+                    <option value={UNASSIGNED}>Sem time</option>
+                    <option value={EXCLUDED}>Fora desta divisão</option>
+                    {squads.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                  </select>
+                </label>
+              ))}
+            </div>
+          </details>
         </fieldset>
 
         <div className="grid grid-cols-3 gap-2 text-center">
@@ -423,6 +536,33 @@ function MatchSideLinkForm({ teamId, teamSlug, eventId, side, squads }: { teamId
       {state.message ? <ActionMessage state={state} compact /> : null}
       <AsyncSubmitButton pendingLabel="Vinculando..." variant="outline" className="mt-3 min-h-12 w-full">Vincular time</AsyncSubmitButton>
     </form>
+  );
+}
+
+function AthleteTouchCard({
+  athlete,
+  nextSquadName,
+  onMove,
+  onExclude,
+}: {
+  athlete: EventLineupAthlete;
+  nextSquadName: string;
+  onMove: () => void;
+  onExclude: () => void;
+}) {
+  return (
+    <div className="flex min-h-14 items-center gap-2 rounded-xl bg-slate-50 p-2">
+      <button type="button" onClick={onMove} aria-label={`Mover ${athlete.name} para ${nextSquadName}`} className="flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-lg px-2 text-left hover:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
+        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white text-xs font-black text-slate-600 shadow-sm">{athlete.shirtNumber ?? "–"}</span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-black text-slate-900">{athlete.name}</span>
+          <span className="block truncate text-[11px] font-semibold text-slate-500">Mover → {nextSquadName}</span>
+        </span>
+      </button>
+      <button type="button" onClick={onExclude} aria-label={`Retirar ${athlete.name} desta divisão`} className="grid min-h-11 min-w-11 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+        <CircleOff className="size-4" aria-hidden />
+      </button>
+    </div>
   );
 }
 

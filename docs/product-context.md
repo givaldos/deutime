@@ -53,7 +53,7 @@ Alterar uma invariante exige decisão explícita, atualização do roadmap, thre
 - [`DEC-WHATSAPP-PROVIDER`](decisions/DEC-WHATSAPP-PROVIDER.md) — `accepted`: R03 usa Twilio Programmable Messaging + Content API atrás de adapter provider-neutral; OTP do Supabase permanece separado, Sandbox é somente demo e produção real exige sender próprio, template aprovado e webhook assinado.
 - [`DEC-WHATSAPP-DISPATCH-SAFETY`](decisions/DEC-WHATSAPP-DISPATCH-SAFETY.md) — `accepted`: retry automático termina antes da barreira de efeito; resultado externo ambíguo exige reconciliação manual e credenciais personalizadas nunca são persistidas em claro.
 - [`DEC-CONVERSATION-LIFETIME`](decisions/DEC-CONVERSATION-LIFETIME.md) — `accepted`: escrita por sete dias após a finalização, leitura privada durante retenção de dois anos e acesso sempre recalculado pela sessão verificada, sem token próprio da conversa.
-- `DEC-BALANCE-OBJECTIVE` — `open`: definir restrições, preferências e medida de equilíbrio antes de R08.
+- `DEC-BALANCE-OBJECTIVE` — `accepted`: a sugestão distribui somente confirmados elegíveis, espalha primeiro preferências de goleiro, minimiza a diferença de quantidade entre equipes e usa ordem determinística por evento; não atribui nota oculta, preserva ajuste manual e exige publicação explícita.
 
 Lembrete de pendência, regra de arredondamento, textos, layouts, thresholds de retry/rate limit e parâmetros de métricas podem ser fechados no pacote correspondente; não bloqueiam a arquitetura anterior.
 
