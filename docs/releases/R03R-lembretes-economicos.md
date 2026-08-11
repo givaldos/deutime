@@ -310,4 +310,8 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
   outbox. Havia 26 cotas futuras; a próxima estava prevista para
   2026-08-12 10:00 UTC. O rollback imediato continua sendo definir
   `WHATSAPP_AUTOMATION_ENABLED=false`.
+- O workflow passou a registrar somente uma projeção explícita dos contadores
+  operacionais do worker. Telefone, payload, capability, SID, segredo e campos
+  futuros não pertencentes à allowlist são descartados; JSON inválido faz o
+  job falhar fechado sem imprimir o corpo bruto.
 - O estado operacional e a próxima ação ficam em [`docs/work/current.md`](../work/current.md).
