@@ -77,6 +77,14 @@ export const linkLineupSquadSchema = z.object({
   requestId: requestUuid,
 });
 
+export const eventLineupPublicationSchema = z.object({
+  teamId: databaseUuid,
+  teamSlug: z.string().regex(TEAM_SLUG_PATTERN),
+  eventId: databaseUuid,
+  publicId: databaseUuid,
+  requestId: requestUuid,
+});
+
 export type SaveEventLineupDraftInput = z.infer<
   typeof saveEventLineupDraftSchema
 >;

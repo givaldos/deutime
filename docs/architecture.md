@@ -112,6 +112,16 @@ e não substitui vínculo autenticado para ler terceiros. O booleano legado
 `athletes.public_profile` não autoriza atleta não reivindicado e será contraído
 após a expansão compatível.
 
+Na R07, `athlete_public_consents` registra a decisão do próprio atleta por time
+para `public_sports_activity`. A RPC anônima estreita
+`get_public_event_lineup(public_id)` exige `public_event_page`, `team_division`
+e revisão ativa, recalcula vínculo e consentimento a cada leitura e devolve
+somente número da revisão, nomes/cores das equipes e nomes esportivos
+autorizados. IDs internos, capability, RSVP, contato, foto e demais dados
+pessoais não entram no JSON, HTML, metadata ou imagem. Imagens com escalação
+usam cache privado sem armazenamento compartilhado para que revogação tenha
+efeito na leitura seguinte.
+
 ## Perfil social e mídia
 
 - `team_public_profiles` armazena texto institucional e links HTTPS validados; a atualização conjunta com os dados centrais do time é atômica e limitada a owner/admin;

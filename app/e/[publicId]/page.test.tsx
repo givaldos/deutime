@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   getEventAccessContext: vi.fn(),
   getTeamLogoUrlByEventPublicId: vi.fn().mockResolvedValue(null),
   getPublicEventMatches: vi.fn().mockResolvedValue(null),
+  getPublicEventLineup: vi.fn().mockResolvedValue(null),
 }));
 
 vi.mock("@/lib/data/public-event", () => ({
@@ -19,6 +20,9 @@ vi.mock("@/lib/data/team-logo", () => ({
 }));
 vi.mock("@/lib/data/public-matches", () => ({
   getPublicEventMatches: mocks.getPublicEventMatches,
+}));
+vi.mock("@/lib/data/public-lineup", () => ({
+  getPublicEventLineup: mocks.getPublicEventLineup,
 }));
 vi.mock("next/navigation", () => ({
   notFound: () => {
@@ -54,6 +58,7 @@ describe("public event route", () => {
       context: null,
       clearInvalidCookie: false,
     });
+    mocks.getPublicEventLineup.mockResolvedValue(null);
   });
 
   it("uses the same 404 for invalid, absent and flag-filtered events", async () => {
@@ -140,6 +145,29 @@ describe("public event route", () => {
     expect(html).not.toContain("attendance");
     expect(html).not.toContain("team_id");
     expect(html).not.toContain("event_id");
+  });
+
+  it("mostra somente a revisão e os nomes consentidos da projeção pública", async () => {
+    mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
+    mocks.getPublicEventLineup.mockResolvedValue({
+      revision: 2,
+      published_at: "2026-08-11T12:00:00Z",
+      squads: [
+        { name: "Verde", color: "#0D9488", sort_order: 1, athletes: [{ name: "Neymar", sort_order: 1 }] },
+        { name: "Azul", color: "#2563EB", sort_order: 2, athletes: [] },
+      ],
+    });
+
+    const html = renderToStaticMarkup(await PublicEventPage(props()));
+
+    expect(html).toContain('data-testid="public-event-lineup"');
+    expect(html).toContain("Times definidos");
+    expect(html).toContain("Neymar");
+    expect(html).toContain("Nenhum nome autorizado");
+    expect(html).toContain("revision=2");
+    expect(html).not.toContain("athlete_id");
+    expect(html).not.toContain("revision_id");
+    expect(html).not.toContain("telefone");
   });
 
   it("keeps the event summary above the compact mobile header", async () => {

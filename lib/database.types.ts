@@ -3167,6 +3167,10 @@ export type Database = {
           yellow_cards: number
         }[]
       }
+      get_public_event_lineup: {
+        Args: { requested_public_id: string }
+        Returns: Json
+      }
       get_public_player_statistics: {
         Args: { requested_handle: string }
         Returns: {

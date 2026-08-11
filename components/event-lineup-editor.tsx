@@ -2,8 +2,10 @@
 
 import {
   linkEventLineupSquadToMatchSide,
+  publishEventLineup,
   saveEventLineupDraft,
   type EventLineupActionState,
+  withdrawEventLineupPublication,
 } from "@/app/app/[teamSlug]/events/lineup-actions";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import {
@@ -11,10 +13,12 @@ import {
   ArrowUp,
   BadgeCheck,
   CircleOff,
+  Globe2,
   Plus,
   Save,
   ShieldCheck,
   Trash2,
+  Undo2,
   UsersRound,
 } from "lucide-react";
 import { useActionState, useMemo, useState } from "react";
@@ -49,18 +53,24 @@ export function EventLineupEditor({
   teamId,
   teamSlug,
   eventId,
+  publicId,
   initialRequestId,
   initialSquads,
   athletes,
   matchSides,
+  canPublish = false,
+  activeRevision = null,
 }: {
   teamId: string;
   teamSlug: string;
   eventId: string;
+  publicId?: string;
   initialRequestId: string;
   initialSquads: EventLineupSquad[];
   athletes: EventLineupAthlete[];
   matchSides: EventLineupMatchSide[];
+  canPublish?: boolean;
+  activeRevision?: { revision: number; publishedAt: string } | null;
 }) {
   const [actionState, formAction] = useActionState(
     saveEventLineupDraft,
@@ -181,6 +191,17 @@ export function EventLineupEditor({
           </p>
         </div>
       </div>
+
+      {publicId ? (
+        <LineupPublicationPanel
+          teamId={teamId}
+          teamSlug={teamSlug}
+          eventId={eventId}
+          publicId={publicId}
+          canPublish={canPublish}
+          activeRevision={activeRevision}
+        />
+      ) : null}
 
       <form action={formAction} className="mt-5 space-y-6">
         <input type="hidden" name="teamId" value={teamId} />
@@ -308,6 +329,81 @@ export function EventLineupEditor({
         </div>
       ) : null}
     </section>
+  );
+}
+
+function LineupPublicationPanel({
+  teamId,
+  teamSlug,
+  eventId,
+  publicId,
+  canPublish,
+  activeRevision,
+}: {
+  teamId: string;
+  teamSlug: string;
+  eventId: string;
+  publicId: string;
+  canPublish: boolean;
+  activeRevision: { revision: number; publishedAt: string } | null;
+}) {
+  const [publishState, publishAction] = useActionState(
+    publishEventLineup,
+    initialActionState,
+  );
+  const [withdrawState, withdrawAction] = useActionState(
+    withdrawEventLineupPublication,
+    initialActionState,
+  );
+  const [publishRequestId] = useState(() => crypto.randomUUID());
+  const [withdrawRequestId] = useState(() => crypto.randomUUID());
+  const fields = { teamId, teamSlug, eventId, publicId };
+
+  return (
+    <div className="mt-5 rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+      <div className="flex items-start gap-3">
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-100 text-emerald-800">
+          <Globe2 className="size-5" aria-hidden />
+        </span>
+        <div>
+          <p className="text-sm font-black text-slate-900">
+            {activeRevision
+              ? `Revisão ${activeRevision.revision} publicada`
+              : "Divisão ainda não publicada"}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-slate-600">
+            A página e a imagem mostram somente nomes de atletas que autorizaram a divulgação esportiva.
+          </p>
+        </div>
+      </div>
+
+      {canPublish ? (
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <form action={publishAction}>
+            {Object.entries(fields).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
+            <input type="hidden" name="requestId" value={publishState.nextRequestId ?? publishRequestId} />
+            <AsyncSubmitButton pendingLabel="Publicando..." className="min-h-12 w-full">
+              <Globe2 aria-hidden /> {activeRevision ? "Publicar nova revisão" : "Publicar divisão"}
+            </AsyncSubmitButton>
+            {publishState.message ? <ActionMessage state={publishState} compact /> : null}
+          </form>
+          {activeRevision ? (
+            <form action={withdrawAction}>
+              {Object.entries(fields).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
+              <input type="hidden" name="requestId" value={withdrawState.nextRequestId ?? withdrawRequestId} />
+              <AsyncSubmitButton pendingLabel="Retirando..." variant="outline" className="min-h-12 w-full">
+                <Undo2 aria-hidden /> Retirar publicação
+              </AsyncSubmitButton>
+              {withdrawState.message ? <ActionMessage state={withdrawState} compact /> : null}
+            </form>
+          ) : null}
+        </div>
+      ) : (
+        <p className="mt-3 rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-600">
+          Owner ou admin revisa e publica. Manager continua podendo editar o rascunho.
+        </p>
+      )}
+    </div>
   );
 }
 

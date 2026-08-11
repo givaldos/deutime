@@ -158,7 +158,14 @@ export default async function EventDetailPage({
     isEditable &&
     membership.role !== "manager" &&
     (await isTeamFeatureEnabled(team.id, "whatsapp_reminders"));
-  const [squadsResult, spotsResult, exclusionsResult, matchesResult, sidesResult] =
+  const [
+    squadsResult,
+    spotsResult,
+    exclusionsResult,
+    matchesResult,
+    sidesResult,
+    activeRevisionResult,
+  ] =
     teamDivisionEnabled
       ? await Promise.all([
           supabase
@@ -190,8 +197,16 @@ export default async function EventDetailPage({
             .eq("event_id", event.id)
             .eq("team_id", team.id)
             .order("side_index"),
+          supabase
+            .from("event_lineup_revisions")
+            .select("revision, published_at")
+            .eq("event_id", event.id)
+            .eq("team_id", team.id)
+            .eq("is_active", true)
+            .maybeSingle(),
         ])
       : [
+          { data: null, error: null },
           { data: null, error: null },
           { data: null, error: null },
           { data: null, error: null },
@@ -204,7 +219,8 @@ export default async function EventDetailPage({
     !spotsResult.error &&
     !exclusionsResult.error &&
     !matchesResult.error &&
-    !sidesResult.error;
+    !sidesResult.error &&
+    !activeRevisionResult.error;
   const savedSquads = (squadsResult.data ?? []).map((squad) => ({
     id: squad.id,
     name: squad.name,
@@ -435,6 +451,7 @@ export default async function EventDetailPage({
             teamId={team.id}
             teamSlug={team.slug}
             eventId={event.id}
+            publicId={event.public_id}
             initialRequestId={crypto.randomUUID()}
             initialSquads={initialSquads}
             athletes={confirmed
@@ -448,6 +465,11 @@ export default async function EventDetailPage({
                   (excludedAthletes.has(athlete.id) ? "excluded" : "unassigned"),
               }))}
             matchSides={savedSquads.length > 0 ? lineupMatchSides : []}
+            canPublish={membership.role !== "manager"}
+            activeRevision={activeRevisionResult.data ? {
+              revision: activeRevisionResult.data.revision,
+              publishedAt: activeRevisionResult.data.published_at,
+            } : null}
           />
         ) : null}
 

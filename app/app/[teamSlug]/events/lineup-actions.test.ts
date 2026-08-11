@@ -18,7 +18,9 @@ vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 
 import {
   linkEventLineupSquadToMatchSide,
+  publishEventLineup,
   saveEventLineupDraft,
+  withdrawEventLineupPublication,
 } from "./lineup-actions";
 
 const ids = {
@@ -29,6 +31,7 @@ const ids = {
   squadB: "d7600000-0000-4000-8000-000000000002",
   athlete: "d7400000-0000-4000-8000-000000000001",
   match: "d7700000-0000-4000-8000-000000000001",
+  public: "e7310000-0000-4000-8000-000000000001",
 };
 
 function draftForm() {
@@ -106,6 +109,49 @@ describe("ações da divisão manual", () => {
       requested_match_id: ids.match,
       requested_side_index: 1,
       requested_squad_id: ids.squadA,
+      request_id: ids.request,
+    });
+  });
+
+  it("publica e invalida somente as superfícies canônicas do evento", async () => {
+    mocks.rpc.mockResolvedValue({
+      data: { squad_count: 2, assigned_count: 4, replayed: false },
+      error: null,
+    });
+    const form = new FormData();
+    form.set("teamId", ids.team);
+    form.set("teamSlug", "society-united");
+    form.set("eventId", ids.event);
+    form.set("publicId", ids.public);
+    form.set("requestId", ids.request);
+    await expect(publishEventLineup({}, form)).resolves.toMatchObject({
+      outcome: "success",
+      message: "Revisão publicada com 2 times e 4 atletas.",
+    });
+    expect(mocks.rpc).toHaveBeenCalledWith("publish_event_lineup", {
+      requested_event_id: ids.event,
+      request_id: ids.request,
+    });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith(`/e/${ids.public}`);
+    expect(mocks.revalidatePath).toHaveBeenCalledWith(`/e/${ids.public}/convite.png`);
+  });
+
+  it("retira a publicação sem apagar o rascunho", async () => {
+    mocks.rpc.mockResolvedValue({ data: { replayed: false }, error: null });
+    const form = new FormData();
+    for (const [name, value] of Object.entries({
+      teamId: ids.team,
+      teamSlug: "society-united",
+      eventId: ids.event,
+      publicId: ids.public,
+      requestId: ids.request,
+    })) form.set(name, value);
+    await expect(withdrawEventLineupPublication({}, form)).resolves.toMatchObject({
+      outcome: "success",
+      message: expect.stringContaining("rascunho continua salvo"),
+    });
+    expect(mocks.rpc).toHaveBeenCalledWith("withdraw_event_lineup_publication", {
+      requested_event_id: ids.event,
       request_id: ids.request,
     });
   });

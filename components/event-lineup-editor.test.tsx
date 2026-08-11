@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("@/app/app/[teamSlug]/events/lineup-actions", () => ({
   saveEventLineupDraft: vi.fn(),
   linkEventLineupSquadToMatchSide: vi.fn(),
+  publishEventLineup: vi.fn(),
+  withdrawEventLineupPublication: vi.fn(),
 }));
 
 import { EventLineupEditor } from "./event-lineup-editor";
@@ -58,5 +60,26 @@ describe("EventLineupEditor", () => {
     expect(html).toContain("não confirma presença");
     expect(html).toContain("não cria participação real");
     expect(html).toContain("Escolha um time salvo");
+  });
+
+  it("oferece publicação somente para owner/admin e explica o consentimento", () => {
+    const html = renderToStaticMarkup(
+      <EventLineupEditor
+        teamId="d7200000-0000-4000-8000-000000000001"
+        teamSlug="society-united"
+        eventId="d7300000-0000-4000-8000-000000000001"
+        publicId="e7310000-0000-4000-8000-000000000001"
+        initialRequestId="d7500000-0000-4000-8000-000000000001"
+        initialSquads={squads}
+        athletes={[]}
+        matchSides={[]}
+        canPublish
+        activeRevision={{ revision: 2, publishedAt: "2026-08-11T12:00:00Z" }}
+      />,
+    );
+    expect(html).toContain("Revisão 2 publicada");
+    expect(html).toContain("Publicar nova revisão");
+    expect(html).toContain("Retirar publicação");
+    expect(html).toContain("somente nomes de atletas que autorizaram");
   });
 });

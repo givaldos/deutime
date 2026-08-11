@@ -1,12 +1,14 @@
 import { BrandMark } from "@/components/brand-mark";
 import { EventAccessBootstrap } from "@/components/event-access-bootstrap";
 import { EventAccessAttendance } from "@/components/event-access-attendance";
+import { EventLineupShareActions } from "@/components/event-lineup-share-actions";
 import { Button } from "@/components/ui/button";
 import {
   type EventAccessContext,
   getEventAccessContext,
 } from "@/lib/data/event-access";
 import { getPublicEvent } from "@/lib/data/public-event";
+import { getPublicEventLineup } from "@/lib/data/public-lineup";
 import { getPublicEventMatches } from "@/lib/data/public-matches";
 import { getTeamLogoUrlByEventPublicId } from "@/lib/data/team-logo";
 import {
@@ -83,7 +85,8 @@ export async function generateMetadata({
 
   const description = `${publicEventKindLabels[event.kind]} do ${event.team_name} em ${formatPublicEventDate(event.starts_at, event.team_timezone)}, às ${formatPublicEventTime(event.starts_at, event.team_timezone)}.`;
   const canonicalPath = `/e/${event.public_id}`;
-  const imagePath = `${canonicalPath}/convite.png`;
+  const lineup = await getPublicEventLineup(publicId).catch(() => null);
+  const imagePath = `${canonicalPath}/convite.png${lineup ? `?revision=${lineup.revision}` : ""}`;
 
   return {
     title: `${event.title} — ${event.team_name}`,
@@ -125,10 +128,11 @@ export default async function PublicEventPage({
   if (!event) notFound();
 
   // Busca logo, acesso e partidas públicas em paralelo
-  const [access, teamLogoUrl, publicMatches] = await Promise.all([
+  const [access, teamLogoUrl, publicMatches, publicLineup] = await Promise.all([
     getEventAccessContext(publicId),
     getTeamLogoUrlByEventPublicId(publicId),
     getPublicEventMatches(publicId),
+    getPublicEventLineup(publicId).catch(() => null),
   ]);
 
   const ev = { ...event, team_logo_url: teamLogoUrl };
@@ -253,6 +257,46 @@ export default async function PublicEventPage({
 
         {access.context ? (
           <RecognizedEventAccess context={access.context} />
+        ) : null}
+
+        {publicLineup ? (
+          <section data-testid="public-event-lineup" className="app-surface overflow-hidden p-5">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-700">
+              Times definidos
+            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {publicLineup.squads.map((squad) => (
+                <article
+                  key={`${squad.sort_order}:${squad.name}`}
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
+                  style={{ borderTopColor: squad.color ?? "#0D9488", borderTopWidth: 5 }}
+                >
+                  <h2 className="px-4 pt-3 text-lg font-black text-slate-900">{squad.name}</h2>
+                  {squad.athletes.length > 0 ? (
+                    <ol className="mt-2 space-y-1 px-4 pb-4">
+                      {squad.athletes.map((athlete) => (
+                        <li key={`${athlete.sort_order}:${athlete.name}`} className="text-sm font-semibold text-slate-700">
+                          {athlete.name}
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="px-4 pb-4 pt-2 text-xs leading-5 text-slate-500">
+                      Nenhum nome autorizado para exibição pública.
+                    </p>
+                  )}
+                </article>
+              ))}
+            </div>
+            <p className="mt-3 text-xs leading-5 text-slate-500">
+              Revisão {publicLineup.revision}. Só aparecem atletas com autorização vigente; a resposta à chamada continua privada.
+            </p>
+            <EventLineupShareActions
+              eventTitle={ev.title}
+              eventUrl={`/e/${publicId}`}
+              imageUrl={`/e/${publicId}/convite.png?revision=${publicLineup.revision}`}
+            />
+          </section>
         ) : null}
 
         {publicMatches && publicMatches.length > 0 && (

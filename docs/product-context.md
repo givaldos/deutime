@@ -9,7 +9,7 @@ Este arquivo reúne somente fatos e regras estáveis que uma feature pode refere
 - `BASE-SERIES`: recorrência materializa eventos independentes; edição preserva respostas e exceções passadas.
 - `BASE-ATTENDANCE`: `event_attendance` inclui pendente, SIM, NÃO, TALVEZ e lista de espera; a auto-resposta aceita somente SIM/NÃO/TALVEZ para vínculo ativo, evento agendado e futuro e prazo aberto.
 - `BASE-MATCH-REPORT`: súmula atual é única por evento, pode nascer como rascunho antes do jogo e aceita correções auditadas depois do encerramento; estatísticas continuam derivadas do estado finalizado, sem contador paralelo.
-- `BASE-PUBLIC`: time e atleta possuem projeções públicas mínimas controladas pelas flags atuais; o BID não reivindicado ainda pode usar uma flag administrativa legada, cuja retirada e substituição por consentimentos versionados foi decidida em `DEC-PUBLIC-PRIVACY` e ainda não foi implementada.
+- `BASE-PUBLIC`: time, evento e atleta possuem projeções públicas mínimas controladas por flags; escalações publicadas recalculam em cada leitura o consentimento versionado e revogável `public_sports_activity`, enquanto o booleano administrativo legado do BID não reivindicado permanece apenas para compatibilidade até sua contração.
 - `BASE-WRITES`: mutações centrais do domínio seguem Server Action fina e RPC transacional com autorização revalidada; tabelas usam RLS, uploads usam Storage RLS e parte da auditoria por trigger ainda não possui garantia transacional uniforme.
 - `BASE-DELIVERY`: o repositório configura CI de qualidade, banco, dependências, CodeQL e Terraform e contém mecanismos independentes de publicação; o Git não comprova que todos estejam habilitados ou saudáveis em produção.
 
