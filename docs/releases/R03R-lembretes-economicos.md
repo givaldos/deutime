@@ -1,7 +1,7 @@
 ---
 id: R03R
 type: vertical
-status: ready
+status: completed
 outcome: "Permitir que a diretoria configure e envie no máximo dois lembretes de confirmação pelo WhatsApp, sem cobrar quem já respondeu e sem duplicar mensagens."
 depends_on:
   - R01
@@ -12,7 +12,7 @@ baseline:
   - BASE-ATTENDANCE
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "6f80df8"
+verified_at: "663c6ce"
 decisions:
   - DEC-DEFAULT-DEADLINES
   - DEC-PERSISTENT-ACCESS
@@ -243,7 +243,7 @@ quebra de linha e nunca começam ou encerram o corpo.
 - [x] `AC-R03R-06` — Remarcação, cancelamento, opt-out e remoção cancelam ou rematerializam cotas sem reescrever histórico.
 - [x] `AC-R03R-07` — Outbox garante no máximo uma mensagem por atleta/cota durante toda a vida do evento e preserva a barreira de efeito da R03.
 - [x] `AC-R03R-08` — Admin vê estados e agregados redigidos de destinatários, entrega, falhas e custo, sem PII ou payload.
-- [ ] `AC-R03R-09` — Convite, primeiro lembrete, última chamada e seus fallbacks abrem o link estável em WhatsApp real no iPhone e Android; a cota sempre seleciona a intenção correta sem expor segredo ou SID em preview ou logs.
+- [x] `AC-R03R-09` — Convite, primeiro lembrete, última chamada e seus fallbacks abrem o link estável em WhatsApp real no iPhone e Android; a cota sempre seleciona a intenção correta sem expor segredo ou SID em preview ou logs.
 - [x] `AC-R03R-10` — Flags e kill switches falham fechados; compartilhamento manual funciona e rollback preserva cotas e outbox.
 
 ## Riscos e controles
@@ -298,10 +298,15 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
 
 ## Evidências e checkpoint
 
-- CP0 a CP3 estão concluídos; a evidência detalhada foi preservada no
+- CP0 a CP6 estão concluídos; a evidência detalhada foi preservada no
   [arquivo histórico de R03R](evidence/R03R.md).
-- CP4 permanece pendente do disparo manual controlado do primeiro e do último
-  lembrete, incluindo fallbacks, em Android e iPhone.
+- CP4 validou convite, primeiro lembrete e última chamada no WhatsApp real em
+  dois celulares com sessões distintas; cards, links, identidade e RSVP
+  funcionaram sem mistura entre Neymar e Pelé.
+- CP5 exercitou piloto demo, telemetria redigida, fail-closed, reconciliação,
+  fallback operacional, rollback do agendador e smoke de produção.
+- CP6 fechou os dez critérios de aceite, sincronizou a documentação e manteve
+  `WHATSAPP_AUTOMATION_ENABLED=true` com os kill switches independentes.
 - Em 2026-08-10, o rollout contínuo foi autorizado para os três times demo e
   `WHATSAPP_AUTOMATION_ENABLED` passou a `true`; a primeira execução observada
   do workflow `#144` concluiu em cinco segundos sem erro operacional.
