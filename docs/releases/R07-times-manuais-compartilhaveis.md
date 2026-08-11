@@ -281,3 +281,32 @@ do WhatsApp.
   os quatro testes existentes;
 - próxima ação: `WP-R07-02`, implementar a divisão manual mobile sobre as RPCs,
   mantendo fallback, flag desligada e compatibilidade com App N.
+
+### `WP-R07-02` — CP2 concluído
+
+- a página privada do evento ganhou um editor mobile-first logo após o resumo,
+  antes da lista extensa de presenças, sem alterar a jornada existente quando
+  `team_division` estiver desligada ou o contrato novo estiver indisponível;
+- staff cria, renomeia, colore e ordena de 2 a 12 equipes; cada atleta com RSVP
+  SIM possui um seletor grande e acessível para equipe, exclusão ou estado sem
+  equipe, sem depender de arrastar;
+- Actions finas validam payloads limitados, identidade e flag no servidor e
+  delegam gravação e vínculo com partida às RPCs transacionais do CP1;
+- o vínculo opcional entre equipe salva e lado de partida não altera RSVP,
+  presença real, lances ou estatísticas, e só aparece após existir rascunho;
+- validação física local em viewport 390×844 confirmou editor de 358 px sem
+  overflow, distribuição de dois atletas, exclusão de um, salvamento e
+  persistência após recarga; em outro time com flag desligada, somente a lista
+  anterior de confirmados permaneceu visível;
+- o ensaio detectou IDs UUID legados com nibble de versão não canônico nos
+  dados demo; o parser aceita esse formato apenas para IDs vindos do banco e
+  mantém UUID estrito para request IDs recebidos do cliente;
+- gates verdes: 3 arquivos/10 testes focados, ESLint, TypeScript, suíte Vitest
+  completa com 51 arquivos/293 testes, `db:reset`, `db:lint` (somente dois
+  avisos legados), 38 arquivos/943 testes pgTAP, tipos de banco, build de
+  produção com Webpack e auditoria npm sem vulnerabilidades;
+- o build Turbopack continua limitado pelo bind de processo interno do runner;
+  o build equivalente com Webpack concluiu incluindo TypeScript e geração das
+  páginas;
+- `team_division` permanece desligada em produção. Próxima ação: `WP-R07-03`,
+  publicar revisão consentida e gerar a imagem compartilhável com fallback.

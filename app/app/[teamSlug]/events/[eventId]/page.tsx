@@ -3,6 +3,7 @@ import { EventCancelForm } from "@/components/event-cancel-form";
 import { EventSeriesExtensionForm } from "@/components/event-series-extension-form";
 import { PublicEventLinkCard } from "@/components/public-event-link-card";
 import { EventWhatsAppReminders } from "@/components/event-whatsapp-reminders";
+import { EventLineupEditor } from "@/components/event-lineup-editor";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Button } from "@/components/ui/button";
 import { AppContainer } from "@/components/ui/app-shell";
@@ -148,6 +149,8 @@ export default async function EventDetailPage({
     team.id,
     "public_event_page",
   );
+  const teamDivisionEnabled =
+    isEditable && (await isTeamFeatureEnabled(team.id, "team_division"));
   const publicEventUrl = publicEventPageEnabled
     ? new URL(`/e/${event.public_id}`, getAppUrl()).toString()
     : null;
@@ -155,6 +158,91 @@ export default async function EventDetailPage({
     isEditable &&
     membership.role !== "manager" &&
     (await isTeamFeatureEnabled(team.id, "whatsapp_reminders"));
+  const [squadsResult, spotsResult, exclusionsResult, matchesResult, sidesResult] =
+    teamDivisionEnabled
+      ? await Promise.all([
+          supabase
+            .from("event_squads")
+            .select("id, name, color, sort_order")
+            .eq("event_id", event.id)
+            .eq("team_id", team.id)
+            .order("sort_order"),
+          supabase
+            .from("lineup_spots")
+            .select("athlete_id, squad_id")
+            .eq("event_id", event.id)
+            .eq("team_id", team.id),
+          supabase
+            .from("event_lineup_exclusions")
+            .select("athlete_id")
+            .eq("event_id", event.id)
+            .eq("team_id", team.id),
+          supabase
+            .from("event_matches")
+            .select("id, ordinal, status")
+            .eq("event_id", event.id)
+            .eq("team_id", team.id)
+            .in("status", ["scheduled", "live"])
+            .order("ordinal"),
+          supabase
+            .from("match_sides")
+            .select("match_id, side_index, label, squad_id")
+            .eq("event_id", event.id)
+            .eq("team_id", team.id)
+            .order("side_index"),
+        ])
+      : [
+          { data: null, error: null },
+          { data: null, error: null },
+          { data: null, error: null },
+          { data: null, error: null },
+          { data: null, error: null },
+        ];
+  const lineupContractAvailable =
+    teamDivisionEnabled &&
+    !squadsResult.error &&
+    !spotsResult.error &&
+    !exclusionsResult.error &&
+    !matchesResult.error &&
+    !sidesResult.error;
+  const savedSquads = (squadsResult.data ?? []).map((squad) => ({
+    id: squad.id,
+    name: squad.name,
+    color: squad.color ?? "#0D9488",
+    sortOrder: squad.sort_order,
+  }));
+  const initialSquads = [...savedSquads];
+  const defaultSquadColors = ["#0D9488", "#2563EB"];
+  while (initialSquads.length < 2) {
+    const index = initialSquads.length;
+    initialSquads.push({
+      id: crypto.randomUUID(),
+      name: `Time ${index === 0 ? "A" : "B"}`,
+      color: defaultSquadColors[index] ?? "#0D9488",
+      sortOrder: index + 1,
+    });
+  }
+  const spotByAthlete = new Map(
+    (spotsResult.data ?? []).map((spot) => [spot.athlete_id, spot.squad_id]),
+  );
+  const excludedAthletes = new Set(
+    (exclusionsResult.data ?? []).map((exclusion) => exclusion.athlete_id),
+  );
+  const matchOrdinalById = new Map(
+    (matchesResult.data ?? []).map((match) => [match.id, match.ordinal]),
+  );
+  const lineupMatchSides = (sidesResult.data ?? []).flatMap((side) => {
+    const matchOrdinal = matchOrdinalById.get(side.match_id);
+    return matchOrdinal
+      ? [{
+          matchId: side.match_id,
+          matchOrdinal,
+          sideIndex: side.side_index,
+          label: side.label,
+          squadId: side.squad_id,
+        }]
+      : [];
+  });
   const [reminderSettingsResult, reminderStateResult] =
     whatsappRemindersEnabled
       ? await Promise.all([
@@ -341,6 +429,27 @@ export default async function EventDetailPage({
             </article>
           ))}
         </section>
+
+        {lineupContractAvailable ? (
+          <EventLineupEditor
+            teamId={team.id}
+            teamSlug={team.slug}
+            eventId={event.id}
+            initialRequestId={crypto.randomUUID()}
+            initialSquads={initialSquads}
+            athletes={confirmed
+              .filter((athlete) => athlete.status === "active")
+              .map((athlete) => ({
+                id: athlete.id,
+                name: athlete.preferred_name || athlete.full_name,
+                shirtNumber: athlete.shirt_number,
+                destination:
+                  spotByAthlete.get(athlete.id) ??
+                  (excludedAthletes.has(athlete.id) ? "excluded" : "unassigned"),
+              }))}
+            matchSides={savedSquads.length > 0 ? lineupMatchSides : []}
+          />
+        ) : null}
 
         <section>
           <div className="flex items-end justify-between gap-3">
