@@ -34,8 +34,26 @@ export async function GET(
   const [event, teamLogoUrl, lineup] = await Promise.all([
     isValid ? getPublicEvent(publicId).catch(() => null) : Promise.resolve(null),
     isValid ? getTeamLogoPngDataUrlByEventPublicId(publicId) : Promise.resolve(null),
-    isValid ? getPublicEventLineup(publicId).catch(() => null) : Promise.resolve(null),
+    isValid
+      ? getPublicEventLineup(publicId).catch(() => {
+          console.error("event_lineup_image.failed", {
+            reason: "projection_unavailable",
+          });
+          return null;
+        })
+      : Promise.resolve(null),
   ]);
+
+  if (lineup) {
+    console.info("event_lineup_image.rendered", {
+      revision: lineup.revision,
+      squadCount: lineup.squads.length,
+      namedAthleteCount: lineup.squads.reduce(
+        (count, squad) => count + squad.athletes.length,
+        0,
+      ),
+    });
+  }
 
   const brandLogoUrl = new URL(
     "/brand/logo-deutime-email-640-fundo-escuro.png",
