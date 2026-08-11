@@ -19,6 +19,7 @@ vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 import {
   linkEventLineupSquadToMatchSide,
   publishEventLineup,
+  saveAndPublishEventLineup,
   saveEventLineupDraft,
   withdrawEventLineupPublication,
 } from "./lineup-actions";
@@ -48,6 +49,13 @@ function draftForm() {
     { athlete_id: ids.athlete, squad_id: ids.squadA, sort_order: 1, position_code: null, slot_kind: "starter" },
   ]));
   form.set("exclusions", "[]");
+  return form;
+}
+
+function saveAndPublishForm() {
+  const form = draftForm();
+  form.set("publicId", ids.public);
+  form.set("publicationRequestId", "d7500000-0000-4000-8000-000000000002");
   return form;
 }
 
@@ -91,6 +99,47 @@ describe("ações da divisão manual", () => {
       attempt: 1,
       outcome: "error",
       message: "A lista mudou. Atualize a página e revise os confirmados.",
+    });
+  });
+
+  it("salva e publica em uma única intenção", async () => {
+    mocks.rpc
+      .mockResolvedValueOnce({
+        data: { assigned_count: 1, excluded_count: 0, replayed: false },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: { squad_count: 2, assigned_count: 1, replayed: false },
+        error: null,
+      });
+
+    await expect(
+      saveAndPublishEventLineup({}, saveAndPublishForm()),
+    ).resolves.toMatchObject({
+      outcome: "success",
+      published: true,
+      message: "Divisão salva e publicada para a galera.",
+    });
+    expect(mocks.rpc).toHaveBeenNthCalledWith(1, "save_event_lineup_draft", expect.any(Object));
+    expect(mocks.rpc).toHaveBeenNthCalledWith(2, "publish_event_lineup", {
+      requested_event_id: ids.event,
+      request_id: "d7500000-0000-4000-8000-000000000002",
+    });
+  });
+
+  it("mantém o rascunho recuperável quando a publicação falha", async () => {
+    mocks.rpc
+      .mockResolvedValueOnce({
+        data: { assigned_count: 1, excluded_count: 0, replayed: false },
+        error: null,
+      })
+      .mockResolvedValueOnce({ data: null, error: { code: "42501" } });
+
+    await expect(
+      saveAndPublishEventLineup({}, saveAndPublishForm()),
+    ).resolves.toMatchObject({
+      outcome: "error",
+      message: expect.stringContaining("foi salva, mas não publicada"),
     });
   });
 

@@ -37,9 +37,9 @@ invariants:
 No celular, staff parte de duas a doze equipes internas pré-cadastradas e recebe
 automaticamente uma sugestão equilibrada somente com atletas de RSVP **SIM**.
 Um toque move a pessoa entre os times; seleção explícita continua como fallback
-acessível. A jornada mostra uma ação principal por etapa: salvar a divisão e,
-depois, publicar. O mesmo link do evento mostra a versão publicada e oferece uma
-imagem DeuTime para WhatsApp.
+acessível. Para owner/admin, a jornada mostra uma única ação: salvar a divisão
+já publica ou atualiza a revisão. O mesmo link do evento mostra a versão
+publicada e oferece uma imagem DeuTime para WhatsApp.
 
 ## Três tempos
 
@@ -65,6 +65,8 @@ imagem DeuTime para WhatsApp.
   fazendo o usuário executar manualmente uma decisão mecânica;
 - o primeiro redesenho ainda exibiu configuração, salvar padrão, salvar rascunho
   e publicar ao mesmo tempo; isso expôs o modelo técnico e tornou a jornada pior;
+- o segundo redesenho separou salvar e publicar em etapas, mas o piloto mostrou
+  que a diretoria entende ambas como uma única confirmação da escalação;
 - “modelo de time” não representa a entidade real: a galera reconhece equipes
   internas persistentes, com escudo e histórico esportivo acumulável;
 
@@ -82,8 +84,8 @@ imagem DeuTime para WhatsApp.
 
 ### Futuro compatível
 
-- a sugestão automática usa o mesmo rascunho e nunca substitui edição manual,
-  exclusões ou publicação explícita;
+- a sugestão automática usa o mesmo rascunho e nunca substitui edição manual ou
+  exclusões; publicação automática acontece somente no salvar de owner/admin;
 - camisas permanentes e campeonatos poderão referenciar equipes publicadas sem
   transformar equipe do evento em presença real;
 - novas imagens por fase poderão reutilizar a revisão publicada e a projeção
@@ -107,8 +109,8 @@ imagem DeuTime para WhatsApp.
   lista explícita de confirmados ainda não distribuídos e de quem ficará fora;
 - cartões por time e controles por toque para colocar ou mover atleta, além de
   alternativa acessível por seleção; drag and drop nunca é necessário;
-- ocultar configuração de equipes da tela do evento e mostrar somente uma ação
-  principal por etapa: salvar a divisão; após sucesso, publicar ou atualizar;
+- ocultar configuração de equipes da tela do evento e, para owner/admin, usar
+  uma única ação que salva a divisão e publica ou atualiza a revisão;
 - salvar rascunho idempotente por RPC transacional e auditar agregados sem
   nomes, telefones ou conteúdo integral;
 - relacionar opcionalmente equipes aos lados de cada partida do evento, sem
@@ -154,15 +156,16 @@ imagem DeuTime para WhatsApp.
   estado completo;
 - uma migration forward-only acrescentará o mínimo necessário para exclusões,
   revisão publicada e idempotência. Migration aplicada nunca será editada;
-- o rascunho é mutável enquanto o evento não estiver encerrado. Publicar cria
-  revisão imutável; edições posteriores não alteram o que já foi publicado até
-  nova confirmação explícita;
+- o rascunho é mutável enquanto o evento não estiver encerrado. O salvar de
+  owner/admin cria uma revisão imutável; edições locais não alteram a revisão
+  ativa até a nova confirmação no botão único;
 - a revisão guarda relações com atletas e equipes, não uma cópia pública
   irrestrita de nomes. A projeção recalcula consentimento e vínculo a cada
   leitura; revogação remove a identidade das superfícies futuras sem apagar a
   evidência privada;
-- manager pode operar o rascunho do próprio time; publicação e retirada pública
-  exigem owner/admin. A identidade e o `team_id` derivam da sessão;
+- manager pode operar somente o rascunho privado do próprio time; salvar e
+  publicar em uma intenção, bem como retirar a publicação, exige owner/admin.
+  A identidade e o `team_id` derivam da sessão;
 - Actions validam formato e delegam. Criação, movimentação, exclusão, vínculo
   com partida e publicação ficam em RPCs estreitas com lock do evento;
 - grants diretos de escrita em `event_squads` e `lineup_spots` serão contraídos
@@ -219,7 +222,7 @@ imagem DeuTime para WhatsApp.
 - [x] `AC-R07-11` — Owner/admin salva modelos reutilizáveis do próprio time; outro time não lê nem altera, e eventos históricos não mudam quando o modelo muda.
 - [x] `AC-R07-12` — Evento novo nasce com sugestão reproduzível, espalha preferências de goleiro e mantém diferença máxima de uma pessoa, sem nota oculta e sem persistir antes de salvar.
 - [x] `AC-R07-13` — Owner/admin mantém de 2 a 12 equipes internas com nome, cor e escudo padronizado; evento referencia a identidade e guarda snapshot, e desativação não altera fatos anteriores.
-- [x] `AC-R07-14` — A tela do evento não edita nem salva modelos: usa equipes pré-cadastradas e apresenta somente uma ação principal por etapa, salvar e depois publicar.
+- [x] `AC-R07-14` — A tela do evento não edita nem salva modelos: usa equipes pré-cadastradas e, para owner/admin, salvar já publica ou atualiza a revisão em uma única ação.
 
 ## Riscos e controles
 
@@ -234,7 +237,7 @@ imagem DeuTime para WhatsApp.
 | algoritmo parecer arbitrário | regra curta, reproduzível e explicada na UI | teste puro com mesmos dados e eventos diferentes |
 | edição da equipe interna reescrever histórico | vínculo estável com a identidade e snapshot visual no evento, sem atualização em cascata | pgTAP de alteração posterior |
 | identidade interna virar contador divergente | vínculo estável e estatística futura derivada de partidas encerradas | pgTAP do vínculo e consulta derivável |
-| excesso de ações confundir a diretoria | gestão fora do evento e ação principal progressiva | teste de interface e piloto físico |
+| excesso de ações confundir a diretoria | gestão fora do evento e salvar/publicar em uma única intenção | teste de interface e piloto físico |
 | imagem vazar capability ou PII | rota derivada do `public_id` e projeção mínima | testes de metadata, cache e logs |
 | custo ou abuso de renderização | limites, revisão versionada e cache controlado | teste de rate/limite e observação piloto |
 | deploy quebrar app antigo | expansão inerte antes da contração | matriz App/DB N/N−1 |
@@ -486,3 +489,15 @@ do WhatsApp.
   `main` e `dev` foram sincronizadas no merge;
 - próxima evidência: repetir equipes automáticas, troca por toque, salvar e
   publicar em Android e iPhone para concluir `AC-R07-04` e `AC-R07-10`.
+
+### `WP-R07-06` — CP4 confirmação única validada localmente
+
+- `Salvar escalação` passou a salvar o rascunho e publicar ou atualizar a
+  revisão para owner/admin; manager continua salvando somente rascunho privado;
+- rascunhos legados ainda não publicados mantêm um fallback explícito e a
+  retirada de publicação continua disponível para recuperação operacional;
+- ensaio mobile `390×844`: o primeiro salvar criou a revisão 1; após mover um
+  atleta, o mesmo botão criou a revisão 2, sem ação separada de publicação;
+- gates verdes: 2 arquivos/12 testes focados, 57 arquivos/320 testes Vitest,
+  ESLint, TypeScript, build de produção com Webpack e auditoria sem
+  vulnerabilidades. Próximo passo: promover e repetir em Android/iPhone.

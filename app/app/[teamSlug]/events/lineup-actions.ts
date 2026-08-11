@@ -16,6 +16,8 @@ export type EventLineupActionState = {
   outcome?: "success" | "error";
   message?: string;
   nextRequestId?: string;
+  nextPublicationRequestId?: string;
+  published?: boolean;
 };
 
 function parseJsonField(value: FormDataEntryValue | null, maxLength: number) {
@@ -213,6 +215,45 @@ export async function publishEventLineup(
   formData: FormData,
 ) {
   return changeEventLineupPublication(previousState, formData, "publish");
+}
+
+export async function saveAndPublishEventLineup(
+  previousState: EventLineupActionState,
+  formData: FormData,
+): Promise<EventLineupActionState> {
+  const saved = await saveEventLineupDraft(previousState, formData);
+  if (saved.outcome !== "success") return saved;
+
+  const publicationForm = new FormData();
+  for (const field of ["teamId", "teamSlug", "eventId", "publicId"] as const) {
+    const value = formData.get(field);
+    if (value !== null) publicationForm.set(field, value);
+  }
+  const publicationRequestId = formData.get("publicationRequestId");
+  if (publicationRequestId !== null) {
+    publicationForm.set("requestId", publicationRequestId);
+  }
+
+  const published = await changeEventLineupPublication(
+    previousState,
+    publicationForm,
+    "publish",
+  );
+  if (published.outcome !== "success") {
+    return {
+      ...published,
+      nextRequestId: saved.nextRequestId,
+      message: `A divisão foi salva, mas não publicada. ${published.message ?? "Tente novamente."}`,
+    };
+  }
+
+  return {
+    ...published,
+    nextRequestId: saved.nextRequestId,
+    nextPublicationRequestId: published.nextRequestId,
+    published: true,
+    message: "Divisão salva e publicada para a galera.",
+  };
 }
 
 export async function withdrawEventLineupPublication(
