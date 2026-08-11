@@ -538,3 +538,12 @@ do WhatsApp.
   parou somente pela restrição conhecida do sandbox ao abrir porta;
 - próxima evidência: promover pela rotina `dev → PR → main` e validar o
   compartilhamento nativo e o bloco recolhido de lembretes em aparelho físico.
+
+### `WP-R07-06` — CP5 superfície simplificada em produção
+
+- PR `#166`, merge `be018d1`; CI, Database, CodeQL, Terraform, Dependency
+  Review e Vercel verdes;
+- deployment Vercel `2HhLjvRAiZYeBDqDf476jopCHY2P` concluído e workflow
+  `Smoke` `31545606257` verde;
+- `main` e `dev` sincronizadas no merge. Próxima evidência: validar em aparelho
+  físico o compartilhamento nativo e o bloco recolhido em `Editar evento`.
