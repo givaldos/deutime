@@ -26,8 +26,11 @@ tests:
   - "npx vitest run whatsapp-worker + worker route: 2 arquivos, 13 testes passaram"
   - "APP_URL=https://deutime.app npm run smoke:production: passou após habilitar o rollout"
   - "filtro jq do worker: respostas live/409, descarte de PII/campos extras, normalização e JSON inválido passaram"
+  - "pgTAP callback por tentativa: 12/12; replay confirmado reprojeta a outbox"
+  - "npm run db:test: 37 arquivos, 912 testes passaram após a correção"
+  - "npm run db:lint: sem alerta novo; tipos do banco sem diff"
 blocker: null
-next_action: "Observar a primeira cota automática em 2026-08-12 10:00 UTC e executar CP4 físico dos dois lembretes e fallbacks em Android/iPhone; desligar WHATSAPP_AUTOMATION_ENABLED diante de falha, ambiguidade ou custo inesperado."
+next_action: "Publicar a migration 202608110001, reconciliar via RPC os dois convites antigos já confirmados como read, verificar requires_review=0 e então reativar WHATSAPP_AUTOMATION_ENABLED."
 ---
 
 # Trabalho atual
@@ -65,3 +68,14 @@ O workflow agora imprime uma projeção redigida do resumo operacional. Somente
 estado, prontidão dos templates e contadores agregados entram no log; campos
 extras são descartados e resposta inválida encerra o job sem imprimir o corpo
 bruto. Isso permite observar a primeira cota automática diretamente no GitHub.
+
+A primeira execução com essa projeção encontrou duas revisões antigas. Ambas
+eram convites `event_call/card_v1` criados em 08/08, com ID do provedor e estado
+final `read`; nenhuma mensagem nova foi aceita e nenhuma cota foi produzida.
+`WHATSAPP_AUTOMATION_ENABLED` foi imediatamente definido como `false`.
+
+A causa era o retorno antecipado no conflito idempotente do evento de callback:
+o replay preservava o evento, mas não reprojetava a outbox. A migration
+forward-only `202608110001` corrige o replay sem duplicar evento nem liberar
+retry. A próxima ação é publicá-la, reconciliar os dois registros pela própria
+RPC, confirmar `requires_review=0` e somente então reativar o agendador.

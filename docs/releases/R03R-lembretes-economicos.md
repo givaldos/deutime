@@ -314,4 +314,12 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
   operacionais do worker. Telefone, payload, capability, SID, segredo e campos
   futuros não pertencentes à allowlist são descartados; JSON inválido faz o
   job falhar fechado sem imprimir o corpo bruto.
+- A primeira leitura redigida detectou duas revisões antigas de convite
+  `event_call/card_v1`: ambas já possuíam ID do provedor e estado final `read`,
+  mas o replay idempotente retornava antes de reprojetar a outbox. O agendador
+  foi desligado imediatamente, sem nova mensagem aceita ou cota produzida.
+- A migration forward-only `202608110001` faz o replay confirmado reprojetar a
+  outbox sem duplicar evento, regredir estado ou liberar retry. pgTAP focado:
+  12/12; suíte completa: 37 arquivos e 912 testes; lint manteve somente os
+  avisos legados e os tipos permaneceram sem diff.
 - O estado operacional e a próxima ação ficam em [`docs/work/current.md`](../work/current.md).
