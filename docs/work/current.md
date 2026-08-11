@@ -30,7 +30,7 @@ tests:
   - "npm run db:test: 37 arquivos, 912 testes passaram após a correção"
   - "npm run db:lint: sem alerta novo; tipos do banco sem diff"
 blocker: null
-next_action: "Observar a primeira execução natural após a correção, exigir recoveredForReview=0 e então executar CP4 físico dos dois lembretes e fallbacks em Android/iPhone."
+next_action: "Executar CP4 físico: disparar primeiro e último lembrete controlados, validar card/fallback, link e RSVP em Android e iPhone e registrar AC-R03R-09."
 ---
 
 # Trabalho atual
@@ -83,5 +83,10 @@ O deploy de banco `#144` aplicou a correção em produção. A reconciliação u
 própria RPC, com guarda exata de dois candidatos já confirmados como `read`, e
 terminou com `requires_review=0` e dois convites confirmados, sem novo envio.
 Depois dessa prova, `WHATSAPP_AUTOMATION_ENABLED` voltou a `true`. A próxima
-ação é observar uma execução natural com `recoveredForReview=0` e concluir o
-CP4 físico dos lembretes.
+execução natural, run `31446189522`, passou com HTTP 200, templates prontos,
+produção automática ativa e todos os contadores zerados, inclusive
+`recoveredForReview=0` e `ambiguous=0`. Nenhuma mensagem foi enviada porque não
+havia cota vencida.
+
+A próxima ação é o CP4 físico: disparar de forma controlada o primeiro e o
+último lembrete e validar card/fallback, link e RSVP no Android e no iPhone.
