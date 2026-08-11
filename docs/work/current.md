@@ -25,6 +25,7 @@ tests:
   - "npm run security:audit: zero vulnerabilidades"
   - "npx vitest run whatsapp-worker + worker route: 2 arquivos, 13 testes passaram"
   - "APP_URL=https://deutime.app npm run smoke:production: passou após habilitar o rollout"
+  - "filtro jq do worker: respostas live/409, descarte de PII/campos extras, normalização e JSON inválido passaram"
 blocker: null
 next_action: "Observar a primeira cota automática em 2026-08-12 10:00 UTC e executar CP4 físico dos dois lembretes e fallbacks em Android/iPhone; desligar WHATSAPP_AUTOMATION_ENABLED diante de falha, ambiguidade ou custo inesperado."
 ---
@@ -59,3 +60,8 @@ A próxima ação é observar essa primeira cota automática e executar CP4 fís
 dos dois lembretes e fallbacks em Android/iPhone. Diante de falha, ambiguidade
 ou custo inesperado, o rollback imediato é definir
 `WHATSAPP_AUTOMATION_ENABLED=false`.
+
+O workflow agora imprime uma projeção redigida do resumo operacional. Somente
+estado, prontidão dos templates e contadores agregados entram no log; campos
+extras são descartados e resposta inválida encerra o job sem imprimir o corpo
+bruto. Isso permite observar a primeira cota automática diretamente no GitHub.

@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+
       - name: Execute production worker
         env:
           WORKER_SECRET: ${{ secrets.WHATSAPP_WORKER_SECRET }}
@@ -29,6 +32,7 @@ jobs:
           fi
 
           response_file="$(mktemp)"
+          trap 'rm -f "$response_file"' EXIT
           http_code="$(curl --silent --show-error \
             --output "$response_file" \
             --write-out '%{http_code}' \
@@ -38,6 +42,13 @@ jobs:
 
           if [ "$http_code" = "200" ] || [ "$http_code" = "409" ]; then
             echo "Worker concluído com estado operacional HTTP $http_code."
+            echo "Resumo operacional redigido:"
+            if ! jq --compact-output \
+              --from-file .github/filters/whatsapp-worker-summary.jq \
+              "$response_file"; then
+              echo "Resposta operacional inválida ou não redigível." >&2
+              exit 1
+            fi
             exit 0
           fi
 
