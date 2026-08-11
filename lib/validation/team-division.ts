@@ -85,6 +85,32 @@ export const eventLineupPublicationSchema = z.object({
   requestId: requestUuid,
 });
 
+export const saveTeamSquadPresetsSchema = z
+  .object({
+    teamId: databaseUuid,
+    teamSlug: z.string().regex(TEAM_SLUG_PATTERN),
+    eventId: databaseUuid,
+    requestId: requestUuid,
+    presets: z.array(lineupSquadSchema).min(2).max(12),
+  })
+  .superRefine((input, context) => {
+    const ids = new Set(input.presets.map((preset) => preset.id));
+    const names = new Set(
+      input.presets.map((preset) => preset.name.trim().toLocaleLowerCase("pt-BR")),
+    );
+    const orders = new Set(input.presets.map((preset) => preset.sort_order));
+    if (
+      ids.size !== input.presets.length ||
+      names.size !== input.presets.length ||
+      orders.size !== input.presets.length
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "Use modelos diferentes e ordenados.",
+      });
+    }
+  });
+
 export type SaveEventLineupDraftInput = z.infer<
   typeof saveEventLineupDraftSchema
 >;

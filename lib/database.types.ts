@@ -2552,6 +2552,85 @@ export type Database = {
           },
         ]
       }
+      team_squad_preset_commands: {
+        Row: {
+          actor_id: string
+          created_at: string
+          id: string
+          request_id: string
+          result: Json
+          team_id: string
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          id?: string
+          request_id: string
+          result: Json
+          team_id: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          id?: string
+          request_id?: string
+          result?: Json
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_squad_preset_commands_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_squad_presets: {
+        Row: {
+          color: string
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          sort_order: number
+          team_id: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          color: string
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          sort_order: number
+          team_id: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          team_id?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_squad_presets_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_whatsapp_reminder_settings: {
         Row: {
           created_at: string
@@ -3412,6 +3491,20 @@ export type Database = {
         }
         Returns: string
       }
+      replace_team_squad_presets: {
+        Args: {
+          request_id: string
+          requested_presets: Json
+          requested_team_id: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["team_squad_preset_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "team_squad_preset_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       report_match_comment: {
         Args: { requested_comment_id: string; requested_reason: string }
         Returns: string
@@ -3886,6 +3979,11 @@ export type Database = {
         slot_key: Database["public"]["Enums"]["event_reminder_slot_key"] | null
         eligible_count: number | null
         inserted_count: number | null
+        replayed: boolean | null
+      }
+      team_squad_preset_command_result: {
+        request_id: string | null
+        preset_count: number | null
         replayed: boolean | null
       }
     }

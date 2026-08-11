@@ -26,7 +26,7 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | **R05 — Craque da Galera** | ✅ `completed` | Voto único anônimo, autovoto, janela de até 12 h, resultado agregado e retenção segura. | [Abrir](releases/R05-craque-da-galera.md) |
 | **R06 — Conversa da súmula** | ✅ `completed` | Jornada privada, moderação, retenção, iPhone/Android, rollout controlado e rollback comprovados. | [Abrir](releases/R06-conversa-da-sumula.md) |
 | **R03R — Lembretes econômicos** | ✅ `completed` | Duas cotas configuráveis, somente para pendentes, com envio manual/automático idempotente e custo agregado. | [Abrir](releases/R03R-lembretes-economicos.md) |
-| **R07 — Times manuais compartilháveis** | 🟢 `ready` — CP0 concluído | Transformar confirmados em equipes, escalação e imagem compartilhável sem depender do algoritmo automático. | [Abrir](releases/R07-times-manuais-compartilhaveis.md) |
+| **R07 — Times reutilizáveis e divisão compartilhável** | 🟡 `in progress` — experiência reaberta | Reutilizar modelos de times, sugerir divisão equilibrada, ajustar por toque e compartilhar a escalação. | [Abrir](releases/R07-times-manuais-compartilhaveis.md) |
 
 ## O que falta para o MVP completo
 
@@ -88,7 +88,7 @@ Essa ordem termina fatias pequenas antes de abrir a próxima, reutiliza os contr
 
 | Release | Estado | Resultado autossuficiente | Depende de | Decisão antes de promover | Fallback |
 |---|---|---|---|---|---|
-| **R08 — Divisão automática** | ⚪ `não iniciado` | Sugestão reproduzível, ajustável e explicável, com afinidades, restrições, equilíbrio e rodízio. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Divisão manual |
+| **R08 — Divisão automática** | ↪️ `incorporado à R07` | Sugestão reproduzível, ajustável e explicável foi incorporada à jornada de divisão para não entregar uma experiência fragmentada. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Ajuste manual |
 | **R09 — Campeonatos, camisas e tabela** | ⚪ `não iniciado` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento e histórico. | R04, R07 | modelo de campeonato | Histórico por partida |
 | **R10 — Reconhecimento** | ⚪ `não iniciado` | Pontos positivos, Craques e perfis consentidos, sem ranking constrangedor. | R04, R05 | — | Estatísticas básicas |
 
