@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(11);
+select plan(12);
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password,
@@ -90,6 +90,18 @@ select is(
   true,
   'callback antecipado resolve a tentativa pelo UUID'
 );
+
+reset role;
+update public.notification_outbox
+set
+  status = 'failed',
+  failure_class = 'ambiguous',
+  requires_review = true,
+  last_error = 'lease_expired_after_effect',
+  processed_at = now()
+where id = 'd8300000-0000-4000-8000-000000000001';
+
+set local role service_role;
 select is(
   public.record_notification_callback_by_attempt_id(
     'd8400000-0000-4000-8000-000000000001',
@@ -100,6 +112,21 @@ select is(
 );
 
 reset role;
+select is(
+  (
+    select concat_ws(
+      ':',
+      status::text,
+      coalesce(failure_class, 'none'),
+      requires_review::text,
+      coalesce(last_error, 'none')
+    )
+    from public.notification_outbox
+    where id = 'd8300000-0000-4000-8000-000000000001'
+  ),
+  'sent:none:false:none',
+  'replay confirmado reprojeta e libera a quarentena sem retry'
+);
 select is(
   (
     select count(*)
