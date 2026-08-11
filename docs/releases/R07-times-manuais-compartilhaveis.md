@@ -426,3 +426,13 @@ do WhatsApp.
   o build equivalente com Webpack passou integralmente;
 - próximo passo: promover expansão e consumidor juntos, executar smoke e repetir
   o fluxo por toque em Android/iPhone antes de concluir `AC-R07-04` e `AC-R07-10`.
+
+### `WP-R07-05` — CP5 produção pronta para validação física
+
+- PR `#160`, merge `1562bc0`; quality, banco, Dependency Review, CodeQL,
+  Terraform e Vercel verdes;
+- workflow `Deploy database` `31518690923` aplicou e conferiu a migration em
+  produção; workflow `Smoke` `31518742849` e smoke manual somente leitura em
+  `https://deutime.app` verdes;
+- `main` e `dev` sincronizadas no merge. Próxima evidência: executar a nova
+  jornada por toque na coorte demo em Android/iPhone antes de concluir a R07.
