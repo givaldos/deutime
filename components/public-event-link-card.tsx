@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Check, Copy, Link2 } from "lucide-react";
+import { Check, Link2, Share2 } from "lucide-react";
 import { useState } from "react";
 
 async function copyText(value: string) {
@@ -26,14 +26,35 @@ async function copyText(value: string) {
   }
 }
 
-export function PublicEventLinkCard({ publicUrl }: { publicUrl: string }) {
-  const [status, setStatus] = useState<"idle" | "copied" | "error">("idle");
+export function PublicEventLinkCard({
+  publicUrl,
+  eventTitle,
+}: {
+  publicUrl: string;
+  eventTitle: string;
+}) {
+  const [status, setStatus] = useState<
+    "idle" | "shared" | "copied" | "error"
+  >("idle");
 
-  async function handleCopy() {
+  async function handleShare() {
     try {
+      if (navigator.share) {
+        await navigator.share({
+          title: eventTitle,
+          text: `Confira ${eventTitle} no DeuTime.`,
+          url: publicUrl,
+        });
+        setStatus("shared");
+        return;
+      }
       await copyText(publicUrl);
       setStatus("copied");
-    } catch {
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        setStatus("idle");
+        return;
+      }
       setStatus("error");
     }
   }
@@ -41,51 +62,60 @@ export function PublicEventLinkCard({ publicUrl }: { publicUrl: string }) {
   return (
     <section
       aria-labelledby="public-event-link-title"
-      className="app-surface p-5 sm:p-6"
+      className="app-surface p-4 sm:p-5"
     >
-      <div className="flex items-start gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-700">
-          <Link2 className="size-5" aria-hidden />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <div className="grid size-10 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-700">
+            <Link2 className="size-5" aria-hidden />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="app-kicker">Compartilhar</p>
+            <h2
+              id="public-event-link-title"
+              className="mt-1 text-lg font-black tracking-tight"
+            >
+              Compartilhe com a galera
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-slate-500">
+              Envie o evento pelo WhatsApp ou por outro aplicativo.
+            </p>
+          </div>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="app-kicker">Compartilhar</p>
-          <h2
-            id="public-event-link-title"
-            className="mt-1 text-lg font-black tracking-tight"
-          >
-            Link público do evento
-          </h2>
-          <p className="mt-1 text-sm leading-6 text-slate-500">
-            Qualquer pessoa com este endereço poderá consultar as informações
-            públicas do evento.
-          </p>
-        </div>
+
+        <Button
+          type="button"
+          className="h-12 w-full sm:w-auto"
+          onClick={handleShare}
+        >
+          {status === "shared" || status === "copied" ? (
+            <Check aria-hidden />
+          ) : (
+            <Share2 aria-hidden />
+          )}
+          {status === "shared"
+            ? "Compartilhado"
+            : status === "copied"
+              ? "Link copiado"
+              : "Compartilhar evento"}
+        </Button>
       </div>
 
-      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
-        <p className="truncate text-xs font-medium text-slate-600" title={publicUrl}>
-          {publicUrl}
+      {status !== "idle" ? (
+        <p
+          className={`mt-2 text-center text-xs font-medium sm:text-right ${
+            status === "error" ? "text-red-700" : "text-emerald-700"
+          }`}
+          role={status === "error" ? "alert" : "status"}
+          aria-live="polite"
+        >
+          {status === "shared"
+            ? "Evento enviado."
+            : status === "copied"
+              ? "Link copiado. Agora é só colar no WhatsApp."
+              : "Não foi possível compartilhar. Tente novamente."}
         </p>
-      </div>
-
-      <Button type="button" className="mt-3 h-12 w-full" onClick={handleCopy}>
-        {status === "copied" ? <Check aria-hidden /> : <Copy aria-hidden />}
-        {status === "copied" ? "Link copiado" : "Copiar link público"}
-      </Button>
-
-      <p
-        className={`mt-2 min-h-5 text-center text-xs font-medium ${
-          status === "error" ? "text-red-700" : "text-emerald-700"
-        }`}
-        role={status === "error" ? "alert" : "status"}
-        aria-live="polite"
-      >
-        {status === "copied"
-          ? "Pronto para colar no WhatsApp."
-          : status === "error"
-            ? "Não foi possível copiar. Toque e segure o endereço acima."
-            : ""}
-      </p>
+      ) : null}
     </section>
   );
 }

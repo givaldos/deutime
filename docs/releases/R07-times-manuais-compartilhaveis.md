@@ -19,6 +19,7 @@ decisions:
   - DEC-STABLE-EVENT-LINK
   - DEC-BALANCE-OBJECTIVE
   - DEC-INTERNAL-SQUAD-IDENTITY
+  - DEC-EVENT-SURFACE-FOCUS
 invariants:
   - INV-MOBILE-WHATSAPP-FIRST
   - INV-RLS-MULTI-TIME
@@ -40,6 +41,9 @@ Um toque move a pessoa entre os times; seleção explícita continua como fallba
 acessível. Para owner/admin, a jornada mostra uma única ação: salvar a divisão
 já publica ou atualiza a revisão. O mesmo link do evento mostra a versão
 publicada e oferece uma imagem DeuTime para WhatsApp.
+
+A página aberta permanece focada no jogo: compartilhar usa uma ação única e
+lembretes automáticos ficam recolhidos em Editar, fora do fluxo de chamada.
 
 ## Três tempos
 
@@ -67,6 +71,8 @@ publicada e oferece uma imagem DeuTime para WhatsApp.
   e publicar ao mesmo tempo; isso expôs o modelo técnico e tornou a jornada pior;
 - o segundo redesenho separou salvar e publicar em etapas, mas o piloto mostrou
   que a diretoria entende ambas como uma única confirmação da escalação;
+- link público e controles de lembrete ainda ocupam espaço demais na página
+  aberta, embora notificações sejam automáticas e configuração seja eventual;
 - “modelo de time” não representa a entidade real: a galera reconhece equipes
   internas persistentes, com escudo e histórico esportivo acumulável;
 
@@ -111,6 +117,8 @@ publicada e oferece uma imagem DeuTime para WhatsApp.
   alternativa acessível por seleção; drag and drop nunca é necessário;
 - ocultar configuração de equipes da tela do evento e, para owner/admin, usar
   uma única ação que salva a divisão e publica ou atualiza a revisão;
+- reduzir compartilhamento a uma ação nativa com fallback de cópia e mover
+  configuração/acionamento de lembretes para uma área recolhida em Editar;
 - salvar rascunho idempotente por RPC transacional e auditar agregados sem
   nomes, telefones ou conteúdo integral;
 - relacionar opcionalmente equipes aos lados de cada partida do evento, sem
@@ -175,6 +183,8 @@ publicada e oferece uma imagem DeuTime para WhatsApp.
   específico. Capability R02 não revela escalação de terceiros;
 - a imagem usa `ImageResponse`, dados da projeção pública e cache privado ou
   versionado. O HTML e a metadata nunca carregam capability;
+- a página aberta não carrega configuração de lembretes; Editar reúne o estado
+  automático e o fallback manual sem alterar filas, horários ou autorização;
 - o vínculo opcional com partida atualiza `match_sides.squad_id`; presença real
   permanece exclusivamente em `match_participations`.
 
@@ -205,7 +215,7 @@ publicada e oferece uma imagem DeuTime para WhatsApp.
 | `WP-R07-03` — publicação e imagem | `AC-R07-03`, `07`, `08`, `09` | página pública, projeção e imagem | `VAL-PUBLIC` + Android/iPhone |
 | `WP-R07-04` — piloto e conclusão | `AC-R07-08` a `10` | telemetria, runbook, rollout e evidências | `VAL-APP`, `VAL-DB`, smoke e rollback |
 | `WP-R07-05` — experiência completa | `AC-R07-01`, `04`, `05`, `10`, `11`, `12` | presets, sugestão automática, cartões por toque e novo piloto | `VAL-APP` + `VAL-DB` + Android/iPhone |
-| `WP-R07-06` — equipes internas intuitivas | `AC-R07-04`, `10`, `13`, `14` | identidade persistente, escudos SVG, gestão fora do evento e ação progressiva | `VAL-APP` + `VAL-DB` + Android/iPhone |
+| `WP-R07-06` — equipes internas intuitivas | `AC-R07-04`, `10`, `13`, `14`, `15` | identidade persistente, escudos SVG e superfície focada no jogo | `VAL-APP` + Android/iPhone |
 
 ## Critérios de aceite
 
@@ -223,6 +233,7 @@ publicada e oferece uma imagem DeuTime para WhatsApp.
 - [x] `AC-R07-12` — Evento novo nasce com sugestão reproduzível, espalha preferências de goleiro e mantém diferença máxima de uma pessoa, sem nota oculta e sem persistir antes de salvar.
 - [x] `AC-R07-13` — Owner/admin mantém de 2 a 12 equipes internas com nome, cor e escudo padronizado; evento referencia a identidade e guarda snapshot, e desativação não altera fatos anteriores.
 - [x] `AC-R07-14` — A tela do evento não edita nem salva modelos: usa equipes pré-cadastradas e, para owner/admin, salvar já publica ou atualiza a revisão em uma única ação.
+- [x] `AC-R07-15` — A página aberta mostra uma única ação de compartilhar e não exibe controles de lembrete; lembretes automáticos e fallback manual ficam recolhidos em Editar.
 
 ## Riscos e controles
 
@@ -238,6 +249,7 @@ publicada e oferece uma imagem DeuTime para WhatsApp.
 | edição da equipe interna reescrever histórico | vínculo estável com a identidade e snapshot visual no evento, sem atualização em cascata | pgTAP de alteração posterior |
 | identidade interna virar contador divergente | vínculo estável e estatística futura derivada de partidas encerradas | pgTAP do vínculo e consulta derivável |
 | excesso de ações confundir a diretoria | gestão fora do evento e salvar/publicar em uma única intenção | teste de interface e piloto físico |
+| automação ocupar a superfície do jogo | configuração de lembretes recolhida em Editar; página aberta apenas consome estado esportivo | teste de interface mobile |
 | imagem vazar capability ou PII | rota derivada do `public_id` e projeção mínima | testes de metadata, cache e logs |
 | custo ou abuso de renderização | limites, revisão versionada e cache controlado | teste de rate/limite e observação piloto |
 | deploy quebrar app antigo | expansão inerte antes da contração | matriz App/DB N/N−1 |
@@ -511,3 +523,18 @@ do WhatsApp.
   implantadas e preserva autorização de publicação no banco;
 - próxima evidência: editar e salvar uma vez em Android e iPhone, confirmando
   atualização automática da revisão para concluir o piloto físico.
+
+### `WP-R07-06` — CP4 superfície do evento simplificada
+
+- a página aberta deixou de consultar e renderizar configuração, estado e
+  disparo manual de lembretes; esses controles permanecem autorizados para
+  owner/admin e aparecem recolhidos em `Editar evento`;
+- o endereço público deixou de ocupar espaço visual e virou `Compartilhar
+  evento`, usando o compartilhamento nativo do aparelho e cópia como fallback;
+- ensaio em viewport `390x844` confirmou a página aberta sem controles de
+  notificação e com a ação compacta antes do placar e da divisão;
+- lint, TypeScript, 58 arquivos/321 testes Vitest, build de produção com
+  Webpack e auditoria sem vulnerabilidades passaram. O build Turbopack local
+  parou somente pela restrição conhecida do sandbox ao abrir porta;
+- próxima evidência: promover pela rotina `dev → PR → main` e validar o
+  compartilhamento nativo e o bloco recolhido de lembretes em aparelho físico.
