@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(17);
+select plan(18);
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password,
@@ -19,8 +19,8 @@ insert into public.teams(id,name,slug,created_by) values
 insert into public.events(id,public_id,team_id,title,kind,organization_mode,sport_format,starts_at,ends_at,status,created_by) values
   ('e7300000-0000-4000-8000-000000000001','e7310000-0000-4000-8000-000000000001','e7200000-0000-4000-8000-000000000001','Pelada Pública R07','weekly_match','split_teams','society',now()+interval '5 days',now()+interval '5 days 90 minutes','scheduled','e7100000-0000-4000-8000-000000000001');
 insert into public.athletes(id,team_id,user_id,full_name,preferred_name,status,created_by) values
-  ('e7400000-0000-4000-8000-000000000001','e7200000-0000-4000-8000-000000000001','e7100000-0000-4000-8000-000000000002','Nome Civil Consentido','Craque','active','e7100000-0000-4000-8000-000000000001'),
-  ('e7400000-0000-4000-8000-000000000002','e7200000-0000-4000-8000-000000000001',null,'Nome Privado Sem Consentimento','Privado','active','e7100000-0000-4000-8000-000000000001');
+  ('e7400000-0000-4000-8000-000000000001','e7200000-0000-4000-8000-000000000001','e7100000-0000-4000-8000-000000000002','Nome Civil Consentido','Craque Consentido','active','e7100000-0000-4000-8000-000000000001'),
+  ('e7400000-0000-4000-8000-000000000002','e7200000-0000-4000-8000-000000000001',null,'Nome Privado Sem Consentimento','Privado Completo','active','e7100000-0000-4000-8000-000000000001');
 insert into public.event_attendance(event_id,team_id,athlete_id,status) values
   ('e7300000-0000-4000-8000-000000000001','e7200000-0000-4000-8000-000000000001','e7400000-0000-4000-8000-000000000001','confirmed'),
   ('e7300000-0000-4000-8000-000000000001','e7200000-0000-4000-8000-000000000001','e7400000-0000-4000-8000-000000000002','confirmed');
@@ -46,21 +46,22 @@ reset role;
 
 select is(jsonb_array_length(public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')->'squads'),2,'projeção mantém os dois times');
 select is((public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')->>'revision')::integer,1,'projeção informa somente número da revisão');
-select is(jsonb_array_length(public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')->'squads'->0->'athletes'),0,'sem consentimento nenhum nome aparece');
+select is(public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')->'squads'->0->'athletes'->0->>'name','Craque','projeção reduz nome esportivo ao primeiro nome');
+select is(public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')->'squads'->1->'athletes'->0->>'name','Privado','primeiro nome escalado aparece sem depender de consentimento esportivo');
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','e7100000-0000-4000-8000-000000000002',true);
 select lives_ok($$select public.set_public_sports_activity_consent('e7400000-0000-4000-8000-000000000001',true,'r07-v1','e7500000-0000-4000-8000-000000000003')$$,'titular concede consentimento');
 reset role;
 
-select is(public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')->'squads'->0->'athletes'->0->>'name','Craque','somente nome esportivo consentido aparece');
-select ok(public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')::text not like '%Nome Civil%' and public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')::text not like '%Privado%' and public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')::text not like '%e7400000%','projeção omite nome civil, não consentido e IDs');
+select is(public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')->'squads'->0->'athletes'->0->>'name','Craque','consentimento não amplia o nome mínimo da escalação');
+select ok(public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')::text not like '%Nome Civil%' and public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')::text not like '%Completo%' and public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')::text not like '%Consentido%' and public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')::text not like '%e7400000%','projeção omite sobrenome, nome civil e IDs');
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','e7100000-0000-4000-8000-000000000002',true);
 select lives_ok($$select public.set_public_sports_activity_consent('e7400000-0000-4000-8000-000000000001',false,'r07-v1','e7500000-0000-4000-8000-000000000004')$$,'titular revoga consentimento');
 reset role;
-select is(jsonb_array_length(public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')->'squads'->0->'athletes'),0,'revogação remove o nome da leitura seguinte');
+select is(public.get_public_event_lineup('e7310000-0000-4000-8000-000000000001')->'squads'->0->'athletes'->0->>'name','Craque','revogação não altera o primeiro nome mínimo da escalação publicada');
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','e7100000-0000-4000-8000-000000000001',true);

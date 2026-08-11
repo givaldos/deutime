@@ -1,9 +1,9 @@
 ---
 release: R07
 work_package: WP-R07-06
-scope: focused_event_surface_and_discreet_automation
-branch_or_commit: "be018d1"
-checkpoint: CP5
+scope: ordered_share_and_public_first_name
+branch_or_commit: "dev"
+checkpoint: CP4
 status: idle
 completed_ac:
   - AC-R07-01
@@ -19,8 +19,14 @@ completed_ac:
   - AC-R07-13
   - AC-R07-14
   - AC-R07-15
+  - AC-R07-16
 dirty_files: []
 tests:
+  - "compartilhamento e projeção pública: 5 arquivos, 29 testes verdes"
+  - "Vitest completo: 58 arquivos, 322 testes verdes"
+  - "db:reset e db:test: 42 arquivos, 1.015 testes pgTAP verdes; tipos sem diff"
+  - "ensaio anônimo 390x844: 4 primeiros nomes no HTML e na imagem, sem telefone/foto"
+  - "ESLint, TypeScript, next build --webpack e auditoria: verdes"
   - "PR #166 e merge be018d1: checks obrigatórios verdes"
   - "Vercel produção 2HhLjvRAiZYeBDqDf476jopCHY2P e Smoke 31545606257: verdes"
   - "superfície focada: evento aberto sem lembretes e compartilhamento compacto em 390x844"
@@ -39,7 +45,7 @@ tests:
   - "Deploy database 31542818301 e Smoke 31542863602: verdes"
   - "Vercel produção 8y3nfqLj8W6ipw6hXFjYcGGYaVVn: concluído"
 blocker: null
-next_action: "Validar em Android e iPhone: compartilhar o evento e abrir Lembretes automáticos em Editar evento."
+next_action: "Promover migration e consumidor por dev → PR → main; executar smoke e validar compartilhamento no macOS/WhatsApp."
 ---
 
 # Trabalho atual
@@ -58,3 +64,8 @@ compartilhamento, que usa a ação nativa do aparelho com fallback de cópia, e 
 endereço não ocupa mais a tela. Estado, configuração e acionamento manual dos
 lembretes ficam recolhidos em Editar; a automação e suas permissões permanecem
 iguais.
+
+O ajuste atual cria uma exceção pública mínima para a escalação explicitamente
+publicada: somente o primeiro nome chega ao HTML e à imagem; sobrenome, foto,
+telefone, IDs e demais detalhes continuam ausentes. O compartilhamento envia
+contexto e URL em um único bloco para impedir a inversão observada no macOS.

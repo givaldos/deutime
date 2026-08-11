@@ -1,7 +1,10 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { PublicEventLinkCard } from "./public-event-link-card";
+import {
+  buildPublicEventShareData,
+  PublicEventLinkCard,
+} from "./public-event-link-card";
 
 describe("PublicEventLinkCard", () => {
   it("oferece uma única ação de compartilhar sem expor um campo de cópia", () => {
@@ -17,5 +20,17 @@ describe("PublicEventLinkCard", () => {
     expect(html).toContain("WhatsApp");
     expect(html).not.toContain("Copiar link público");
     expect(html).not.toContain("https://deutime.app/e/evento-publico");
+  });
+
+  it("envia contexto antes da URL em um único campo de texto", () => {
+    expect(
+      buildPublicEventShareData(
+        "https://deutime.app/e/evento-publico",
+        "Racha de terça",
+      ),
+    ).toEqual({
+      title: "Racha de terça",
+      text: "Confira Racha de terça no DeuTime.\nhttps://deutime.app/e/evento-publico",
+    });
   });
 });

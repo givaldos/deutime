@@ -104,7 +104,7 @@ describe("EventLineupEditor", () => {
     expect(html).toContain("Escolha um time salvo");
   });
 
-  it("oferece publicação somente para owner/admin e explica o consentimento", () => {
+  it("oferece publicação somente para owner/admin e explica a projeção mínima", () => {
     const html = renderToStaticMarkup(
       <EventLineupEditor
         teamId="d7200000-0000-4000-8000-000000000001"
@@ -123,6 +123,6 @@ describe("EventLineupEditor", () => {
     expect(html).toContain("Divisão compartilhada · versão 2");
     expect(html).not.toContain("Atualizar publicação");
     expect(html).toContain("Ocultar publicação");
-    expect(html).toContain("somente nomes de atletas que autorizaram");
+    expect(html).toContain("somente o primeiro nome dos atletas escalados");
   });
 });

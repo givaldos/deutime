@@ -147,7 +147,7 @@ describe("public event route", () => {
     expect(html).not.toContain("event_id");
   });
 
-  it("mostra somente a revisão e os nomes consentidos da projeção pública", async () => {
+  it("mostra somente a revisão e os primeiros nomes da projeção pública", async () => {
     mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
     mocks.getPublicEventLineup.mockResolvedValue({
       revision: 2,
@@ -163,7 +163,7 @@ describe("public event route", () => {
     expect(html).toContain('data-testid="public-event-lineup"');
     expect(html).toContain("Times definidos");
     expect(html).toContain("Neymar");
-    expect(html).toContain("Nenhum nome autorizado");
+    expect(html).toContain("Nenhum jogador escalado");
     expect(html).toContain("revision=2");
     expect(html).not.toContain("athlete_id");
     expect(html).not.toContain("revision_id");

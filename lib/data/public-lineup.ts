@@ -13,7 +13,7 @@ const publicLineupSchema = z.object({
     color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).nullable(),
     sort_order: z.number().int().min(1).max(12),
     athletes: z.array(z.object({
-      name: z.string().min(1).max(120),
+      name: z.string().trim().min(1).max(120),
       sort_order: z.number().int().positive(),
     })).max(300),
   })).min(2).max(12),
@@ -33,6 +33,17 @@ export const getPublicEventLineup = cache(
       throw new Error("Não foi possível carregar os times publicados.");
     }
     const parsed = publicLineupSchema.safeParse(data);
-    return parsed.success ? parsed.data : null;
+    if (!parsed.success) return null;
+
+    return {
+      ...parsed.data,
+      squads: parsed.data.squads.map((squad) => ({
+        ...squad,
+        athletes: squad.athletes.map((athlete) => ({
+          ...athlete,
+          name: athlete.name.replace(/\s.*$/u, ""),
+        })),
+      })),
+    };
   },
 );
