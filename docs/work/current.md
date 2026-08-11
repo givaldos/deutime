@@ -1,9 +1,9 @@
 ---
 release: R07
 work_package: WP-R07-06
-scope: save_and_publish_single_intent
-branch_or_commit: "50c3737"
-checkpoint: CP5
+scope: focused_event_surface_and_discreet_automation
+branch_or_commit: "dev"
+checkpoint: CP4
 status: idle
 completed_ac:
   - AC-R07-01
@@ -18,8 +18,12 @@ completed_ac:
   - AC-R07-12
   - AC-R07-13
   - AC-R07-14
+  - AC-R07-15
 dirty_files: []
 tests:
+  - "superfície focada: evento aberto sem lembretes e compartilhamento compacto em 390x844"
+  - "Vitest completo: 58 arquivos, 321 testes verdes"
+  - "ESLint, TypeScript e next build --webpack: verdes; auditoria com 0 vulnerabilidades"
   - "salvar/publicar focado: 2 arquivos, 12 testes verdes"
   - "Vitest completo: 57 arquivos, 320 testes verdes"
   - "ensaio mobile 390x844: salvar criou revisão 1; editar e salvar criou revisão 2 sem ação separada"
@@ -33,7 +37,7 @@ tests:
   - "Deploy database 31542818301 e Smoke 31542863602: verdes"
   - "Vercel produção 8y3nfqLj8W6ipw6hXFjYcGGYaVVn: concluído"
 blocker: null
-next_action: "Validar em Android e iPhone: editar a divisão e tocar uma vez em Salvar escalação."
+next_action: "Promover a simplificação pela rotina dev → PR → main e validar compartilhamento e lembretes recolhidos em aparelho físico."
 ---
 
 # Trabalho atual
@@ -47,7 +51,8 @@ Owner/admin agora usa somente `Salvar escalação`: a Action salva o rascunho e
 publica ou atualiza a revisão automaticamente. Manager preserva o rascunho
 privado e rascunhos legados continuam com fallback explícito de publicação.
 
-O ensaio mobile confirmou revisão 1 no primeiro salvar e revisão 2 após editar
-e salvar novamente, sem botão separado de publicação. O PR foi promovido e o
-deploy Vercel e o smoke de produção passaram. A próxima ação é repetir o botão
-único em Android e iPhone.
+O evento aberto agora fica focado no jogo: há uma única ação compacta de
+compartilhamento, que usa a ação nativa do aparelho com fallback de cópia, e o
+endereço não ocupa mais a tela. Estado, configuração e acionamento manual dos
+lembretes ficam recolhidos em Editar; a automação e suas permissões permanecem
+iguais.

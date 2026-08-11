@@ -3,10 +3,11 @@ import {
   type EditableEventValues,
 } from "@/components/admin-event-form";
 import { TeamAppHeader } from "@/components/team-app-header";
+import { EventWhatsAppReminders } from "@/components/event-whatsapp-reminders";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
-import { ArrowLeft, CalendarClock, ListChecks } from "lucide-react";
+import { ArrowLeft, BellRing, CalendarClock, ListChecks } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -104,10 +105,28 @@ export default async function EditEventPage({
     venueName: venue?.name ?? "",
     venueAddress: venue?.address ?? "",
   };
-  const eventControlEnabled = await isTeamFeatureEnabled(
-    team.id,
-    "event_control",
-  );
+  const [eventControlEnabled, whatsappRemindersEnabled] = await Promise.all([
+    isTeamFeatureEnabled(team.id, "event_control"),
+    membership.role !== "manager"
+      ? isTeamFeatureEnabled(team.id, "whatsapp_reminders")
+      : Promise.resolve(false),
+  ]);
+  const [reminderSettingsResult, reminderStateResult] = whatsappRemindersEnabled
+    ? await Promise.all([
+        supabase
+          .from("event_whatsapp_reminder_settings")
+          .select("first_offset_minutes, second_offset_minutes, is_override")
+          .eq("event_id", event.id)
+          .eq("team_id", team.id)
+          .maybeSingle(),
+        supabase.rpc("get_event_whatsapp_reminder_state", {
+          requested_event_id: event.id,
+        }),
+      ])
+    : [{ data: null, error: null }, { data: null, error: null }];
+  if (reminderSettingsResult.error || reminderStateResult.error) {
+    throw new Error("Não foi possível carregar os lembretes do evento.");
+  }
 
   return (
     <main className="app-canvas">
@@ -144,6 +163,46 @@ export default async function EditEventPage({
             event={editableEvent}
           />
         </section>
+
+        {whatsappRemindersEnabled && reminderSettingsResult.data ? (
+          <details className="app-surface mt-6 overflow-hidden">
+            <summary className="flex min-h-16 cursor-pointer list-none items-center gap-3 p-5 marker:content-none sm:p-6">
+              <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-slate-100 text-slate-700">
+                <BellRing className="size-5" aria-hidden />
+              </span>
+              <span className="min-w-0">
+                <span className="block font-black text-slate-900">Lembretes automáticos</span>
+                <span className="mt-0.5 block text-xs leading-5 text-slate-500">
+                  Consulte horários e use o envio manual somente quando precisar.
+                </span>
+              </span>
+            </summary>
+            <div className="border-t border-slate-100 p-3 sm:p-5">
+              <EventWhatsAppReminders
+                teamId={team.id}
+                teamSlug={team.slug}
+                eventId={event.id}
+                timezone={team.timezone}
+                isOverride={reminderSettingsResult.data.is_override}
+                firstHours={reminderSettingsResult.data.first_offset_minutes / 60}
+                secondHours={reminderSettingsResult.data.second_offset_minutes / 60}
+                slots={(reminderStateResult.data ?? []).map((slot) => ({
+                  slotId: slot.slot_id,
+                  slotKey: slot.slot_key,
+                  status: slot.status,
+                  scheduledFor: slot.scheduled_for,
+                  triggeredManually: slot.triggered_manually,
+                  consumedAt: slot.consumed_at,
+                  eligibleCount: slot.eligible_count,
+                  outboxCount: slot.outbox_count,
+                  pendingCount: slot.pending_count,
+                  sentCount: slot.sent_count,
+                  failedCount: slot.failed_count,
+                }))}
+              />
+            </div>
+          </details>
+        ) : null}
 
         <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-slate-500">
           <ListChecks
