@@ -328,14 +328,14 @@ function PublishedLineupImage({
             <div key={`${squad.sort_order}:${squad.name}`} style={{ width: cardWidth, minHeight: 0, display: "flex", flexDirection: "column", borderRadius: 16, overflow: "hidden", background: "rgba(255,255,255,.07)", borderTop: `7px solid ${squad.color ?? "#0D9488"}`, padding: "12px 16px" }}>
               <span style={{ fontSize: rows >= 3 ? 18 : 23, fontWeight: 900, color: "#bdf63c" }}>{squad.name}</span>
               <div style={{ display: "flex", flexDirection: "column", marginTop: 6, gap: 2 }}>
-                {visible.length > 0 ? visible.map((athlete) => <span key={`${athlete.sort_order}:${athlete.name}`} style={{ fontSize: rows >= 3 ? 13 : 17, color: "#f7f5ed", fontWeight: 700 }}>{athlete.name}</span>) : <span style={{ fontSize: 13, color: "#a9c6b8" }}>Sem nomes autorizados</span>}
-                {remaining > 0 ? <span style={{ fontSize: 12, color: "#a9c6b8", fontWeight: 700 }}>+{remaining} autorizados</span> : null}
+                {visible.length > 0 ? visible.map((athlete) => <span key={`${athlete.sort_order}:${athlete.name}`} style={{ fontSize: rows >= 3 ? 13 : 17, color: "#f7f5ed", fontWeight: 700 }}>{athlete.name}</span>) : <span style={{ fontSize: 13, color: "#a9c6b8" }}>Sem jogadores escalados</span>}
+                {remaining > 0 ? <span style={{ fontSize: 12, color: "#a9c6b8", fontWeight: 700 }}>+{remaining} jogadores</span> : null}
               </div>
             </div>
           );
         })}
       </div>
-      <span style={{ marginTop: 14, fontSize: 13, color: "#a9c6b8" }}>Somente nomes esportivos com autorização vigente · deutime.app</span>
+      <span style={{ marginTop: 14, fontSize: 13, color: "#a9c6b8" }}>Somente o primeiro nome · sem contato ou foto · deutime.app</span>
     </div>
   );
 }

@@ -40,7 +40,7 @@ describe("fronteira pública da divisão", () => {
         revision: 2,
         published_at: "2026-08-11T12:00:00+00:00",
         squads: [
-          { name: "Verde", color: "#0D9488", sort_order: 1, athletes: [{ name: "Neymar", sort_order: 1 }] },
+          { name: "Verde", color: "#0D9488", sort_order: 1, athletes: [{ name: "  Neymar da Silva  ", sort_order: 1 }] },
           { name: "Azul", color: null, sort_order: 2, athletes: [] },
         ],
       },

@@ -104,7 +104,7 @@ describe("imagem pública do convite", () => {
     expect(response.headers.get("cache-control")).toContain("max-age=300");
   });
 
-  it("renderiza a revisão consentida sem IDs e desliga cache compartilhado", async () => {
+  it("renderiza a revisão com primeiros nomes sem IDs e desliga cache compartilhado", async () => {
     const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
     const lineup = {
       revision: 3,
@@ -117,7 +117,7 @@ describe("imagem pública do convite", () => {
     const html = renderToStaticMarkup(<InviteImage event={event} lineup={lineup} />);
     expect(html).toContain("Times definidos");
     expect(html).toContain("Neymar");
-    expect(html).toContain("Sem nomes autorizados");
+    expect(html).toContain("Sem jogadores escalados");
     expect(html).not.toContain("athlete_id");
     expect(html).not.toContain("revision_id");
 

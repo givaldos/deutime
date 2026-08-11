@@ -2,6 +2,7 @@
 
 - Status: accepted
 - Data: 2026-08-01
+- Atualização: 2026-08-11 — primeiro nome na escalação publicada da R07
 - Release: R04
 - Responsáveis: produto e engenharia do DeuTime
 
@@ -105,6 +106,21 @@ deixa de ser editável pela diretoria; durante a compatibilidade ele pode apenas
 espelhar a escolha válida do titular. Consentimentos anteriores de perfil não
 são ampliados para atividade esportiva.
 
+### Exceção mínima da escalação publicada
+
+Na R07, o primeiro nome do atleta passa a integrar o contexto esportivo mínimo
+quando owner/admin publica explicitamente uma escalação. A projeção deriva
+somente o primeiro token do nome preferido ou, na ausência, do nome cadastrado;
+ela nunca retorna sobrenome, foto, contato, perfil, resposta à chamada, posição,
+capability ou identificadores. Essa exceção não autoriza atribuição de lance,
+estatística, participação real ou qualquer outra atividade individual, que
+continua dependente de `public_sports_activity`.
+
+Desligar `team_division` ou `public_event_page`, retirar a publicação ou remover
+o atleta da revisão elimina o primeiro nome da superfície pública. A revisão
+jurídica continua pendente antes de ampliar essa exceção para qualquer outro
+campo ou finalidade.
+
 ### Matriz de dados
 
 | Dado | Público anônimo | Capability pessoal | Atleta autenticado | Staff |
@@ -112,9 +128,10 @@ são ampliados para atividade esportiva.
 | contexto mínimo do evento | conforme `DEC-EVENT-PUBLIC-MINIMUM` | sim | sim | sim |
 | lados, estado, placar e stream | conforme modo público | conforme modo público | sim | sim |
 | lance sem autoria: tipo, minuto e lado | conforme modo público | conforme modo público | sim | sim |
-| nome esportivo e camisa na escalação/timeline | somente com `public_sports_activity` vigente | apenas o próprio, além da projeção pública | membros do evento | sim |
+| primeiro nome na escalação explicitamente publicada | primeiro nome, sem outros campos | apenas o próprio, além da projeção pública | membros do evento | sim |
+| nome esportivo, camisa e autoria na timeline | somente com `public_sports_activity` vigente | apenas o próprio, além da projeção pública | membros do evento | sim |
 | foto, posições, bio e link do perfil | exige também `public_player_profile` | apenas os próprios, além da projeção pública | conforme necessidade da interface interna | sim |
-| escalação planejada completa e participação real | nunca; somente linhas individualmente consentidas | apenas dados próprios | sim | sim |
+| escalação planejada completa e participação real | nunca; somente times e primeiros nomes da revisão publicada | apenas dados próprios | sim | sim |
 | resposta SIM/NÃO/TALVEZ, pendência e lista de espera | nunca | somente a própria | somente quando a regra privada da jornada exigir | sim |
 | contato, nascimento, observação e capability | nunca | somente dado próprio estritamente necessário | nunca para outros atletas | conforme papel e finalidade |
 | comentários e identidade do autor | nunca no MVP | somente conversa privada autorizada | conversa privada autorizada | sim/moderação |

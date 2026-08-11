@@ -44,6 +44,8 @@ publicada e oferece uma imagem DeuTime para WhatsApp.
 
 A página aberta permanece focada no jogo: compartilhar usa uma ação única e
 lembretes automáticos ficam recolhidos em Editar, fora do fluxo de chamada.
+O compartilhamento preserva contexto antes da URL e a escalação explicitamente
+publicada mostra somente o primeiro nome, sem foto, contato ou detalhes.
 
 ## Três tempos
 
@@ -119,6 +121,8 @@ lembretes automáticos ficam recolhidos em Editar, fora do fluxo de chamada.
   uma única ação que salva a divisão e publica ou atualiza a revisão;
 - reduzir compartilhamento a uma ação nativa com fallback de cópia e mover
   configuração/acionamento de lembretes para uma área recolhida em Editar;
+- enviar contexto e URL como um único texto compartilhável e limitar a
+  projeção da escalação publicada ao primeiro nome no HTML e na imagem;
 - salvar rascunho idempotente por RPC transacional e auditar agregados sem
   nomes, telefones ou conteúdo integral;
 - relacionar opcionalmente equipes aos lados de cada partida do evento, sem
@@ -168,9 +172,9 @@ lembretes automáticos ficam recolhidos em Editar, fora do fluxo de chamada.
   owner/admin cria uma revisão imutável; edições locais não alteram a revisão
   ativa até a nova confirmação no botão único;
 - a revisão guarda relações com atletas e equipes, não uma cópia pública
-  irrestrita de nomes. A projeção recalcula consentimento e vínculo a cada
-  leitura; revogação remove a identidade das superfícies futuras sem apagar a
-  evidência privada;
+  irrestrita de nomes. A projeção da escalação expõe somente o primeiro nome;
+  identidade ampliada e fatos individuais recalculam consentimento e vínculo a
+  cada leitura;
 - manager pode operar somente o rascunho privado do próprio time; salvar e
   publicar em uma intenção, bem como retirar a publicação, exige owner/admin.
   A identidade e o `team_id` derivam da sessão;
@@ -179,12 +183,15 @@ lembretes automáticos ficam recolhidos em Editar, fora do fluxo de chamada.
 - grants diretos de escrita em `event_squads` e `lineup_spots` serão contraídos
   somente depois que App N usar as RPCs; App N e banco N/N+1 toleram ambas as
   ordens de deploy;
-- publicação anônima exige `public_event_page`, revisão ativa e consentimento
-  específico. Capability R02 não revela escalação de terceiros;
+- publicação anônima exige `public_event_page` e revisão ativa. Ela mostra
+  somente times e primeiros nomes; capability R02 não amplia essa projeção;
 - a imagem usa `ImageResponse`, dados da projeção pública e cache privado ou
   versionado. O HTML e a metadata nunca carregam capability;
 - a página aberta não carrega configuração de lembretes; Editar reúne o estado
   automático e o fallback manual sem alterar filas, horários ou autorização;
+- banco e aplicação reduzem o nome ao primeiro token antes de renderizar a
+  página e a imagem públicas; telefone, foto, sobrenome e IDs continuam
+  ausentes da projeção;
 - o vínculo opcional com partida atualiza `match_sides.squad_id`; presença real
   permanece exclusivamente em `match_participations`.
 
@@ -234,6 +241,7 @@ lembretes automáticos ficam recolhidos em Editar, fora do fluxo de chamada.
 - [x] `AC-R07-13` — Owner/admin mantém de 2 a 12 equipes internas com nome, cor e escudo padronizado; evento referencia a identidade e guarda snapshot, e desativação não altera fatos anteriores.
 - [x] `AC-R07-14` — A tela do evento não edita nem salva modelos: usa equipes pré-cadastradas e, para owner/admin, salvar já publica ou atualiza a revisão em uma única ação.
 - [x] `AC-R07-15` — A página aberta mostra uma única ação de compartilhar e não exibe controles de lembrete; lembretes automáticos e fallback manual ficam recolhidos em Editar.
+- [x] `AC-R07-16` — Compartilhar preserva contexto antes da URL; página e imagem públicas exibem somente o primeiro nome dos escalados, sem foto, telefone, sobrenome, ID ou demais detalhes.
 
 ## Riscos e controles
 
@@ -241,7 +249,7 @@ lembretes automáticos ficam recolhidos em Editar, fora do fluxo de chamada.
 |---|---|---|
 | escalar quem não confirmou | seleção e lock dentro da RPC | pgTAP negativo e resposta concorrente |
 | misturar RSVP, escalação e presença | tabelas e comandos separados | testes de não alteração e integração R04 |
-| publicar identidade sem consentimento | projeção server-side fail-closed | pgTAP, teste público e revogação |
+| projeção pública expor além do primeiro nome | redução no banco e na aplicação, sem contato, foto, sobrenome ou ID | pgTAP, teste público e censo de payload |
 | rascunho alterar arte já compartilhada | revisão publicada imutável | teste de edição após publicação |
 | atleta duplicado ou cross-tenant | unicidade, FKs compostas, RLS e RPC | pgTAP concorrente e dois times |
 | interface impossível no celular | controles por toque e alternativa ao drag | Android, iPhone e teclado/leitor |
@@ -547,3 +555,20 @@ do WhatsApp.
   `Smoke` `31545606257` verde;
 - `main` e `dev` sincronizadas no merge. Próxima evidência: validar em aparelho
   físico o compartilhamento nativo e o bloco recolhido em `Editar evento`.
+
+### `WP-R07-06` — CP4 compartilhamento e primeiros nomes validados localmente
+
+- o compartilhamento passou a enviar contexto e URL no mesmo campo de texto,
+  preservando a ordem observável no macOS; o fallback copia a mensagem inteira;
+- a expansão forward-only `202608110007_r07_public_lineup_first_names.sql`
+  projeta somente o primeiro token do nome dos escalados em revisão ativa e
+  continua omitindo sobrenome, foto, telefone, IDs e resposta à chamada;
+- banco e aplicação reduzem o nome independentemente, tolerando deploy em
+  qualquer ordem. Retirar publicação ou desligar as flags mantém o fallback;
+- ensaio anônimo `390x844` mostrou André, Felipe, Gui e Henrique nos dois times
+  e a imagem pública repetiu somente esses primeiros nomes, sem telefone/foto;
+- gates verdes: 5 arquivos/29 testes focados, 58 arquivos/322 testes Vitest,
+  42 arquivos/1.015 testes pgTAP, migration íntegra, tipos sem diff, ESLint,
+  TypeScript, build Webpack e auditoria com zero vulnerabilidades;
+- próxima evidência: promover banco e consumidor pela rotina `dev → PR → main`,
+  executar smoke anônimo e repetir o compartilhamento no macOS/WhatsApp.

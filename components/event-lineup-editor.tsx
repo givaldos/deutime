@@ -382,7 +382,7 @@ function LineupPublicationPanel({
                 : "Divisão salva anteriormente"}
           </p>
           <p className="mt-1 text-xs leading-5 text-slate-600">
-            A página e a imagem mostram somente nomes de atletas que autorizaram a divulgação esportiva.
+            A página e a imagem mostram somente o primeiro nome dos atletas escalados, sem foto ou contato.
           </p>
         </div>
       </div>

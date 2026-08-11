@@ -282,14 +282,14 @@ export default async function PublicEventPage({
                     </ol>
                   ) : (
                     <p className="px-4 pb-4 pt-2 text-xs leading-5 text-slate-500">
-                      Nenhum nome autorizado para exibição pública.
+                      Nenhum jogador escalado.
                     </p>
                   )}
                 </article>
               ))}
             </div>
             <p className="mt-3 text-xs leading-5 text-slate-500">
-              Revisão {publicLineup.revision}. Só aparecem atletas com autorização vigente; a resposta à chamada continua privada.
+              Revisão {publicLineup.revision}. A escalação mostra somente o primeiro nome; a resposta à chamada continua privada.
             </p>
             <EventLineupShareActions
               eventTitle={ev.title}

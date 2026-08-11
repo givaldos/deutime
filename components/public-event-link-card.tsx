@@ -26,6 +26,16 @@ async function copyText(value: string) {
   }
 }
 
+export function buildPublicEventShareData(
+  publicUrl: string,
+  eventTitle: string,
+): ShareData {
+  return {
+    title: eventTitle,
+    text: `Confira ${eventTitle} no DeuTime.\n${publicUrl}`,
+  };
+}
+
 export function PublicEventLinkCard({
   publicUrl,
   eventTitle,
@@ -38,17 +48,15 @@ export function PublicEventLinkCard({
   >("idle");
 
   async function handleShare() {
+    const shareData = buildPublicEventShareData(publicUrl, eventTitle);
+
     try {
       if (navigator.share) {
-        await navigator.share({
-          title: eventTitle,
-          text: `Confira ${eventTitle} no DeuTime.`,
-          url: publicUrl,
-        });
+        await navigator.share(shareData);
         setStatus("shared");
         return;
       }
-      await copyText(publicUrl);
+      await copyText(shareData.text ?? publicUrl);
       setStatus("copied");
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
@@ -96,7 +104,7 @@ export function PublicEventLinkCard({
           {status === "shared"
             ? "Compartilhado"
             : status === "copied"
-              ? "Link copiado"
+              ? "Mensagem copiada"
               : "Compartilhar evento"}
         </Button>
       </div>
@@ -112,7 +120,7 @@ export function PublicEventLinkCard({
           {status === "shared"
             ? "Evento enviado."
             : status === "copied"
-              ? "Link copiado. Agora é só colar no WhatsApp."
+              ? "Mensagem copiada. Agora é só colar no WhatsApp."
               : "Não foi possível compartilhar. Tente novamente."}
         </p>
       ) : null}
