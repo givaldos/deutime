@@ -173,15 +173,15 @@ com a marca DeuTime, pronta para compartilhar no WhatsApp.
 
 ## Critérios de aceite
 
-- [ ] `AC-R07-01` — Staff cria e ordena de 2 a 12 equipes válidas, com nomes únicos no evento e cores opcionais válidas.
-- [ ] `AC-R07-02` — Somente vínculo ativo do mesmo time com RSVP SIM pode ser distribuído; indisponíveis e excluídos nunca entram por cliente adulterado ou concorrência.
-- [ ] `AC-R07-03` — Manager edita o rascunho; somente owner/admin publica ou retira publicação, sempre pela sessão e com auditoria agregada.
-- [ ] `AC-R07-04` — No celular, mover, retirar e recolocar atleta funciona por toque e por alternativa acessível sem depender de arrastar.
-- [ ] `AC-R07-05` — Salvar, repetir, concorrer ou reenviar a mesma solicitação produz um único estado completo, sem atleta duplicado ou cross-tenant.
-- [ ] `AC-R07-06` — Equipe pode ser ligada a um lado de partida sem alterar RSVP, presença real, lances ou estatísticas.
-- [ ] `AC-R07-07` — Publicação cria revisão explícita; edição de rascunho não muda a revisão ativa e revogação de consentimento remove identidade da projeção seguinte.
-- [ ] `AC-R07-08` — Imagem compartilhável respeita branding, revisão, consentimento e fallback de escudo, sem PII, capability ou segredo em HTML, URL, metadata e logs.
-- [ ] `AC-R07-09` — Flag desligada, revisão ausente ou falha de imagem preserva lista de confirmados, link canônico e jornada privada utilizável.
+- [x] `AC-R07-01` — Staff cria e ordena de 2 a 12 equipes válidas, com nomes únicos no evento e cores opcionais válidas.
+- [x] `AC-R07-02` — Somente vínculo ativo do mesmo time com RSVP SIM pode ser distribuído; indisponíveis e excluídos nunca entram por cliente adulterado ou concorrência.
+- [x] `AC-R07-03` — Manager edita o rascunho; somente owner/admin publica ou retira publicação, sempre pela sessão e com auditoria agregada.
+- [x] `AC-R07-04` — No celular, mover, retirar e recolocar atleta funciona por toque e por alternativa acessível sem depender de arrastar.
+- [x] `AC-R07-05` — Salvar, repetir, concorrer ou reenviar a mesma solicitação produz um único estado completo, sem atleta duplicado ou cross-tenant.
+- [x] `AC-R07-06` — Equipe pode ser ligada a um lado de partida sem alterar RSVP, presença real, lances ou estatísticas.
+- [x] `AC-R07-07` — Publicação cria revisão explícita; edição de rascunho não muda a revisão ativa e revogação de consentimento remove identidade da projeção seguinte.
+- [x] `AC-R07-08` — Imagem compartilhável respeita branding, revisão, consentimento e fallback de escudo, sem PII, capability ou segredo em HTML, URL, metadata e logs.
+- [x] `AC-R07-09` — Flag desligada, revisão ausente ou falha de imagem preserva lista de confirmados, link canônico e jornada privada utilizável.
 - [ ] `AC-R07-10` — RLS, grants mínimos, N/N−1, telemetria redigida, piloto Android/iPhone, smoke e rollback por flag possuem evidência.
 
 ## Riscos e controles
@@ -310,3 +310,37 @@ do WhatsApp.
   páginas;
 - `team_division` permanece desligada em produção. Próxima ação: `WP-R07-03`,
   publicar revisão consentida e gerar a imagem compartilhável com fallback.
+
+### `WP-R07-03` — CP3 concluído
+
+- owner/admin publica nova revisão ou retira a publicação na própria área de
+  divisão; manager continua limitado ao rascunho e todas as escritas delegam às
+  RPCs idempotentes do CP1;
+- a migration forward-only `202608110003_r07_public_lineup_projection.sql`
+  adiciona somente a RPC anônima estreita `get_public_event_lineup(public_id)`;
+  ela exige `public_event_page`, `team_division` e revisão ativa;
+- a projeção recalcula vínculo ativo e consentimento
+  `public_sports_activity` em toda leitura e omite IDs, capability, RSVP,
+  telefone, foto, bio e demais PII; payload inesperado falha fechado no app;
+- o próprio atleta autoriza ou revoga seu nome esportivo por time em
+  `/me/perfil/editar`; recusar não reduz acesso nem altera confirmação, e staff
+  não pode decidir pelo titular;
+- a URL canônica mostra os times e somente os nomes autorizados. A imagem
+  1200×630 usa branding, cores e revisão, expõe fallback quando não há nomes e
+  desliga cache compartilhado para honrar revogação na leitura seguinte;
+- compartilhar imagem usa Web Share com fallback para compartilhar o link,
+  baixar a PNG ou copiar a URL canônica, sem recurso de terceiro;
+- validação física local em 390×844 confirmou publicação da revisão 1 com dois
+  times/dois atletas, apenas “Abner” consentido, imagem 1200×630, retirada com
+  fallback e revogação pelo titular; erros observados vieram somente da extensão
+  de navegador, não da aplicação;
+- `039_r07_public_lineup_projection.test.sql`: 17 casos de flags, grants,
+  revisão, consentimento, omissão de PII, revogação e retirada; suíte completa:
+  39 arquivos/960 testes pgTAP verdes;
+- gates verdes: 7 arquivos/37 testes focados, 53 arquivos/305 testes Vitest,
+  ESLint, TypeScript, `db:reset`, `db:lint` (dois avisos legados), `db:types`,
+  build de produção com Webpack e auditoria npm sem vulnerabilidades;
+- Turbopack mantém a limitação conhecida de bind de processo do runner; o build
+  equivalente com Webpack compilou, tipou e gerou todas as páginas;
+- `team_division` segue desligada em produção. Próxima ação: `WP-R07-04`,
+  pilotar em coorte demo, observar, provar smoke/rollback e concluir R07.

@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- next/og renderiza o ativo oficial por meio de img. */
 import type { PublicEvent } from "@/lib/data/public-event";
+import type { PublicEventLineup } from "@/lib/data/public-lineup";
 import {
   formatPublicEventTime,
   publicEventKindLabels,
@@ -8,13 +9,25 @@ import {
 
 export function InviteImage({
   event,
+  lineup = null,
   brandLogoUrl = "/brand/logo-deutime-email-640-fundo-escuro.png",
   teamLogoUrl = null,
 }: {
   event: PublicEvent | null;
+  lineup?: PublicEventLineup | null;
   brandLogoUrl?: string;
   teamLogoUrl?: string | null;
 }) {
+  if (event && lineup) {
+    return (
+      <PublishedLineupImage
+        event={event}
+        lineup={lineup}
+        brandLogoUrl={brandLogoUrl}
+        teamLogoUrl={teamLogoUrl}
+      />
+    );
+  }
   const status = event
     ? publicEventStatusPresentation[event.status]
     : publicEventStatusPresentation.scheduled;
@@ -272,6 +285,57 @@ export function InviteImage({
           {status.label}
         </span>
       </div>
+    </div>
+  );
+}
+
+function PublishedLineupImage({
+  event,
+  lineup,
+  brandLogoUrl,
+  teamLogoUrl,
+}: {
+  event: PublicEvent;
+  lineup: PublicEventLineup;
+  brandLogoUrl: string;
+  teamLogoUrl: string | null;
+}) {
+  const columns = lineup.squads.length <= 2 ? 2 : lineup.squads.length <= 6 ? 3 : 4;
+  const rows = Math.ceil(lineup.squads.length / columns);
+  const athleteLimit = rows === 1 ? 10 : rows === 2 ? 5 : 3;
+  const cardWidth = `${Math.floor(96 / columns)}%`;
+
+  return (
+    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "#0d2b22", color: "#f7f5ed", fontFamily: "sans-serif", padding: "38px 54px 34px 66px", position: "relative" }}>
+      <div style={{ position: "absolute", left: 0, top: 0, width: 12, height: "100%", background: "#bdf63c", display: "flex" }} />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {teamLogoUrl ? <img src={teamLogoUrl} alt="" style={{ width: 58, height: 58, borderRadius: 16, objectFit: "cover" }} /> : <div style={{ width: 58, height: 58, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(189,246,60,.12)", border: "2px solid rgba(189,246,60,.3)", color: "#bdf63c", fontSize: 26, fontWeight: 900 }}>{event.team_name.charAt(0).toUpperCase()}</div>}
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{ color: "#bdf63c", fontSize: 15, fontWeight: 900, letterSpacing: 2, textTransform: "uppercase" }}>Times definidos</span>
+            <span style={{ fontSize: 28, fontWeight: 900 }}>{event.title}</span>
+            <span style={{ color: "#a9c6b8", fontSize: 15 }}>{event.team_name} · revisão {lineup.revision}</span>
+          </div>
+        </div>
+        <img src={brandLogoUrl} alt="DeuTime" style={{ width: 190, height: 46, objectFit: "contain", objectPosition: "right center", opacity: .8 }} />
+      </div>
+
+      <div style={{ display: "flex", flexWrap: "wrap", alignContent: "stretch", justifyContent: "space-between", gap: 10, flex: 1, marginTop: 24 }}>
+        {lineup.squads.map((squad) => {
+          const visible = squad.athletes.slice(0, athleteLimit);
+          const remaining = squad.athletes.length - visible.length;
+          return (
+            <div key={`${squad.sort_order}:${squad.name}`} style={{ width: cardWidth, minHeight: 0, display: "flex", flexDirection: "column", borderRadius: 16, overflow: "hidden", background: "rgba(255,255,255,.07)", borderTop: `7px solid ${squad.color ?? "#0D9488"}`, padding: "12px 16px" }}>
+              <span style={{ fontSize: rows >= 3 ? 18 : 23, fontWeight: 900, color: "#bdf63c" }}>{squad.name}</span>
+              <div style={{ display: "flex", flexDirection: "column", marginTop: 6, gap: 2 }}>
+                {visible.length > 0 ? visible.map((athlete) => <span key={`${athlete.sort_order}:${athlete.name}`} style={{ fontSize: rows >= 3 ? 13 : 17, color: "#f7f5ed", fontWeight: 700 }}>{athlete.name}</span>) : <span style={{ fontSize: 13, color: "#a9c6b8" }}>Sem nomes autorizados</span>}
+                {remaining > 0 ? <span style={{ fontSize: 12, color: "#a9c6b8", fontWeight: 700 }}>+{remaining} autorizados</span> : null}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <span style={{ marginTop: 14, fontSize: 13, color: "#a9c6b8" }}>Somente nomes esportivos com autorização vigente · deutime.app</span>
     </div>
   );
 }

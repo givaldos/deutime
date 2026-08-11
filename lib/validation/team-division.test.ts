@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { saveEventLineupDraftSchema } from "./team-division";
+import {
+  eventLineupPublicationSchema,
+  saveEventLineupDraftSchema,
+} from "./team-division";
 
 const base = {
   teamId: "d7200000-0000-4000-8000-000000000001",
@@ -49,5 +52,22 @@ describe("validação da divisão manual", () => {
         assignments: [{ ...base.assignments[0], squad_id: "d7600000-0000-4000-8000-000000000099" }],
       }).success,
     ).toBe(false);
+  });
+
+  it("valida IDs da publicação e mantém request UUID estrito", () => {
+    expect(eventLineupPublicationSchema.safeParse({
+      teamId: base.teamId,
+      teamSlug: base.teamSlug,
+      eventId: base.eventId,
+      publicId: "e7310000-0000-4000-8000-000000000001",
+      requestId: base.requestId,
+    }).success).toBe(true);
+    expect(eventLineupPublicationSchema.safeParse({
+      teamId: base.teamId,
+      teamSlug: base.teamSlug,
+      eventId: base.eventId,
+      publicId: "../segredo",
+      requestId: "d7500000-0000-0000-0000-000000000001",
+    }).success).toBe(false);
   });
 });

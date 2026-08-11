@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getPublicEvent: vi.fn(),
   getTeamLogoUrlByEventPublicId: vi.fn().mockResolvedValue(null),
+  getPublicEventLineup: vi.fn().mockResolvedValue(null),
   createPrivilegedClient: vi.fn(() => ({
     from: vi.fn(() => ({
       select: vi.fn(() => ({
@@ -26,6 +27,9 @@ vi.mock("@/lib/data/public-event", () => ({
 vi.mock("@/lib/data/team-logo", () => ({
   getTeamLogoUrlByEventPublicId: mocks.getTeamLogoUrlByEventPublicId,
   getTeamLogoPngDataUrlByEventPublicId: mocks.getTeamLogoUrlByEventPublicId,
+}));
+vi.mock("@/lib/data/public-lineup", () => ({
+  getPublicEventLineup: mocks.getPublicEventLineup,
 }));
 vi.mock("@/lib/supabase/privileged", () => ({
   createPrivilegedClient: mocks.createPrivilegedClient,
@@ -50,7 +54,10 @@ const event = {
 };
 
 describe("imagem pública do convite", () => {
-  beforeEach(() => mocks.getPublicEvent.mockReset());
+  beforeEach(() => {
+    mocks.getPublicEvent.mockReset();
+    mocks.getPublicEventLineup.mockResolvedValue(null);
+  });
 
   it("renderiza somente o contexto esportivo público do evento", () => {
     const html = renderToStaticMarkup(<InviteImage event={event} />);
@@ -94,5 +101,29 @@ describe("imagem pública do convite", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toBe("image/png");
     expect(response.headers.get("cache-control")).toContain("max-age=300");
+  });
+
+  it("renderiza a revisão consentida sem IDs e desliga cache compartilhado", async () => {
+    const lineup = {
+      revision: 3,
+      published_at: "2026-08-11T12:00:00Z",
+      squads: [
+        { name: "Verde", color: "#0D9488", sort_order: 1, athletes: [{ name: "Neymar", sort_order: 1 }] },
+        { name: "Azul", color: "#2563EB", sort_order: 2, athletes: [] },
+      ],
+    };
+    const html = renderToStaticMarkup(<InviteImage event={event} lineup={lineup} />);
+    expect(html).toContain("Times definidos");
+    expect(html).toContain("Neymar");
+    expect(html).toContain("Sem nomes autorizados");
+    expect(html).not.toContain("athlete_id");
+    expect(html).not.toContain("revision_id");
+
+    mocks.getPublicEvent.mockResolvedValue(event);
+    mocks.getPublicEventLineup.mockResolvedValue(lineup);
+    const response = await GET(new Request(`https://deutime.app/e/${publicId}/convite.png?revision=3`), {
+      params: Promise.resolve({ publicId }),
+    });
+    expect(response.headers.get("cache-control")).toBe("private, no-store, max-age=0");
   });
 });

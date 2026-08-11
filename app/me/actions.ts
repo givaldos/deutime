@@ -200,3 +200,32 @@ export async function respondToEventAsPlayer(formData: FormData) {
   revalidatePath("/me/agenda");
   redirect("/me/agenda?attendance=updated");
 }
+
+const sportsActivityConsentSchema = z.object({
+  athleteId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i),
+  granted: z.enum(["true", "false"]).transform((value) => value === "true"),
+  requestId: z.string().uuid(),
+});
+
+export async function updateMySportsActivityConsent(formData: FormData) {
+  await requireUser();
+  const parsed = sportsActivityConsentSchema.safeParse({
+    athleteId: formData.get("athleteId"),
+    granted: formData.get("granted"),
+    requestId: formData.get("requestId"),
+  });
+  if (!parsed.success) redirect("/me/perfil/editar?consent=error");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_public_sports_activity_consent", {
+    requested_athlete_id: parsed.data.athleteId,
+    requested_granted: parsed.data.granted,
+    requested_terms_version: "r07-v1",
+    request_id: parsed.data.requestId,
+  });
+  if (error) redirect("/me/perfil/editar?consent=error");
+
+  revalidatePath("/me/perfil");
+  revalidatePath("/me/perfil/editar");
+  redirect(`/me/perfil/editar?consent=${parsed.data.granted ? "granted" : "revoked"}`);
+}
