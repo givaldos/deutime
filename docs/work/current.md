@@ -16,38 +16,38 @@ completed_ac:
   - AC-R07-08
   - AC-R07-09
 dirty_files:
-  - supabase/migrations/202608110003_r07_public_lineup_projection.sql
-  - supabase/tests/039_r07_public_lineup_projection.test.sql
-  - lib/data/public-lineup.ts
-  - app/e/[publicId]/page.tsx
+  - supabase/migrations/202608110004_r07_lineup_pilot_health.sql
+  - supabase/tests/040_r07_lineup_pilot_health.test.sql
+  - scripts/lineup-pilot-health.mjs
+  - scripts/lineup-pilot-health.d.mts
+  - scripts/lineup-pilot-health.test.ts
   - app/e/[publicId]/convite.png/route.tsx
-  - app/e/[publicId]/convite.png/invite-image.tsx
-  - app/me/perfil/editar/page.tsx
-  - components/event-lineup-editor.tsx
-  - components/event-lineup-share-actions.tsx
+  - app/e/[publicId]/convite.png/route.test.tsx
+  - docs/runbook.md
+  - lib/database.types.ts
+  - package.json
 tests:
-  - "validação física 390x844: publicar, projetar, compartilhar, retirar e revogar verdes"
-  - "imagem consentida: 1200x630 e cache private/no-store"
-  - "Vitest focado: 7 arquivos, 37 testes verdes"
-  - "Vitest completo: 53 arquivos, 305 testes verdes"
-  - "db:reset, db:types e db:test: verdes; 39 arquivos, 960 testes pgTAP"
+  - "sonda e logs focados: 2 arquivos, 10 testes verdes"
+  - "Vitest completo: 54 arquivos, 310 testes verdes"
+  - "db:reset, db:types e db:test: verdes; 40 arquivos, 979 testes pgTAP"
+  - "ensaio local: gates off -> on/on -> rollback off/on -> restauração off/off"
   - "db:lint: verde; somente avisos legados em create_event_as_staff e record_match_event"
   - "ESLint, TypeScript e next build --webpack: verdes"
-  - "Turbopack local impedido por bind interno do runner"
   - "npm audit --audit-level=moderate: 0 vulnerabilidades"
 blocker: null
-next_action: "Executar WP-R07-04: piloto demo controlado, observabilidade, smoke e ensaio de rollback por flag antes de concluir a R07."
+next_action: "Promover WP-R07-04 inerte, executar smoke e ativar somente uma coorte demo para o piloto físico Android/iPhone."
 ---
 
 # Trabalho atual
 
-O CP3 da R07 está concluído. Owner/admin publica revisões explícitas da divisão,
-a URL canônica mostra somente nomes esportivos consentidos e a imagem pode ser
-compartilhada, baixada ou acessada pelo fallback de link.
+O CP4 local da R07 está validado. A sonda operacional restrita a `service_role`
+retorna apenas métricas agregadas e a imagem produz logs redigidos sem IDs,
+nomes, telefones ou conteúdo de exceção.
 
-A projeção anônima é estreita e fail-closed, revogação é recalculada em cada
-leitura e cache compartilhado é desativado na arte publicada. Lista, evento e
-rascunho continuam disponíveis quando publicação ou flag não estiverem ativos.
+O ensaio local confirmou ativação e rollback imediato por flag, mantendo a
+página pública e restaurando o estado inicial desligado. Banco, aplicação,
+build e auditoria estão verdes.
 
-A próxima ação é `WP-R07-04`: ativar somente uma coorte demo, observar a jornada
-em aparelhos, executar smoke e rollback por flag e então concluir a release.
+A próxima ação é promover a expansão inerte, executar smoke de produção e
+ativar uma única coorte demo. A release só termina após evidência física da
+jornada R07 em Android e iPhone.

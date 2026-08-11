@@ -344,3 +344,26 @@ do WhatsApp.
   equivalente com Webpack compilou, tipou e gerou todas as páginas;
 - `team_division` segue desligada em produção. Próxima ação: `WP-R07-04`,
   pilotar em coorte demo, observar, provar smoke/rollback e concluir R07.
+
+### `WP-R07-04` — CP4 validado localmente
+
+- a migration forward-only `202608110004_r07_lineup_pilot_health.sql` adiciona
+  uma sonda agregada restrita a `service_role`, sem nome, evento público,
+  telefone, capability ou segredo;
+- a sonda expõe somente gates, volumes de rascunho/publicação/consentimento e
+  marcos de auditoria da coorte, rejeitando contrato incoerente no script
+  `pilot:lineup:health`;
+- a imagem registra `event_lineup_image.rendered` com revisão e contagens ou
+  `event_lineup_image.failed` com motivo fixo; testes provam que ID público,
+  nome e conteúdo da exceção não chegam aos logs;
+- o runbook documenta seleção da coorte, ativação pela RPC auditada, observação
+  e rollback imediato sem reversão de migration;
+- ensaio local em `Society United`: estado inicial desligado; dois gates
+  ligados; `team_division` desligada preservando `public_event_page`; estado
+  inicial restaurado. A sonda refletiu cada transição imediatamente;
+- gates verdes: 54 arquivos/310 testes Vitest, 40 arquivos/979 testes pgTAP,
+  `db:reset`, tipos, lint, TypeScript, build Webpack e auditoria npm sem
+  vulnerabilidades; lint do banco mantém somente os dois avisos legados;
+- próximo passo: promover a expansão inerte, executar smoke em produção,
+  ativar uma única coorte demo e colher evidência física Android/iPhone antes
+  de marcar `AC-R07-10` e concluir a release.

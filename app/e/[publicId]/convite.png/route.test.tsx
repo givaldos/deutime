@@ -55,6 +55,7 @@ const event = {
 
 describe("imagem pública do convite", () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     mocks.getPublicEvent.mockReset();
     mocks.getPublicEventLineup.mockResolvedValue(null);
   });
@@ -104,6 +105,7 @@ describe("imagem pública do convite", () => {
   });
 
   it("renderiza a revisão consentida sem IDs e desliga cache compartilhado", async () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
     const lineup = {
       revision: 3,
       published_at: "2026-08-11T12:00:00Z",
@@ -125,5 +127,30 @@ describe("imagem pública do convite", () => {
       params: Promise.resolve({ publicId }),
     });
     expect(response.headers.get("cache-control")).toBe("private, no-store, max-age=0");
+    expect(info).toHaveBeenCalledWith("event_lineup_image.rendered", {
+      revision: 3,
+      squadCount: 2,
+      namedAthleteCount: 1,
+    });
+    expect(JSON.stringify(info.mock.calls)).not.toContain(publicId);
+    expect(JSON.stringify(info.mock.calls)).not.toContain("Neymar");
+  });
+
+  it("registra falha redigida e preserva a imagem genérica", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    mocks.getPublicEvent.mockResolvedValue(event);
+    mocks.getPublicEventLineup.mockRejectedValue(new Error("telefone=+5511999999999"));
+
+    const response = await GET(new Request(`https://deutime.app/e/${publicId}/convite.png`), {
+      params: Promise.resolve({ publicId }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toContain("public");
+    expect(error).toHaveBeenCalledWith("event_lineup_image.failed", {
+      reason: "projection_unavailable",
+    });
+    expect(JSON.stringify(error.mock.calls)).not.toContain("+5511999999999");
+    expect(JSON.stringify(error.mock.calls)).not.toContain(publicId);
   });
 });

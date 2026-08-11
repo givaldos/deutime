@@ -3094,6 +3094,28 @@ export type Database = {
           team_rsvp_enabled: boolean
         }[]
       }
+      get_event_lineup_pilot_health: {
+        Args: { requested_team_id: string }
+        Returns: {
+          active_revisions: number
+          consented_published_assignments: number
+          draft_assignments: number
+          draft_events: number
+          draft_exclusions: number
+          draft_squads: number
+          last_draft_at: string
+          last_publication_at: string
+          last_withdrawal_at: string
+          observed_at: string
+          public_event_page_enabled: boolean
+          publications_24h: number
+          published_assignments: number
+          published_squads: number
+          scheduled_events: number
+          team_division_enabled: boolean
+          withdrawals_24h: number
+        }[]
+      }
       get_event_whatsapp_reminder_state: {
         Args: { requested_event_id: string }
         Returns: {

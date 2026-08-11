@@ -26,6 +26,7 @@
     "db:types": "supabase gen types typescript --local > lib/database.types.ts",
     "migrations:check": "node scripts/check-migration-integrity.mjs",
     "pilot:rsvp:health": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/rsvp-pilot-health.mjs",
+    "pilot:lineup:health": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/lineup-pilot-health.mjs",
     "smoke:production": "SMOKE_MODE=production-readonly node scripts/smoke.mjs",
     "security:audit": "npm audit --audit-level=moderate",
     "verify": "npm run lint && npm run typecheck && npm run test && npm run build"

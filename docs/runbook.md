@@ -174,6 +174,61 @@ localmente:
 Anexe ao pacote da release os IDs das execuções, deployment promovido, horários
 e resultado. Sem essa evidência, o ensaio de rollback não está concluído.
 
+### Piloto de divisão e escalação — R07
+
+Ative `team_division` em somente um time demo com evento futuro. A página
+pública precisa estar habilitada, mas não publique uma revisão por SQL: criação,
+edição, publicação e retirada devem ocorrer pela interface e pela sessão
+verificada de owner/admin. Antes da ativação, confirme a coorte e o operador:
+
+```sql
+select team.id as team_id, membership.user_id as operator_id,
+  count(*) filter (where event.status = 'scheduled' and event.starts_at > now()) as eventos_futuros
+from public.teams team
+join public.team_memberships membership on membership.team_id = team.id
+left join public.events event on event.team_id = team.id
+where team.id = '<LINEUP_PILOT_TEAM_ID>'::uuid
+  and membership.status = 'active'
+  and membership.role in ('owner', 'admin')
+group by team.id, membership.user_id;
+```
+
+Use a RPC auditada para alternar a flag:
+
+```sql
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '<OPERATOR_ID>', true);
+select public.set_team_feature_flag(
+  '<LINEUP_PILOT_TEAM_ID>'::uuid,
+  'team_division',
+  true
+);
+commit;
+```
+
+A sonda operacional exige `service_role`, retorna somente contagens e não deve
+ser executada no navegador. No cofre operacional local, configure o UUID da
+coorte sem versionar a chave e execute:
+
+```bash
+LINEUP_PILOT_TEAM_ID='<LINEUP_PILOT_TEAM_ID>' \
+EXPECT_LINEUP_PILOT_ENABLED=true \
+npm run pilot:lineup:health
+```
+
+Os dois gates precisam estar ativos; consentimentos publicados nunca podem
+superar alocações publicadas. Observe também falhas redigidas
+`event_lineup_image.failed` e renderizações agregadas
+`event_lineup_image.rendered`. Nenhum log pode conter ID público, nome, telefone
+ou conteúdo da exceção.
+
+Para rollback imediato, repita a RPC auditada com `false`. Confirme a sonda com
+`EXPECT_LINEUP_PILOT_ENABLED=false`, abra novamente a URL canônica e verifique
+que a lista privada de confirmados e o evento continuam utilizáveis, enquanto
+editor, escalação pública e imagem publicada desaparecem. A migration é
+forward-only e não deve ser revertida.
+
 ### Retenção diária — R05/R06
 
 A Vercel chama `GET /api/internal/craque/retention` uma vez por dia, às
