@@ -501,3 +501,13 @@ do WhatsApp.
 - gates verdes: 2 arquivos/12 testes focados, 57 arquivos/320 testes Vitest,
   ESLint, TypeScript, build de produção com Webpack e auditoria sem
   vulnerabilidades. Próximo passo: promover e repetir em Android/iPhone.
+
+### `WP-R07-06` — CP5 confirmação única em produção
+
+- PR `#164`, merge `50c3737`; todos os checks obrigatórios verdes;
+- deployment Vercel `CLvPDEfFJRxag5iNvhejnutP8we8` concluído e workflow
+  `Smoke` `31544126639` verde;
+- não houve migration: o consumidor reutiliza as RPCs transacionais já
+  implantadas e preserva autorização de publicação no banco;
+- próxima evidência: editar e salvar uma vez em Android e iPhone, confirmando
+  atualização automática da revisão para concluir o piloto físico.
