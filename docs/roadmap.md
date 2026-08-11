@@ -25,8 +25,8 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | **R04 — Partida ao vivo e pós-jogo** | ✅ `completed` | Partidas 0..N por evento, presença real, YouTube/Vimeo, placar, lances, timeline e súmula auditável. | [Abrir](releases/R04-partida-ao-vivo-e-pos-jogo.md) |
 | **R05 — Craque da Galera** | ✅ `completed` | Voto único anônimo, autovoto, janela de até 12 h, resultado agregado e retenção segura. | [Abrir](releases/R05-craque-da-galera.md) |
 | **R06 — Conversa da súmula** | ✅ `completed` | Jornada privada, moderação, retenção, iPhone/Android, rollout controlado e rollback comprovados. | [Abrir](releases/R06-conversa-da-sumula.md) |
-| **R03R — Lembretes econômicos** | 🟢 `ready` — CP0 concluído | Duas cotas configuráveis, somente para pendentes, com envio manual/automático idempotente e custo agregado. | [Abrir](releases/R03R-lembretes-economicos.md) |
-| **R07 — Times manuais compartilháveis** | ⬜ `next` | Transformar confirmados em equipes, escalação e imagem compartilhável sem depender do algoritmo automático. | Pacote ainda não promovido |
+| **R03R — Lembretes econômicos** | ✅ `completed` | Duas cotas configuráveis, somente para pendentes, com envio manual/automático idempotente e custo agregado. | [Abrir](releases/R03R-lembretes-economicos.md) |
+| **R07 — Times manuais compartilháveis** | 🟢 `ready` — CP0 concluído | Transformar confirmados em equipes, escalação e imagem compartilhável sem depender do algoritmo automático. | [Abrir](releases/R07-times-manuais-compartilhaveis.md) |
 
 ## O que falta para o MVP completo
 
@@ -39,15 +39,15 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 - [x] piloto e rollback concluídos: `comments` voltou a ficar desligada em todos os times, preservando histórico, placar, lances e auditoria;
 - [x] CP6 concluído: evidências consolidadas, rollout futuro definido, R06 concluída e checkpoint em `idle`.
 
-### 2. Entregar dois lembretes econômicos pelo WhatsApp
+### 2. R03R concluída — dois lembretes econômicos pelo WhatsApp
 
-- [ ] permitir ao time configurar dois lembretes de confirmação e fazer cada evento herdar ou ajustar esses horários;
-- [ ] recalcular os destinatários no envio e incluir somente elegíveis que ainda não responderam **SIM**, **NÃO** nem **TALVEZ**;
-- [ ] permitir **Enviar lembrete agora**, consumindo e cancelando a próxima cota automática sem criar um terceiro envio;
-- [ ] não consumir a cota manual quando não houver destinatário; execução automática vazia termina como `skipped`, sem chamada ao provedor;
-- [ ] garantir no máximo uma mensagem por atleta e cota, inclusive em clique repetido, retry, concorrência e webhook reprocessado;
-- [ ] cancelar ou reagendar cotas diante de remarcação, cancelamento, prazo encerrado, opt-out, telefone inválido ou vínculo removido;
-- [ ] mostrar ao admin estado, destinatários, entrega, falhas e custo agregado de cada cota, preservando o compartilhamento manual.
+- [x] permitir ao time configurar dois lembretes de confirmação e fazer cada evento herdar ou ajustar esses horários;
+- [x] recalcular os destinatários no envio e incluir somente elegíveis que ainda não responderam **SIM**, **NÃO** nem **TALVEZ**;
+- [x] permitir **Enviar lembrete agora**, consumindo e cancelando a próxima cota automática sem criar um terceiro envio;
+- [x] não consumir a cota manual quando não houver destinatário; execução automática vazia termina como `skipped`, sem chamada ao provedor;
+- [x] garantir no máximo uma mensagem por atleta e cota, inclusive em clique repetido, retry, concorrência e webhook reprocessado;
+- [x] cancelar ou reagendar cotas diante de remarcação, cancelamento, prazo encerrado, opt-out, telefone inválido ou vínculo removido;
+- [x] mostrar ao admin estado, destinatários, entrega, falhas e custo agregado de cada cota, preservando o compartilhamento manual.
 
 ### 3. Entregar R07 — divisão manual e escalação compartilhável
 
@@ -77,7 +77,7 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 
 ## Ordem recomendada para uma única frente
 
-1. promover e entregar o pacote dos dois lembretes;
+1. ~~promover e entregar o pacote dos dois lembretes~~ — concluído;
 2. promover e entregar R07 com divisão manual, publicação e imagem;
 3. fechar escudo e Open Graph sobre os estados já estabilizados;
 4. executar o gate integrado e declarar o MVP completo.
