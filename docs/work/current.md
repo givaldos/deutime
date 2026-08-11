@@ -3,7 +3,7 @@ release: R07
 work_package: WP-R07-04
 scope: lineup_pilot_and_completion
 branch_or_commit: "dev"
-checkpoint: CP4
+checkpoint: CP5
 status: idle
 completed_ac:
   - AC-R07-01
@@ -34,20 +34,23 @@ tests:
   - "db:lint: verde; somente avisos legados em create_event_as_staff e record_match_event"
   - "ESLint, TypeScript e next build --webpack: verdes"
   - "npm audit --audit-level=moderate: 0 vulnerabilidades"
+  - "PR #158 e merge 3ab53a8: todos os checks verdes"
+  - "Deploy database 31489279371 e Smoke 31489276737: verdes"
+  - "produção demo-campo: off/on, fallback real e reativação confirmados"
 blocker: null
-next_action: "Promover WP-R07-04 inerte, executar smoke e ativar somente uma coorte demo para o piloto físico Android/iPhone."
+next_action: "Publicar uma divisão demo pela interface e validar URL/imagem em Android e iPhone; então concluir AC-R07-10 e R07."
 ---
 
 # Trabalho atual
 
-O CP4 local da R07 está validado. A sonda operacional restrita a `service_role`
-retorna apenas métricas agregadas e a imagem produz logs redigidos sem IDs,
-nomes, telefones ou conteúdo de exceção.
+O CP5 da R07 está ativo somente em `demo-campo`. Deploy do banco, Vercel, smoke
+e checks passaram; a sonda agregada confirmou ambos os gates sem rascunhos ou
+revisões criados automaticamente.
 
-O ensaio local confirmou ativação e rollback imediato por flag, mantendo a
-página pública e restaurando o estado inicial desligado. Banco, aplicação,
-build e auditoria estão verdes.
+O rollback produtivo foi exercitado: desligar `team_division` removeu o editor
+imediatamente, preservando o link público e a chamada; religar restaurou o
+editor sem alterar o domínio.
 
-A próxima ação é promover a expansão inerte, executar smoke de produção e
-ativar uma única coorte demo. A release só termina após evidência física da
-jornada R07 em Android e iPhone.
+A próxima ação é publicar uma divisão no evento demo pela própria interface e
+validar a URL e a imagem em Android e iPhone. Só então `AC-R07-10` e a release
+podem ser concluídos.
