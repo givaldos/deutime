@@ -1,9 +1,9 @@
 ---
 release: R07
-work_package: WP-R07-05
-scope: reusable_squads_auto_split_touch_ux
-branch_or_commit: "1562bc0"
-checkpoint: CP5
+work_package: WP-R07-06
+scope: persistent_internal_squads_badges_progressive_ux
+branch_or_commit: "dev"
+checkpoint: CP4
 status: idle
 completed_ac:
   - AC-R07-01
@@ -16,33 +16,27 @@ completed_ac:
   - AC-R07-09
   - AC-R07-11
   - AC-R07-12
+  - AC-R07-13
+  - AC-R07-14
 dirty_files: []
 tests:
-  - "algoritmo, interface e Action focados: 3 arquivos, 15 testes verdes"
-  - "Vitest completo: 55 arquivos, 316 testes verdes"
-  - "db:reset, db:types e db:test: verdes; 41 arquivos, 998 testes pgTAP"
-  - "ensaio mobile 390x844: 14x14, mover, retirar/recolocar, salvar e recarregar"
-  - "db:lint: verde; somente avisos legados em create_event_as_staff e record_match_event"
+  - "Vitest completo: 57 arquivos, 318 testes verdes"
+  - "db:reset, db:types e db:test: verdes; 42 arquivos, 1.014 testes pgTAP"
+  - "integridade de migrations origin/main..HEAD: verde"
+  - "ensaio mobile 390x844: equipes internas, 14x14, mover por toque, salvar e alternar para publicar"
   - "ESLint, TypeScript e next build --webpack: verdes"
   - "npm audit --audit-level=moderate: 0 vulnerabilidades"
-  - "PR #160 e merge 1562bc0: todos os checks verdes"
-  - "Deploy database 31518690923 e Smoke 31518742849: verdes"
-  - "smoke manual somente leitura em https://deutime.app: verde"
 blocker: null
-next_action: "Repetir a jornada automática por toque em Android/iPhone na coorte demo e concluir AC-R07-04/10."
+next_action: "Promover dev por PR para main e executar rollout compatível do banco antes do consumidor."
 ---
 
 # Trabalho atual
 
-O pacote consolidado está em produção. O `select`
-individual permanece recolhido como fallback acessível; o caminho primário é a
-sugestão automática ajustável por cartões de toque.
+Equipes internas persistentes, catálogo fechado de escudos SVG e vínculo
+histórico com `event_squads` estão implementados. A gestão fica em Configurações
+e o evento abre com divisão automática, troca por toque e uma única ação fixa:
+salvar; após sucesso, publicar.
 
-Owner/admin salva times padrão de nome/cor/ordem. Evento novo copia o modelo,
-cria IDs próprios e distribui confirmados de modo reproduzível, priorizando a
-separação de goleiros e diferença máxima de uma pessoa. Nada persiste antes do
-salvar explícito.
-
-A próxima ação é validar a interface nova em Android/iPhone na coorte demo. A
-expansão, o consumidor, os checks, o deploy de banco e o smoke já estão verdes;
-`main` e `dev` permanecem sincronizadas no merge `1562bc0`.
+A implementação passou pelos gates completos e pelo ensaio mobile local. A
+próxima ação concreta é a promoção `dev → PR → main`, seguida pelo deploy da
+migration antes do consumidor e validação física em Android/iPhone.

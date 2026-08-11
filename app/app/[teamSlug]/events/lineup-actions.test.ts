@@ -20,7 +20,6 @@ import {
   linkEventLineupSquadToMatchSide,
   publishEventLineup,
   saveEventLineupDraft,
-  saveTeamSquadPresets,
   withdrawEventLineupPublication,
 } from "./lineup-actions";
 
@@ -75,7 +74,7 @@ describe("ações da divisão manual", () => {
     });
     await expect(saveEventLineupDraft({}, draftForm())).resolves.toMatchObject({
       outcome: "success",
-      message: "Rascunho salvo: 1 distribuídos e 0 fora.",
+      message: "Divisão salva: 1 distribuídos e 0 fora.",
     });
     expect(mocks.rpc).toHaveBeenCalledWith("save_event_lineup_draft", {
       requested_event_id: ids.event,
@@ -93,38 +92,6 @@ describe("ações da divisão manual", () => {
       outcome: "error",
       message: "A lista mudou. Atualize a página e revise os confirmados.",
     });
-  });
-
-  it("salva modelos reutilizáveis por RPC sem misturar o rascunho", async () => {
-    mocks.rpc.mockResolvedValue({
-      data: { preset_count: 2, replayed: false },
-      error: null,
-    });
-    const form = new FormData();
-    form.set("teamId", ids.team);
-    form.set("teamSlug", "society-united");
-    form.set("eventId", ids.event);
-    form.set("requestId", ids.request);
-    form.set("presets", JSON.stringify([
-      { id: ids.squadA, name: "Azul", color: "#0D9488", sort_order: 1 },
-      { id: ids.squadB, name: "Branco", color: "#2563EB", sort_order: 2 },
-    ]));
-
-    await expect(saveTeamSquadPresets({}, form)).resolves.toMatchObject({
-      outcome: "success",
-      message: "2 times padrão salvos para os próximos eventos.",
-    });
-    expect(mocks.rpc).toHaveBeenCalledWith("replace_team_squad_presets", {
-      requested_team_id: ids.team,
-      request_id: ids.request,
-      requested_presets: expect.arrayContaining([
-        expect.objectContaining({ name: "Azul" }),
-      ]),
-    });
-    expect(mocks.rpc).not.toHaveBeenCalledWith(
-      "save_event_lineup_draft",
-      expect.anything(),
-    );
   });
 
   it("vincula somente IDs estreitos da partida e do time salvo", async () => {

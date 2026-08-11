@@ -4,24 +4,19 @@ import {
   linkEventLineupSquadToMatchSide,
   publishEventLineup,
   saveEventLineupDraft,
-  saveTeamSquadPresets,
   type EventLineupActionState,
   withdrawEventLineupPublication,
 } from "@/app/app/[teamSlug]/events/lineup-actions";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
+import { InternalSquadBadge } from "@/components/internal-squad-badge";
 import { suggestAutomaticDestinations } from "@/lib/features/team-division/automatic";
+import type { InternalSquadBadgeKey } from "@/lib/features/team-division/internal-squads";
 import {
-  ArrowDown,
-  ArrowUp,
   BadgeCheck,
-  Bookmark,
   CircleOff,
   Globe2,
-  Plus,
   Save,
-  ShieldCheck,
   Sparkles,
-  Trash2,
   Undo2,
   UsersRound,
 } from "lucide-react";
@@ -32,6 +27,8 @@ export type EventLineupSquad = {
   name: string;
   color: string;
   sortOrder: number;
+  internalTeamId: string | null;
+  badgeKey: InternalSquadBadgeKey;
 };
 
 export type EventLineupAthlete = {
@@ -65,7 +62,7 @@ export function EventLineupEditor({
   matchSides,
   canPublish = false,
   activeRevision = null,
-  canManagePresets = false,
+  hasSavedDraft = false,
   autoSuggestOnLoad = false,
 }: {
   teamId: string;
@@ -78,15 +75,20 @@ export function EventLineupEditor({
   matchSides: EventLineupMatchSide[];
   canPublish?: boolean;
   activeRevision?: { revision: number; publishedAt: string } | null;
-  canManagePresets?: boolean;
+  hasSavedDraft?: boolean;
   autoSuggestOnLoad?: boolean;
 }) {
-  const [actionState, formAction] = useActionState(
-    saveEventLineupDraft,
-    initialActionState,
-  );
-  const [squads, setSquads] = useState(() =>
+  const [squads] = useState(() =>
     initialSquads.slice().sort((a, b) => a.sortOrder - b.sortOrder),
+  );
+  const [isDirty, setIsDirty] = useState(!hasSavedDraft);
+  const [actionState, formAction] = useActionState(
+    async (previousState: EventLineupActionState, formData: FormData) => {
+      const nextState = await saveEventLineupDraft(previousState, formData);
+      if (nextState.outcome === "success") setIsDirty(false);
+      return nextState;
+    },
+    initialActionState,
   );
   const [destinations, setDestinations] = useState<Record<string, string>>(() => {
     const initial = Object.fromEntries(
@@ -100,11 +102,6 @@ export function EventLineupEditor({
       ...suggestAutomaticDestinations(eventId, squads, athletes),
     };
   });
-  const [presetState, presetAction] = useActionState(
-    saveTeamSquadPresets,
-    initialActionState,
-  );
-  const [initialPresetRequestId] = useState(() => crypto.randomUUID());
   const requestId = actionState.nextRequestId ?? initialRequestId;
 
   const assignments = useMemo(
@@ -134,66 +131,17 @@ export function EventLineupEditor({
     (athlete) => !destinations[athlete.id] || destinations[athlete.id] === UNASSIGNED,
   ).length;
 
-  function updateSquad(id: string, patch: Partial<EventLineupSquad>) {
-    setSquads((current) =>
-      current.map((squad) => (squad.id === id ? { ...squad, ...patch } : squad)),
-    );
-  }
-
-  function moveSquad(index: number, direction: -1 | 1) {
-    setSquads((current) => {
-      const target = index + direction;
-      if (target < 0 || target >= current.length) return current;
-      const next = [...current];
-      const sourceSquad = next[index];
-      const targetSquad = next[target];
-      if (!sourceSquad || !targetSquad) return current;
-      next[index] = targetSquad;
-      next[target] = sourceSquad;
-      return next.map((squad, position) => ({ ...squad, sortOrder: position + 1 }));
-    });
-  }
-
-  function removeSquad(id: string) {
-    if (squads.length <= 2) return;
-    setSquads((current) =>
-      current
-        .filter((squad) => squad.id !== id)
-        .map((squad, index) => ({ ...squad, sortOrder: index + 1 })),
-    );
-    setDestinations((current) =>
-      Object.fromEntries(
-        Object.entries(current).map(([athleteId, destination]) => [
-          athleteId,
-          destination === id ? UNASSIGNED : destination,
-        ]),
-      ),
-    );
-  }
-
-  function addSquad() {
-    if (squads.length >= 12) return;
-    const palette = ["#0D9488", "#2563EB", "#DC2626", "#D97706", "#7C3AED"];
-    setSquads((current) => [
-      ...current,
-      {
-        id: crypto.randomUUID(),
-        name: `Time ${current.length + 1}`,
-        color: palette[current.length % palette.length] ?? "#0D9488",
-        sortOrder: current.length + 1,
-      },
-    ]);
-  }
-
   function automaticallyDistribute() {
     const eligible = athletes.filter(
       (athlete) => destinations[athlete.id] !== EXCLUDED,
     );
     const suggestion = suggestAutomaticDestinations(eventId, squads, eligible);
+    setIsDirty(true);
     setDestinations((current) => ({ ...current, ...suggestion }));
   }
 
   function moveAthleteByTouch(athleteId: string) {
+    setIsDirty(true);
     setDestinations((current) => {
       const currentSquadIndex = squads.findIndex(
         (squad) => squad.id === current[athleteId],
@@ -237,45 +185,16 @@ export function EventLineupEditor({
         </span>
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">
-            Rascunho privado
+            Divisão do jogo
           </p>
           <h2 id="lineup-editor-title" className="mt-1 text-xl font-black text-emerald-950">
             Dividir os times
           </h2>
           <p className="mt-1 text-sm leading-6 text-emerald-900/80">
-            Escolha o destino de cada confirmado. Nada será publicado nesta etapa.
+            A sugestão já está pronta. Ajuste somente quem precisar trocar.
           </p>
         </div>
       </div>
-
-      {publicId ? (
-        <LineupPublicationPanel
-          teamId={teamId}
-          teamSlug={teamSlug}
-          eventId={eventId}
-          publicId={publicId}
-          canPublish={canPublish}
-          activeRevision={activeRevision}
-        />
-      ) : null}
-
-      {canManagePresets ? (
-        <form action={presetAction} className="mt-4 rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
-          <input type="hidden" name="teamId" value={teamId} />
-          <input type="hidden" name="teamSlug" value={teamSlug} />
-          <input type="hidden" name="eventId" value={eventId} />
-          <input type="hidden" name="requestId" value={presetState.nextRequestId ?? initialPresetRequestId} />
-          <input type="hidden" name="presets" value={JSON.stringify(squads.map((squad, index) => ({ id: squad.id, name: squad.name, color: squad.color, sort_order: index + 1 })))} />
-          <p className="text-sm font-black text-slate-900">Times dos próximos eventos</p>
-          <p className="mt-1 text-xs leading-5 text-slate-600">
-            Salve nomes e cores como times padrão. Eventos já divididos não serão alterados.
-          </p>
-          {presetState.message ? <ActionMessage state={presetState} compact /> : null}
-          <AsyncSubmitButton pendingLabel="Salvando times padrão..." variant="outline" className="mt-3 min-h-12 w-full">
-            <Bookmark aria-hidden /> Salvar estes times como padrão
-          </AsyncSubmitButton>
-        </form>
-      ) : null}
 
       <form action={formAction} className="mt-5 space-y-6">
         <input type="hidden" name="teamId" value={teamId} />
@@ -287,63 +206,7 @@ export function EventLineupEditor({
         <input type="hidden" name="exclusions" value={JSON.stringify(exclusions)} />
 
         <fieldset>
-          <legend className="font-black text-slate-900">1. Configure de 2 a 12 times</legend>
-          <p className="mt-1 text-xs leading-5 text-slate-600">
-            Nome, cor e ordem ficam salvos no evento. Use os botões para ordenar.
-          </p>
-          <div className="mt-3 grid gap-3 lg:grid-cols-2">
-            {squads.map((squad, index) => {
-              const memberCount = assignments.filter(
-                (assignment) => assignment.squad_id === squad.id,
-              ).length;
-              return (
-                <article key={squad.id} className="rounded-2xl bg-white p-4 shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      value={squad.color}
-                      onChange={(event) => updateSquad(squad.id, { color: event.target.value })}
-                      aria-label={`Cor do ${squad.name || `time ${index + 1}`}`}
-                      className="size-12 shrink-0 cursor-pointer rounded-xl border border-slate-200 bg-white p-1"
-                    />
-                    <label className="min-w-0 flex-1 text-xs font-bold text-slate-600">
-                      Nome do time {index + 1}
-                      <input
-                        value={squad.name}
-                        onChange={(event) => updateSquad(squad.id, { name: event.target.value })}
-                        required
-                        maxLength={60}
-                        className="mt-1 min-h-12 w-full rounded-xl border border-slate-200 px-3 text-base font-bold text-slate-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
-                      />
-                    </label>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold text-slate-500">
-                      {memberCount} {memberCount === 1 ? "atleta" : "atletas"}
-                    </span>
-                    <div className="flex gap-1">
-                      <button type="button" onClick={() => moveSquad(index, -1)} disabled={index === 0} aria-label={`Mover ${squad.name} para cima`} className="grid min-h-11 min-w-11 place-items-center rounded-xl border border-slate-200 text-slate-600 disabled:opacity-30">
-                        <ArrowUp className="size-4" aria-hidden />
-                      </button>
-                      <button type="button" onClick={() => moveSquad(index, 1)} disabled={index === squads.length - 1} aria-label={`Mover ${squad.name} para baixo`} className="grid min-h-11 min-w-11 place-items-center rounded-xl border border-slate-200 text-slate-600 disabled:opacity-30">
-                        <ArrowDown className="size-4" aria-hidden />
-                      </button>
-                      <button type="button" onClick={() => removeSquad(squad.id)} disabled={squads.length <= 2} aria-label={`Remover ${squad.name}`} className="grid min-h-11 min-w-11 place-items-center rounded-xl border border-red-100 text-red-600 disabled:opacity-30">
-                        <Trash2 className="size-4" aria-hidden />
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-          <button type="button" onClick={addSquad} disabled={squads.length >= 12} className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-400 bg-white px-4 text-sm font-black text-emerald-800 disabled:opacity-40">
-            <Plus className="size-4" aria-hidden /> Adicionar time
-          </button>
-        </fieldset>
-
-        <fieldset>
-          <legend className="font-black text-slate-900">2. Distribua os confirmados</legend>
+          <legend className="font-black text-slate-900">Ajuste se precisar</legend>
           <p className="mt-1 text-xs leading-5 text-slate-600">
             A sugestão equilibra quantidade e espalha goleiros. Toque em uma pessoa para movê-la ao próximo time.
           </p>
@@ -359,12 +222,15 @@ export function EventLineupEditor({
               return (
                 <article key={squad.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                   <div className="flex items-center justify-between gap-3 px-4 py-3" style={{ borderTop: `5px solid ${squad.color}` }}>
-                    <h3 className="font-black text-slate-900">{squad.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <InternalSquadBadge badgeKey={squad.badgeKey} color={squad.color} className="size-9" />
+                      <h3 className="font-black text-slate-900">{squad.name}</h3>
+                    </div>
                     <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">{members.length}</span>
                   </div>
                   <div className="space-y-2 border-t border-slate-100 p-3">
                     {members.length ? members.map((athlete) => (
-                      <AthleteTouchCard key={athlete.id} athlete={athlete} nextSquadName={squads[(squads.findIndex((item) => item.id === squad.id) + 1) % squads.length]?.name ?? "outro time"} onMove={() => moveAthleteByTouch(athlete.id)} onExclude={() => setDestinations((current) => ({ ...current, [athlete.id]: EXCLUDED }))} />
+                      <AthleteTouchCard key={athlete.id} athlete={athlete} nextSquadName={squads[(squads.findIndex((item) => item.id === squad.id) + 1) % squads.length]?.name ?? "outro time"} onMove={() => moveAthleteByTouch(athlete.id)} onExclude={() => { setIsDirty(true); setDestinations((current) => ({ ...current, [athlete.id]: EXCLUDED })); }} />
                     )) : <p className="p-3 text-center text-xs text-slate-500">Nenhum atleta neste time.</p>}
                   </div>
                 </article>
@@ -377,7 +243,7 @@ export function EventLineupEditor({
               <h3 className="text-sm font-black text-amber-950">Sem time</h3>
               <div className="mt-2 space-y-2">
                 {athletes.filter((athlete) => !destinations[athlete.id] || destinations[athlete.id] === UNASSIGNED).map((athlete) => (
-                  <AthleteTouchCard key={athlete.id} athlete={athlete} nextSquadName="o time com menos atletas" onMove={() => moveAthleteByTouch(athlete.id)} onExclude={() => setDestinations((current) => ({ ...current, [athlete.id]: EXCLUDED }))} />
+                  <AthleteTouchCard key={athlete.id} athlete={athlete} nextSquadName="o time com menos atletas" onMove={() => moveAthleteByTouch(athlete.id)} onExclude={() => { setIsDirty(true); setDestinations((current) => ({ ...current, [athlete.id]: EXCLUDED })); }} />
                 ))}
               </div>
             </div>
@@ -402,7 +268,7 @@ export function EventLineupEditor({
               {athletes.map((athlete) => (
                 <label key={athlete.id} className="flex items-center justify-between gap-3 text-sm font-bold text-slate-800">
                   <span className="truncate">{athlete.name}</span>
-                  <select aria-label={`Destino de ${athlete.name}`} value={destinations[athlete.id] ?? UNASSIGNED} onChange={(event) => setDestinations((current) => ({ ...current, [athlete.id]: event.target.value }))} className="min-h-11 max-w-[55%] rounded-xl border border-slate-200 bg-white px-2 text-sm font-bold">
+                  <select aria-label={`Destino de ${athlete.name}`} value={destinations[athlete.id] ?? UNASSIGNED} onChange={(event) => { setIsDirty(true); setDestinations((current) => ({ ...current, [athlete.id]: event.target.value })); }} className="min-h-11 max-w-[55%] rounded-xl border border-slate-200 bg-white px-2 text-sm font-bold">
                     <option value={UNASSIGNED}>Sem time</option>
                     <option value={EXCLUDED}>Fora desta divisão</option>
                     {squads.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
@@ -420,17 +286,29 @@ export function EventLineupEditor({
         </div>
 
         {actionState.message ? <ActionMessage state={actionState} /> : null}
-        <div className="rounded-2xl bg-white/80 p-3 text-xs leading-5 text-emerald-950">
-          <p className="flex items-start gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden /> O banco confere novamente RSVP, vínculo ativo e time antes de salvar.</p>
-        </div>
-        <AsyncSubmitButton pendingLabel="Salvando divisão..." className="min-h-14 w-full text-base">
-          <Save aria-hidden /> Salvar rascunho
-        </AsyncSubmitButton>
+        {isDirty ? (
+          <div className="fixed inset-x-3 bottom-[5.5rem] z-40 mx-auto max-w-md rounded-2xl bg-white/95 p-2 shadow-[0_-8px_30px_rgba(15,23,42,0.14)] backdrop-blur sm:static sm:max-w-none sm:bg-transparent sm:p-0 sm:shadow-none">
+            <AsyncSubmitButton pendingLabel="Salvando divisão..." className="min-h-14 w-full text-base">
+              <Save aria-hidden /> Salvar divisão
+            </AsyncSubmitButton>
+          </div>
+        ) : null}
       </form>
+
+      {publicId && !isDirty && (hasSavedDraft || actionState.outcome === "success") ? (
+        <LineupPublicationPanel
+          teamId={teamId}
+          teamSlug={teamSlug}
+          eventId={eventId}
+          publicId={publicId}
+          canPublish={canPublish}
+          activeRevision={activeRevision}
+        />
+      ) : null}
 
       {matchSides.length > 0 && initialSquads.length > 0 ? (
         <div className="mt-6 border-t border-emerald-200 pt-5">
-          <h3 className="font-black text-emerald-950">3. Relacione com as partidas</h3>
+          <h3 className="font-black text-emerald-950">Partidas</h3>
           <p className="mt-1 text-xs leading-5 text-emerald-900/80">
             Usa a última versão salva. O vínculo não confirma presença e não cria participação real.
           </p>
@@ -481,8 +359,8 @@ function LineupPublicationPanel({
         <div>
           <p className="text-sm font-black text-slate-900">
             {activeRevision
-              ? `Revisão ${activeRevision.revision} publicada`
-              : "Divisão ainda não publicada"}
+              ? `Divisão compartilhada · versão ${activeRevision.revision}`
+              : "Agora compartilhe com a galera"}
           </p>
           <p className="mt-1 text-xs leading-5 text-slate-600">
             A página e a imagem mostram somente nomes de atletas que autorizaram a divulgação esportiva.
@@ -496,7 +374,7 @@ function LineupPublicationPanel({
             {Object.entries(fields).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
             <input type="hidden" name="requestId" value={publishState.nextRequestId ?? publishRequestId} />
             <AsyncSubmitButton pendingLabel="Publicando..." className="min-h-12 w-full">
-              <Globe2 aria-hidden /> {activeRevision ? "Publicar nova revisão" : "Publicar divisão"}
+              <Globe2 aria-hidden /> {activeRevision ? "Atualizar publicação" : "Publicar para a galera"}
             </AsyncSubmitButton>
             {publishState.message ? <ActionMessage state={publishState} compact /> : null}
           </form>
@@ -505,7 +383,7 @@ function LineupPublicationPanel({
               {Object.entries(fields).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
               <input type="hidden" name="requestId" value={withdrawState.nextRequestId ?? withdrawRequestId} />
               <AsyncSubmitButton pendingLabel="Retirando..." variant="outline" className="min-h-12 w-full">
-                <Undo2 aria-hidden /> Retirar publicação
+                <Undo2 aria-hidden /> Ocultar publicação
               </AsyncSubmitButton>
               {withdrawState.message ? <ActionMessage state={withdrawState} compact /> : null}
             </form>
@@ -513,7 +391,7 @@ function LineupPublicationPanel({
         </div>
       ) : (
         <p className="mt-3 rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-600">
-          Owner ou admin revisa e publica. Manager continua podendo editar o rascunho.
+          Owner ou admin publica. Manager continua podendo ajustar e salvar a divisão.
         </p>
       )}
     </div>

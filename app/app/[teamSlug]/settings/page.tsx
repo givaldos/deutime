@@ -4,6 +4,7 @@ import { TeamAppHeader } from "@/components/team-app-header";
 import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { TeamMediaManager } from "@/components/team-media-manager";
 import { TeamSettingsForm } from "@/components/team-settings-form";
+import { InternalSquadManager } from "@/components/internal-squad-manager";
 import { WhatsAppReminderSettingsForm } from "@/components/whatsapp-reminder-settings-form";
 import { AppContainer } from "@/components/ui/app-shell";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
+import { getInternalSquads } from "@/lib/data/internal-squads";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -87,10 +89,11 @@ export default async function TeamSettingsPage({
     throw new Error("Não foi possível carregar as configurações do time.");
   }
 
-  const whatsappRemindersEnabled = await isTeamFeatureEnabled(
-    team.id,
-    "whatsapp_reminders",
-  );
+  const [whatsappRemindersEnabled, teamDivisionEnabled] = await Promise.all([
+    isTeamFeatureEnabled(team.id, "whatsapp_reminders"),
+    isTeamFeatureEnabled(team.id, "team_division"),
+  ]);
+  const internalSquads = teamDivisionEnabled ? await getInternalSquads(team.id) : [];
   const { data: reminderSettings, error: reminderSettingsError } =
     whatsappRemindersEnabled
       ? await supabase
@@ -189,6 +192,14 @@ export default async function TeamSettingsPage({
             })}
           />
         </section>
+
+        {teamDivisionEnabled && internalSquads.length >= 2 ? (
+          <InternalSquadManager
+            teamId={team.id}
+            teamSlug={team.slug}
+            initialSquads={internalSquads}
+          />
+        ) : null}
 
         {whatsappRemindersEnabled && reminderSettings ? (
           <WhatsAppReminderSettingsForm
