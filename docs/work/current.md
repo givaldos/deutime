@@ -3,7 +3,7 @@ release: R03R
 work_package: WP-R03R-03
 scope: two_economic_whatsapp_reminders
 branch_or_commit: "dev"
-checkpoint: CP3
+checkpoint: CP4
 status: idle
 completed_ac:
   - AC-R03R-01
@@ -29,8 +29,11 @@ tests:
   - "pgTAP callback por tentativa: 12/12; replay confirmado reprojeta a outbox"
   - "npm run db:test: 37 arquivos, 912 testes passaram após a correção"
   - "npm run db:lint: sem alerta novo; tipos do banco sem diff"
+  - "CP4 primeiro lembrete: pré-check com reminder_1, 3 elegíveis, fila e cotas vencidas zeradas"
+  - "WhatsApp worker run 31446795713: 3 claimed/prepared/accepted; zero rejected/ambiguous/cancelled"
+  - "Pós-envio: 3/3 outbox sent e requires_review=0"
 blocker: null
-next_action: "Executar CP4 físico: disparar primeiro e último lembrete controlados, validar card/fallback, link e RSVP em Android e iPhone e registrar AC-R03R-09."
+next_action: "Validar fisicamente o primeiro lembrete, card/fallback, link e RSVP em Android e iPhone; depois disparar a última chamada controlada e concluir AC-R03R-09."
 ---
 
 # Trabalho atual
@@ -88,5 +91,16 @@ produção automática ativa e todos os contadores zerados, inclusive
 `recoveredForReview=0` e `ambiguous=0`. Nenhuma mensagem foi enviada porque não
 havia cota vencida.
 
-A próxima ação é o CP4 físico: disparar de forma controlada o primeiro e o
-último lembrete e validar card/fallback, link e RSVP no Android e no iPhone.
+Em 2026-08-10, o primeiro lembrete foi disparado de forma controlada para o
+evento demo `d7f766f2-bb01-4db3-8703-062be9c6c640`. O pré-check confirmou
+`reminder_1`, três elegíveis, controles e features ligados e nenhuma outra
+cota vencida ou mensagem acionável. A RPC auditada consumiu a cota uma vez e
+criou três mensagens. O primeiro acionamento do worker fechou com `409` antes
+do claim; uma única repetição, já aquecida, aceitou as três mensagens. O run
+`31446795713` registrou 3/3 `claimed`, `prepared` e `accepted`, sem rejeição,
+ambiguidade ou cancelamento. O banco terminou com 3/3 outbox `sent` e
+`requires_review=0`.
+
+A próxima ação é validar fisicamente esse primeiro lembrete, card/fallback,
+link e RSVP no Android e no iPhone. Depois, disparar a última chamada de forma
+controlada e concluir `AC-R03R-09`.
