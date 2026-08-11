@@ -475,3 +475,14 @@ do WhatsApp.
 - Turbopack mantém a limitação conhecida de bind local; o build equivalente
   com Webpack passou. Próximo passo: promover pela rotina `dev → PR → main` e
   repetir o fluxo em Android/iPhone para concluir `AC-R07-04` e `AC-R07-10`.
+
+### `WP-R07-06` — CP5 produção pronta para validação física
+
+- PR `#162`, merge `aff99ce`; qualidade, banco, Dependency Review, CodeQL,
+  Terraform e Vercel verdes;
+- workflow `Deploy database` `31542818301` aplicou e conferiu a expansão antes
+  do consumidor; deployment Vercel `8y3nfqLj8W6ipw6hXFjYcGGYaVVn` concluído;
+- workflow `Smoke` `31542863602` validou as jornadas públicas somente leitura;
+  `main` e `dev` foram sincronizadas no merge;
+- próxima evidência: repetir equipes automáticas, troca por toque, salvar e
+  publicar em Android e iPhone para concluir `AC-R07-04` e `AC-R07-10`.
