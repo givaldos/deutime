@@ -367,3 +367,19 @@ do WhatsApp.
 - próximo passo: promover a expansão inerte, executar smoke em produção,
   ativar uma única coorte demo e colher evidência física Android/iPhone antes
   de marcar `AC-R07-10` e concluir a release.
+
+### `WP-R07-04` — CP5 piloto ativo
+
+- PR `#158`, merge `3ab53a8`; checks de quality, banco, dependency review,
+  CodeQL, Terraform e Vercel verdes;
+- workflow `Deploy database` `31489279371` aplicou e conferiu a migration em
+  produção; workflow `Smoke` `31489276737` e smoke manual pós-ativação verdes;
+- somente a coorte demo `demo-campo` recebeu `team_division`; a sonda antes da
+  ativação mostrou `false/true`, 14 eventos futuros e nenhum rascunho ou revisão;
+- após ativação, a sonda mostrou os dois gates ativos e o editor apareceu no
+  evento demo sem criar ou publicar estado automaticamente;
+- rollback produtivo desligou `team_division`: editor ausente, link público e
+  chamada presentes. A reativação restaurou o editor e manteve rascunhos e
+  revisões em zero;
+- piloto permanece ligado somente nessa coorte. Próxima evidência: publicar uma
+  divisão demo pela interface e validar URL/imagem em Android e iPhone.
