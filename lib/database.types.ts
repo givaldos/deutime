@@ -123,6 +123,56 @@ export type Database = {
           },
         ]
       }
+      athlete_public_consents: {
+        Row: {
+          athlete_id: string
+          created_at: string
+          evidence: string
+          granted_at: string | null
+          purpose: Database["public"]["Enums"]["athlete_public_consent_purpose"]
+          revoked_at: string | null
+          status: Database["public"]["Enums"]["consent_status"]
+          team_id: string
+          terms_version: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          athlete_id: string
+          created_at?: string
+          evidence: string
+          granted_at?: string | null
+          purpose: Database["public"]["Enums"]["athlete_public_consent_purpose"]
+          revoked_at?: string | null
+          status: Database["public"]["Enums"]["consent_status"]
+          team_id: string
+          terms_version: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          athlete_id?: string
+          created_at?: string
+          evidence?: string
+          granted_at?: string | null
+          purpose?: Database["public"]["Enums"]["athlete_public_consent_purpose"]
+          revoked_at?: string | null
+          status?: Database["public"]["Enums"]["consent_status"]
+          team_id?: string
+          terms_version?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "athlete_public_consents_athlete_id_team_id_fkey"
+            columns: ["athlete_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
       athletes: {
         Row: {
           approved_at: string | null
@@ -726,6 +776,242 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "teams"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_lineup_commands: {
+        Row: {
+          actor_id: string
+          created_at: string
+          event_id: string
+          id: string
+          kind: Database["public"]["Enums"]["event_lineup_command_kind"]
+          request_id: string
+          result: Json
+          team_id: string
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          event_id: string
+          id?: string
+          kind: Database["public"]["Enums"]["event_lineup_command_kind"]
+          request_id: string
+          result: Json
+          team_id: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["event_lineup_command_kind"]
+          request_id?: string
+          result?: Json
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_lineup_commands_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_lineup_commands_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_lineup_exclusions: {
+        Row: {
+          athlete_id: string
+          created_at: string
+          created_by: string
+          event_id: string
+          team_id: string
+        }
+        Insert: {
+          athlete_id: string
+          created_at?: string
+          created_by: string
+          event_id: string
+          team_id: string
+        }
+        Update: {
+          athlete_id?: string
+          created_at?: string
+          created_by?: string
+          event_id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_lineup_exclusions_athlete_id_team_id_fkey"
+            columns: ["athlete_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_lineup_exclusions_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
+      event_lineup_revision_spots: {
+        Row: {
+          athlete_id: string
+          created_at: string
+          event_id: string
+          position_code: string | null
+          revision_id: string
+          revision_squad_id: string
+          slot_kind: Database["public"]["Enums"]["lineup_slot_kind"]
+          sort_order: number
+          team_id: string
+        }
+        Insert: {
+          athlete_id: string
+          created_at?: string
+          event_id: string
+          position_code?: string | null
+          revision_id: string
+          revision_squad_id: string
+          slot_kind: Database["public"]["Enums"]["lineup_slot_kind"]
+          sort_order: number
+          team_id: string
+        }
+        Update: {
+          athlete_id?: string
+          created_at?: string
+          event_id?: string
+          position_code?: string | null
+          revision_id?: string
+          revision_squad_id?: string
+          slot_kind?: Database["public"]["Enums"]["lineup_slot_kind"]
+          sort_order?: number
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_lineup_revision_spots_athlete_id_team_id_fkey"
+            columns: ["athlete_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_lineup_revision_spots_revision_squad_id_revision_id__fkey"
+            columns: ["revision_squad_id", "revision_id", "event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "event_lineup_revision_squads"
+            referencedColumns: ["id", "revision_id", "event_id", "team_id"]
+          },
+        ]
+      }
+      event_lineup_revision_squads: {
+        Row: {
+          color: string | null
+          created_at: string
+          event_id: string
+          id: string
+          name: string
+          revision_id: string
+          sort_order: number
+          source_squad_id: string | null
+          team_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          event_id: string
+          id?: string
+          name: string
+          revision_id: string
+          sort_order: number
+          source_squad_id?: string | null
+          team_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          name?: string
+          revision_id?: string
+          sort_order?: number
+          source_squad_id?: string | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_lineup_revision_squads_revision_id_event_id_team_id_fkey"
+            columns: ["revision_id", "event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "event_lineup_revisions"
+            referencedColumns: ["id", "event_id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_lineup_revision_squads_source_squad_id_fkey"
+            columns: ["source_squad_id"]
+            isOneToOne: false
+            referencedRelation: "event_squads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_lineup_revisions: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          is_active: boolean
+          published_at: string
+          published_by: string
+          revision: number
+          team_id: string
+          withdrawn_at: string | null
+          withdrawn_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          is_active?: boolean
+          published_at?: string
+          published_by: string
+          revision: number
+          team_id: string
+          withdrawn_at?: string | null
+          withdrawn_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          is_active?: boolean
+          published_at?: string
+          published_by?: string
+          revision?: number
+          team_id?: string
+          withdrawn_at?: string | null
+          withdrawn_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_lineup_revisions_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
           },
         ]
       }
@@ -2922,6 +3208,21 @@ export type Database = {
           public_id: string
         }[]
       }
+      link_event_lineup_squad_to_match_side: {
+        Args: {
+          request_id: string
+          requested_match_id: string
+          requested_side_index: number
+          requested_squad_id: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_lineup_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_lineup_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       list_my_player_team_links: {
         Args: never
         Returns: {
@@ -2999,6 +3300,16 @@ export type Database = {
           scanned_slots: number
           skipped_slots: number
         }[]
+      }
+      publish_event_lineup: {
+        Args: { request_id: string; requested_event_id: string }
+        Returns: Database["public"]["CompositeTypes"]["event_lineup_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_lineup_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       record_match_event: {
         Args: {
@@ -3147,6 +3458,22 @@ export type Database = {
         Args: { requested_reason?: string; requested_session_id: string }
         Returns: boolean
       }
+      save_event_lineup_draft: {
+        Args: {
+          request_id: string
+          requested_assignments: Json
+          requested_event_id: string
+          requested_exclusions?: string[]
+          requested_squads: Json
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_lineup_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_lineup_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       save_match_report_as_staff: {
         Args: {
           requested_event_id: string
@@ -3212,6 +3539,33 @@ export type Database = {
           requested_mode: Database["public"]["Enums"]["match_public_mode"]
         }
         Returns: undefined
+      }
+      set_public_sports_activity_consent: {
+        Args: {
+          request_id: string
+          requested_athlete_id: string
+          requested_granted: boolean
+          requested_terms_version: string
+        }
+        Returns: {
+          athlete_id: string
+          created_at: string
+          evidence: string
+          granted_at: string | null
+          purpose: Database["public"]["Enums"]["athlete_public_consent_purpose"]
+          revoked_at: string | null
+          status: Database["public"]["Enums"]["consent_status"]
+          team_id: string
+          terms_version: string
+          updated_at: string
+          updated_by: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "athlete_public_consents"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       set_runtime_control: {
         Args: {
@@ -3385,8 +3739,21 @@ export type Database = {
         Args: { requested_match_id: string; requested_reason: string }
         Returns: undefined
       }
+      withdraw_event_lineup_publication: {
+        Args: { request_id: string; requested_event_id: string }
+        Returns: Database["public"]["CompositeTypes"]["event_lineup_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_lineup_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
+      athlete_public_consent_purpose:
+        | "public_player_profile"
+        | "public_sports_activity"
       athlete_status: "pending" | "active" | "inactive" | "rejected"
       attendance_source: "web" | "admin" | "whatsapp"
       attendance_status:
@@ -3411,6 +3778,11 @@ export type Database = {
         | "tournament"
         | "training"
         | "other"
+      event_lineup_command_kind:
+        | "save_draft"
+        | "publish"
+        | "withdraw"
+        | "link_match"
       event_reminder_slot_key: "reminder_1" | "reminder_2"
       event_reminder_slot_status:
         | "scheduled"
@@ -3471,6 +3843,15 @@ export type Database = {
         series_id: string | null
         affected_count: number | null
         max_schedule_version: number | null
+        replayed: boolean | null
+      }
+      event_lineup_command_result: {
+        request_id: string | null
+        event_id: string | null
+        revision_id: string | null
+        squad_count: number | null
+        assigned_count: number | null
+        excluded_count: number | null
         replayed: boolean | null
       }
       event_whatsapp_reminder_command_result: {
@@ -3608,6 +3989,10 @@ export const Constants = {
   },
   public: {
     Enums: {
+      athlete_public_consent_purpose: [
+        "public_player_profile",
+        "public_sports_activity",
+      ],
       athlete_status: ["pending", "active", "inactive", "rejected"],
       attendance_source: ["web", "admin", "whatsapp"],
       attendance_status: [
@@ -3634,6 +4019,12 @@ export const Constants = {
         "tournament",
         "training",
         "other",
+      ],
+      event_lineup_command_kind: [
+        "save_draft",
+        "publish",
+        "withdraw",
+        "link_match",
       ],
       event_reminder_slot_key: ["reminder_1", "reminder_2"],
       event_reminder_slot_status: [

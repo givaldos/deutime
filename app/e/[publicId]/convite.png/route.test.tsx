@@ -31,7 +31,8 @@ vi.mock("@/lib/supabase/privileged", () => ({
   createPrivilegedClient: mocks.createPrivilegedClient,
 }));
 
-import { GET, HEAD, InviteImage } from "./route";
+import { InviteImage } from "./invite-image";
+import { GET, HEAD } from "./route";
 
 const publicId = "b4000000-0000-4000-8000-000000000001";
 const event = {

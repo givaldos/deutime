@@ -251,3 +251,33 @@ do WhatsApp.
 - próxima ação: `WP-R07-01`, adicionar contrato forward-only de consentimento,
   rascunho, exclusão, revisão publicada e comandos transacionais, mantendo a
   flag desligada.
+
+### `WP-R07-01` — CP1 concluído
+
+- a migration forward-only `202608110002_r07_lineup_contract.sql` adiciona
+  consentimento explícito `public_sports_activity`, exclusões, comandos
+  idempotentes e revisões-snapshot sem alterar migrations aplicadas;
+- `save_event_lineup_draft` aceita de 2 a 12 equipes e substitui o rascunho em
+  uma transação, validando atleta ativo do mesmo time com RSVP `confirmed`,
+  nomes/ordem/cores, exclusões disjuntas e posições do esporte;
+- manager pode salvar; owner/admin publica ou retira; comandos repetidos
+  retornam replay e request ID reutilizado em outro evento/comando falha;
+- cada publicação cria uma revisão nova e preserva o snapshot anterior; editar
+  o rascunho não altera a revisão compartilhada, e consentimento pode ser
+  revogado somente pelo próprio atleta;
+- `link_event_lineup_squad_to_match_side` relaciona um time ao lado compatível
+  da partida sem escrever em RSVP ou `match_participations`;
+- tabelas novas nasceram com RLS, grants mínimos e auditoria agregada sem nome
+  de atleta; `team_division` segue sem linha habilitada e nenhuma superfície de
+  produção foi ativada;
+- `038_r07_lineup_contract.test.sql`: 31 cenários positivos, negativos,
+  idempotentes, de papéis e cross-tenant; suíte completa: 38 arquivos e 943
+  testes pgTAP verdes;
+- gates verdes: `db:reset`, `db:lint` (somente dois avisos legados), `db:test`,
+  `db:types`, ESLint, TypeScript, 48 arquivos/283 testes Vitest, build de
+  produção com Webpack e `npm audit` sem vulnerabilidades;
+- o build revelou um export adicional incompatível na rota `convite.png`; o
+  componente visual foi separado da Route Handler, preservando renderização e
+  os quatro testes existentes;
+- próxima ação: `WP-R07-02`, implementar a divisão manual mobile sobre as RPCs,
+  mantendo fallback, flag desligada e compatibilidade com App N.
