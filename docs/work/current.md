@@ -3,7 +3,7 @@ release: R03R
 work_package: WP-R03R-03
 scope: two_economic_whatsapp_reminders
 branch_or_commit: "dev"
-checkpoint: CP4
+checkpoint: CP6
 status: idle
 completed_ac:
   - AC-R03R-01
@@ -14,6 +14,7 @@ completed_ac:
   - AC-R03R-06
   - AC-R03R-07
   - AC-R03R-08
+  - AC-R03R-09
   - AC-R03R-10
 dirty_files: []
 tests:
@@ -32,13 +33,18 @@ tests:
   - "CP4 primeiro lembrete: pré-check com reminder_1, 3 elegíveis, fila e cotas vencidas zeradas"
   - "WhatsApp worker run 31446795713: 3 claimed/prepared/accepted; zero rejected/ambiguous/cancelled"
   - "Pós-envio: 3/3 outbox sent e requires_review=0"
+  - "CP4 físico reminder_1: card e link corretos; dois celulares receberam com sessões distintas de Neymar e Pelé"
+  - "CP4 reminder_2: pré-check com 3 elegíveis e fila isolada; run 31447333204 aceitou 3/3 sem erro ou ambiguidade"
+  - "Pós-envio reminder_2: 3/3 outbox sent e requires_review=0"
+  - "CP4 físico reminder_2: última chamada, card, link, sessões e RSVP funcionando nos dois celulares"
+  - "APP_URL=https://deutime.app npm run smoke:production: passou após o piloto; evento público opcional não configurado"
 blocker: null
-next_action: "Validar fisicamente o primeiro lembrete, card/fallback, link e RSVP em Android e iPhone; depois disparar a última chamada controlada e concluir AC-R03R-09."
+next_action: "Selecionar e iniciar o próximo pacote priorizado; R03R está concluída em CP6."
 ---
 
 # Trabalho atual
 
-R03R está em CP3. A configuração e o consumo manual estão prontos, e o produtor
+R03R está concluída em CP6. A configuração e o consumo manual estão prontos, e o produtor
 automático agora processa no máximo uma cota por evento/execução, encerra vazio,
 atraso acima de seis horas e prazo fechado sem efeito e reaproveita a barreira
 de elegibilidade imediatamente anterior ao adapter.
@@ -101,6 +107,24 @@ do claim; uma única repetição, já aquecida, aceitou as três mensagens. O ru
 ambiguidade ou cancelamento. O banco terminou com 3/3 outbox `sent` e
 `requires_review=0`.
 
-A próxima ação é validar fisicamente esse primeiro lembrete, card/fallback,
-link e RSVP no Android e no iPhone. Depois, disparar a última chamada de forma
-controlada e concluir `AC-R03R-09`.
+O primeiro lembrete foi validado fisicamente em dois celulares com sessões
+distintas: Neymar em um aparelho e Pelé no outro. Ambos receberam o card e o
+link correto, sem mistura de identidade.
+
+Na sequência, a última chamada foi disparada de forma controlada no mesmo
+evento demo. O pré-check confirmou `reminder_2`, três pendentes elegíveis,
+controles e features ligados e fila isolada. A solicitação auditada
+`bcdfe37a-0d3b-48e5-867c-441261463c05` criou 3/3 mensagens. O run
+`31447333204` terminou com 3/3 `claimed`, `prepared` e `accepted`, sem
+rejeição, ambiguidade ou cancelamento; o banco terminou com 3/3 outbox `sent`
+e `requires_review=0`.
+
+A última chamada foi confirmada fisicamente nos dois aparelhos. Card, link,
+sessões distintas e RSVP funcionaram corretamente. O smoke somente leitura de
+produção passou depois do piloto. Convite, primeiro lembrete, última chamada,
+fallback, telemetria, contenção e rollback possuem evidência; os dez critérios
+de aceite estão concluídos.
+
+R03R permanece em rollout contínuo autorizado para os times demo, com
+`WHATSAPP_AUTOMATION_ENABLED=true` e kill switches independentes. A próxima
+ação é selecionar e iniciar o próximo pacote priorizado.
