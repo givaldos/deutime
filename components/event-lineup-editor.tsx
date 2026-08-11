@@ -3,6 +3,7 @@
 import {
   linkEventLineupSquadToMatchSide,
   publishEventLineup,
+  saveAndPublishEventLineup,
   saveEventLineupDraft,
   type EventLineupActionState,
   withdrawEventLineupPublication,
@@ -21,6 +22,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import { useActionState, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export type EventLineupSquad = {
   id: string;
@@ -78,14 +80,20 @@ export function EventLineupEditor({
   hasSavedDraft?: boolean;
   autoSuggestOnLoad?: boolean;
 }) {
+  const router = useRouter();
   const [squads] = useState(() =>
     initialSquads.slice().sort((a, b) => a.sortOrder - b.sortOrder),
   );
   const [isDirty, setIsDirty] = useState(!hasSavedDraft);
   const [actionState, formAction] = useActionState(
     async (previousState: EventLineupActionState, formData: FormData) => {
-      const nextState = await saveEventLineupDraft(previousState, formData);
-      if (nextState.outcome === "success") setIsDirty(false);
+      const nextState = canPublish && publicId
+        ? await saveAndPublishEventLineup(previousState, formData)
+        : await saveEventLineupDraft(previousState, formData);
+      if (nextState.outcome === "success") {
+        setIsDirty(false);
+        if (nextState.published) router.refresh();
+      }
       return nextState;
     },
     initialActionState,
@@ -103,6 +111,9 @@ export function EventLineupEditor({
     };
   });
   const requestId = actionState.nextRequestId ?? initialRequestId;
+  const [initialPublicationRequestId] = useState(() => crypto.randomUUID());
+  const publicationRequestId =
+    actionState.nextPublicationRequestId ?? initialPublicationRequestId;
 
   const assignments = useMemo(
     () =>
@@ -191,7 +202,8 @@ export function EventLineupEditor({
             Dividir os times
           </h2>
           <p className="mt-1 text-sm leading-6 text-emerald-900/80">
-            A sugestão já está pronta. Ajuste somente quem precisar trocar.
+            A sugestão já está pronta. Ajuste quem precisar e salve a escalação.
+            {canPublish && publicId ? " O link público será atualizado automaticamente." : ""}
           </p>
         </div>
       </div>
@@ -200,7 +212,9 @@ export function EventLineupEditor({
         <input type="hidden" name="teamId" value={teamId} />
         <input type="hidden" name="teamSlug" value={teamSlug} />
         <input type="hidden" name="eventId" value={eventId} />
+        {publicId ? <input type="hidden" name="publicId" value={publicId} /> : null}
         <input type="hidden" name="requestId" value={requestId} />
+        <input type="hidden" name="publicationRequestId" value={publicationRequestId} />
         <input type="hidden" name="squads" value={JSON.stringify(serializedSquads)} />
         <input type="hidden" name="assignments" value={JSON.stringify(assignments)} />
         <input type="hidden" name="exclusions" value={JSON.stringify(exclusions)} />
@@ -288,8 +302,8 @@ export function EventLineupEditor({
         {actionState.message ? <ActionMessage state={actionState} /> : null}
         {isDirty ? (
           <div className="fixed inset-x-3 bottom-[5.5rem] z-40 mx-auto max-w-md rounded-2xl bg-white/95 p-2 shadow-[0_-8px_30px_rgba(15,23,42,0.14)] backdrop-blur sm:static sm:max-w-none sm:bg-transparent sm:p-0 sm:shadow-none">
-            <AsyncSubmitButton pendingLabel="Salvando divisão..." className="min-h-14 w-full text-base">
-              <Save aria-hidden /> Salvar divisão
+            <AsyncSubmitButton pendingLabel="Salvando escalação..." className="min-h-14 w-full text-base">
+              <Save aria-hidden /> Salvar escalação
             </AsyncSubmitButton>
           </div>
         ) : null}
@@ -303,6 +317,7 @@ export function EventLineupEditor({
           publicId={publicId}
           canPublish={canPublish}
           activeRevision={activeRevision}
+          justPublished={actionState.published === true}
         />
       ) : null}
 
@@ -330,6 +345,7 @@ function LineupPublicationPanel({
   publicId,
   canPublish,
   activeRevision,
+  justPublished,
 }: {
   teamId: string;
   teamSlug: string;
@@ -337,6 +353,7 @@ function LineupPublicationPanel({
   publicId: string;
   canPublish: boolean;
   activeRevision: { revision: number; publishedAt: string } | null;
+  justPublished: boolean;
 }) {
   const [publishState, publishAction] = useActionState(
     publishEventLineup,
@@ -360,7 +377,9 @@ function LineupPublicationPanel({
           <p className="text-sm font-black text-slate-900">
             {activeRevision
               ? `Divisão compartilhada · versão ${activeRevision.revision}`
-              : "Agora compartilhe com a galera"}
+              : justPublished
+                ? "Divisão publicada"
+                : "Divisão salva anteriormente"}
           </p>
           <p className="mt-1 text-xs leading-5 text-slate-600">
             A página e a imagem mostram somente nomes de atletas que autorizaram a divulgação esportiva.
@@ -369,15 +388,17 @@ function LineupPublicationPanel({
       </div>
 
       {canPublish ? (
-        <div className="mt-4 grid gap-2 sm:grid-cols-2">
-          <form action={publishAction}>
-            {Object.entries(fields).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
-            <input type="hidden" name="requestId" value={publishState.nextRequestId ?? publishRequestId} />
-            <AsyncSubmitButton pendingLabel="Publicando..." className="min-h-12 w-full">
-              <Globe2 aria-hidden /> {activeRevision ? "Atualizar publicação" : "Publicar para a galera"}
-            </AsyncSubmitButton>
-            {publishState.message ? <ActionMessage state={publishState} compact /> : null}
-          </form>
+        <div className="mt-4 grid gap-2">
+          {!activeRevision && !justPublished ? (
+            <form action={publishAction}>
+              {Object.entries(fields).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
+              <input type="hidden" name="requestId" value={publishState.nextRequestId ?? publishRequestId} />
+              <AsyncSubmitButton pendingLabel="Publicando..." className="min-h-12 w-full">
+                <Globe2 aria-hidden /> Publicar divisão existente
+              </AsyncSubmitButton>
+              {publishState.message ? <ActionMessage state={publishState} compact /> : null}
+            </form>
+          ) : null}
           {activeRevision ? (
             <form action={withdrawAction}>
               {Object.entries(fields).map(([name, value]) => <input key={name} type="hidden" name={name} value={value} />)}
@@ -391,7 +412,7 @@ function LineupPublicationPanel({
         </div>
       ) : (
         <p className="mt-3 rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-600">
-          Owner ou admin publica. Manager continua podendo ajustar e salvar a divisão.
+          Como manager, suas alterações ficam em rascunho. Owner ou admin salva e publica para a galera.
         </p>
       )}
     </div>

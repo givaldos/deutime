@@ -2,11 +2,13 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/app/[teamSlug]/events/lineup-actions", () => ({
+  saveAndPublishEventLineup: vi.fn(),
   saveEventLineupDraft: vi.fn(),
   linkEventLineupSquadToMatchSide: vi.fn(),
   publishEventLineup: vi.fn(),
   withdrawEventLineupPublication: vi.fn(),
 }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 
 import { EventLineupEditor } from "./event-lineup-editor";
 
@@ -41,14 +43,14 @@ describe("EventLineupEditor", () => {
     expect(html).toContain("Fora desta divisão");
     expect(html).toContain("Sem time");
     expect(html).toContain("min-h-12");
-    expect(html).toContain("Salvar divisão");
+    expect(html).toContain("Salvar escalação");
     expect(html).not.toContain("Salvar estes times como padrão");
     expect(html).not.toContain("Nome do time");
     expect(html).not.toContain("drag");
     expect(html).not.toContain("telefone");
   });
 
-  it("mostra publicação somente depois que a divisão foi salva", () => {
+  it("salva e publica em uma única ação para owner/admin", () => {
     const html = renderToStaticMarkup(
       <EventLineupEditor
         teamId="d7200000-0000-4000-8000-000000000001"
@@ -62,8 +64,9 @@ describe("EventLineupEditor", () => {
         canPublish
       />,
     );
-    expect(html).toContain("Salvar divisão");
-    expect(html).not.toContain("Publicar para a galera");
+    expect(html).toContain("Salvar escalação");
+    expect(html).toContain("link público será atualizado automaticamente");
+    expect(html).not.toContain("Publicar divisão existente");
 
     const savedHtml = renderToStaticMarkup(
       <EventLineupEditor
@@ -79,8 +82,8 @@ describe("EventLineupEditor", () => {
         hasSavedDraft
       />,
     );
-    expect(savedHtml).not.toContain("Salvar divisão");
-    expect(savedHtml).toContain("Publicar para a galera");
+    expect(savedHtml).not.toContain("Salvar escalação");
+    expect(savedHtml).toContain("Publicar divisão existente");
   });
 
   it("explica que o vínculo com partida não altera presença", () => {
@@ -118,7 +121,7 @@ describe("EventLineupEditor", () => {
       />,
     );
     expect(html).toContain("Divisão compartilhada · versão 2");
-    expect(html).toContain("Atualizar publicação");
+    expect(html).not.toContain("Atualizar publicação");
     expect(html).toContain("Ocultar publicação");
     expect(html).toContain("somente nomes de atletas que autorizaram");
   });
