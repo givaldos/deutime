@@ -10,8 +10,10 @@ import { AppContainer } from "@/components/ui/app-shell";
 import { TeamAppHeader } from "@/components/team-app-header";
 import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { requireUser } from "@/lib/auth/dal";
+import { getInternalSquads } from "@/lib/data/internal-squads";
 import { getAppUrl } from "@/lib/env/server";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
+import type { InternalSquadBadgeKey } from "@/lib/features/team-division/internal-squads";
 import { createClient } from "@/lib/supabase/server";
 import {
   ArrowLeft,
@@ -175,7 +177,6 @@ export default async function EventDetailPage({
     matchesResult,
     sidesResult,
     activeRevisionResult,
-    presetsResult,
   ] =
     teamDivisionEnabled
       ? await Promise.all([
@@ -215,14 +216,8 @@ export default async function EventDetailPage({
             .eq("team_id", team.id)
             .eq("is_active", true)
             .maybeSingle(),
-          supabase
-            .from("team_squad_presets")
-            .select("name, color, sort_order")
-            .eq("team_id", team.id)
-            .order("sort_order"),
         ])
       : [
-          { data: null, error: null },
           { data: null, error: null },
           { data: null, error: null },
           { data: null, error: null },
@@ -238,19 +233,35 @@ export default async function EventDetailPage({
     !matchesResult.error &&
     !sidesResult.error &&
     !activeRevisionResult.error;
-  const savedSquads = (squadsResult.data ?? []).map((squad) => ({
+  const enhancedSquadsResult = teamDivisionEnabled && !squadsResult.error
+    ? await supabase
+        .from("event_squads")
+        .select("id, name, color, sort_order, internal_team_id, badge_key")
+        .eq("event_id", event.id)
+        .eq("team_id", team.id)
+        .order("sort_order")
+    : { data: null, error: null };
+  const savedSquadRows = enhancedSquadsResult.error
+    ? (squadsResult.data ?? [])
+    : (enhancedSquadsResult.data ?? []);
+  const internalSquads = teamDivisionEnabled ? await getInternalSquads(team.id) : [];
+  const savedSquads = savedSquadRows.map((squad) => ({
     id: squad.id,
     name: squad.name,
     color: squad.color ?? "#0D9488",
     sortOrder: squad.sort_order,
+    internalTeamId: ("internal_team_id" in squad ? squad.internal_team_id : null) as string | null,
+    badgeKey: ("badge_key" in squad ? squad.badge_key : "shield") as InternalSquadBadgeKey,
   }));
   const initialSquads = savedSquads.length > 0
     ? [...savedSquads]
-    : (presetsResult.data ?? []).map((preset) => ({
+    : internalSquads.map((internalSquad) => ({
         id: crypto.randomUUID(),
-        name: preset.name,
-        color: preset.color,
-        sortOrder: preset.sort_order,
+        name: internalSquad.name,
+        color: internalSquad.color,
+        sortOrder: internalSquad.sortOrder,
+        internalTeamId: internalSquad.id,
+        badgeKey: internalSquad.badgeKey,
       }));
   const defaultSquadColors = ["#0D9488", "#2563EB"];
   while (initialSquads.length < 2) {
@@ -260,6 +271,8 @@ export default async function EventDetailPage({
       name: `Time ${index === 0 ? "A" : "B"}`,
       color: defaultSquadColors[index] ?? "#0D9488",
       sortOrder: index + 1,
+      internalTeamId: null,
+      badgeKey: "shield",
     });
   }
   const spotByAthlete = new Map(
@@ -495,7 +508,7 @@ export default async function EventDetailPage({
               revision: activeRevisionResult.data.revision,
               publishedAt: activeRevisionResult.data.published_at,
             } : null}
-            canManagePresets={membership.role !== "manager"}
+            hasSavedDraft={savedSquads.length > 0}
             autoSuggestOnLoad={savedSquads.length === 0}
           />
         ) : null}

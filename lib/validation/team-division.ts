@@ -21,6 +21,20 @@ export const lineupSquadSchema = z.object({
   sort_order: z.number().int().min(1).max(12),
 });
 
+export const internalSquadBadgeKeySchema = z.enum([
+  "shield",
+  "stripes",
+  "sash",
+  "quarters",
+  "circle",
+  "diamond",
+]);
+
+export const internalSquadSchema = lineupSquadSchema.extend({
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+  badge_key: internalSquadBadgeKeySchema,
+});
+
 export const lineupAssignmentSchema = z.object({
   athlete_id: databaseUuid,
   squad_id: databaseUuid,
@@ -85,28 +99,27 @@ export const eventLineupPublicationSchema = z.object({
   requestId: requestUuid,
 });
 
-export const saveTeamSquadPresetsSchema = z
+export const saveInternalSquadsSchema = z
   .object({
     teamId: databaseUuid,
     teamSlug: z.string().regex(TEAM_SLUG_PATTERN),
-    eventId: databaseUuid,
     requestId: requestUuid,
-    presets: z.array(lineupSquadSchema).min(2).max(12),
+    squads: z.array(internalSquadSchema).min(2).max(12),
   })
   .superRefine((input, context) => {
-    const ids = new Set(input.presets.map((preset) => preset.id));
+    const ids = new Set(input.squads.map((squad) => squad.id));
     const names = new Set(
-      input.presets.map((preset) => preset.name.trim().toLocaleLowerCase("pt-BR")),
+      input.squads.map((squad) => squad.name.trim().toLocaleLowerCase("pt-BR")),
     );
-    const orders = new Set(input.presets.map((preset) => preset.sort_order));
+    const orders = new Set(input.squads.map((squad) => squad.sort_order));
     if (
-      ids.size !== input.presets.length ||
-      names.size !== input.presets.length ||
-      orders.size !== input.presets.length
+      ids.size !== input.squads.length ||
+      names.size !== input.squads.length ||
+      orders.size !== input.squads.length
     ) {
       context.addIssue({
         code: "custom",
-        message: "Use modelos diferentes e ordenados.",
+        message: "Use equipes diferentes e ordenadas.",
       });
     }
   });

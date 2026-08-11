@@ -919,6 +919,7 @@ export type Database = {
       }
       event_lineup_revision_squads: {
         Row: {
+          badge_key: Database["public"]["Enums"]["internal_squad_badge_key"]
           color: string | null
           created_at: string
           event_id: string
@@ -930,6 +931,7 @@ export type Database = {
           team_id: string
         }
         Insert: {
+          badge_key?: Database["public"]["Enums"]["internal_squad_badge_key"]
           color?: string | null
           created_at?: string
           event_id: string
@@ -941,6 +943,7 @@ export type Database = {
           team_id: string
         }
         Update: {
+          badge_key?: Database["public"]["Enums"]["internal_squad_badge_key"]
           color?: string | null
           created_at?: string
           event_id?: string
@@ -1157,10 +1160,12 @@ export type Database = {
       }
       event_squads: {
         Row: {
+          badge_key: Database["public"]["Enums"]["internal_squad_badge_key"]
           color: string | null
           created_at: string
           event_id: string
           id: string
+          internal_team_id: string | null
           is_official: boolean
           name: string
           sort_order: number
@@ -1169,10 +1174,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          badge_key?: Database["public"]["Enums"]["internal_squad_badge_key"]
           color?: string | null
           created_at?: string
           event_id: string
           id?: string
+          internal_team_id?: string | null
           is_official?: boolean
           name: string
           sort_order?: number
@@ -1181,10 +1188,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          badge_key?: Database["public"]["Enums"]["internal_squad_badge_key"]
           color?: string | null
           created_at?: string
           event_id?: string
           id?: string
+          internal_team_id?: string | null
           is_official?: boolean
           name?: string
           sort_order?: number
@@ -1199,6 +1208,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id", "team_id", "sport_format"]
+          },
+          {
+            foreignKeyName: "event_squads_internal_team_fk"
+            columns: ["internal_team_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "team_squad_presets"
+            referencedColumns: ["id", "team_id"]
           },
         ]
       }
@@ -2589,10 +2605,12 @@ export type Database = {
       }
       team_squad_presets: {
         Row: {
+          badge_key: Database["public"]["Enums"]["internal_squad_badge_key"]
           color: string
           created_at: string
           created_by: string
           id: string
+          is_active: boolean
           name: string
           sort_order: number
           team_id: string
@@ -2600,10 +2618,12 @@ export type Database = {
           updated_by: string
         }
         Insert: {
+          badge_key?: Database["public"]["Enums"]["internal_squad_badge_key"]
           color: string
           created_at?: string
           created_by: string
           id?: string
+          is_active?: boolean
           name: string
           sort_order: number
           team_id: string
@@ -2611,10 +2631,12 @@ export type Database = {
           updated_by: string
         }
         Update: {
+          badge_key?: Database["public"]["Enums"]["internal_squad_badge_key"]
           color?: string
           created_at?: string
           created_by?: string
           id?: string
+          is_active?: boolean
           name?: string
           sort_order?: number
           team_id?: string
@@ -3923,6 +3945,13 @@ export type Database = {
         | "event_capability_rsvp"
         | "event_matches"
         | "whatsapp_reminders"
+      internal_squad_badge_key:
+        | "shield"
+        | "stripes"
+        | "sash"
+        | "quarters"
+        | "circle"
+        | "diamond"
       lineup_slot_kind: "starter" | "substitute"
       match_comment_report_status: "open" | "resolved" | "dismissed"
       match_comment_status: "active" | "author_deleted" | "moderated"
@@ -4172,6 +4201,14 @@ export const Constants = {
         "event_capability_rsvp",
         "event_matches",
         "whatsapp_reminders",
+      ],
+      internal_squad_badge_key: [
+        "shield",
+        "stripes",
+        "sash",
+        "quarters",
+        "circle",
+        "diamond",
       ],
       lineup_slot_kind: ["starter", "substitute"],
       match_comment_report_status: ["open", "resolved", "dismissed"],

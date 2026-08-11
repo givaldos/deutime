@@ -7,7 +7,6 @@ import {
   eventLineupPublicationSchema,
   linkLineupSquadSchema,
   saveEventLineupDraftSchema,
-  saveTeamSquadPresetsSchema,
 } from "@/lib/validation/team-division";
 import { revalidatePath } from "next/cache";
 import { randomUUID } from "node:crypto";
@@ -89,61 +88,7 @@ export async function saveEventLineupDraft(
     nextRequestId: randomUUID(),
     message: data.replayed
       ? "Esta divisão já estava salva."
-      : `Rascunho salvo: ${data.assigned_count} distribuídos e ${data.excluded_count} fora.`,
-  };
-}
-
-export async function saveTeamSquadPresets(
-  previousState: EventLineupActionState,
-  formData: FormData,
-): Promise<EventLineupActionState> {
-  await requireUser();
-  const attempt = (previousState.attempt ?? 0) + 1;
-  const parsed = saveTeamSquadPresetsSchema.safeParse({
-    teamId: formData.get("teamId"),
-    teamSlug: formData.get("teamSlug"),
-    eventId: formData.get("eventId"),
-    requestId: formData.get("requestId"),
-    presets: parseJsonField(formData.get("presets"), 12_000),
-  });
-  if (!parsed.success) {
-    return {
-      attempt,
-      outcome: "error",
-      message: parsed.error.issues[0]?.message ?? "Revise os times padrão.",
-    };
-  }
-  if (!(await isTeamFeatureEnabled(parsed.data.teamId, "team_division"))) {
-    return { attempt, outcome: "error", message: "A divisão está desligada." };
-  }
-
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("replace_team_squad_presets", {
-    requested_team_id: parsed.data.teamId,
-    request_id: parsed.data.requestId,
-    requested_presets: parsed.data.presets,
-  });
-  if (error || !data) {
-    return {
-      attempt,
-      outcome: "error",
-      message:
-        error?.code === "42501"
-          ? "Somente owner ou admin pode alterar os times padrão."
-          : error?.code === "55000"
-            ? "A divisão está desligada."
-            : "Não foi possível salvar os times padrão.",
-    };
-  }
-
-  revalidatePath(`/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}`);
-  return {
-    attempt,
-    outcome: "success",
-    nextRequestId: randomUUID(),
-    message: data.replayed
-      ? "Estes times padrão já estavam salvos."
-      : `${data.preset_count} times padrão salvos para os próximos eventos.`,
+      : `Divisão salva: ${data.assigned_count} distribuídos e ${data.excluded_count} fora.`,
   };
 }
 
