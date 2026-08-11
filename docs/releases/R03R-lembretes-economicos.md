@@ -326,4 +326,8 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
   executada pela RPC com guarda exata de dois candidatos: `requires_review`
   passou a zero e os dois convites permaneceram confirmados, sem novo envio.
   Depois da verificação, `WHATSAPP_AUTOMATION_ENABLED` voltou a `true`.
+- O primeiro ciclo natural após a correção, run `31446189522`, concluiu com
+  HTTP 200, templates prontos, produção automática solicitada e todos os
+  contadores zerados, inclusive `recoveredForReview` e `ambiguous`. Nenhuma
+  mensagem foi enviada porque não havia cota vencida.
 - O estado operacional e a próxima ação ficam em [`docs/work/current.md`](../work/current.md).
