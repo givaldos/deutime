@@ -2,8 +2,8 @@
 release: R07
 work_package: WP-R07-06
 scope: focused_event_surface_and_discreet_automation
-branch_or_commit: "dev"
-checkpoint: CP4
+branch_or_commit: "be018d1"
+checkpoint: CP5
 status: idle
 completed_ac:
   - AC-R07-01
@@ -21,6 +21,8 @@ completed_ac:
   - AC-R07-15
 dirty_files: []
 tests:
+  - "PR #166 e merge be018d1: checks obrigatórios verdes"
+  - "Vercel produção 2HhLjvRAiZYeBDqDf476jopCHY2P e Smoke 31545606257: verdes"
   - "superfície focada: evento aberto sem lembretes e compartilhamento compacto em 390x844"
   - "Vitest completo: 58 arquivos, 321 testes verdes"
   - "ESLint, TypeScript e next build --webpack: verdes; auditoria com 0 vulnerabilidades"
@@ -37,7 +39,7 @@ tests:
   - "Deploy database 31542818301 e Smoke 31542863602: verdes"
   - "Vercel produção 8y3nfqLj8W6ipw6hXFjYcGGYaVVn: concluído"
 blocker: null
-next_action: "Promover a simplificação pela rotina dev → PR → main e validar compartilhamento e lembretes recolhidos em aparelho físico."
+next_action: "Validar em Android e iPhone: compartilhar o evento e abrir Lembretes automáticos em Editar evento."
 ---
 
 # Trabalho atual
