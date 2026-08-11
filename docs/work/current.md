@@ -30,7 +30,7 @@ tests:
   - "npm run db:test: 37 arquivos, 912 testes passaram após a correção"
   - "npm run db:lint: sem alerta novo; tipos do banco sem diff"
 blocker: null
-next_action: "Publicar a migration 202608110001, reconciliar via RPC os dois convites antigos já confirmados como read, verificar requires_review=0 e então reativar WHATSAPP_AUTOMATION_ENABLED."
+next_action: "Observar a primeira execução natural após a correção, exigir recoveredForReview=0 e então executar CP4 físico dos dois lembretes e fallbacks em Android/iPhone."
 ---
 
 # Trabalho atual
@@ -77,5 +77,11 @@ final `read`; nenhuma mensagem nova foi aceita e nenhuma cota foi produzida.
 A causa era o retorno antecipado no conflito idempotente do evento de callback:
 o replay preservava o evento, mas não reprojetava a outbox. A migration
 forward-only `202608110001` corrige o replay sem duplicar evento nem liberar
-retry. A próxima ação é publicá-la, reconciliar os dois registros pela própria
-RPC, confirmar `requires_review=0` e somente então reativar o agendador.
+retry.
+
+O deploy de banco `#144` aplicou a correção em produção. A reconciliação usou a
+própria RPC, com guarda exata de dois candidatos já confirmados como `read`, e
+terminou com `requires_review=0` e dois convites confirmados, sem novo envio.
+Depois dessa prova, `WHATSAPP_AUTOMATION_ENABLED` voltou a `true`. A próxima
+ação é observar uma execução natural com `recoveredForReview=0` e concluir o
+CP4 físico dos lembretes.
