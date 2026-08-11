@@ -322,4 +322,8 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
   outbox sem duplicar evento, regredir estado ou liberar retry. pgTAP focado:
   12/12; suíte completa: 37 arquivos e 912 testes; lint manteve somente os
   avisos legados e os tipos permaneceram sem diff.
+- O deploy de banco `#144` aplicou a migration em produção. A reconciliação foi
+  executada pela RPC com guarda exata de dois candidatos: `requires_review`
+  passou a zero e os dois convites permaneceram confirmados, sem novo envio.
+  Depois da verificação, `WHATSAPP_AUTOMATION_ENABLED` voltou a `true`.
 - O estado operacional e a próxima ação ficam em [`docs/work/current.md`](../work/current.md).
