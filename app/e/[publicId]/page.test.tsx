@@ -3,14 +3,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   getPublicEvent: vi.fn(),
+  getPublicEventShareStateWithFallback: vi.fn().mockResolvedValue(null),
   getEventAccessContext: vi.fn(),
   getTeamLogoUrlByEventPublicId: vi.fn().mockResolvedValue(null),
   getPublicEventMatches: vi.fn().mockResolvedValue(null),
   getPublicEventLineup: vi.fn().mockResolvedValue(null),
 }));
 
+vi.mock("server-only", () => ({}));
 vi.mock("@/lib/data/public-event", () => ({
   getPublicEvent: mocks.getPublicEvent,
+}));
+vi.mock("@/lib/data/public-event-share", () => ({
+  getPublicEventShareStateWithFallback:
+    mocks.getPublicEventShareStateWithFallback,
 }));
 vi.mock("@/lib/data/event-access", () => ({
   getEventAccessContext: mocks.getEventAccessContext,
@@ -58,6 +64,11 @@ describe("public event route", () => {
       context: null,
       clearInvalidCookie: false,
     });
+    mocks.getPublicEventShareStateWithFallback.mockReset();
+    mocks.getPublicEventShareStateWithFallback.mockResolvedValue(null);
+    mocks.getPublicEventMatches.mockReset();
+    mocks.getPublicEventMatches.mockResolvedValue(null);
+    mocks.getPublicEventLineup.mockReset();
     mocks.getPublicEventLineup.mockResolvedValue(null);
   });
 
@@ -133,6 +144,122 @@ describe("public event route", () => {
     expect(serializedMetadata).not.toContain("Atleta Privado");
     expect(serializedMetadata).not.toContain("confirmed");
   });
+
+  it("faz metadata e imagem evoluírem pelo mesmo estado público e versão opaca", async () => {
+    mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
+    mocks.getPublicEventShareStateWithFallback.mockResolvedValue(
+      shareStateForPhase("result"),
+    );
+
+    const metadata = await generateMetadata(props());
+    const images = metadata.openGraph?.images;
+    const image = Array.isArray(images) ? images[0] : images;
+
+    expect(metadata.title).toBe(
+      "Neymar é o Craque da Galera — Society United",
+    );
+    expect(metadata.description).toContain("2 de 3 votos válidos");
+    expect(metadata.alternates).toEqual({ canonical: `/e/${publicId}` });
+    expect(image).toMatchObject({
+      url: expect.stringMatching(
+        new RegExp(`^/e/${publicId}/convite\\.png\\?v=[0-9a-f]{12}$`),
+      ),
+    });
+    const imageUrl = JSON.stringify(image).match(/"url":"([^"]+)"/)?.[1];
+    expect(imageUrl).not.toContain("Neymar");
+    expect(imageUrl).not.toContain("capability");
+    expect(mocks.getPublicEventLineup).not.toHaveBeenCalled();
+    expect(mocks.getEventAccessContext).not.toHaveBeenCalled();
+
+    mocks.getPublicEventShareStateWithFallback.mockResolvedValue({
+      ...shareStateForPhase("result"),
+      result: {
+        winner_name: null,
+        vote_count: null,
+        vote_percentage: null,
+        total_votes: 3,
+        tied: false,
+      },
+    });
+    const metadataAfterConsentRevocation = await generateMetadata(props());
+    const imagesAfterConsentRevocation =
+      metadataAfterConsentRevocation.openGraph?.images;
+    const imageAfterConsentRevocation = Array.isArray(
+      imagesAfterConsentRevocation,
+    )
+      ? imagesAfterConsentRevocation[0]
+      : imagesAfterConsentRevocation;
+
+    const versionBeforeRevocation = JSON.stringify(image).match(
+      /\?v=([0-9a-f]{12})/,
+    )?.[1];
+    const versionAfterRevocation = JSON.stringify(
+      imageAfterConsentRevocation,
+    ).match(/\?v=([0-9a-f]{12})/)?.[1];
+    expect(versionBeforeRevocation).toBeTruthy();
+    expect(versionAfterRevocation).not.toBe(versionBeforeRevocation);
+    const imageUrlAfterConsentRevocation = JSON.stringify(
+      imageAfterConsentRevocation,
+    ).match(/"url":"([^"]+)"/)?.[1];
+    expect(imageUrlAfterConsentRevocation).not.toContain("Neymar");
+  });
+
+  it.each([
+    ["cancelled", "Evento cancelado"],
+    ["live", "Verde 2 × 1 Azul"],
+    ["voting", "Vote no Craque da Galera"],
+    ["result", "Neymar é o Craque da Galera"],
+    ["score", "Placar final"],
+    ["lineup", "Formação visual do Verde"],
+    ["completed", "Evento encerrado"],
+    ["call", "Convocação"],
+  ] as const)(
+    "mantém HTML e fase %s alinhados à projeção anônima",
+    async (phase, expectedText) => {
+      mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
+      mocks.getPublicEventShareStateWithFallback.mockResolvedValue(
+        shareStateForPhase(phase),
+      );
+
+      const html = renderToStaticMarkup(await PublicEventPage(props()));
+
+      expect(html).toContain('data-testid="public-event-share-state"');
+      expect(html).toContain(`data-share-phase="${phase}"`);
+      expect(html).toContain(expectedText);
+      expect(html).toMatch(/data-share-version="[0-9a-f]{12}"/);
+      expect(html).not.toContain("athlete_id");
+      expect(html).not.toContain("capabilitySecret");
+      expect(html).not.toContain("Pelada do Parque");
+      expect(mocks.getPublicEventLineup).not.toHaveBeenCalled();
+      expect(mocks.getPublicEventMatches).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    [true, "A votação terminou empatada"],
+    [false, "sem identificação pública de atleta"],
+  ] as const)(
+    "mantém o resultado agregado sem inventar identidade (empate=%s)",
+    async (tied, expectedText) => {
+      mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
+      mocks.getPublicEventShareStateWithFallback.mockResolvedValue({
+        ...shareStateForPhase("result"),
+        result: {
+          winner_name: null,
+          vote_count: null,
+          vote_percentage: null,
+          total_votes: 4,
+          tied,
+        },
+      });
+
+      const html = renderToStaticMarkup(await PublicEventPage(props()));
+
+      expect(html).toContain(expectedText);
+      expect(html).toContain("4 votos válidos");
+      expect(html).not.toContain("Neymar");
+    },
+  );
 
   it("renders no third-party resource or private event information", async () => {
     mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
@@ -308,3 +435,99 @@ describe("public event route", () => {
     expect(html).toContain("Suas confirmações continuam na agenda");
   });
 });
+
+type SharePhase =
+  | "cancelled"
+  | "live"
+  | "voting"
+  | "result"
+  | "score"
+  | "lineup"
+  | "completed"
+  | "call";
+
+function shareStateForPhase(phase: SharePhase) {
+  const shareEvent = {
+    team_name: scheduledEvent.team_name,
+    team_timezone: scheduledEvent.team_timezone,
+    title: scheduledEvent.title,
+    kind: scheduledEvent.kind,
+    sport_format: scheduledEvent.sport_format,
+    starts_at: scheduledEvent.starts_at,
+    ends_at: scheduledEvent.ends_at,
+    status:
+      phase === "cancelled"
+        ? ("cancelled" as const)
+        : phase === "completed"
+          ? ("completed" as const)
+          : ("scheduled" as const),
+  };
+  const match = {
+    ordinal: 1,
+    status: phase === "live" ? ("live" as const) : ("finalized" as const),
+    public_mode: phase === "live" ? ("live" as const) : ("final_result" as const),
+    sides: [
+      { side_index: 1, label: "Verde", score: 2 },
+      { side_index: 2, label: "Azul", score: 1 },
+    ],
+    events: [{ kind: "goal" as const, side_index: 1, minute: 12 }],
+  };
+  const base = {
+    event: shareEvent,
+    lineup: null,
+    match: null,
+    voting: null,
+    result: null,
+  };
+
+  switch (phase) {
+    case "lineup":
+      return {
+        ...base,
+        phase,
+        lineup: {
+          revision: 4,
+          published_at: "2026-08-12T12:00:00Z",
+          squads: [
+            {
+              name: "Verde",
+              color: "#0D9488",
+              sort_order: 1,
+              athletes: [{ name: "Neymar", sort_order: 1 }],
+            },
+            {
+              name: "Azul",
+              color: "#2563EB",
+              sort_order: 2,
+              athletes: [],
+            },
+          ],
+        },
+      };
+    case "live":
+    case "score":
+      return { ...base, phase, match };
+    case "voting":
+      return {
+        ...base,
+        phase,
+        match,
+        voting: { closes_at: "2026-08-13T02:00:00Z" },
+      };
+    case "result":
+      return {
+        ...base,
+        phase,
+        match,
+        result: {
+          winner_name: "Neymar",
+          vote_count: 2,
+          vote_percentage: 66.7,
+          total_votes: 3,
+          tied: false,
+        },
+      };
+    default:
+      return { ...base, phase };
+  }
+}

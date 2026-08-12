@@ -9,9 +9,19 @@ import {
   getEventAccessContext,
 } from "@/lib/data/event-access";
 import { getPublicEvent } from "@/lib/data/public-event";
+import {
+  getPublicEventShareStateWithFallback,
+  type PublicEventShareState,
+} from "@/lib/data/public-event-share";
 import { getPublicEventLineup } from "@/lib/data/public-lineup";
 import { getPublicEventMatches } from "@/lib/data/public-matches";
 import { getTeamLogoUrlByEventPublicId } from "@/lib/data/team-logo";
+import {
+  getPublicEventSharePresentation,
+  getPublicEventShareVersion,
+  getPublicFactLabel,
+  type PublicEventSharePresentation,
+} from "@/lib/features/public-event/share-presentation";
 import {
   formatPublicEventDate,
   formatPublicEventTime,
@@ -61,9 +71,12 @@ export async function generateMetadata({
   params,
 }: PublicEventPageProps): Promise<Metadata> {
   const { publicId } = await params;
-  const event = isPublicEventId(publicId)
-    ? await getPublicEvent(publicId)
-    : null;
+  const [event, shareState] = isPublicEventId(publicId)
+    ? await Promise.all([
+        getPublicEvent(publicId),
+        getPublicEventShareStateWithFallback(publicId),
+      ])
+    : [null, null];
 
   const robots = {
     index: false,
@@ -84,13 +97,24 @@ export async function generateMetadata({
     };
   }
 
-  const description = `${publicEventKindLabels[event.kind]} do ${event.team_name} em ${formatPublicEventDate(event.starts_at, event.team_timezone)}, às ${formatPublicEventTime(event.starts_at, event.team_timezone)}.`;
+  const sharePresentation = shareState
+    ? getPublicEventSharePresentation(shareState)
+    : null;
+  const title = sharePresentation
+    ? `${sharePresentation.title} — ${shareState!.event.team_name}`
+    : `${event.title} — ${event.team_name}`;
+  const description = sharePresentation?.description ??
+    `${publicEventKindLabels[event.kind]} do ${event.team_name} em ${formatPublicEventDate(event.starts_at, event.team_timezone)}, às ${formatPublicEventTime(event.starts_at, event.team_timezone)}.`;
   const canonicalPath = `/e/${event.public_id}`;
-  const lineup = await getPublicEventLineup(publicId).catch(() => null);
-  const imagePath = `${canonicalPath}/convite.png${lineup ? `?revision=${lineup.revision}` : ""}`;
+  const lineup = shareState
+    ? null
+    : await getPublicEventLineup(publicId).catch(() => null);
+  const imagePath = shareState
+    ? `${canonicalPath}/convite.png?v=${getPublicEventShareVersion(shareState)}`
+    : `${canonicalPath}/convite.png${lineup ? `?revision=${lineup.revision}` : ""}`;
 
   return {
-    title: `${event.title} — ${event.team_name}`,
+    title,
     description,
     alternates: { canonical: canonicalPath },
     robots,
@@ -98,7 +122,7 @@ export async function generateMetadata({
       type: "website",
       locale: "pt_BR",
       siteName: "DeuTime",
-      title: `${event.title} — ${event.team_name}`,
+      title,
       description,
       url: canonicalPath,
       images: [
@@ -106,13 +130,13 @@ export async function generateMetadata({
           url: imagePath,
           width: 1200,
           height: 630,
-          alt: `${event.title} — ${event.team_name}`,
+          alt: title,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${event.title} — ${event.team_name}`,
+      title,
       description,
       images: [imagePath],
     },
@@ -125,21 +149,33 @@ export default async function PublicEventPage({
   const { publicId } = await params;
   if (!isPublicEventId(publicId)) notFound();
 
-  const event = await getPublicEvent(publicId);
+  const [event, shareState] = await Promise.all([
+    getPublicEvent(publicId),
+    getPublicEventShareStateWithFallback(publicId),
+  ]);
   if (!event) notFound();
 
-  // Busca logo, acesso e partidas públicas em paralelo
+  // A projeção nova substitui as leituras antigas; o caminho anterior só roda
+  // quando a flag está desligada ou o schema ainda está em N-1.
   const [access, teamLogoUrl, publicMatches, publicLineup] = await Promise.all([
     getEventAccessContext(publicId),
     getTeamLogoUrlByEventPublicId(publicId),
-    getPublicEventMatches(publicId),
-    getPublicEventLineup(publicId).catch(() => null),
+    shareState ? Promise.resolve(null) : getPublicEventMatches(publicId),
+    shareState
+      ? Promise.resolve(null)
+      : getPublicEventLineup(publicId).catch(() => null),
   ]);
 
   const ev = { ...event, team_logo_url: teamLogoUrl };
 
   const status = publicEventStatusPresentation[ev.status];
-  const style = statusStyles[status.tone];
+  const sharePresentation = shareState
+    ? getPublicEventSharePresentation(shareState)
+    : null;
+  const shareVersion = shareState
+    ? getPublicEventShareVersion(shareState)
+    : null;
+  const style = statusStyles[sharePresentation?.tone ?? status.tone];
   const startsAtLabel = formatPublicEventTime(ev.starts_at, ev.team_timezone);
   const endsAtLabel = formatPublicEventTime(ev.ends_at, ev.team_timezone);
 
@@ -177,7 +213,7 @@ export default async function PublicEventPage({
               )}
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-400">
-                  Convocação
+                  {sharePresentation?.label ?? "Convocação"}
                 </p>
                 <p className="text-base font-black leading-tight text-volt">
                   {ev.team_name}
@@ -195,7 +231,7 @@ export default async function PublicEventPage({
           {/* Badges */}
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className={`rounded-full px-3 py-1.5 text-xs font-black ${style.badge}`}>
-              {status.label}
+              {sharePresentation?.label ?? status.label}
             </span>
             <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-200">
               {publicEventFormatLabels[ev.sport_format]}
@@ -260,7 +296,16 @@ export default async function PublicEventPage({
           <RecognizedEventAccess context={access.context} />
         ) : null}
 
-        {publicLineup ? (
+        {shareState && sharePresentation && shareVersion ? (
+          <PublicEventShareStateCard
+            publicId={publicId}
+            state={shareState}
+            presentation={sharePresentation}
+            version={shareVersion}
+          />
+        ) : null}
+
+        {!shareState && publicLineup ? (
           <section data-testid="public-event-lineup" className="app-surface overflow-hidden p-5">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-700">
               Times definidos
@@ -284,7 +329,7 @@ export default async function PublicEventPage({
           </section>
         ) : null}
 
-        {publicMatches && publicMatches.length > 0 && (
+        {!shareState && publicMatches && publicMatches.length > 0 && (
           <section className="app-surface p-5">
             <div className="flex items-center justify-between">
               <h2 className="font-bold">Partidas</h2>
@@ -313,7 +358,7 @@ export default async function PublicEventPage({
           </section>
         )}
 
-        {ev.opponent_name ? (
+        {!shareState && ev.opponent_name ? (
           <section className="app-surface p-5">
             <div className="flex items-center gap-3">
               <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-grass text-volt">
@@ -347,9 +392,11 @@ export default async function PublicEventPage({
             </p>
           </div>
           <div className="mt-4 border-t border-slate-100 pt-4">
-            <p className="text-sm font-bold text-slate-900">{status.label}</p>
+            <p className="text-sm font-bold text-slate-900">
+              {sharePresentation?.label ?? status.label}
+            </p>
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              {status.description}
+              {sharePresentation?.description ?? status.description}
             </p>
           </div>
         </section>
@@ -384,6 +431,96 @@ export default async function PublicEventPage({
         </p>
       </div>
     </main>
+  );
+}
+
+function PublicEventShareStateCard({
+  publicId,
+  state,
+  presentation,
+  version,
+}: {
+  publicId: string;
+  state: PublicEventShareState;
+  presentation: PublicEventSharePresentation;
+  version: string;
+}) {
+  const firstSide = state.match?.sides.find((side) => side.side_index === 1);
+  const secondSide = state.match?.sides.find((side) => side.side_index === 2);
+
+  return (
+    <section
+      data-testid="public-event-share-state"
+      data-share-phase={state.phase}
+      data-share-version={version}
+      className="app-surface overflow-hidden p-5"
+    >
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-700">
+        {presentation.label}
+      </p>
+      <h2 className="mt-2 text-balance text-2xl font-black text-slate-950">
+        {presentation.title}
+      </h2>
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        {presentation.description}
+      </p>
+
+      {firstSide && secondSide ? (
+        <div
+          aria-label={`Placar: ${firstSide.label} ${firstSide.score}, ${secondSide.label} ${secondSide.score}`}
+          className="mt-5 flex items-center justify-between gap-3 rounded-2xl bg-[#0d2b22] p-4 text-white"
+        >
+          <p className="min-w-0 flex-1 truncate text-right text-sm font-black sm:text-base">
+            {firstSide.label}
+          </p>
+          <p className="shrink-0 text-3xl font-black text-volt">
+            {firstSide.score} × {secondSide.score}
+          </p>
+          <p className="min-w-0 flex-1 truncate text-sm font-black sm:text-base">
+            {secondSide.label}
+          </p>
+        </div>
+      ) : null}
+
+      {state.match?.events.length ? (
+        <ul className="mt-4 space-y-2" aria-label="Fatos públicos da partida">
+          {state.match.events.map((event, index) => (
+            <li
+              key={`${event.kind}:${event.side_index ?? 0}:${event.minute ?? 0}:${index}`}
+              className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-700"
+            >
+              <span className="font-bold">{getPublicFactLabel(event.kind)}</span>
+              <span className="text-slate-500">
+                {event.minute !== null ? `${event.minute}'` : "Sem minuto"}
+                {event.side_index !== null ? ` · lado ${event.side_index}` : ""}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {state.lineup ? (
+        <>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {state.lineup.squads.map((squad) => (
+              <PublicLineupPitch
+                key={`${squad.sort_order}:${squad.name}`}
+                squad={squad}
+              />
+            ))}
+          </div>
+          <p className="mt-3 text-xs leading-5 text-slate-500">
+            Revisão {state.lineup.revision}. A escalação mostra somente o
+            primeiro nome; a resposta à chamada continua privada.
+          </p>
+          <EventLineupShareActions
+            eventTitle={state.event.title}
+            eventUrl={`/e/${publicId}`}
+            imageUrl={`/e/${publicId}/convite.png?v=${version}`}
+          />
+        </>
+      ) : null}
+    </section>
   );
 }
 

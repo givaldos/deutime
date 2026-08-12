@@ -1,6 +1,8 @@
 /* eslint-disable @next/next/no-img-element -- next/og renderiza o ativo oficial por meio de img. */
 import type { PublicEvent } from "@/lib/data/public-event";
+import type { PublicEventShareState } from "@/lib/data/public-event-share";
 import type { PublicEventLineup } from "@/lib/data/public-lineup";
+import { getPublicEventSharePresentation } from "@/lib/features/public-event/share-presentation";
 import {
   formatPublicEventTime,
   publicEventKindLabels,
@@ -11,14 +13,37 @@ import { buildVisualFormationRows } from "@/lib/features/team-division/visual-fo
 export function InviteImage({
   event,
   lineup = null,
+  shareState = null,
   brandLogoUrl = "/brand/logo-deutime-email-640-fundo-escuro.png",
   teamLogoUrl = null,
 }: {
   event: PublicEvent | null;
   lineup?: PublicEventLineup | null;
+  shareState?: PublicEventShareState | null;
   brandLogoUrl?: string;
   teamLogoUrl?: string | null;
 }) {
+  if (shareState) {
+    if (shareState.phase === "lineup" && shareState.lineup) {
+      return (
+        <PublishedLineupImage
+          event={shareState.event}
+          lineup={shareState.lineup}
+          brandLogoUrl={brandLogoUrl}
+          teamLogoUrl={teamLogoUrl}
+        />
+      );
+    }
+
+    return (
+      <PublicShareStateImage
+        state={shareState}
+        brandLogoUrl={brandLogoUrl}
+        teamLogoUrl={teamLogoUrl}
+      />
+    );
+  }
+
   if (event && lineup) {
     return (
       <PublishedLineupImage
@@ -290,13 +315,123 @@ export function InviteImage({
   );
 }
 
+function PublicShareStateImage({
+  state,
+  brandLogoUrl,
+  teamLogoUrl,
+}: {
+  state: PublicEventShareState;
+  brandLogoUrl: string;
+  teamLogoUrl: string | null;
+}) {
+  const presentation = getPublicEventSharePresentation(state);
+  const firstSide = state.match?.sides.find((side) => side.side_index === 1);
+  const secondSide = state.match?.sides.find((side) => side.side_index === 2);
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        background: "#0d2b22",
+        color: "#f7f5ed",
+        fontFamily: "sans-serif",
+        padding: "48px 64px 38px 76px",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width: 12,
+          height: "100%",
+          background: presentation.tone === "amber" ? "#fbbf24" : "#bdf63c",
+          display: "flex",
+        }}
+      />
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+          {teamLogoUrl ? (
+            <img
+              src={teamLogoUrl}
+              alt=""
+              style={{ width: 72, height: 72, borderRadius: 18, objectFit: "cover" }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: 18,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "rgba(189,246,60,.12)",
+                border: "2px solid rgba(189,246,60,.3)",
+                color: "#bdf63c",
+                fontSize: 30,
+                fontWeight: 900,
+              }}
+            >
+              {state.event.team_name.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <span style={{ color: "#bdf63c", fontSize: 15, fontWeight: 900, letterSpacing: 2, textTransform: "uppercase" }}>
+              {presentation.label}
+            </span>
+            <span style={{ fontSize: 27, fontWeight: 900 }}>{state.event.team_name}</span>
+          </div>
+        </div>
+        <img src={brandLogoUrl} alt="DeuTime" style={{ width: 210, height: 50, objectFit: "contain", objectPosition: "right center", opacity: .8 }} />
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, justifyContent: "center" }}>
+        <span
+          style={{
+            fontSize: presentation.title.length > 45 ? 62 : 78,
+            lineHeight: .98,
+            fontWeight: 900,
+            letterSpacing: -2.5,
+            maxWidth: 1050,
+          }}
+        >
+          {presentation.title}
+        </span>
+
+        {firstSide && secondSide && state.phase !== "live" && state.phase !== "score" ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 18, marginTop: 26, color: "#bdf63c", fontSize: 34, fontWeight: 900 }}>
+            <span>{firstSide.label}</span>
+            <span>{firstSide.score} × {secondSide.score}</span>
+            <span>{secondSide.label}</span>
+          </div>
+        ) : null}
+
+        <span style={{ marginTop: 24, color: "#cbded3", fontSize: 25, lineHeight: 1.3, maxWidth: 1000 }}>
+          {presentation.description}
+        </span>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,.1)", paddingTop: 20 }}>
+        <span style={{ fontSize: 18, color: "#a9c6b8", fontWeight: 700 }}>{state.event.title}</span>
+        <span style={{ fontSize: 16, color: "#a9c6b8" }}>deutime.app</span>
+      </div>
+    </div>
+  );
+}
+
 function PublishedLineupImage({
   event,
   lineup,
   brandLogoUrl,
   teamLogoUrl,
 }: {
-  event: PublicEvent;
+  event: Pick<PublicEvent, "team_name" | "title">;
   lineup: PublicEventLineup;
   brandLogoUrl: string;
   teamLogoUrl: string | null;

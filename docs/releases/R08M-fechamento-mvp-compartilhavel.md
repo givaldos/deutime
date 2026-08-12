@@ -255,3 +255,35 @@ usado, sem copiar dados pessoais para a evidência.
 - `event_share_card` continua desligada em todos os times. Próxima ação:
   `WP-R08M-02`, consumir o DTO em metadata, HTML e `convite.png`, mantendo o
   cartão atual quando a flag ou o schema novo não estiverem disponíveis.
+
+### `WP-R08M-02` — CP2 concluído
+
+- um resolvedor server-only transforma o DTO em rótulo, título, descrição e
+  tom únicos para cancelamento, partida ao vivo, votação, resultado, placar,
+  escalação, encerramento e chamada;
+- metadata, HTML e `convite.png` consomem a mesma projeção e deixam as leituras
+  anteriores condicionadas à flag desligada, schema N−1 ou projeção
+  indisponível;
+- a URL canônica permanece `/e/{public_id}`; a imagem recebe uma versão opaca
+  de 12 caracteres derivada apenas de fase, horários, revisão, placar, fatos e
+  agregados, sem nome, ID, capability ou outro dado pessoal na query;
+- revogação de consentimento altera a versão, remove o vencedor e mantém o
+  resultado agregado; empate não escolhe atleta, e votação aberta não expõe
+  candidato ou eleitor;
+- o HTML móvel mostra placar, fatos públicos e escalação mínima sem consultar
+  partidas/escalação legadas quando a projeção nova existe; metadata e imagem
+  ignoram sessão, capability e query personalizada;
+- a imagem mantém escudo pelo caminho público autorizado, fallback da marca,
+  cache público versionado e headers `noindex`, `nofollow`, `noimageindex` e
+  `no-referrer`; o fallback antigo de escalação conserva `private, no-store`;
+- testes focados: 38 casos verdes nas três fronteiras, incluindo as oito fases,
+  fallback N−1, falha redigida, privacidade, consentimento revogado, empate,
+  cache, largura móvel e consumo real dos bytes PNG do `ImageResponse`;
+- gates verdes: ESLint, TypeScript, 61 arquivos/347 testes Vitest, build de
+  produção Next.js 16.3 com Webpack e auditoria com zero vulnerabilidades;
+- o build Turbopack local continuou impedido de abrir a porta interna no
+  sandbox; o build Webpack equivalente passou, e o workflow CI permanece como
+  gate obrigatório do PR;
+- `event_share_card` permanece desligada para todos os times. Próxima ação:
+  `WP-R08M-03`, preparar coorte demo, telemetria redigida, runbook, previews
+  físicos e smoke/rollback antes de qualquer piloto.
