@@ -131,7 +131,9 @@ async function checkPublicEventJourney(
   if (!imageResponse.ok) {
     throw new Error(`${imagePath} indisponível: HTTP ${imageResponse.status}.`);
   }
-  requirePublicEventImageHeaders(imageResponse, imagePath);
+  requirePublicEventImageHeaders(imageResponse, imagePath, {
+    allowPrivateNoStore: !expectEventShareCardEnabled,
+  });
   if ((await imageResponse.arrayBuffer()).byteLength < 8) {
     throw new Error(`${imagePath} retornou imagem vazia.`);
   }
@@ -149,9 +151,21 @@ async function checkPublicEventJourney(
   requirePublicEventImageHeaders(imageHeadResponse, imagePath);
 }
 
-function requirePublicEventImageHeaders(response, pathname) {
+function requirePublicEventImageHeaders(
+  response,
+  pathname,
+  { allowPrivateNoStore = false } = {},
+) {
   requireHeader(response, pathname, "content-type", "image/png");
-  requireHeader(response, pathname, "cache-control", "public");
+  const cacheControl = response.headers.get("cache-control")?.toLowerCase() ?? "";
+  const hasPublicCache = cacheControl.includes("public");
+  const hasPrivateNoStore =
+    cacheControl.includes("private") && cacheControl.includes("no-store");
+  if (!hasPublicCache && !(allowPrivateNoStore && hasPrivateNoStore)) {
+    throw new Error(
+      `${pathname} não retornou cache-control seguro para a fase observada.`,
+    );
+  }
   requireHeader(response, pathname, "referrer-policy", "no-referrer");
   requireHeader(response, pathname, "x-robots-tag", "noindex");
   requireHeader(response, pathname, "x-robots-tag", "nofollow");

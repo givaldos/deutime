@@ -20,12 +20,14 @@ function htmlResponse(
   });
 }
 
-function imageResponse() {
+function imageResponse(
+  cacheControl = "public, max-age=300, stale-while-revalidate=3600",
+) {
   return new Response(new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]), {
     status: 200,
     headers: {
       "content-type": "image/png",
-      "cache-control": "public, max-age=300, stale-while-revalidate=3600",
+      "cache-control": cacheControl,
       "referrer-policy": "no-referrer",
       "x-robots-tag": "noindex, nofollow, noimageindex",
       "x-content-type-options": "nosniff",
@@ -69,7 +71,7 @@ describe("smoke de produção", () => {
           },
         }),
       )
-      .mockResolvedValueOnce(imageResponse())
+      .mockResolvedValueOnce(imageResponse("private, no-store, max-age=0"))
       .mockResolvedValueOnce(imageResponse());
 
     await expect(
@@ -132,6 +134,46 @@ describe("smoke de produção", () => {
         fetchImpl,
       }),
     ).resolves.toEqual({ publicEventChecked: true });
+  });
+
+  it("exige cache público para a imagem quando o cartão está ativo", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(
+        htmlResponse(
+          200,
+          {
+            "cache-control": "private, no-store, max-age=0",
+            "referrer-policy": "no-referrer",
+            "x-robots-tag": "noindex, nofollow, noarchive",
+          },
+          `<link rel="canonical" href="/e/${publicEventId}"><meta property="og:image" content="/e/${publicEventId}/convite.png?v=0123456789ab">`,
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(null, {
+          status: 405,
+          headers: {
+            "referrer-policy": "no-referrer",
+            "x-content-type-options": "nosniff",
+          },
+        }),
+      )
+      .mockResolvedValueOnce(imageResponse("private, no-store, max-age=0"));
+
+    await expect(
+      runProductionSmoke({
+        mode: "production-readonly",
+        appUrl: "https://deutime.app",
+        publicEventId,
+        expectEventShareCardEnabled: true,
+        fetchImpl,
+      }),
+    ).rejects.toThrow(
+      `/e/${publicEventId}/convite.png não retornou cache-control seguro para a fase observada.`,
+    );
   });
 
   it("alerta quando a política segura do evento regrede", async () => {
