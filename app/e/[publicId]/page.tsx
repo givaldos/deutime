@@ -15,7 +15,7 @@ import {
 } from "@/lib/data/public-event-share";
 import { getPublicEventLineup } from "@/lib/data/public-lineup";
 import { getPublicEventMatches } from "@/lib/data/public-matches";
-import { getTeamLogoUrlByEventPublicId } from "@/lib/data/team-logo";
+import { getTeamLogoPngDataUrlByEventPublicId } from "@/lib/data/team-logo";
 import {
   getPublicEventSharePresentation,
   getPublicEventShareVersion,
@@ -159,7 +159,7 @@ export default async function PublicEventPage({
   // quando a flag está desligada ou o schema ainda está em N-1.
   const [access, teamLogoUrl, publicMatches, publicLineup] = await Promise.all([
     getEventAccessContext(publicId),
-    getTeamLogoUrlByEventPublicId(publicId),
+    getTeamLogoPngDataUrlByEventPublicId(publicId),
     shareState ? Promise.resolve(null) : getPublicEventMatches(publicId),
     shareState
       ? Promise.resolve(null)

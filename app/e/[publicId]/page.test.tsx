@@ -5,7 +5,7 @@ const mocks = vi.hoisted(() => ({
   getPublicEvent: vi.fn(),
   getPublicEventShareStateWithFallback: vi.fn().mockResolvedValue(null),
   getEventAccessContext: vi.fn(),
-  getTeamLogoUrlByEventPublicId: vi.fn().mockResolvedValue(null),
+  getTeamLogoPngDataUrlByEventPublicId: vi.fn().mockResolvedValue(null),
   getPublicEventMatches: vi.fn().mockResolvedValue(null),
   getPublicEventLineup: vi.fn().mockResolvedValue(null),
 }));
@@ -22,7 +22,8 @@ vi.mock("@/lib/data/event-access", () => ({
   getEventAccessContext: mocks.getEventAccessContext,
 }));
 vi.mock("@/lib/data/team-logo", () => ({
-  getTeamLogoUrlByEventPublicId: mocks.getTeamLogoUrlByEventPublicId,
+  getTeamLogoPngDataUrlByEventPublicId:
+    mocks.getTeamLogoPngDataUrlByEventPublicId,
 }));
 vi.mock("@/lib/data/public-matches", () => ({
   getPublicEventMatches: mocks.getPublicEventMatches,
@@ -70,6 +71,8 @@ describe("public event route", () => {
     mocks.getPublicEventMatches.mockResolvedValue(null);
     mocks.getPublicEventLineup.mockReset();
     mocks.getPublicEventLineup.mockResolvedValue(null);
+    mocks.getTeamLogoPngDataUrlByEventPublicId.mockReset();
+    mocks.getTeamLogoPngDataUrlByEventPublicId.mockResolvedValue(null);
   });
 
   it("uses the same 404 for invalid, absent and flag-filtered events", async () => {
@@ -143,6 +146,18 @@ describe("public event route", () => {
     expect(serializedMetadata).not.toContain("Pelada do Parque");
     expect(serializedMetadata).not.toContain("Atleta Privado");
     expect(serializedMetadata).not.toContain("confirmed");
+  });
+
+  it("incorpora o logo sem publicar a URL assinada do storage", async () => {
+    mocks.getPublicEvent.mockResolvedValue(scheduledEvent);
+    mocks.getTeamLogoPngDataUrlByEventPublicId.mockResolvedValue(
+      "data:image/png;base64,iVBORw0KGgo=",
+    );
+
+    const html = renderToStaticMarkup(await PublicEventPage(props()));
+
+    expect(html).toContain("data:image/png;base64,iVBORw0KGgo=");
+    expect(html).not.toContain("?token=");
   });
 
   it("faz metadata e imagem evoluírem pelo mesmo estado público e versão opaca", async () => {

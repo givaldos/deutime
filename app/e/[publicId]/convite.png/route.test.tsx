@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getPublicEvent: vi.fn(),
   getPublicEventShareStateWithFallback: vi.fn().mockResolvedValue(null),
-  getTeamLogoUrlByEventPublicId: vi.fn().mockResolvedValue(null),
+  getTeamLogoPngDataUrlByEventPublicId: vi.fn().mockResolvedValue(null),
   getPublicEventLineup: vi.fn().mockResolvedValue(null),
   createPrivilegedClient: vi.fn(() => ({
     from: vi.fn(() => ({
@@ -31,8 +31,8 @@ vi.mock("@/lib/data/public-event-share", () => ({
     mocks.getPublicEventShareStateWithFallback,
 }));
 vi.mock("@/lib/data/team-logo", () => ({
-  getTeamLogoUrlByEventPublicId: mocks.getTeamLogoUrlByEventPublicId,
-  getTeamLogoPngDataUrlByEventPublicId: mocks.getTeamLogoUrlByEventPublicId,
+  getTeamLogoPngDataUrlByEventPublicId:
+    mocks.getTeamLogoPngDataUrlByEventPublicId,
 }));
 vi.mock("@/lib/data/public-lineup", () => ({
   getPublicEventLineup: mocks.getPublicEventLineup,
