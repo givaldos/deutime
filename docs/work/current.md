@@ -1,28 +1,30 @@
 ---
 release: R08M
-work_package: WP-R08M-01
-scope: event_share_state
+work_package: WP-R08M-02
+scope: event_share_card_consumer
 branch_or_commit: "dev"
-checkpoint: CP0
+checkpoint: CP1
 status: ready
 completed_ac: []
 dirty_files: []
 tests:
-  - "npm run context:brief: R08M reconhecida em CP0 ready, com IDs e próxima ação consistentes"
-  - "baseline d00db82: metadata mínima, escudo/fallback e imagem de escalação localizados"
-  - "Vitest focado: 2 arquivos e 18 testes aprovados para página pública e convite.png"
-  - "git diff --check e referências documentais: aprovados"
+  - "pgTAP focado R08M: 40/40 assertions aprovadas"
+  - "db:reset: reconstrução limpa; db:test: 43 arquivos e 1.055 testes aprovados"
+  - "db:lint: nenhum aviso novo; db:types: somente RPC e enum R08M"
+  - "Vitest: 61 arquivos e 335 testes aprovados; TypeScript e ESLint verdes"
+  - "build Next.js 16.3 com Webpack: aprovado; Turbopack local limitado pelo sandbox"
+  - "npm audit: zero vulnerabilidades"
 blocker: null
-next_action: "Implementar WP-R08M-01 com a flag event_share_card, projeção pública mínima e pgTAP positivo, negativo, consentimento, empate e cross-tenant."
+next_action: "Implementar WP-R08M-02 consumindo o DTO em metadata, HTML e convite.png, com fallback para flag desligada ou schema N-1."
 ---
 
 # Trabalho atual
 
-R08M foi promovida para fechar a identidade compartilhável e o gate integrado
-do MVP. O pacote parte do escudo, metadata mínima e escalação pública já
-entregues, sem reabrir R07.
+WP-R08M-01 fechou o contrato de banco e o adapter server-only da fase
+compartilhável. A nova projeção passa por flags independentes, não abre tabelas
+ao anônimo, omite IDs/PII e falha para o cartão atual quando encontra schema
+N−1 ou capacidade desligada.
 
-`DEC-EVENT-SHARE-PHASE` fixa uma projeção anônima única para metadata, HTML e
-imagem, com precedência determinística, privacidade, cache, flag e rollback.
-O CP0 está pronto e sem bloqueio. A próxima ação concreta é a expansão inerte
-de banco de `WP-R08M-01`; nenhum time deve ser ativado durante esse pacote.
+O checkpoint avançou para CP1 sem ativar nenhum time. A retomada começa em
+WP-R08M-02, conectando o DTO já validado a metadata, HTML e `convite.png`, sem
+remover o caminho atual enquanto o consumidor novo não provar compatibilidade.

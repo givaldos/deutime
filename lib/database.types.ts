@@ -3294,6 +3294,10 @@ export type Database = {
         Args: { requested_public_id: string }
         Returns: Json
       }
+      get_public_event_share_state: {
+        Args: { requested_public_id: string }
+        Returns: Json
+      }
       get_public_player_statistics: {
         Args: { requested_handle: string }
         Returns: {
@@ -3945,6 +3949,7 @@ export type Database = {
         | "event_capability_rsvp"
         | "event_matches"
         | "whatsapp_reminders"
+        | "event_share_card"
       internal_squad_badge_key:
         | "shield"
         | "stripes"
@@ -4201,6 +4206,7 @@ export const Constants = {
         "event_capability_rsvp",
         "event_matches",
         "whatsapp_reminders",
+        "event_share_card",
       ],
       internal_squad_badge_key: [
         "shield",
