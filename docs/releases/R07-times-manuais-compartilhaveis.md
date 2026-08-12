@@ -667,3 +667,19 @@ do WhatsApp.
   aparelhos físicos. Próxima ação: promover a correção e repetir as quatro
   transições em Android e iPhone reais, incluindo navegador interno do
   WhatsApp, antes de concluir `AC-R07-04`.
+
+### `WP-R07-06` — CP5 correção de largura em produção
+
+- PR `#174`, merge `e55c149`; CI, Database, CodeQL, Terraform, Vercel e Smoke
+  verdes;
+- deployment Vercel `deutime-cs3cqi6f4-deu-time.vercel.app` concluído e smoke
+  de produção `31610690607` aprovado no mesmo commit;
+- no evento real `Automação WhatsApp`, a alternativa manual aberta manteve
+  largura rolável igual ao viewport em `360x800` e `390x844`; o `fieldset`
+  carregou `min-w-0`, e seletor e botões mediram `48px` de altura;
+- sem salvar, a rodada responsiva repetiu mover, retirar, recolocar e seleção
+  manual nos dois viewports. Ao recarregar, a origem e a revisão 1 permaneceram
+  intactas;
+- a evidência responsiva em navegador desktop não substitui aparelhos físicos.
+  Próxima ação: repetir as quatro transições em Android e iPhone reais, também
+  no navegador interno do WhatsApp, para concluir `AC-R07-04`.
