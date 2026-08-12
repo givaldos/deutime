@@ -21,6 +21,8 @@ body:
         - R04 — Partida ao vivo e pós-jogo
         - R05 — Craque da Galera
         - R06 — Conversa da súmula
+        - R07 — Times reutilizáveis e divisão compartilhável
+        - R08M — Fechamento do MVP compartilhável
     validations:
       required: true
   - type: input

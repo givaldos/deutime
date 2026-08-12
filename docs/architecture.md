@@ -148,6 +148,7 @@ Uma série não é a partida. No MVP, a criação materializa de 2 a 52 ocorrên
 - todo item possui status, tentativas, disponibilidade e chave de deduplicação;
 - a URL canônica, a capability e a sessão descritas a seguir são arquitetura alvo da R02, ainda não comportamento implementado;
 - a URL canônica `/e/{public_id}` usa identificador aleatório e imutável, independente do slug e da chave interna; o GET anônimo publica somente time, contexto esportivo, horário/fuso e estado, sem local exato, presença ou atleta;
+- metadata, HTML e `convite.png` evoluem pela mesma projeção anônima de fase, sem consultar sessão ou capability; a expansão nasce desligada por time e preserva o cartão atual quando a flag ou o contrato novo não estiverem disponíveis;
 - o link personalizado acrescentará uma credencial opaca, reutilizável, armazenada somente como hash e limitada ao atleta e evento;
 - um BID administrativo ainda sem `user_id` pode receber essa capability limitada; somente OTP pelo telefone verificado reivindica a identidade e preserva o mesmo `athlete_id`;
 - a primeira abertura criará uma capability duradoura do evento; ela não poderá ser trocada diretamente por uma sessão global do usuário;
