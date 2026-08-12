@@ -20,11 +20,13 @@ Cada arquivo desta pasta é o contexto operacional autossuficiente de uma releas
 | [R01 — Evento sob controle](R01-evento-sob-controle.md) | `completed` | Edição, remarcação e cancelamento entregues |
 | [R02 — Confirmação pelo link](R02-confirmacao-pelo-link.md) | `completed` | Confirmação persistente pelo mesmo link entregue |
 | [R03 — WhatsApp ponta a ponta](R03-whatsapp-ponta-a-ponta.md) | `completed` | Envio, callback e operação pelo sender oficial entregues |
-| [R03R — Lembretes econômicos](R03R-lembretes-economicos.md) | `ready` | CP0 concluído; próxima ação é a expansão inerte das duas cotas |
+| [R03R — Lembretes econômicos](R03R-lembretes-economicos.md) | `completed` | Duas cotas configuráveis, envio manual e automático idempotente entregues |
 | [R04 — Partida ao vivo e pós-jogo](R04-partida-ao-vivo-e-pos-jogo.md) | `completed` | Súmula por partida, placar, timeline e privacidade entregues |
 | [R05 — Craque da Galera](R05-craque-da-galera.md) | `completed` | Voto anônimo, resultado agregado e retenção entregues |
 | [R06 — Conversa da súmula](R06-conversa-da-sumula.md) | `completed` | Conversa privada, moderação, retenção e validação física entregues |
+| [R07 — Times reutilizáveis e divisão compartilhável](R07-times-manuais-compartilhaveis.md) | `completed` | Equipes internas, sugestão, publicação e jornada por toque entregues |
+| [R08M — Fechamento do MVP compartilhável](R08M-fechamento-mvp-compartilhavel.md) | `ready` | CP0 concluído; próxima ação é a projeção inerte da fase compartilhável |
 
-R07 em diante só recebe arquivo próprio quando a release anterior estabilizar seus contratos. Ao promover uma delas, adicione-a também ao dropdown do template de issue. Isso evita abrir trabalho sem pacote, reduz especificação prematura e limita o contexto mantido.
+Uma release só recebe arquivo próprio quando a anterior estabilizar seus contratos. Ao promovê-la, adicione-a também ao dropdown do template de issue. Isso evita abrir trabalho sem pacote, reduz especificação prematura e limita o contexto mantido.
 
 Use [`_template.md`](_template.md) para promover uma nova release.

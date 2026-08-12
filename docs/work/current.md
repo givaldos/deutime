@@ -1,51 +1,28 @@
 ---
-release: R07
-work_package: WP-R07-06
-scope: release_closure
+release: R08M
+work_package: WP-R08M-01
+scope: event_share_state
 branch_or_commit: "dev"
-checkpoint: CP6
-status: idle
-completed_ac:
-  - AC-R07-01
-  - AC-R07-02
-  - AC-R07-03
-  - AC-R07-04
-  - AC-R07-05
-  - AC-R07-06
-  - AC-R07-07
-  - AC-R07-08
-  - AC-R07-09
-  - AC-R07-10
-  - AC-R07-11
-  - AC-R07-12
-  - AC-R07-13
-  - AC-R07-14
-  - AC-R07-15
-  - AC-R07-16
-  - AC-R07-17
+checkpoint: CP0
+status: ready
+completed_ac: []
 dirty_files: []
 tests:
-  - "responsável confirmou a revisão integral das evidências em Android e iPhone físicos, incluindo navegador interno do WhatsApp"
-  - "PR #176 e merge 08c0245: conclusão documental integrada; CI, Database, CodeQL, Terraform e Smoke 31616187097 verdes"
-  - "PR #174 e merge e55c149: checks obrigatórios verdes"
-  - "produção: Vercel deutime-cs3cqi6f4-deu-time.vercel.app e Smoke 31610690607 verdes"
-  - "produção responsiva 360x800 e 390x844: quatro transições verdes, sem overflow e com alvos de 48px"
-  - "smoke final de produção somente leitura: verde; evento público opcional não configurado"
-  - "sonda local não repetida: LINEUP_PILOT_TEAM_ID ausente; evidência produtiva do CP5 preservada"
+  - "npm run context:brief: R08M reconhecida em CP0 ready, com IDs e próxima ação consistentes"
+  - "baseline d00db82: metadata mínima, escudo/fallback e imagem de escalação localizados"
+  - "Vitest focado: 2 arquivos e 18 testes aprovados para página pública e convite.png"
+  - "git diff --check e referências documentais: aprovados"
 blocker: null
-next_action: "Selecionar e preparar a próxima release priorizada."
+next_action: "Implementar WP-R08M-01 com a flag event_share_card, projeção pública mínima e pgTAP positivo, negativo, consentimento, empate e cross-tenant."
 ---
 
 # Trabalho atual
 
-R07 está concluída. O responsável confirmou a revisão integral das evidências
-em Android e iPhone físicos, incluindo jornada por toque, alternativa acessível
-e navegador interno do WhatsApp. Com os gates técnicos e operacionais já
-registrados, `AC-R07-04` e `AC-R07-10` foram encerrados; os 17 critérios de
-aceite agora possuem evidência.
+R08M foi promovida para fechar a identidade compartilhável e o gate integrado
+do MVP. O pacote parte do escudo, metadata mínima e escalação pública já
+entregues, sem reabrir R07.
 
-O smoke final somente leitura passou. A sonda agregada não foi repetida por
-ausência local de `LINEUP_PILOT_TEAM_ID`; a evidência produtiva anterior
-permanece válida. `team_division` continua no rollout isolado da coorte demo,
-com fallback e rollback documentados. O checkpoint voltou a `idle`, sem
-bloqueio. A alteração pré-existente em `docs/roadmap.md` foi preservada.
+`DEC-EVENT-SHARE-PHASE` fixa uma projeção anônima única para metadata, HTML e
+imagem, com precedência determinística, privacidade, cache, flag e rollback.
+O CP0 está pronto e sem bloqueio. A próxima ação concreta é a expansão inerte
+de banco de `WP-R08M-01`; nenhum time deve ser ativado durante esse pacote.

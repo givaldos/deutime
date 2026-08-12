@@ -1,0 +1,228 @@
+---
+id: R08M
+type: vertical
+status: ready
+outcome: "Compartilhar a mesma URL do evento com identidade e cartão coerentes da chamada ao resultado, e comprovar o ciclo completo do MVP em um time piloto."
+depends_on: [R02, R03, R03R, R04, R05, R06, R07]
+baseline:
+  - BASE-TENANCY
+  - BASE-ATTENDANCE
+  - BASE-MATCH-REPORT
+  - BASE-PUBLIC
+  - BASE-WRITES
+  - BASE-DELIVERY
+verified_at: "d00db82"
+decisions:
+  - DEC-EVENT-PUBLIC-MINIMUM
+  - DEC-PUBLIC-PRIVACY
+  - DEC-STABLE-EVENT-LINK
+  - DEC-EVENT-SHARE-PHASE
+invariants:
+  - INV-MOBILE-WHATSAPP-FIRST
+  - INV-RLS-MULTI-TIME
+  - INV-DEPLOY-COMPATIBLE
+  - INV-CANONICAL-EVENT-URL
+  - INV-PRIVATE-BY-DEFAULT
+  - INV-MANUAL-FALLBACK
+---
+
+# R08M — Fechamento do MVP compartilhável
+
+## Resultado demonstrável
+
+Uma pessoa compartilha sempre `/e/{public_id}` e o preview mostra o escudo e o
+contexto público correto da chamada, escalação, partida, votação ou resultado.
+O time piloto percorre o ciclo completo em Android, iPhone e navegador interno
+do WhatsApp, mantendo caminhos manuais quando cada automação ou o cartão
+evolutivo estiver desligado.
+
+## Três tempos
+
+### Passado a preservar
+
+- R02 estabeleceu a URL pública aleatória e estável, `noindex`, `no-referrer` e
+  a separação entre página anônima e capability pessoal;
+- R04 publica somente partidas autorizadas e fatos esportivos por lado;
+- R05 mantém voto individual anônimo e disponibiliza resultado agregado somente
+  depois do fechamento;
+- R07 já mostra o escudo do time na página e em `convite.png`, com fallback da
+  marca, e limita a escalação publicada a primeiros nomes;
+- metadata atual usa o contexto esportivo mínimo e a revisão publicada, sem
+  consultar sessão nem acesso pessoal.
+
+### Presente a resolver
+
+- metadata e imagem ainda não escolhem placar, votação e resultado por uma
+  regra única;
+- a leitura pública de partidas não oferece um estado mínimo consolidado para
+  preview e o resultado do Craque da Galera continua restrito à jornada
+  autenticada;
+- o roadmap ainda precisa de um gate integrado que prove o MVP inteiro com
+  automações, falhas e fallbacks reais.
+
+### Futuro compatível
+
+- campeonatos poderão reutilizar a projeção por fase sem criar outra URL para o
+  evento;
+- novos tipos de cartão deverão entrar pela mesma projeção anônima e pela matriz
+  de privacidade;
+- indexação pública, perfis de atleta, campeonatos, marketplace e migração para
+  a API direta da Meta ficam fora desta release.
+
+## Escopo
+
+### Incluído
+
+- projeção pública mínima e determinística da fase compartilhável;
+- flag `event_share_card`, desligada por padrão;
+- escudo específico do time com fallback seguro na página, metadata e imagem;
+- Open Graph e cartão de imagem para chamada, escalação, partida pública,
+  votação aberta e resultado fechado;
+- versão pública para invalidação sem colocar ID interno, capability ou PII na
+  URL;
+- preview real no WhatsApp e navegador interno em Android/iPhone, com
+  conferência adicional em Instagram, Telegram e iMessage;
+- piloto integrado do ciclo do MVP, falhas relevantes, suporte e rollback.
+
+### Fora
+
+- tornar a página indexável ou incluí-la em sitemap;
+- publicar endereço, lista de presença, resposta, identidade sem consentimento,
+  voto individual ou comentário;
+- alterar a URL canônica ou remover `convite.png`;
+- automatizar E2E de todos os dispositivos e crawlers;
+- iniciar R09 ou qualquer frente pós-MVP.
+
+## Contratos e decisões
+
+- [`DEC-EVENT-SHARE-PHASE`](../decisions/DEC-EVENT-SHARE-PHASE.md) define a
+  precedência e o conteúdo de cada fase;
+- [`DEC-EVENT-PUBLIC-MINIMUM`](../decisions/DEC-EVENT-PUBLIC-MINIMUM.md) mantém
+  a rota anônima mínima e estável;
+- [`DEC-PUBLIC-PRIVACY`](../decisions/DEC-PUBLIC-PRIVACY.md) governa placar,
+  primeiros nomes, consentimento e dados proibidos;
+- `public_event_share_state` é uma projeção conceitual, não uma nova fonte de
+  verdade; evento, revisão, súmula e votos continuam autoritativos nos seus
+  domínios;
+- a expansão deve retornar somente dados já públicos, sem reutilizar a RPC
+  autenticada de apuração nem conceder leitura das tabelas-base;
+- metadata, HTML e imagem usam o mesmo resolvedor e nunca variam por cookie,
+  capability ou papel da sessão;
+- a flag nova é conferida no servidor; desligada ou em N−1, preserva o cartão
+  atual e a lista pública utilizável.
+
+## Entry points
+
+- código:
+  - `app/e/[publicId]/page.tsx`;
+  - `app/e/[publicId]/convite.png/route.tsx`;
+  - `lib/data/team-logo.ts`;
+- migrations:
+  - próxima migration forward-only da flag e da projeção compartilhável;
+- testes:
+  - `app/e/[publicId]/page.test.tsx`;
+  - `app/e/[publicId]/convite.png/route.test.tsx`;
+  - próximo pgTAP da projeção R08M;
+- documentação:
+  - `docs/decisions/DEC-EVENT-SHARE-PHASE.md`;
+  - `docs/runbook.md`;
+  - `docs/work/current.md`.
+
+## Pacotes de trabalho
+
+| Pacote | Critérios | Entry points principais | Validação |
+|---|---|---|---|
+| `WP-R08M-01` — projeção inerte | `AC-R08M-01` a `08` | migration nova, tipos e adapter server-only | `VAL-DB` + `VAL-PUBLIC`, N/N−1 |
+| `WP-R08M-02` — cartão evolutivo | `AC-R08M-01` a `10` | página, metadata, `convite.png` e testes focados | `VAL-APP` + `VAL-PUBLIC` |
+| `WP-R08M-03` — previews e piloto | `AC-R08M-09` a `12` | coorte, telemetria e runbook | Android/iPhone + WhatsApp + smoke/rollback |
+| `WP-R08M-04` — gate integrado | `AC-R08M-11` a `14` | roteiro operacional e evidências | ciclo MVP, falhas e fallbacks |
+
+## Critérios de aceite
+
+- [ ] `AC-R08M-01` — Página, metadata e imagem usam o escudo do time somente pelo caminho público autorizado e aplicam fallback da marca sem assinar objeto arbitrário.
+- [ ] `AC-R08M-02` — A mesma URL canônica evolui por estado determinístico entre cancelamento, partida ao vivo, votação, resultado, placar final, escalação e chamada.
+- [ ] `AC-R08M-03` — Chamada expõe somente time, modalidade, título, data, horário e estado público, sem local privado ou identidade vinculada à capability.
+- [ ] `AC-R08M-04` — Escalação aparece somente após publicação explícita, com primeiros nomes e revisão, sem resposta à chamada, telefone, foto, sobrenome ou ID.
+- [ ] `AC-R08M-05` — Placar e súmula respeitam `public_mode`, usam nomes dos lados e fatos autorizados e não inferem presença nem autoria sem consentimento.
+- [ ] `AC-R08M-06` — Votação aberta é anunciada sem candidato ou eleitor; resultado identifica apenas vencedor único consentido e mostra votos, percentual e total válidos, usando fallback agregado em empate ou ausência de consentimento.
+- [ ] `AC-R08M-07` — Cookie, sessão, query personalizada, capability encaminhada e papel autenticado não alteram metadata, imagem ou canonical e não chegam a logs, analytics ou `Referer`.
+- [ ] `AC-R08M-08` — Flag desligada, schema N−1, projeção ausente ou falha preservam a página e o cartão atual sem erro público nem leitura cross-tenant.
+- [ ] `AC-R08M-09` — Mudança de publicação, fase, placar, janela ou consentimento invalida o preview por versão opaca sem incluir ID interno ou PII; `noindex`, `nofollow` e `no-referrer` permanecem.
+- [ ] `AC-R08M-10` — Metadata, HTML e imagem concordam sobre a fase e possuem testes de privacidade, cache, fallback, acessibilidade e largura mobile.
+- [ ] `AC-R08M-11` — Previews reais foram conferidos no WhatsApp e navegador interno em Android/iPhone e também em Instagram, Telegram e iMessage, registrando limitações de cache de cada crawler.
+- [ ] `AC-R08M-12` — Piloto prova ativação isolada, telemetria redigida, alerta, suporte, smoke anônimo e rollback por flag sem quebrar o link existente.
+- [ ] `AC-R08M-13` — Um time piloto conclui criação, chamada, confirmação, lembretes, escalação, partida, súmula, voto, resultado e conversa nos três contextos móveis definidos.
+- [ ] `AC-R08M-14` — Cancelamento, remarcação, opt-out, link encaminhado, retry, falha do provedor, tempo real indisponível e automações desligadas mantêm caminhos manuais e recuperação operacional comprovados.
+
+## Riscos e controles
+
+| Risco | Controle | Evidência |
+|---|---|---|
+| Capability ou PII entra no preview | projeção anônima única, snapshots negativos e `no-referrer` | pgTAP, testes de metadata/imagem e inspeção de resposta |
+| Fase errada ou divergente | resolvedor único e precedência do ADR | matriz de estados no app e banco |
+| Resultado identifica atleta sem consentimento | projeção recalculada, vencedor único e fallback agregado | casos sem consentimento, revogação e empate |
+| Cache externo mantém estado antigo | versão pública opaca, TTL e roteiro por crawler | previews reais antes/depois da transição |
+| Cliente novo depende de schema novo | fallback em N−1 e expansão publicada primeiro | matriz N/N−1 |
+| Rollout quebra compartilhamento existente | flag independente e preservação de `/convite.png` | smoke com flag ligada/desligada |
+| Gate integrado produz efeito duplicado | dados piloto, idempotência existente e roteiro com limites | IDs agregados de execução e custos |
+
+## Validação
+
+```bash
+npm test -- 'app/e/[publicId]/page.test.tsx' 'app/e/[publicId]/convite.png/route.test.tsx'
+npm run typecheck
+npm run db:reset
+npm run db:lint
+npm run db:test
+npm run db:types
+git diff --exit-code -- lib/database.types.ts
+npm run verify
+npm run security:audit
+```
+
+O pgTAP cobre sucesso, negação, cross-tenant, consentimento, empate, flags e
+compatibilidade. O gate físico registra a URL pública sem capability, fase
+esperada, plataforma, horário, resultado do preview, cache observado e fallback
+usado, sem copiar dados pessoais para a evidência.
+
+## Rollout, fallback e rollback
+
+- flag tipada, desligada por padrão e conferida server-side:
+  `event_share_card` por time; `public_event_page` permanece o gate raiz;
+- piloto: somente coorte demo após schema e consumidor verdes;
+- telemetria: fase, fallback, duração e erro agregados, sem `public_id`, nome,
+  capability, endereço ou conteúdo individual;
+- fallback: metadata/cartão atual, página pública, cópia da URL e jornadas
+  manuais já comprovadas;
+- kill switches independentes: flags existentes de WhatsApp, lembretes,
+  divisão, votação e comentários, além de `event_share_card`;
+- smoke de produção somente leitura: `GET` e `HEAD` anônimos, headers, canonical,
+  imagem e ausência de segredo;
+- smoke de staging: eventos sintéticos por fase, sem destinatário real e com
+  limpeza explícita;
+- isolamento de staging: dados demo, chaves próprias, origem e callbacks
+  separados;
+- rollback ensaiado: desligar `event_share_card`, repetir preview e confirmar o
+  cartão anterior sem mudar a URL;
+- compatibilidade N/N−1: app novo tolera projeção ausente; app antigo ignora a
+  expansão e a flag nova permanece desligada.
+
+## Evidências e checkpoint
+
+### `DP-R08M-01` — CP0 concluído
+
+- R07 foi concluída e o roadmap prioriza identidade compartilhável antes do
+  gate integrado e de R09;
+- baseline `d00db82` confirmou escudo/fallback, metadata mínima, escalação
+  publicada e os dois testes principais da superfície;
+- os testes focados de página pública e `convite.png` passaram com 18 casos, e
+  `npm run context:brief` reconheceu `R08M` em `CP0/ready`;
+- a inspeção local encontrou as lacunas de fase, placar consolidado e resultado
+  público, sem exigir mudança na URL canônica;
+- `DEC-EVENT-SHARE-PHASE` foi aceita com projeção anônima, precedência, flag,
+  fallback e reversão definidos;
+- dependências estão concluídas, não há decisão bloqueadora e `R08M` satisfaz a
+  Definition of Ready;
+- próxima ação: `WP-R08M-01`, criar a expansão forward-only de
+  `event_share_card` e da projeção pública mínima, com pgTAP positivo, negativo,
+  consentimento, empate e cross-tenant.

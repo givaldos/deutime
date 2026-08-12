@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 8 de agosto de 2026.
+> Atualizado em 12 de agosto de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -26,7 +26,21 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | **R05 — Craque da Galera** | ✅ `completed` | Voto único anônimo, autovoto, janela de até 12 h, resultado agregado e retenção segura. | [Abrir](releases/R05-craque-da-galera.md) |
 | **R06 — Conversa da súmula** | ✅ `completed` | Jornada privada, moderação, retenção, iPhone/Android, rollout controlado e rollback comprovados. | [Abrir](releases/R06-conversa-da-sumula.md) |
 | **R03R — Lembretes econômicos** | ✅ `completed` | Duas cotas configuráveis, somente para pendentes, com envio manual/automático idempotente e custo agregado. | [Abrir](releases/R03R-lembretes-economicos.md) |
-| **R07 — Times reutilizáveis e divisão compartilhável** | 🟡 `in progress` — experiência reaberta | Reutilizar modelos de times, sugerir divisão equilibrada, ajustar por toque e compartilhar a escalação. | [Abrir](releases/R07-times-manuais-compartilhaveis.md) |
+| **R07 — Times reutilizáveis e divisão compartilhável** | ✅ `completed` | Equipes reutilizáveis, sugestão, publicação, primeiros nomes, formação visual e jornada por toque validadas em produção. | [Abrir](releases/R07-times-manuais-compartilhaveis.md) |
+| **R08M — Fechamento do MVP compartilhável** | 🟢 `ready` — CP0 concluído | Evoluir escudo/Open Graph pelo estado público do evento e executar o gate integrado em um time piloto. | [Abrir](releases/R08M-fechamento-mvp-compartilhavel.md) |
+
+## Cronograma consolidado
+
+| Ordem | Situação | Entrega |
+|---|---|---|
+| 1. Fundação e evento | ✅ concluído | R00 e R01 estabeleceram deploy controlado, flags, rollback, edição, remarcação e cancelamento com histórico. |
+| 2. Link e WhatsApp | ✅ concluído | R02 e R03 entregaram acesso duradouro, confirmação pelo mesmo link, sender oficial, envio, retry, callback e fallback manual. |
+| 3. Jogo e pós-jogo | ✅ concluído | R04, R05 e R06 entregaram partida ao vivo, súmula, Craque da Galera e conversa segura. |
+| 4. Lembretes econômicos | ✅ concluído | R03R entregou duas cotas automáticas ou manuais somente para quem ainda não confirmou, sem duplicidade. |
+| 5. Divisão compartilhável | ✅ concluído | R07 comprovou equipes internas, sugestão, publicação, formação visual, jornada por toque e rollback em Android/iPhone. |
+| 6. Fechamento do MVP | 🟢 próximo — `R08M/CP0` | Concluir Open Graph por fase e executar o gate integrado do ciclo completo em um time piloto. |
+| 7. Evoluções de produto | ⚪ pós-MVP | Campeonatos, reconhecimento e, quando houver densidade, marketplace e pagamentos. |
+| 8. Última evolução técnica | ⚪ por último | Avaliar e somente então migrar a mensageria da Twilio para a WhatsApp Cloud API direta da Meta. |
 
 ## O que falta para o MVP completo
 
@@ -49,19 +63,19 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 - [x] cancelar ou reagendar cotas diante de remarcação, cancelamento, prazo encerrado, opt-out, telefone inválido ou vínculo removido;
 - [x] mostrar ao admin estado, destinatários, entrega, falhas e custo agregado de cada cota, preservando o compartilhamento manual.
 
-### 3. Entregar R07 — divisão manual e escalação compartilhável
+### 3. R07 concluída — divisão manual e escalação compartilhável
 
-- [ ] criar de 2 a N equipes ou camisas no evento e distribuir somente atletas confirmados elegíveis;
-- [ ] permitir marcar quem fica fora e ajustar a divisão por toque, com alternativa acessível sem arrastar;
-- [ ] salvar a divisão e sua relação com cada partida sem misturar RSVP, escalação e presença real;
-- [ ] publicar a escalação no mesmo link somente após confirmação explícita do admin;
-- [ ] gerar uma imagem com identidade DeuTime, nomes consentidos, cores e fallback de escudo, pronta para o WhatsApp;
-- [ ] manter lista de confirmados como fallback quando a capacidade estiver desligada ou a imagem falhar;
-- [ ] validar mobile, autorização, RLS, retry, cross-tenant, telemetria e rollback antes do piloto.
+- [x] criar de 2 a 12 equipes ou camisas no evento e distribuir somente atletas confirmados elegíveis;
+- [x] concluir em Android e iPhone a validação física de colocar, mover, retirar e recolocar por toque, com alternativa acessível sem arrastar;
+- [x] salvar a divisão e sua relação com cada partida sem misturar RSVP, escalação e presença real;
+- [x] publicar a escalação no mesmo link somente após confirmação explícita do admin;
+- [x] gerar uma imagem com identidade DeuTime, primeiros nomes consentidos, cores, formação visual e fallback de escudo, pronta para o WhatsApp;
+- [x] manter lista de confirmados como fallback quando a capacidade estiver desligada ou a imagem falhar;
+- [x] validar mobile, autorização, RLS, retry, cross-tenant, telemetria e rollback antes do piloto.
 
 ### 4. Fechar a identidade compartilhável do evento
 
-- [ ] mostrar o escudo específico do time na página do evento, com fallback da marca;
+- [x] mostrar o escudo específico do time na página do evento, com fallback da marca;
 - [ ] evoluir o Open Graph conforme a fase: chamada, escalação, placar/súmula, votação aberta e resultado;
 - [ ] incluir somente informações públicas autorizadas — time, modalidade, data, horário, estado e, quando permitido, escalação, placar ou vencedor;
 - [ ] impedir credencial, identidade sem consentimento, localização privada e endereço personalizado em HTML, imagem, logs, analytics ou `Referer`;
@@ -78,8 +92,8 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 ## Ordem recomendada para uma única frente
 
 1. ~~promover e entregar o pacote dos dois lembretes~~ — concluído;
-2. promover e entregar R07 com divisão manual, publicação e imagem;
-3. fechar escudo e Open Graph sobre os estados já estabilizados;
+2. ~~concluir a validação física e o CP6 da R07~~ — concluído;
+3. executar R08M para fechar Open Graph sobre os estados já estabilizados;
 4. executar o gate integrado e declarar o MVP completo.
 
 Essa ordem termina fatias pequenas antes de abrir a próxima, reutiliza os contratos comprovados e evita que divisão automática, campeonato ou marketplace atrasem o piloto.
@@ -109,6 +123,7 @@ Antes de promover R09, a descoberta deve fechar participantes aceitos, pontuaç�
 - divisão automática, campeonatos, gamificação ampliada e análises avançadas;
 - marketplace, pagamentos, árbitros, quadras, churrasco e descoberta aberta de atletas;
 - PWA, chat geral, mensagens privadas, anexos e ingestão automática de vídeo;
+- migração da Twilio para a WhatsApp Cloud API direta da Meta, enquanto custo e escala não justificarem a troca;
 - staging completo, Terraform com state importado, automação E2E generalizada e melhorias técnicas já registradas como adiadas no MVP.
 
 Esses itens não bloqueiam o piloto funcional, mas segurança e operação para disponibilidade geral devem ser reavaliadas antes de ampliar a escala, incluindo pentest independente, restauração comprovada, observabilidade ampliada e obrigações de LGPD.
@@ -126,6 +141,25 @@ Depois que o ciclo principal estiver validado e houver densidade de times, atlet
 
 Este horizonte não recebe release, prazo ou implementação agora. Sua promoção exige validar oferta, demanda, confiança, reputação, moderação, suporte, pagamentos, antifraude, identidade, tributação e LGPD.
 
+## Última evolução planejada — WhatsApp Cloud API direta da Meta
+
+Esta é deliberadamente a **última entrega do cronograma**. Ela só entra em descoberta depois do MVP concluído e das evoluções de produto priorizadas, inclusive campeonatos, reconhecimento e marketplace. Até lá, o fluxo comprovado permanece na Twilio com compartilhamento manual como fallback.
+
+A integração direta é uma evolução de custo e escala. A tarifa da Meta continua existindo; o ganho esperado é retirar a cobrança adicional e a camada operacional da Twilio. Antes de promover o trabalho, o DeuTime deve calcular o ponto de equilíbrio com volume real de chamadas e lembretes, verificar a titularidade e a migração do número atual e confirmar templates, limites e qualidade da conta na Meta.
+
+O contrato interno permanece provider-neutral. A mudança alcança somente as bordas da integração: adapter de envio pela Graph API, catálogo de templates da Meta, credenciais, webhook assinado de status e seleção do provedor por configuração. Outbox, destinatários elegíveis, duas cotas, envio manual, deduplicação, idempotência, retry, observabilidade e kill switches continuam compartilhados.
+
+O consumo assíncrono exige um **worker ativo**, mas não um processo dedicado permanentemente ligado. Um agendador pode chamar periodicamente o endpoint protegido para produzir lembretes vencidos e consumir a fila; o modelo atual de execução a cada 15 minutos pode ser preservado. Envios manuais podem acordar o mesmo consumidor sob demanda. Já os estados `sent`, `delivered`, `read` e `failed` chegam por webhook da Meta e não dependem do ciclo do worker.
+
+Quando chegar sua vez, a promoção seguirá expansão inerte e piloto controlado:
+
+- adicionar o adapter Meta desligado, mantendo a Twilio como fallback;
+- impedir envio duplicado entre provedores e preservar a correlação de cada tentativa;
+- validar assinatura e replay do webhook, renovação de credenciais, rate limits, retry e telemetria redigida;
+- testar um número e um time piloto em Android, iPhone e navegador interno do WhatsApp;
+- migrar apenas novos itens da fila por operação explícita e auditável;
+- retirar a Twilio somente após comparar custo, entrega, leitura, falhas e recuperação operacional.
+
 ## Caminho crítico
 
 ```mermaid
@@ -138,14 +172,16 @@ flowchart LR
     R04 --> R06["R06 Conversa"]
     R03 --> REM["Dois lembretes"]
     R04 --> R07["R07 Divisão manual"]
-    R06 --> GATE["Gate integrado do MVP"]
+    R06 --> GATE["R08M Gate integrado do MVP"]
     REM --> GATE
-    R07 --> OG["Escudo e Open Graph final"]
+    R07 --> OG["R08M Open Graph final"]
     OG --> GATE
     GATE --> MVP["MVP completo"]
-    MVP --> R08["R08 Divisão automática"]
     MVP --> R09["R09 Campeonatos"]
     MVP --> R10["R10 Reconhecimento"]
+    R09 --> MARKET["Marketplace e pagamentos"]
+    R10 --> MARKET
+    MARKET --> META["Por último: API direta da Meta"]
 ```
 
 ## Regras de promoção
