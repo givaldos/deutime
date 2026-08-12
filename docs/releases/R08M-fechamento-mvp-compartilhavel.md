@@ -1,7 +1,7 @@
 ---
 id: R08M
 type: vertical
-status: active
+status: completed
 outcome: "Compartilhar a mesma URL do evento com identidade e cartão coerentes da chamada ao resultado, e comprovar o ciclo completo do MVP em um time piloto."
 depends_on: [R02, R03, R03R, R04, R05, R06, R07]
 baseline:
@@ -11,7 +11,7 @@ baseline:
   - BASE-PUBLIC
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "d00db82"
+verified_at: "009a09f"
 decisions:
   - DEC-EVENT-PUBLIC-MINIMUM
   - DEC-PUBLIC-PRIVACY
@@ -139,6 +139,7 @@ evolutivo estiver desligado.
   - `supabase/tests/044_r08m_event_share_pilot_health.test.sql`;
 - documentação:
   - `docs/decisions/DEC-EVENT-SHARE-PHASE.md`;
+  - `docs/releases/evidence/R08M.md`;
   - `docs/runbook.md`;
   - `docs/work/current.md`.
 
@@ -153,20 +154,20 @@ evolutivo estiver desligado.
 
 ## Critérios de aceite
 
-- [ ] `AC-R08M-01` — Página, metadata e imagem usam o escudo do time somente pelo caminho público autorizado e aplicam fallback da marca sem assinar objeto arbitrário.
-- [ ] `AC-R08M-02` — A mesma URL canônica evolui por estado determinístico entre cancelamento, partida ao vivo, votação, resultado, placar final, escalação e chamada.
-- [ ] `AC-R08M-03` — Chamada expõe somente time, modalidade, título, data, horário e estado público, sem local privado ou identidade vinculada à capability.
-- [ ] `AC-R08M-04` — Escalação aparece somente após publicação explícita, com primeiros nomes e revisão, sem resposta à chamada, telefone, foto, sobrenome ou ID.
-- [ ] `AC-R08M-05` — Placar e súmula respeitam `public_mode`, usam nomes dos lados e fatos autorizados e não inferem presença nem autoria sem consentimento.
-- [ ] `AC-R08M-06` — Votação aberta é anunciada sem candidato ou eleitor; resultado identifica apenas vencedor único consentido e mostra votos, percentual e total válidos, usando fallback agregado em empate ou ausência de consentimento.
-- [ ] `AC-R08M-07` — Cookie, sessão, query personalizada, capability encaminhada e papel autenticado não alteram metadata, imagem ou canonical e não chegam a logs, analytics ou `Referer`.
-- [ ] `AC-R08M-08` — Flag desligada, schema N−1, projeção ausente ou falha preservam a página e o cartão atual sem erro público nem leitura cross-tenant.
-- [ ] `AC-R08M-09` — Mudança de publicação, fase, placar, janela ou consentimento invalida o preview por versão opaca sem incluir ID interno ou PII; `noindex`, `nofollow` e `no-referrer` permanecem.
-- [ ] `AC-R08M-10` — Metadata, HTML e imagem concordam sobre a fase e possuem testes de privacidade, cache, fallback, acessibilidade e largura mobile.
-- [ ] `AC-R08M-11` — Previews reais foram conferidos no WhatsApp e navegador interno em Android/iPhone e também em Instagram, Telegram e iMessage, registrando limitações de cache de cada crawler.
-- [ ] `AC-R08M-12` — Piloto prova ativação isolada, telemetria redigida, alerta, suporte, smoke anônimo e rollback por flag sem quebrar o link existente.
-- [ ] `AC-R08M-13` — Um time piloto conclui criação, chamada, confirmação, lembretes, escalação, partida, súmula, voto, resultado e conversa nos três contextos móveis definidos.
-- [ ] `AC-R08M-14` — Cancelamento, remarcação, opt-out, link encaminhado, retry, falha do provedor, tempo real indisponível e automações desligadas mantêm caminhos manuais e recuperação operacional comprovados.
+- [x] `AC-R08M-01` — Página, metadata e imagem usam o escudo do time somente pelo caminho público autorizado e aplicam fallback da marca sem assinar objeto arbitrário.
+- [x] `AC-R08M-02` — A mesma URL canônica evolui por estado determinístico entre cancelamento, partida ao vivo, votação, resultado, placar final, escalação e chamada.
+- [x] `AC-R08M-03` — Chamada expõe somente time, modalidade, título, data, horário e estado público, sem local privado ou identidade vinculada à capability.
+- [x] `AC-R08M-04` — Escalação aparece somente após publicação explícita, com primeiros nomes e revisão, sem resposta à chamada, telefone, foto, sobrenome ou ID.
+- [x] `AC-R08M-05` — Placar e súmula respeitam `public_mode`, usam nomes dos lados e fatos autorizados e não inferem presença nem autoria sem consentimento.
+- [x] `AC-R08M-06` — Votação aberta é anunciada sem candidato ou eleitor; resultado identifica apenas vencedor único consentido e mostra votos, percentual e total válidos, usando fallback agregado em empate ou ausência de consentimento.
+- [x] `AC-R08M-07` — Cookie, sessão, query personalizada, capability encaminhada e papel autenticado não alteram metadata, imagem ou canonical e não chegam a logs, analytics ou `Referer`.
+- [x] `AC-R08M-08` — Flag desligada, schema N−1, projeção ausente ou falha preservam a página e o cartão atual sem erro público nem leitura cross-tenant.
+- [x] `AC-R08M-09` — Mudança de publicação, fase, placar, janela ou consentimento invalida o preview por versão opaca sem incluir ID interno ou PII; `noindex`, `nofollow` e `no-referrer` permanecem.
+- [x] `AC-R08M-10` — Metadata, HTML e imagem concordam sobre a fase e possuem testes de privacidade, cache, fallback, acessibilidade e largura mobile.
+- [x] `AC-R08M-11` — Previews reais foram conferidos no WhatsApp e navegador interno em Android/iPhone e também em Instagram, Telegram e iMessage, registrando limitações de cache de cada crawler.
+- [x] `AC-R08M-12` — Piloto prova ativação isolada, telemetria redigida, alerta, suporte, smoke anônimo e rollback por flag sem quebrar o link existente.
+- [x] `AC-R08M-13` — Um time piloto conclui criação, chamada, confirmação, lembretes, escalação, partida, súmula, voto, resultado e conversa nos três contextos móveis definidos.
+- [x] `AC-R08M-14` — Cancelamento, remarcação, opt-out, link encaminhado, retry, falha do provedor, tempo real indisponível e automações desligadas mantêm caminhos manuais e recuperação operacional comprovados.
 
 ## Riscos e controles
 
@@ -366,3 +367,34 @@ usado, sem copiar dados pessoais para a evidência.
   ensaio operacional aceitos, `AC-R08M-11` e `AC-R08M-12` foram concluídos;
 - próxima ação: `WP-R08M-04`, executar o gate integrado do ciclo completo e os
   cenários de falha/fallback de `AC-R08M-13` e `AC-R08M-14`.
+
+### `WP-R08M-04` — CP6 concluído
+
+- a matriz duradoura em `docs/releases/evidence/R08M.md` liga cada etapa do
+  ciclo às evidências aprovadas de R01–R07 e aos sinais agregados atuais da
+  mesma coorte, sem versionar evento, atleta, operador ou destinatário;
+- as sondas finais confirmaram RSVP, página pública, divisão e cartão ativos:
+  havia 16 eventos projetados, zero fallback, 209 respostas, duas revisões de
+  escalação, quatro equipes publicadas e 26 atribuições;
+- a leitura agregada do ciclo encontrou 32 cotas de lembrete, nove entregas,
+  quatro partidas, três fatos, uma súmula e cinco comentários preservados;
+  votação e conversa permanecem nos fallbacks definidos após seus rollbacks;
+- duas entregas exigiram uma segunda tentativa, uma falha permanente ficou
+  isolada sem revisão pendente e duas cotas manuais provaram recuperação sem
+  duplicar a automação;
+- cancelamento/remarcação, opt-out, link encaminhado, retry, falha do provedor,
+  polling sem tempo real e kill switches foram ligados às provas positivas e
+  negativas das releases de origem; nenhum novo envio externo foi necessário;
+- os testes focados do gate passaram em 49 casos e o smoke final somente
+  leitura `31638690026` aprovou canonical, imagem, cache, privacidade e estado
+  evolutivo ativo;
+- o gate final passou por ESLint, TypeScript, 65 arquivos/368 testes Vitest,
+  build Next.js 16.3 com Webpack, integridade de migrations e auditoria npm com
+  zero vulnerabilidades; o Turbopack local permaneceu limitado somente pela
+  proibição do sandbox de abrir a porta interna;
+- a confirmação humana já registrada cobre a revisão integral em iPhone,
+  Android e navegador interno do WhatsApp; estados removidos por rollback ou
+  retenção continuam comprovados pela evidência duradoura, não por PII atual;
+- os 14 critérios de aceite possuem evidência, `event_share_card` permanece
+  ativo somente em `demo-campo`, o rollback segue disponível na área
+  autenticada e R08M encerra com checkpoint limpo.
