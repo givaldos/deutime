@@ -10,7 +10,10 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: mocks.createClient,
 }));
 
-import { getPublicEventShareState } from "./public-event-share";
+import {
+  getPublicEventShareState,
+  getPublicEventShareStateWithFallback,
+} from "./public-event-share";
 
 const publicId = "b4000000-0000-4000-8000-000000000081";
 const event = {
@@ -121,5 +124,21 @@ describe("fronteira pública da fase compartilhável", () => {
     await expect(getPublicEventShareState(publicId)).rejects.toThrow(
       "Não foi possível carregar o contexto compartilhável.",
     );
+  });
+
+  it("oferece fallback redigido para os consumidores públicos", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    mocks.rpc.mockResolvedValue({
+      data: null,
+      error: { code: "08006", message: `public_id=${publicId}` },
+    });
+
+    await expect(
+      getPublicEventShareStateWithFallback(publicId),
+    ).resolves.toBeNull();
+    expect(error).toHaveBeenCalledWith("public_event_share_state.failed", {
+      reason: "projection_unavailable",
+    });
+    expect(JSON.stringify(error.mock.calls)).not.toContain(publicId);
   });
 });

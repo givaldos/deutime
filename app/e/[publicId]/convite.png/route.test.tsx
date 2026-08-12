@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   getPublicEvent: vi.fn(),
+  getPublicEventShareStateWithFallback: vi.fn().mockResolvedValue(null),
   getTeamLogoUrlByEventPublicId: vi.fn().mockResolvedValue(null),
   getPublicEventLineup: vi.fn().mockResolvedValue(null),
   createPrivilegedClient: vi.fn(() => ({
@@ -21,8 +22,13 @@ const mocks = vi.hoisted(() => ({
   })),
 }));
 
+vi.mock("server-only", () => ({}));
 vi.mock("@/lib/data/public-event", () => ({
   getPublicEvent: mocks.getPublicEvent,
+}));
+vi.mock("@/lib/data/public-event-share", () => ({
+  getPublicEventShareStateWithFallback:
+    mocks.getPublicEventShareStateWithFallback,
 }));
 vi.mock("@/lib/data/team-logo", () => ({
   getTeamLogoUrlByEventPublicId: mocks.getTeamLogoUrlByEventPublicId,
@@ -52,11 +58,41 @@ const event = {
   opponent_name: null,
   status: "scheduled" as const,
 };
+const liveShareState = {
+  phase: "live" as const,
+  event: {
+    team_name: event.team_name,
+    team_timezone: event.team_timezone,
+    title: event.title,
+    kind: event.kind,
+    sport_format: event.sport_format,
+    starts_at: event.starts_at,
+    ends_at: event.ends_at,
+    status: event.status,
+  },
+  lineup: null,
+  match: {
+    ordinal: 1,
+    status: "live" as const,
+    public_mode: "live" as const,
+    sides: [
+      { side_index: 1, label: "Verde", score: 2 },
+      { side_index: 2, label: "Azul", score: 1 },
+    ],
+    events: [{ kind: "goal" as const, side_index: 1, minute: 12 }],
+  },
+  voting: null,
+  result: null,
+};
 
 describe("imagem pública do convite", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     mocks.getPublicEvent.mockReset();
+    mocks.getPublicEventShareStateWithFallback.mockReset();
+    mocks.getPublicEventShareStateWithFallback.mockResolvedValue(null);
+    mocks.getPublicEventLineup.mockReset();
     mocks.getPublicEventLineup.mockResolvedValue(null);
   });
 
@@ -87,6 +123,19 @@ describe("imagem pública do convite", () => {
     expect(withoutLogo).toContain("S"); // inicial de "Society United"
   });
 
+  it("renderiza o estado compartilhável com a mesma fase e sem identificadores", () => {
+    const html = renderToStaticMarkup(
+      <InviteImage event={event} shareState={liveShareState} />,
+    );
+
+    expect(html).toContain("Ao vivo");
+    expect(html).toContain("Verde 2 × 1 Azul");
+    expect(html).toContain("placar e os fatos públicos");
+    expect(html).not.toContain(publicId);
+    expect(html).not.toContain("athlete_id");
+    expect(html).not.toContain("capability");
+  });
+
   it("mantém fallback genérico sem consultar ID inválido", async () => {
     const response = await GET(new Request("https://deutime.app"), {
       params: Promise.resolve({ publicId: "../segredo" }),
@@ -102,6 +151,45 @@ describe("imagem pública do convite", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toBe("image/png");
     expect(response.headers.get("cache-control")).toContain("max-age=300");
+    expect(response.headers.get("referrer-policy")).toBe("no-referrer");
+    expect(response.headers.get("x-robots-tag")).toContain("nofollow");
+  });
+
+  it("prioriza a projeção única, usa cache público versionado e registra só a fase", async () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          Buffer.from(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+            "base64",
+          ),
+          { headers: { "Content-Type": "image/png" } },
+        ),
+      ),
+    );
+    mocks.getPublicEvent.mockResolvedValue(event);
+    mocks.getPublicEventShareStateWithFallback.mockResolvedValue(liveShareState);
+
+    const response = await GET(
+      new Request(
+        `https://deutime.app/e/${publicId}/convite.png?v=abc123&capability=segredo`,
+      ),
+      { params: Promise.resolve({ publicId }) },
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toContain("public");
+    expect(response.headers.get("referrer-policy")).toBe("no-referrer");
+    expect((await response.arrayBuffer()).byteLength).toBeGreaterThan(1_000);
+    expect(mocks.getPublicEventLineup).not.toHaveBeenCalled();
+    expect(info).toHaveBeenCalledWith("event_share_image.rendered", {
+      phase: "live",
+      fallback: false,
+    });
+    expect(JSON.stringify(info.mock.calls)).not.toContain(publicId);
+    expect(JSON.stringify(info.mock.calls)).not.toContain("segredo");
   });
 
   it("renderiza a revisão com primeiros nomes sem IDs e desliga cache compartilhado", async () => {

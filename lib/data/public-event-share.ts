@@ -113,3 +113,16 @@ export const getPublicEventShareState = cache(
     return parsed.success ? parsed.data : null;
   },
 );
+
+export const getPublicEventShareStateWithFallback = cache(
+  async (publicId: string): Promise<PublicEventShareState | null> => {
+    try {
+      return await getPublicEventShareState(publicId);
+    } catch {
+      console.error("public_event_share_state.failed", {
+        reason: "projection_unavailable",
+      });
+      return null;
+    }
+  },
+);

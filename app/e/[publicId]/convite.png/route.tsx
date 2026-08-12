@@ -1,4 +1,5 @@
 import { getPublicEvent } from "@/lib/data/public-event";
+import { getPublicEventShareStateWithFallback } from "@/lib/data/public-event-share";
 import { getPublicEventLineup } from "@/lib/data/public-lineup";
 import { getTeamLogoPngDataUrlByEventPublicId } from "@/lib/data/team-logo";
 import { isPublicEventId } from "@/lib/features/public-event/presentation";
@@ -11,8 +12,9 @@ export const dynamic = "force-dynamic";
 const imageHeaders = {
   "Cache-Control": "public, max-age=300, stale-while-revalidate=3600",
   "Content-Type": "image/png",
+  "Referrer-Policy": "no-referrer",
   "X-Content-Type-Options": "nosniff",
-  "X-Robots-Tag": "noindex, noimageindex",
+  "X-Robots-Tag": "noindex, nofollow, noimageindex",
 };
 
 const privateLineupImageHeaders = {
@@ -31,18 +33,30 @@ export async function GET(
   const { publicId } = await context.params;
   const isValid = isPublicEventId(publicId);
 
-  const [event, teamLogoUrl, lineup] = await Promise.all([
+  const [event, teamLogoUrl, shareState] = await Promise.all([
     isValid ? getPublicEvent(publicId).catch(() => null) : Promise.resolve(null),
     isValid ? getTeamLogoPngDataUrlByEventPublicId(publicId) : Promise.resolve(null),
     isValid
-      ? getPublicEventLineup(publicId).catch(() => {
+      ? getPublicEventShareStateWithFallback(publicId)
+      : Promise.resolve(null),
+  ]);
+  const lineup = shareState
+    ? null
+    : isValid
+      ? await getPublicEventLineup(publicId).catch(() => {
           console.error("event_lineup_image.failed", {
             reason: "projection_unavailable",
           });
           return null;
         })
-      : Promise.resolve(null),
-  ]);
+      : null;
+
+  if (shareState) {
+    console.info("event_share_image.rendered", {
+      phase: shareState.phase,
+      fallback: false,
+    });
+  }
 
   if (lineup) {
     console.info("event_lineup_image.rendered", {
@@ -61,11 +75,17 @@ export async function GET(
   ).toString();
 
   return new ImageResponse(
-    <InviteImage event={event} lineup={lineup} brandLogoUrl={brandLogoUrl} teamLogoUrl={teamLogoUrl} />,
+    <InviteImage
+      event={event}
+      lineup={lineup}
+      shareState={shareState}
+      brandLogoUrl={brandLogoUrl}
+      teamLogoUrl={teamLogoUrl}
+    />,
     {
       width: 1200,
       height: 630,
-      headers: lineup ? privateLineupImageHeaders : imageHeaders,
+      headers: !shareState && lineup ? privateLineupImageHeaders : imageHeaders,
     },
   );
 }
