@@ -1,7 +1,7 @@
 ---
 id: R08M
 type: vertical
-status: ready
+status: active
 outcome: "Compartilhar a mesma URL do evento com identidade e cartão coerentes da chamada ao resultado, e comprovar o ciclo completo do MVP em um time piloto."
 depends_on: [R02, R03, R03R, R04, R05, R06, R07]
 baseline:
@@ -116,13 +116,15 @@ evolutivo estiver desligado.
 - código:
   - `app/e/[publicId]/page.tsx`;
   - `app/e/[publicId]/convite.png/route.tsx`;
-  - `lib/data/team-logo.ts`;
+  - `lib/data/public-event-share.ts`;
 - migrations:
-  - próxima migration forward-only da flag e da projeção compartilhável;
+  - `supabase/migrations/202608120001_r08m_event_share_feature.sql`;
+  - `supabase/migrations/202608120002_r08m_public_event_share_state.sql`;
 - testes:
   - `app/e/[publicId]/page.test.tsx`;
   - `app/e/[publicId]/convite.png/route.test.tsx`;
-  - próximo pgTAP da projeção R08M;
+  - `lib/data/public-event-share.test.ts`;
+  - `supabase/tests/043_r08m_public_event_share_state.test.sql`;
 - documentação:
   - `docs/decisions/DEC-EVENT-SHARE-PHASE.md`;
   - `docs/runbook.md`;
@@ -226,3 +228,30 @@ usado, sem copiar dados pessoais para a evidência.
 - próxima ação: `WP-R08M-01`, criar a expansão forward-only de
   `event_share_card` e da projeção pública mínima, com pgTAP positivo, negativo,
   consentimento, empate e cross-tenant.
+
+### `WP-R08M-01` — CP1 concluído
+
+- a expansão isolou `event_share_card` em uma migration própria e não criou
+  linha habilitada para nenhum time;
+- `get_public_event_share_state(public_id)` exige `public_event_page` e a nova
+  flag, seleciona a fase pública por precedência e não concede `SELECT` novo em
+  tabela-base;
+- partidas respeitam `event_matches`, `public_mode` e o maior ordinal
+  aplicável; placar deriva de gol, gol contra e ajuste, e os fatos omitem
+  autoria, notas e identificadores;
+- escalação reutiliza a revisão ativa mínima; votação e resultado respeitam o
+  kill switch `voting`, empate e ausência/revogação de
+  `public_sports_activity` sem escolher ou identificar vencedor indevido;
+- o adapter `server-only` valida um DTO estrito, rejeita chave inesperada ou
+  fase divergente e transforma RPC/tabela ausente em fallback para schema N−1;
+- pgTAP focado: 40/40 casos verdes; suíte completa: 43 arquivos e 1.055 testes
+  verdes, incluindo flag desligada, cancelamento, precedência, placar,
+  consentimento, revogação, empate e cross-tenant;
+- gates verdes: duas reconstruções limpas do banco, lint sem aviso novo, tipos
+  gerados apenas com RPC/enum esperados, TypeScript, 61 arquivos/335 testes
+  Vitest, build de produção com Webpack e auditoria com zero vulnerabilidades;
+- o build Turbopack local não abriu a porta interna no sandbox; o build Webpack
+  equivalente passou, e o workflow CI permanece como gate obrigatório do PR;
+- `event_share_card` continua desligada em todos os times. Próxima ação:
+  `WP-R08M-02`, consumir o DTO em metadata, HTML e `convite.png`, mantendo o
+  cartão atual quando a flag ou o schema novo não estiverem disponíveis.
