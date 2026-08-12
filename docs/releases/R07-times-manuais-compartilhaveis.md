@@ -572,3 +572,14 @@ do WhatsApp.
   TypeScript, build Webpack e auditoria com zero vulnerabilidades;
 - próxima evidência: promover banco e consumidor pela rotina `dev → PR → main`,
   executar smoke anônimo e repetir o compartilhamento no macOS/WhatsApp.
+
+### `WP-R07-06` — CP5 primeiros nomes em produção
+
+- PR `#168`, merge `568cc99`; CI, Database, CodeQL, Terraform, Dependency
+  Review, Deploy database, Vercel, WhatsApp worker e Smoke verdes;
+- deployment Vercel `BnNvGH6qyKYnjbJ4X9szyREsAoyQ`, Deploy database
+  `31547518350` e Smoke `31547871444` concluídos;
+- ensaio anônimo no evento real `Automação WhatsApp` mostrou 14 atletas nos
+  dois times somente pelo primeiro nome; sobrenome, telefone e foto ausentes;
+- `main` e `dev` sincronizadas no merge. Próxima evidência: repetir no macOS o
+  compartilhamento para WhatsApp e confirmar contexto antes da URL.

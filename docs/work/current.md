@@ -2,8 +2,8 @@
 release: R07
 work_package: WP-R07-06
 scope: ordered_share_and_public_first_name
-branch_or_commit: "dev"
-checkpoint: CP4
+branch_or_commit: "568cc99"
+checkpoint: CP5
 status: idle
 completed_ac:
   - AC-R07-01
@@ -22,6 +22,9 @@ completed_ac:
   - AC-R07-16
 dirty_files: []
 tests:
+  - "PR #168 e merge 568cc99: checks obrigatórios verdes"
+  - "Deploy database 31547518350, Vercel BnNvGH6qyKYnjbJ4X9szyREsAoyQ e Smoke 31547871444: verdes"
+  - "produção: evento Automação WhatsApp mostrou 14 primeiros nomes em dois times, sem telefone/foto"
   - "compartilhamento e projeção pública: 5 arquivos, 29 testes verdes"
   - "Vitest completo: 58 arquivos, 322 testes verdes"
   - "db:reset e db:test: 42 arquivos, 1.015 testes pgTAP verdes; tipos sem diff"
@@ -45,7 +48,7 @@ tests:
   - "Deploy database 31542818301 e Smoke 31542863602: verdes"
   - "Vercel produção 8y3nfqLj8W6ipw6hXFjYcGGYaVVn: concluído"
 blocker: null
-next_action: "Promover migration e consumidor por dev → PR → main; executar smoke e validar compartilhamento no macOS/WhatsApp."
+next_action: "Validar no macOS/WhatsApp que Compartilhar evento mantém contexto antes da URL; repetir em Android/iPhone para fechar R07."
 ---
 
 # Trabalho atual
