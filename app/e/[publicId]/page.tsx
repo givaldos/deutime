@@ -2,6 +2,7 @@ import { BrandMark } from "@/components/brand-mark";
 import { EventAccessBootstrap } from "@/components/event-access-bootstrap";
 import { EventAccessAttendance } from "@/components/event-access-attendance";
 import { EventLineupShareActions } from "@/components/event-lineup-share-actions";
+import { PublicLineupPitch } from "@/components/public-lineup-pitch";
 import { Button } from "@/components/ui/button";
 import {
   type EventAccessContext,
@@ -266,26 +267,10 @@ export default async function PublicEventPage({
             </p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               {publicLineup.squads.map((squad) => (
-                <article
+                <PublicLineupPitch
                   key={`${squad.sort_order}:${squad.name}`}
-                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
-                  style={{ borderTopColor: squad.color ?? "#0D9488", borderTopWidth: 5 }}
-                >
-                  <h2 className="px-4 pt-3 text-lg font-black text-slate-900">{squad.name}</h2>
-                  {squad.athletes.length > 0 ? (
-                    <ol className="mt-2 space-y-1 px-4 pb-4">
-                      {squad.athletes.map((athlete) => (
-                        <li key={`${athlete.sort_order}:${athlete.name}`} className="text-sm font-semibold text-slate-700">
-                          {athlete.name}
-                        </li>
-                      ))}
-                    </ol>
-                  ) : (
-                    <p className="px-4 pb-4 pt-2 text-xs leading-5 text-slate-500">
-                      Nenhum jogador escalado.
-                    </p>
-                  )}
-                </article>
+                  squad={squad}
+                />
               ))}
             </div>
             <p className="mt-3 text-xs leading-5 text-slate-500">

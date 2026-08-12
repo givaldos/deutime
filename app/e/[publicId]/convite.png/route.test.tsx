@@ -118,6 +118,7 @@ describe("imagem pública do convite", () => {
     expect(html).toContain("Times definidos");
     expect(html).toContain("Neymar");
     expect(html).toContain("Sem jogadores escalados");
+    expect(html).toContain("background:#167252");
     expect(html).not.toContain("athlete_id");
     expect(html).not.toContain("revision_id");
 
