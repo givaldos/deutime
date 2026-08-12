@@ -42,6 +42,7 @@ describe("EventLineupEditor", () => {
     expect(html).toContain(">Retirar</button>");
     expect(html).toContain("Outra opção: escolher time manualmente");
     expect(html).toContain("Prefere não usar os atalhos?");
+    expect(html).toContain('<fieldset class="min-w-0">');
     expect(html).toContain("min-h-12 max-w-[55%]");
     expect(html).toContain("Destino de Neymar");
     expect(html).toContain("Fora desta divisão");

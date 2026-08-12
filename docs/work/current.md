@@ -21,95 +21,36 @@ completed_ac:
   - AC-R07-15
   - AC-R07-16
   - AC-R07-17
-dirty_files: []
+dirty_files:
+  - components/event-lineup-editor.tsx
+  - components/event-lineup-editor.test.tsx
+  - docs/releases/R07-times-manuais-compartilhaveis.md
+  - docs/work/current.md
 tests:
-  - "PR #172 e merge 945dd84: checks obrigatórios verdes"
-  - "produção: Smoke 31599756961 e Database 31599695184 verdes"
-  - "transições mobile: 2 arquivos, 9 testes focados verdes"
+  - "produção responsiva 390x844: mover, retirar, recolocar e seleção manual verdes; largura 390px; alvos de 48px"
+  - "produção responsiva 360x800: quatro transições verdes; alternativa manual revelou largura rolável de 363px"
+  - "correção local: fieldset com min-w-0 e regressão coberta"
   - "Vitest completo: 60 arquivos, 329 testes verdes"
-  - "ensaio autenticado 390x844: mover, retirar, recolocar e seleção manual funcionando; sem overflow"
-  - "alvos de toque: Retirar e select com 48px"
-  - "ESLint, TypeScript, next build --webpack e auditoria com 0 vulnerabilidades: verdes"
-  - "PR #170 e merge 9cd8235: checks obrigatórios verdes"
-  - "produção 390x844: dois campos de 290px, documento 390px e Compartilhar 316px, sem overflow"
-  - "produção convite.png 1200x630: dois campos e 14 primeiros nomes renderizados"
-  - "workflows main: CI, Database 31550516605, CodeQL, Terraform e Smoke 31550557606 verdes"
-  - "formação visual pública: 4 arquivos, 21 testes focados verdes"
-  - "Vitest completo: 59 arquivos, 324 testes verdes"
-  - "ensaio anônimo 390x844: documento e campos com 390px, sem rolagem horizontal; Compartilhar com 316px"
-  - "convite.png local 1200x630: dois campos e 14 primeiros nomes renderizados"
-  - "ESLint, TypeScript, next build --webpack e auditoria com 0 vulnerabilidades: verdes"
-  - "PR #168 e merge 568cc99: checks obrigatórios verdes"
-  - "Deploy database 31547518350, Vercel BnNvGH6qyKYnjbJ4X9szyREsAoyQ e Smoke 31547871444: verdes"
-  - "produção: evento Automação WhatsApp mostrou 14 primeiros nomes em dois times, sem telefone/foto"
-  - "compartilhamento e projeção pública: 5 arquivos, 29 testes verdes"
-  - "Vitest completo: 58 arquivos, 322 testes verdes"
-  - "db:reset e db:test: 42 arquivos, 1.015 testes pgTAP verdes; tipos sem diff"
-  - "ensaio anônimo 390x844: 4 primeiros nomes no HTML e na imagem, sem telefone/foto"
-  - "ESLint, TypeScript, next build --webpack e auditoria: verdes"
-  - "PR #166 e merge be018d1: checks obrigatórios verdes"
-  - "Vercel produção 2HhLjvRAiZYeBDqDf476jopCHY2P e Smoke 31545606257: verdes"
-  - "superfície focada: evento aberto sem lembretes e compartilhamento compacto em 390x844"
-  - "Vitest completo: 58 arquivos, 321 testes verdes"
-  - "ESLint, TypeScript e next build --webpack: verdes; auditoria com 0 vulnerabilidades"
-  - "salvar/publicar focado: 2 arquivos, 12 testes verdes"
-  - "Vitest completo: 57 arquivos, 320 testes verdes"
-  - "ensaio mobile 390x844: salvar criou revisão 1; editar e salvar criou revisão 2 sem ação separada"
   - "ESLint, TypeScript e next build --webpack: verdes"
+  - "integridade de migrations: verde"
   - "npm run security:audit: 0 vulnerabilidades"
-  - "PR #164 e merge 50c3737: checks obrigatórios verdes"
-  - "Vercel produção CLvPDEfFJRxag5iNvhejnutP8we8 e Smoke 31544126639: verdes"
-  - "db:reset, db:types e db:test: verdes; 42 arquivos, 1.014 testes pgTAP"
-  - "integridade de migrations origin/main..HEAD: verde"
-  - "PR #162 e merge aff99ce: checks obrigatórios verdes"
-  - "Deploy database 31542818301 e Smoke 31542863602: verdes"
-  - "Vercel produção 8y3nfqLj8W6ipw6hXFjYcGGYaVVn: concluído"
-blocker: null
-next_action: "Repetir mover, retirar, recolocar e seleção manual em Android e iPhone para concluir AC-R07-04."
+  - "build Turbopack bloqueado somente pela restrição conhecida do sandbox ao abrir porta"
+blocker: "A correção ainda precisa ser promovida e a evidência final exige Android e iPhone físicos, incluindo o navegador interno do WhatsApp."
+next_action: "Promover a correção de largura; após o deploy, repetir mover, retirar, recolocar e seleção manual em Android e iPhone reais para concluir AC-R07-04."
 ---
 
 # Trabalho atual
 
-Equipes internas persistentes, catálogo fechado de escudos SVG e vínculo
-histórico com `event_squads` estão implementados. A gestão fica em Configurações
-e o evento abre com divisão automática, troca por toque e uma única ação fixa:
-salvar a escalação e atualizar o link público automaticamente.
+O fluxo de escalação por toque está disponível em produção no merge `945dd84`.
+No evento real `Automação WhatsApp`, a rodada responsiva sem salvar confirmou
+mover, retirar, recolocar e escolher o time pelo seletor nativo.
 
-Owner/admin agora usa somente `Salvar escalação`: a Action salva o rascunho e
-publica ou atualiza a revisão automaticamente. Manager preserva o rascunho
-privado e rascunhos legados continuam com fallback explícito de publicação.
+Em `390x844`, o documento permaneceu limitado ao viewport. Em `360x800`, abrir
+a alternativa manual expôs `363px` de largura rolável. A causa era a largura
+mínima intrínseca do `fieldset`; a correção local aplica `min-w-0` e adiciona
+cobertura de regressão. Vitest completo, ESLint, TypeScript, build Webpack,
+integridade de migrations e auditoria estão verdes.
 
-O evento aberto agora fica focado no jogo: há uma única ação compacta de
-compartilhamento, que usa a ação nativa do aparelho com fallback de cópia, e o
-endereço não ocupa mais a tela. Estado, configuração e acionamento manual dos
-lembretes ficam recolhidos em Editar; a automação e suas permissões permanecem
-iguais.
-
-O ajuste atual cria uma exceção pública mínima para a escalação explicitamente
-publicada: somente o primeiro nome chega ao HTML e à imagem; sobrenome, foto,
-telefone, IDs e demais detalhes continuam ausentes. O compartilhamento envia
-contexto e URL em um único bloco para impedir a inversão observada no macOS.
-
-O ajuste visual atual deve distribuir a ordem publicada em linhas de um campo
-meramente ilustrativo, sem inferir posições reais. A página e a imagem usam a
-mesma regra, e a ação primária passa a se chamar somente `Compartilhar`.
-
-Implementação e validação local concluídas: a página não cria rolagem
-horizontal em `390x844`, e a imagem `1200x630` mostra dois campos com 14
-primeiros nomes. O pacote está em `idle`, pronto para promoção.
-
-Promoção concluída no merge `9cd8235`. A conferência do evento real repetiu as
-medidas sem overflow e validou a imagem compartilhável em produção; o escopo
-`public_lineup_pitch_layout` permanece em `idle` e sem pendências.
-
-O próximo escopo fecha a evidência funcional de `AC-R07-04`: colocar, mover,
-retirar e recolocar passam por transições puras cobertas por teste. O cartão
-mobile torna `Retirar` visível e mantém o seletor nativo como alternativa aos
-atalhos por toque.
-
-Validação local concluída em `390x844`, incluindo as quatro transições e a
-alternativa manual. O pacote volta a `idle`; `AC-R07-04` permanece aberto até
-o ensaio físico em Android e iPhone após a promoção.
-
-Disponível em produção no merge `945dd84`, com smoke e gates verdes. Não há
-configuração adicional: resta somente o ensaio físico em Android e iPhone.
+`AC-R07-04` continua aberto: o ajuste precisa ser promovido e então validado em
+Android e iPhone físicos, também no navegador interno do WhatsApp. A alteração
+pré-existente em `docs/roadmap.md` foi preservada e permanece fora do escopo.

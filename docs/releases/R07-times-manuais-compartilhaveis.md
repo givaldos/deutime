@@ -648,3 +648,22 @@ do WhatsApp.
 - `main` e `dev` foram sincronizadas no merge. Falta somente repetir mover,
   retirar, recolocar e a seleção manual em Android e iPhone para concluir
   `AC-R07-04`.
+
+### `WP-R07-06` — CP4 regressão de largura na alternativa manual corrigida localmente
+
+- ensaio autenticado na produção repetiu mover, retirar, recolocar e seleção
+  manual sem salvar, em viewports equivalentes a iPhone (`390x844`) e Android
+  (`360x800`); as quatro transições funcionaram e os alvos mediram `48px`;
+- em `390x844`, documento e conteúdo permaneceram limitados a `390px`. Em
+  `360x800`, abrir a alternativa manual elevou a largura rolável a `363px`;
+- a causa era o `fieldset` preservando a largura mínima intrínseca dos selects
+  quando o `details` ficava aberto. `min-w-0` passou a limitar o grupo ao
+  contêiner mobile, com as transições e o fallback nativo preservados;
+- validação local verde: 60 arquivos/329 testes Vitest, ESLint, TypeScript,
+  build de produção com Webpack, integridade de migrations e auditoria com zero
+  vulnerabilidades. O build Turbopack parou somente pela restrição conhecida do
+  sandbox ao abrir porta;
+- o ensaio foi responsivo em navegador desktop, não substitui a evidência em
+  aparelhos físicos. Próxima ação: promover a correção e repetir as quatro
+  transições em Android e iPhone reais, incluindo navegador interno do
+  WhatsApp, antes de concluir `AC-R07-04`.
