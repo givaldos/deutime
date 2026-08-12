@@ -113,6 +113,14 @@ evolutivo estiver desligado.
 
 ## Entry points
 
+- `app/app/[teamSlug]/settings/page.tsx`: mostra o controle operacional somente
+  para a coorte cujo UUID está em `EVENT_SHARE_PILOT_TEAM_ID`;
+- `app/app/[teamSlug]/settings/event-share-pilot-actions.ts`: autentica, deriva
+  o time pelo slug, confere a coorte no servidor e delega ativação/rollback à
+  RPC `set_team_feature_flag`;
+- `lib/features/public-event/pilot-config.ts`: valida a configuração server-only
+  e mantém a superfície inerte quando a coorte não está configurada.
+
 - código:
   - `app/e/[publicId]/page.tsx`;
   - `app/e/[publicId]/convite.png/route.tsx`;
@@ -196,6 +204,9 @@ usado, sem copiar dados pessoais para a evidência.
 - flag tipada, desligada por padrão e conferida server-side:
   `event_share_card` por time; `public_event_page` permanece o gate raiz;
 - piloto: somente coorte demo após schema e consumidor verdes;
+- controle operacional: página autenticada para owner/admin, renderizada apenas
+  quando `team.id = EVENT_SHARE_PILOT_TEAM_ID`; a action não aceita `team_id` ou
+  chave de flag do cliente e a RPC reaplica autorização e auditoria;
 - telemetria: fase, fallback, duração e erro agregados, sem `public_id`, nome,
   capability, endereço ou conteúdo individual;
 - fallback: metadata/cartão atual, página pública, cópia da URL e jornadas

@@ -4,6 +4,7 @@ import { TeamAppHeader } from "@/components/team-app-header";
 import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { TeamMediaManager } from "@/components/team-media-manager";
 import { TeamSettingsForm } from "@/components/team-settings-form";
+import { EventSharePilotControl } from "@/components/event-share-pilot-control";
 import { InternalSquadManager } from "@/components/internal-squad-manager";
 import { WhatsAppReminderSettingsForm } from "@/components/whatsapp-reminder-settings-form";
 import { AppContainer } from "@/components/ui/app-shell";
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
+import { parseEventSharePilotConfig } from "@/lib/features/public-event/pilot-config";
 import { getInternalSquads } from "@/lib/data/internal-squads";
 import {
   ArrowLeft,
@@ -89,9 +91,24 @@ export default async function TeamSettingsPage({
     throw new Error("Não foi possível carregar as configurações do time.");
   }
 
-  const [whatsappRemindersEnabled, teamDivisionEnabled] = await Promise.all([
+  let eventSharePilotTeamId: string | null = null;
+  try {
+    eventSharePilotTeamId =
+      parseEventSharePilotConfig(process.env)?.teamId ?? null;
+  } catch {
+    console.error("event_share_pilot.config_invalid");
+  }
+  const eventSharePilotEligible = eventSharePilotTeamId === team.id;
+  const [
+    whatsappRemindersEnabled,
+    teamDivisionEnabled,
+    eventShareCardEnabled,
+  ] = await Promise.all([
     isTeamFeatureEnabled(team.id, "whatsapp_reminders"),
     isTeamFeatureEnabled(team.id, "team_division"),
+    eventSharePilotEligible
+      ? isTeamFeatureEnabled(team.id, "event_share_card")
+      : Promise.resolve(false),
   ]);
   const internalSquads = teamDivisionEnabled ? await getInternalSquads(team.id) : [];
   const { data: reminderSettings, error: reminderSettingsError } =
@@ -207,6 +224,14 @@ export default async function TeamSettingsPage({
             teamSlug={team.slug}
             firstHours={reminderSettings.first_offset_minutes / 60}
             secondHours={reminderSettings.second_offset_minutes / 60}
+          />
+        ) : null}
+
+        {eventSharePilotEligible ? (
+          <EventSharePilotControl
+            teamName={team.name}
+            teamSlug={team.slug}
+            enabled={eventShareCardEnabled}
           />
         ) : null}
 
