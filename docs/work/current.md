@@ -3,7 +3,7 @@ release: R08M
 work_package: WP-R08M-03
 scope: event_share_card_preview_pilot
 branch_or_commit: "dev"
-checkpoint: CP2
+checkpoint: CP3
 status: ready
 completed_ac:
   - AC-R08M-01
@@ -23,19 +23,22 @@ tests:
   - "db:lint: nenhum aviso novo; db:types: somente RPC e enum R08M"
   - "WP-R08M-02 focado: 38/38 casos de página, metadata, PNG e fallback aprovados"
   - "Vitest: 61 arquivos e 347 testes aprovados; TypeScript e ESLint verdes"
+  - "WP-R08M-03: sonda pgTAP 25/25; banco completo 44 arquivos/1.080 testes"
+  - "WP-R08M-03: 62 arquivos/355 testes Vitest; smoke e telemetria redigida verdes"
   - "build Next.js 16.3 com Webpack: aprovado; Turbopack local limitado pelo sandbox"
   - "npm audit: zero vulnerabilidades"
 blocker: null
-next_action: "Executar WP-R08M-03: preparar coorte demo, telemetria redigida e runbook; então ativar somente a coorte autorizada para previews físicos, smoke e rollback."
+next_action: "Integrar a preparação do WP-R08M-03; após o deploy, confirmar a sonda desligada, ativar event_share_card somente em demo-campo pela RPC auditada e executar saúde, smoke e previews físicos."
 ---
 
 # Trabalho atual
 
-WP-R08M-02 conectou a projeção anônima a metadata, HTML e `convite.png`. As oito
-fases compartilham a mesma apresentação e versão opaca, consentimento revogado
-invalida o preview sem levar identidade à URL, e a imagem preserva headers de
-privacidade e cache compatíveis com crawlers.
+WP-R08M-03 preparou a sonda agregada restrita a `service_role`, telemetria
+redigida, smoke anônimo de HTML/GET/HEAD do PNG e o roteiro de ativação e
+rollback. A coorte histórica `demo-campo` foi confirmada sem versionar UUID,
+operador ou evento.
 
-O checkpoint avançou para CP2 sem ativar nenhum time. A retomada começa em
-WP-R08M-03, preparando coorte demo, telemetria redigida, runbook e rollback
-antes de pedir autorização para habilitar a flag e conferir os previews reais.
+O checkpoint avançou para CP3 sem ativar nenhum time. A retomada começa após o
+deploy da sonda: confirmar `EXPECT_EVENT_SHARE_CARD_ENABLED=false`, ativar só a
+coorte autorizada pela RPC, repetir saúde e smoke e coletar os previews físicos
+antes de avançar CP4/CP5.

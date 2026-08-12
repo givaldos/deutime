@@ -138,9 +138,12 @@ manualmente no workflow `Smoke`.
 Quando `SMOKE_PUBLIC_EVENT_ID` estiver definido no Environment `production`, o
 mesmo comando também verifica `/e/{public_id}` e o bloqueio de `GET` em
 `/e/{public_id}/access`. Essa extensão continua anônima e somente leitura:
-confirma HTML, `no-store`, `no-referrer`, `noindex`, `nosniff` e resposta `405`
-do endpoint de troca. Use apenas um evento público sintético ou de demonstração,
-sem nome, telefone ou outra PII na configuração do GitHub.
+confirma HTML, canonical, `no-store`, `no-referrer`, `noindex`, ausência de
+segredo, `GET` e `HEAD` do PNG, cache público, `nosniff` e resposta `405` do
+endpoint de troca. Com `EXPECT_EVENT_SHARE_CARD_ENABLED=true`, exige também a
+versão opaca de 12 caracteres no `og:image`. Use apenas um evento público
+sintético ou de demonstração, sem nome, telefone ou outra PII na configuração
+do GitHub.
 
 Matriz obrigatória para uma expansão:
 
@@ -228,6 +231,82 @@ Para rollback imediato, repita a RPC auditada com `false`. Confirme a sonda com
 que a lista privada de confirmados e o evento continuam utilizáveis, enquanto
 editor, escalação pública e imagem publicada desaparecem. A migration é
 forward-only e não deve ser revertida.
+
+### Piloto do cartão compartilhável — R08M
+
+Use somente a coorte demo já autorizada (`demo-campo`) e um evento sem PII. Não
+versione UUID, operador ou `public_id`. Antes da ativação, confirme a coorte, um
+owner/admin ativo e ao menos um evento na janela operacional:
+
+```sql
+select team.id as team_id, membership.user_id as operator_id,
+  count(*) filter (
+    where event.starts_at >= now() - interval '30 days'
+      and event.starts_at < now() + interval '90 days'
+  ) as eventos_na_janela
+from public.teams team
+join public.team_memberships membership on membership.team_id = team.id
+left join public.events event on event.team_id = team.id
+where team.slug = 'demo-campo'
+  and membership.status = 'active'
+  and membership.role in ('owner', 'admin')
+group by team.id, membership.user_id;
+```
+
+Configure o UUID somente no cofre operacional local. A sonda usa
+`service_role`, retorna flags, contagens por fase e horários agregados, e falha
+se a soma das fases divergir da projeção:
+
+```bash
+EVENT_SHARE_PILOT_TEAM_ID='<EVENT_SHARE_PILOT_TEAM_ID>' \
+EXPECT_EVENT_SHARE_CARD_ENABLED=false \
+npm run pilot:event-share:health
+```
+
+Ative exclusivamente pela RPC auditada e pela sessão do owner/admin confirmado:
+
+```sql
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '<OPERATOR_ID>', true);
+select public.set_team_feature_flag(
+  '<EVENT_SHARE_PILOT_TEAM_ID>'::uuid,
+  'event_share_card',
+  true
+);
+commit;
+```
+
+Depois da ativação:
+
+1. repetir a sonda com `EXPECT_EVENT_SHARE_CARD_ENABLED=true`;
+2. configurar no Environment `production` somente `SMOKE_PUBLIC_EVENT_ID` com
+   evento demo e `EXPECT_EVENT_SHARE_CARD_ENABLED=true`;
+3. despachar o workflow `Smoke` e exigir página, canonical, versão opaca, GET e
+   HEAD do PNG e todos os headers de privacidade;
+4. observar `public_event_share_state.observed` por fase, fallback, duração e
+   categoria de erro, e `event_share_image.rendered` somente por fase; nenhum
+   log pode conter `public_id`, nome, endereço, telefone, capability ou exceção;
+5. interromper se o smoke falhar, aparecer `projection_unavailable`, houver
+   fallback inesperado com a flag ligada ou divergência de fase entre HTML e
+   preview.
+
+Registre cada preview físico sem PII:
+
+| Plataforma | Contexto | Fase esperada | Resultado | Cache observado | Fallback |
+|---|---|---|---|---|---|
+| WhatsApp Android | conversa e navegador interno | `<fase>` | `<ok/falha>` | `<novo/antigo>` | `<não/usado>` |
+| WhatsApp iPhone | conversa e navegador interno | `<fase>` | `<ok/falha>` | `<novo/antigo>` | `<não/usado>` |
+| Instagram | mensagem | `<fase>` | `<ok/falha>` | `<novo/antigo>` | `<não/usado>` |
+| Telegram | conversa | `<fase>` | `<ok/falha>` | `<novo/antigo>` | `<não/usado>` |
+| iMessage | conversa | `<fase>` | `<ok/falha>` | `<novo/antigo>` | `<não/usado>` |
+
+Rollback imediato usa a mesma RPC com `false`. Em seguida, ajuste
+`EXPECT_EVENT_SHARE_CARD_ENABLED=false`, repita a sonda e o smoke e confirme
+que `projected_events=0`, todos os eventos da janela voltaram a
+`fallback_events`, a URL canônica não mudou e o cartão anterior continua
+utilizável. Não reverta migrations e não altere `public_event_page`,
+`event_matches` ou `voting` como parte desse rollback.
 
 ### Retenção diária — R05/R06
 

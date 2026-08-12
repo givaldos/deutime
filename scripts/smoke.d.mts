@@ -7,6 +7,7 @@ export function runProductionSmoke(options: {
   mode?: string;
   appUrl: string;
   publicEventId?: string;
+  expectEventShareCardEnabled?: boolean;
   fetchImpl?: SmokeFetch;
 }): Promise<{ publicEventChecked: boolean }>;
 

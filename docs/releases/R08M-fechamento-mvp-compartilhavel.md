@@ -117,14 +117,18 @@ evolutivo estiver desligado.
   - `app/e/[publicId]/page.tsx`;
   - `app/e/[publicId]/convite.png/route.tsx`;
   - `lib/data/public-event-share.ts`;
+  - `scripts/event-share-pilot-health.mjs`;
+  - `scripts/smoke.mjs`;
 - migrations:
   - `supabase/migrations/202608120001_r08m_event_share_feature.sql`;
   - `supabase/migrations/202608120002_r08m_public_event_share_state.sql`;
+  - `supabase/migrations/202608120003_r08m_event_share_pilot_health.sql`;
 - testes:
   - `app/e/[publicId]/page.test.tsx`;
   - `app/e/[publicId]/convite.png/route.test.tsx`;
   - `lib/data/public-event-share.test.ts`;
   - `supabase/tests/043_r08m_public_event_share_state.test.sql`;
+  - `supabase/tests/044_r08m_event_share_pilot_health.test.sql`;
 - documentação:
   - `docs/decisions/DEC-EVENT-SHARE-PHASE.md`;
   - `docs/runbook.md`;
@@ -289,3 +293,34 @@ usado, sem copiar dados pessoais para a evidência.
 - `event_share_card` permanece desligada para todos os times. Próxima ação:
   `WP-R08M-03`, preparar coorte demo, telemetria redigida, runbook, previews
   físicos e smoke/rollback antes de qualquer piloto.
+
+### `WP-R08M-03` — preparação de CP3 concluída
+
+- a coorte operacional disponível foi confirmada por leitura agregada como
+  `demo-campo`, com um owner/admin ativo e 16 eventos agendados; nenhum UUID ou
+  operador foi versionado;
+- `get_event_share_card_pilot_health(team_id)` é restrita a `service_role` e
+  retorna somente flags, contagens por fase numa janela de 30 dias passados a
+  90 dias futuros e horários agregados;
+- a sonda falha se eventos projetados, fallback e soma das fases divergirem, e
+  o script exige explicitamente a flag ligada durante o piloto ou desligada no
+  ensaio de rollback;
+- a telemetria `public_event_share_state.observed` registra somente fase,
+  fallback, duração limitada e categoria de erro; testes negativos confirmam
+  ausência de `public_id`, time, nome ou conteúdo da exceção;
+- o smoke anônimo agora valida canonical, ausência de segredo, versão opaca
+  quando esperada, GET e HEAD do PNG, cache e headers `noindex`, `nofollow`,
+  `noimageindex`, `no-referrer` e `nosniff`;
+- o runbook fixa ordem de ativação, sinais de interrupção, matriz de previews
+  físicos e rollback pela mesma RPC auditada, sem alterar os demais gates;
+- ensaio local da sonda com flag desligada confirmou um evento na janela, zero
+  projeções e um fallback; pgTAP focado passou 25/25 casos e a suíte completa
+  passou 44 arquivos/1.080 assertions;
+- gates de aplicação: 62 arquivos/355 testes Vitest, ESLint, TypeScript, build
+  Next.js 16.3 com Webpack e auditoria com zero vulnerabilidades;
+- o build Turbopack local continuou limitado pela porta interna do sandbox; o
+  workflow CI permanece obrigatório;
+- `event_share_card` continua desligada em produção. Após o deploy da sonda, a
+  próxima ação é confirmar saúde com `false`, ativar somente `demo-campo` pela
+  RPC e owner/admin autorizados, repetir saúde/smoke e coletar os previews
+  físicos antes de avançar a CP4/CP5.

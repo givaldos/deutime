@@ -3217,6 +3217,28 @@ export type Database = {
           withdrawals_24h: number
         }[]
       }
+      get_event_share_card_pilot_health: {
+        Args: { requested_team_id: string }
+        Returns: {
+          call_events: number
+          cancelled_events: number
+          completed_events: number
+          event_matches_enabled: boolean
+          event_share_card_enabled: boolean
+          fallback_events: number
+          last_flag_change_at: string
+          lineup_events: number
+          live_events: number
+          observed_at: string
+          projected_events: number
+          public_event_page_enabled: boolean
+          result_events: number
+          score_events: number
+          voting_enabled: boolean
+          voting_events: number
+          window_events: number
+        }[]
+      }
       get_event_whatsapp_reminder_state: {
         Args: { requested_event_id: string }
         Returns: {

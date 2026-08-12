@@ -136,9 +136,45 @@ describe("fronteira pública da fase compartilhável", () => {
     await expect(
       getPublicEventShareStateWithFallback(publicId),
     ).resolves.toBeNull();
-    expect(error).toHaveBeenCalledWith("public_event_share_state.failed", {
-      reason: "projection_unavailable",
-    });
+    expect(error).toHaveBeenCalledWith(
+      "public_event_share_state.observed",
+      expect.objectContaining({
+        phase: "fallback",
+        fallback: true,
+        durationMs: expect.any(Number),
+        error: "projection_unavailable",
+      }),
+    );
     expect(JSON.stringify(error.mock.calls)).not.toContain(publicId);
+  });
+
+  it("registra somente fase, fallback e duração agregados no sucesso", async () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
+    mocks.rpc.mockResolvedValue({
+      data: {
+        phase: "call",
+        event,
+        lineup: null,
+        match: null,
+        voting: null,
+        result: null,
+      },
+      error: null,
+    });
+
+    await expect(
+      getPublicEventShareStateWithFallback(publicId),
+    ).resolves.toMatchObject({ phase: "call" });
+    expect(info).toHaveBeenCalledWith(
+      "public_event_share_state.observed",
+      expect.objectContaining({
+        phase: "call",
+        fallback: false,
+        durationMs: expect.any(Number),
+        error: "none",
+      }),
+    );
+    expect(JSON.stringify(info.mock.calls)).not.toContain(publicId);
+    expect(JSON.stringify(info.mock.calls)).not.toContain("Society United");
   });
 });

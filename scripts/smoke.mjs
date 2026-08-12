@@ -7,6 +7,7 @@ export async function runProductionSmoke({
   mode,
   appUrl,
   publicEventId,
+  expectEventShareCardEnabled = false,
   fetchImpl = fetch,
 }) {
   if (mode !== "production-readonly") {
@@ -23,6 +24,7 @@ export async function runProductionSmoke({
     await checkPublicEventJourney(
       publicEventId,
       canonicalAppUrl,
+      expectEventShareCardEnabled,
       fetchImpl,
     );
   }
@@ -52,7 +54,12 @@ async function checkPublicJourney(pathname, appUrl, fetchImpl) {
   }
 }
 
-async function checkPublicEventJourney(publicEventId, appUrl, fetchImpl) {
+async function checkPublicEventJourney(
+  publicEventId,
+  appUrl,
+  expectEventShareCardEnabled,
+  fetchImpl,
+) {
   const pathname = `/e/${publicEventId}`;
   const response = await fetchImpl(new URL(pathname, appUrl), {
     redirect: "follow",
@@ -67,6 +74,28 @@ async function checkPublicEventJourney(publicEventId, appUrl, fetchImpl) {
   requireHeader(response, pathname, "cache-control", "no-store");
   requireHeader(response, pathname, "referrer-policy", "no-referrer");
   requireHeader(response, pathname, "x-robots-tag", "noindex");
+
+  const html = await response.text();
+  const canonicalPattern = new RegExp(
+    `<link[^>]+rel=["']canonical["'][^>]+href=["'][^"']*/e/${publicEventId}["']`,
+    "i",
+  );
+  if (!canonicalPattern.test(html)) {
+    throw new Error(`${pathname} não preservou a URL canônica do evento.`);
+  }
+  if (/capability=|token=|secret=/i.test(html)) {
+    throw new Error(`${pathname} publicou segredo em HTML ou metadata.`);
+  }
+  if (
+    expectEventShareCardEnabled &&
+    !new RegExp(`/e/${publicEventId}/convite\\.png\\?v=[0-9a-f]{12}`, "i").test(
+      html,
+    )
+  ) {
+    throw new Error(
+      `${pathname} não publicou a versão opaca esperada do cartão evolutivo.`,
+    );
+  }
 
   const exchangePath = `${pathname}/access`;
   const exchangeResponse = await fetchImpl(new URL(exchangePath, appUrl), {
@@ -93,6 +122,41 @@ async function checkPublicEventJourney(publicEventId, appUrl, fetchImpl) {
     "x-content-type-options",
     "nosniff",
   );
+
+  const imagePath = `${pathname}/convite.png`;
+  const imageResponse = await fetchImpl(new URL(imagePath, appUrl), {
+    redirect: "follow",
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!imageResponse.ok) {
+    throw new Error(`${imagePath} indisponível: HTTP ${imageResponse.status}.`);
+  }
+  requirePublicEventImageHeaders(imageResponse, imagePath);
+  if ((await imageResponse.arrayBuffer()).byteLength < 8) {
+    throw new Error(`${imagePath} retornou imagem vazia.`);
+  }
+
+  const imageHeadResponse = await fetchImpl(new URL(imagePath, appUrl), {
+    method: "HEAD",
+    redirect: "follow",
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!imageHeadResponse.ok) {
+    throw new Error(
+      `${imagePath} não respondeu HEAD: HTTP ${imageHeadResponse.status}.`,
+    );
+  }
+  requirePublicEventImageHeaders(imageHeadResponse, imagePath);
+}
+
+function requirePublicEventImageHeaders(response, pathname) {
+  requireHeader(response, pathname, "content-type", "image/png");
+  requireHeader(response, pathname, "cache-control", "public");
+  requireHeader(response, pathname, "referrer-policy", "no-referrer");
+  requireHeader(response, pathname, "x-robots-tag", "noindex");
+  requireHeader(response, pathname, "x-robots-tag", "nofollow");
+  requireHeader(response, pathname, "x-robots-tag", "noimageindex");
+  requireHeader(response, pathname, "x-content-type-options", "nosniff");
 }
 
 function requireHeader(response, pathname, name, expectedValue) {
@@ -115,6 +179,8 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
     mode: process.env.SMOKE_MODE,
     appUrl: required("APP_URL"),
     publicEventId: process.env.SMOKE_PUBLIC_EVENT_ID?.trim(),
+    expectEventShareCardEnabled:
+      process.env.EXPECT_EVENT_SHARE_CARD_ENABLED === "true",
   });
 
   console.log(
