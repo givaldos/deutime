@@ -9,6 +9,7 @@ export const featureKeys = [
   "public_event_page",
   "event_capability_exchange",
   "event_capability_rsvp",
+  "event_share_card",
   "whatsapp_reminders",
 ] as const;
 

@@ -44,6 +44,7 @@ describe("controles de entrega", () => {
         "public_event_page",
         "event_capability_exchange",
         "event_capability_rsvp",
+        "event_share_card",
       ]),
     );
   });
