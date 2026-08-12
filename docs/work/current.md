@@ -23,6 +23,8 @@ completed_ac:
   - AC-R07-17
 dirty_files: []
 tests:
+  - "PR #172 e merge 945dd84: checks obrigatórios verdes"
+  - "produção: Smoke 31599756961 e Database 31599695184 verdes"
   - "transições mobile: 2 arquivos, 9 testes focados verdes"
   - "Vitest completo: 60 arquivos, 329 testes verdes"
   - "ensaio autenticado 390x844: mover, retirar, recolocar e seleção manual funcionando; sem overflow"
@@ -63,7 +65,7 @@ tests:
   - "Deploy database 31542818301 e Smoke 31542863602: verdes"
   - "Vercel produção 8y3nfqLj8W6ipw6hXFjYcGGYaVVn: concluído"
 blocker: null
-next_action: "Promover a jornada por toque e repetir mover, retirar, recolocar e seleção manual em Android e iPhone."
+next_action: "Repetir mover, retirar, recolocar e seleção manual em Android e iPhone para concluir AC-R07-04."
 ---
 
 # Trabalho atual
@@ -108,3 +110,6 @@ atalhos por toque.
 Validação local concluída em `390x844`, incluindo as quatro transições e a
 alternativa manual. O pacote volta a `idle`; `AC-R07-04` permanece aberto até
 o ensaio físico em Android e iPhone após a promoção.
+
+Disponível em produção no merge `945dd84`, com smoke e gates verdes. Não há
+configuração adicional: resta somente o ensaio físico em Android e iPhone.
