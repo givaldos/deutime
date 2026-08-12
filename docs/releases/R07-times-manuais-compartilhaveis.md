@@ -638,3 +638,13 @@ do WhatsApp.
   conhecida do sandbox ao abrir porta;
 - próxima evidência: promover e repetir as quatro transições em Android e
   iPhone antes de concluir `AC-R07-04`.
+
+### `WP-R07-06` — CP5 jornada por toque disponível em produção
+
+- PR `#172`, merge `945dd84`; CI, Database, CodeQL, Terraform, Vercel e Smoke
+  verdes;
+- workflow `Smoke` `31599756961` confirmou a produção somente leitura, e o
+  gate `Database` `31599695184` reconstruiu, testou RLS e conferiu os tipos;
+- `main` e `dev` foram sincronizadas no merge. Falta somente repetir mover,
+  retirar, recolocar e a seleção manual em Android e iPhone para concluir
+  `AC-R07-04`.
