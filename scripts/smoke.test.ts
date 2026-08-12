@@ -153,6 +153,35 @@ describe("smoke de produção", () => {
     );
   });
 
+  it("alerta quando uma URL assinada vaza no HTML público", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(
+        htmlResponse(
+          200,
+          {
+            "cache-control": "private, no-store, max-age=0",
+            "referrer-policy": "no-referrer",
+            "x-robots-tag": "noindex, nofollow, noarchive",
+          },
+          `<link rel="canonical" href="/e/${publicEventId}"><img src="https://storage.example/logo.webp?token=capacidade-assinada">`,
+        ),
+      );
+
+    await expect(
+      runProductionSmoke({
+        mode: "production-readonly",
+        appUrl: "https://deutime.app",
+        publicEventId,
+        fetchImpl,
+      }),
+    ).rejects.toThrow(
+      `/e/${publicEventId} publicou segredo em HTML ou metadata.`,
+    );
+  });
+
   it("recusa modo de escrita e identificador não canônico", async () => {
     await expect(
       runProductionSmoke({
