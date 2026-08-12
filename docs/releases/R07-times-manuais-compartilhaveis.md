@@ -621,3 +621,20 @@ do WhatsApp.
   os primeiros nomes; cores, escudo e marcações esportivas permaneceram
   legíveis;
 - `main` e `dev` foram sincronizadas no merge. `AC-R07-17` está concluído.
+
+### `WP-R07-06` — CP4 jornada completa por toque validada localmente
+
+- colocar, mover, retirar e recolocar agora usam transições puras e
+  determinísticas, com cinco cenários unitários incluindo ausência de equipes;
+- o cartão mobile tornou `Retirar` visível, sem remover o nome acessível, e a
+  seção manual passou a explicar que é uma alternativa aos atalhos;
+- ensaio autenticado em `390x844` percorreu mover Alex, retirar, recolocar no
+  time menos populoso e escolher `Azul Campo` pelo seletor nativo;
+- documento limitado a `390px`, sem rolagem horizontal; botões de retirada e
+  seletores mediram `48px` de altura;
+- gates verdes: 2 arquivos/9 testes focados, 60 arquivos/329 testes Vitest,
+  ESLint, TypeScript, build de produção com Webpack e auditoria com zero
+  vulnerabilidades. O build Turbopack local parou somente pela restrição
+  conhecida do sandbox ao abrir porta;
+- próxima evidência: promover e repetir as quatro transições em Android e
+  iPhone antes de concluir `AC-R07-04`.
