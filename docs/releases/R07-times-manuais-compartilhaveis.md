@@ -46,6 +46,8 @@ A página aberta permanece focada no jogo: compartilhar usa uma ação única e
 lembretes automáticos ficam recolhidos em Editar, fora do fluxo de chamada.
 O compartilhamento preserva contexto antes da URL e a escalação explicitamente
 publicada mostra somente o primeiro nome, sem foto, contato ou detalhes.
+A página e a imagem organizam esses nomes em um campo visual atrativo, sem
+inferir posições reais, e usam apenas `Compartilhar` na ação principal.
 
 ## Três tempos
 
@@ -123,6 +125,8 @@ publicada mostra somente o primeiro nome, sem foto, contato ou detalhes.
   configuração/acionamento de lembretes para uma área recolhida em Editar;
 - enviar contexto e URL como um único texto compartilhável e limitar a
   projeção da escalação publicada ao primeiro nome no HTML e na imagem;
+- apresentar cada time em um campo visual responsivo, distribuindo nomes por
+  ordem da escalação sem afirmar formação ou posição esportiva real;
 - salvar rascunho idempotente por RPC transacional e auditar agregados sem
   nomes, telefones ou conteúdo integral;
 - relacionar opcionalmente equipes aos lados de cada partida do evento, sem
@@ -192,6 +196,8 @@ publicada mostra somente o primeiro nome, sem foto, contato ou detalhes.
 - banco e aplicação reduzem o nome ao primeiro token antes de renderizar a
   página e a imagem públicas; telefone, foto, sobrenome e IDs continuam
   ausentes da projeção;
+- página e imagem usam a mesma distribuição visual determinística; o botão
+  primário cabe no mobile e se chama apenas `Compartilhar`;
 - o vínculo opcional com partida atualiza `match_sides.squad_id`; presença real
   permanece exclusivamente em `match_participations`.
 
@@ -242,6 +248,7 @@ publicada mostra somente o primeiro nome, sem foto, contato ou detalhes.
 - [x] `AC-R07-14` — A tela do evento não edita nem salva modelos: usa equipes pré-cadastradas e, para owner/admin, salvar já publica ou atualiza a revisão em uma única ação.
 - [x] `AC-R07-15` — A página aberta mostra uma única ação de compartilhar e não exibe controles de lembrete; lembretes automáticos e fallback manual ficam recolhidos em Editar.
 - [x] `AC-R07-16` — Compartilhar preserva contexto antes da URL; página e imagem públicas exibem somente o primeiro nome dos escalados, sem foto, telefone, sobrenome, ID ou demais detalhes.
+- [x] `AC-R07-17` — Cada time publicado aparece em um campo visual responsivo no HTML e na imagem, sem sugerir posição real; a ação principal `Compartilhar` não estoura no mobile.
 
 ## Riscos e controles
 
@@ -583,3 +590,22 @@ do WhatsApp.
   dois times somente pelo primeiro nome; sobrenome, telefone e foto ausentes;
 - `main` e `dev` sincronizadas no merge. Próxima evidência: repetir no macOS o
   compartilhamento para WhatsApp e confirmar contexto antes da URL.
+
+### `WP-R07-06` — CP4 formação visual pública validada localmente
+
+- os cartões dos times viraram campos responsivos com marcações esportivas,
+  cores próprias e distribuição meramente ilustrativa da ordem publicada;
+- a mesma regra pura de formação alimenta o HTML e a imagem compartilhável,
+  sem criar ou expor posições reais; continuam visíveis somente os primeiros
+  nomes;
+- ensaio anônimo em `390x844` confirmou documento e campos limitados a `390px`,
+  jogadores legíveis, ausência de rolagem horizontal e ação principal
+  `Compartilhar` ocupando a largura disponível sem estouro;
+- a rota `convite.png` renderizou `1200x630` com dois campos e 14 jogadores;
+  o teste real encontrou e corrigiu uma incompatibilidade de borda do Satori;
+- gates verdes: 4 arquivos/21 testes focados, 59 arquivos/324 testes Vitest,
+  ESLint, TypeScript, build de produção com Webpack e auditoria com zero
+  vulnerabilidades. O build Turbopack local parou somente pela restrição
+  conhecida do sandbox ao abrir porta;
+- próxima ação: promover pela rotina `dev → PR → main` e repetir a conferência
+  anônima no evento real após o deploy.

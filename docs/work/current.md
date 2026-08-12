@@ -1,9 +1,9 @@
 ---
 release: R07
 work_package: WP-R07-06
-scope: ordered_share_and_public_first_name
-branch_or_commit: "568cc99"
-checkpoint: CP5
+scope: public_lineup_pitch_layout
+branch_or_commit: "dev"
+checkpoint: CP4
 status: idle
 completed_ac:
   - AC-R07-01
@@ -20,8 +20,14 @@ completed_ac:
   - AC-R07-14
   - AC-R07-15
   - AC-R07-16
+  - AC-R07-17
 dirty_files: []
 tests:
+  - "formação visual pública: 4 arquivos, 21 testes focados verdes"
+  - "Vitest completo: 59 arquivos, 324 testes verdes"
+  - "ensaio anônimo 390x844: documento e campos com 390px, sem rolagem horizontal; Compartilhar com 316px"
+  - "convite.png local 1200x630: dois campos e 14 primeiros nomes renderizados"
+  - "ESLint, TypeScript, next build --webpack e auditoria com 0 vulnerabilidades: verdes"
   - "PR #168 e merge 568cc99: checks obrigatórios verdes"
   - "Deploy database 31547518350, Vercel BnNvGH6qyKYnjbJ4X9szyREsAoyQ e Smoke 31547871444: verdes"
   - "produção: evento Automação WhatsApp mostrou 14 primeiros nomes em dois times, sem telefone/foto"
@@ -48,7 +54,7 @@ tests:
   - "Deploy database 31542818301 e Smoke 31542863602: verdes"
   - "Vercel produção 8y3nfqLj8W6ipw6hXFjYcGGYaVVn: concluído"
 blocker: null
-next_action: "Validar no macOS/WhatsApp que Compartilhar evento mantém contexto antes da URL; repetir em Android/iPhone para fechar R07."
+next_action: "Promover a formação visual pela rotina dev → PR → main e conferir o evento real após o deploy."
 ---
 
 # Trabalho atual
@@ -72,3 +78,11 @@ O ajuste atual cria uma exceção pública mínima para a escalação explicitam
 publicada: somente o primeiro nome chega ao HTML e à imagem; sobrenome, foto,
 telefone, IDs e demais detalhes continuam ausentes. O compartilhamento envia
 contexto e URL em um único bloco para impedir a inversão observada no macOS.
+
+O ajuste visual atual deve distribuir a ordem publicada em linhas de um campo
+meramente ilustrativo, sem inferir posições reais. A página e a imagem usam a
+mesma regra, e a ação primária passa a se chamar somente `Compartilhar`.
+
+Implementação e validação local concluídas: a página não cria rolagem
+horizontal em `390x844`, e a imagem `1200x630` mostra dois campos com 14
+primeiros nomes. O pacote está em `idle`, pronto para promoção.

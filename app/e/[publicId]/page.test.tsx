@@ -161,6 +161,8 @@ describe("public event route", () => {
     const html = renderToStaticMarkup(await PublicEventPage(props()));
 
     expect(html).toContain('data-testid="public-event-lineup"');
+    expect(html).toContain('data-testid="public-lineup-pitch"');
+    expect(html).toContain("Formação visual do Verde");
     expect(html).toContain("Times definidos");
     expect(html).toContain("Neymar");
     expect(html).toContain("Nenhum jogador escalado");

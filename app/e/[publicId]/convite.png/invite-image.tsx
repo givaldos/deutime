@@ -6,6 +6,7 @@ import {
   publicEventKindLabels,
   publicEventStatusPresentation,
 } from "@/lib/features/public-event/presentation";
+import { buildVisualFormationRows } from "@/lib/features/team-division/visual-formation";
 
 export function InviteImage({
   event,
@@ -324,13 +325,34 @@ function PublishedLineupImage({
         {lineup.squads.map((squad) => {
           const visible = squad.athletes.slice(0, athleteLimit);
           const remaining = squad.athletes.length - visible.length;
+          const formation = buildVisualFormationRows(visible);
           return (
-            <div key={`${squad.sort_order}:${squad.name}`} style={{ width: cardWidth, minHeight: 0, display: "flex", flexDirection: "column", borderRadius: 16, overflow: "hidden", background: "rgba(255,255,255,.07)", borderTop: `7px solid ${squad.color ?? "#0D9488"}`, padding: "12px 16px" }}>
-              <span style={{ fontSize: rows >= 3 ? 18 : 23, fontWeight: 900, color: "#bdf63c" }}>{squad.name}</span>
-              <div style={{ display: "flex", flexDirection: "column", marginTop: 6, gap: 2 }}>
-                {visible.length > 0 ? visible.map((athlete) => <span key={`${athlete.sort_order}:${athlete.name}`} style={{ fontSize: rows >= 3 ? 13 : 17, color: "#f7f5ed", fontWeight: 700 }}>{athlete.name}</span>) : <span style={{ fontSize: 13, color: "#a9c6b8" }}>Sem jogadores escalados</span>}
-                {remaining > 0 ? <span style={{ fontSize: 12, color: "#a9c6b8", fontWeight: 700 }}>+{remaining} jogadores</span> : null}
+            <div key={`${squad.sort_order}:${squad.name}`} style={{ width: cardWidth, minHeight: 0, display: "flex", flexDirection: "column", borderRadius: 16, overflow: "hidden", background: "rgba(255,255,255,.07)", borderTop: `7px solid ${squad.color ?? "#0D9488"}`, padding: "10px 12px 12px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 3px 8px" }}>
+                <span style={{ fontSize: rows >= 3 ? 17 : 22, fontWeight: 900, color: "#bdf63c" }}>{squad.name}</span>
+                <span style={{ fontSize: 11, color: "#d8eadf", fontWeight: 700 }}>{squad.athletes.length} jogadores</span>
               </div>
+              <div style={{ position: "relative", display: "flex", flex: 1, minHeight: 0, overflow: "hidden", borderRadius: 12, background: "#167252", border: "1px solid rgba(255,255,255,.32)", padding: "10px 12px" }}>
+                <div style={{ position: "absolute", display: "flex", left: 9, right: 9, top: 9, bottom: 9, border: "1px solid rgba(255,255,255,.38)", borderRadius: 9 }} />
+                <div style={{ position: "absolute", display: "flex", left: 9, right: 9, top: "50%", borderTop: "1px solid rgba(255,255,255,.38)" }} />
+                <div style={{ position: "absolute", display: "flex", width: 48, height: 48, left: "50%", top: "50%", marginLeft: -24, marginTop: -24, border: "1px solid rgba(255,255,255,.38)", borderRadius: 999 }} />
+                <div style={{ position: "absolute", display: "flex", width: "46%", height: 27, left: "27%", top: 9, border: "1px solid rgba(255,255,255,.34)", borderTop: "0px solid transparent", borderRadius: "0 0 8px 8px" }} />
+                <div style={{ position: "absolute", display: "flex", width: "46%", height: 27, left: "27%", bottom: 9, border: "1px solid rgba(255,255,255,.34)", borderBottom: "0px solid transparent", borderRadius: "8px 8px 0 0" }} />
+                {formation.length > 0 ? (
+                  <div style={{ position: "relative", display: "flex", flex: 1, minHeight: 0, flexDirection: "column", justifyContent: "space-around", gap: 5 }}>
+                    {formation.map((formationRow, rowIndex) => (
+                      <div key={`${squad.sort_order}:row:${rowIndex}`} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+                        {formationRow.map((athlete) => (
+                          <span key={`${athlete.sort_order}:${athlete.name}`} style={{ minWidth: 46, maxWidth: 88, overflow: "hidden", padding: "3px 7px", borderRadius: 999, background: "#f7f5ed", color: "#0d2b22", fontSize: rows >= 3 ? 10 : 13, fontWeight: 900, textAlign: "center" }}>{athlete.name}</span>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ position: "relative", display: "flex", flex: 1, alignItems: "center", justifyContent: "center", fontSize: 13, color: "#d8eadf", fontWeight: 700 }}>Sem jogadores escalados</div>
+                )}
+              </div>
+              {remaining > 0 ? <span style={{ paddingTop: 5, fontSize: 11, color: "#a9c6b8", fontWeight: 700 }}>+{remaining} jogadores</span> : null}
             </div>
           );
         })}

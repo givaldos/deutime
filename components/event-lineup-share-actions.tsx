@@ -49,7 +49,7 @@ export function EventLineupShareActions({
   return (
     <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
       <Button type="button" onClick={shareImage} className="col-span-2 min-h-12 sm:col-span-1">
-        <Share2 aria-hidden /> Compartilhar imagem
+        <Share2 aria-hidden /> Compartilhar
       </Button>
       <Button asChild variant="outline" className="min-h-12">
         <a href={imageUrl} download><Download aria-hidden /> Baixar</a>
