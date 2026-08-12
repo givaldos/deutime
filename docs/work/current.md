@@ -2,7 +2,7 @@
 release: R08M
 work_package: WP-R08M-03
 scope: event_share_card_preview_pilot
-branch_or_commit: "main@35f9e03"
+branch_or_commit: "main@de785c7"
 checkpoint: CP3
 status: ready
 completed_ac:
@@ -30,8 +30,8 @@ tests:
   - "produção: sonda false confirmou 16 eventos em fallback e zero projeções"
   - "produção: CI, Database, CodeQL, Terraform e smoke somente leitura aprovados"
   - "preflight: signed URL removida do HTML público; fallback privado e cartão público cobertos"
-blocker: "Ativação exige sessão verificada de owner/admin de demo-campo; nenhuma credencial autenticada de operador está disponível no ambiente."
-next_action: "Com owner/admin autenticado, ativar event_share_card somente em demo-campo pela RPC set_team_feature_flag; em seguida executar a sonda com true, o smoke com EXPECT_EVENT_SHARE_CARD_ENABLED=true e os previews físicos antes de avançar CP4/CP5."
+blocker: "A sessão verificada de owner/admin de demo-campo está disponível, mas o produto não expõe action/UI para chamar set_team_feature_flag e o ambiente local não possui acesso operacional ao Supabase."
+next_action: "Autorizar e implementar uma action/página operacional autenticada, limitada ao EVENT_SHARE_PILOT_TEAM_ID e delegando à RPC set_team_feature_flag; depois configurar a coorte em produção, ativar demo-campo e executar sonda, smoke e previews."
 ---
 
 # Trabalho atual
@@ -47,7 +47,10 @@ ajustou o smoke ao cache `private, no-store` do fallback nominal, preservando a
 exigência de cache público quando o cartão evolutivo estiver ativo. O smoke
 final de produção passou.
 
-O checkpoint permanece em CP3 sem ativar nenhum time. A retomada exige uma
-sessão verificada de owner/admin para acionar a RPC auditada; depois, repetir a
-saúde com expectativa `true`, o smoke e os previews físicos antes de avançar
-CP4/CP5.
+O checkpoint permanece em CP3 sem ativar nenhum time. Uma sessão verificada de
+owner/admin foi confirmada na interface, mas não existe action/UI para a flag e
+a CLI local não possui acesso operacional ao Supabase. A retomada deve criar
+uma action/página autenticada, limitada à coorte configurada no ambiente e
+delegando à RPC existente — sem escrita direta nem impersonação — e então
+repetir a saúde com expectativa `true`, o smoke e os previews físicos antes de
+avançar CP4/CP5.
