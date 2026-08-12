@@ -320,7 +320,19 @@ usado, sem copiar dados pessoais para a evidência.
   Next.js 16.3 com Webpack e auditoria com zero vulnerabilidades;
 - o build Turbopack local continuou limitado pela porta interna do sandbox; o
   workflow CI permanece obrigatório;
-- `event_share_card` continua desligada em produção. Após o deploy da sonda, a
-  próxima ação é confirmar saúde com `false`, ativar somente `demo-campo` pela
-  RPC e owner/admin autorizados, repetir saúde/smoke e coletar os previews
-  físicos antes de avançar a CP4/CP5.
+- o PR `#182` foi integrado em `main` pelo merge commit `498f356`; a migration
+  foi aplicada em produção e a sonda com expectativa `false` confirmou 16
+  eventos no fallback, zero projetados e `public_event_page` preservada;
+- o primeiro smoke operacional encontrou duas signed URLs de logo no HTML
+  público; o PR `#183` substituiu a URL temporária pelo PNG incorporado no
+  servidor e foi integrado pelo merge commit `15ab54e`, sem expor token;
+- o fallback nominal já usava corretamente `private, no-store`; o PR `#184`
+  ensinou o smoke a aceitar essa política somente com a flag desligada e a
+  continuar exigindo cache público no cartão ativo, integrado pelo merge
+  commit `35f9e03`;
+- o pós-merge final aprovou CI, Database, CodeQL, Terraform e smoke somente
+  leitura em produção; `event_share_card` continua desligada;
+- a ativação não foi executada porque o ambiente não possui sessão verificada
+  do owner/admin de `demo-campo`. A próxima ação é o operador autenticado
+  ativar a coorte pela RPC auditada, repetir saúde/smoke com expectativa `true`
+  e coletar os previews físicos antes de avançar a CP4/CP5.
