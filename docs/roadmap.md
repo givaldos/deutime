@@ -27,7 +27,7 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | **R06 — Conversa da súmula** | ✅ `completed` | Jornada privada, moderação, retenção, iPhone/Android, rollout controlado e rollback comprovados. | [Abrir](releases/R06-conversa-da-sumula.md) |
 | **R03R — Lembretes econômicos** | ✅ `completed` | Duas cotas configuráveis, somente para pendentes, com envio manual/automático idempotente e custo agregado. | [Abrir](releases/R03R-lembretes-economicos.md) |
 | **R07 — Times reutilizáveis e divisão compartilhável** | ✅ `completed` | Equipes reutilizáveis, sugestão, publicação, primeiros nomes, formação visual e jornada por toque validadas em produção. | [Abrir](releases/R07-times-manuais-compartilhaveis.md) |
-| **R08M — Fechamento do MVP compartilhável** | 🟢 `ready` — CP0 concluído | Evoluir escudo/Open Graph pelo estado público do evento e executar o gate integrado em um time piloto. | [Abrir](releases/R08M-fechamento-mvp-compartilhavel.md) |
+| **R08M — Fechamento do MVP compartilhável** | ✅ `completed` | Open Graph por fase, piloto compartilhável, ciclo integrado, falhas e fallbacks comprovados. | [Abrir](releases/R08M-fechamento-mvp-compartilhavel.md) |
 
 ## Cronograma consolidado
 
@@ -38,7 +38,7 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | 3. Jogo e pós-jogo | ✅ concluído | R04, R05 e R06 entregaram partida ao vivo, súmula, Craque da Galera e conversa segura. |
 | 4. Lembretes econômicos | ✅ concluído | R03R entregou duas cotas automáticas ou manuais somente para quem ainda não confirmou, sem duplicidade. |
 | 5. Divisão compartilhável | ✅ concluído | R07 comprovou equipes internas, sugestão, publicação, formação visual, jornada por toque e rollback em Android/iPhone. |
-| 6. Fechamento do MVP | 🟢 próximo — `R08M/CP0` | Concluir Open Graph por fase e executar o gate integrado do ciclo completo em um time piloto. |
+| 6. Fechamento do MVP | ✅ concluído | R08M concluiu Open Graph por fase, previews físicos, piloto, rollback e o gate integrado do ciclo completo. |
 | 7. Evoluções de produto | ⚪ pós-MVP | Campeonatos, reconhecimento e, quando houver densidade, marketplace e pagamentos. |
 | 8. Última evolução técnica | ⚪ por último | Avaliar e somente então migrar a mensageria da Twilio para a WhatsApp Cloud API direta da Meta. |
 
@@ -85,16 +85,16 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 
 - [ ] executar com um time piloto o ciclo completo, da criação do evento ao pós-jogo, em Android, iPhone e navegador interno do WhatsApp;
 - [ ] comprovar caminho manual para chamada, confirmação, escalação, súmula e consulta quando cada automação estiver desligada;
-- [ ] ensaiar cancelamento, remarcação, opt-out, link encaminhado, retry, falha do provedor, tempo real indisponível e rollback por flag;
-- [ ] validar custos e limites dos disparos, telemetria redigida, suporte e responsáveis por incidentes;
-- [ ] encerrar todos os pacotes do MVP com critérios, evidências, documentação e checkpoints em `idle`, sem bloqueador conhecido.
+- [x] ensaiar cancelamento, remarcação, opt-out, link encaminhado, retry, falha do provedor, tempo real indisponível e rollback por flag;
+- [x] validar custos e limites dos disparos, telemetria redigida, suporte e responsáveis por incidentes;
+- [x] encerrar todos os pacotes do MVP com critérios, evidências, documentação e checkpoints em `idle`, sem bloqueador conhecido.
 
 ## Ordem recomendada para uma única frente
 
 1. ~~promover e entregar o pacote dos dois lembretes~~ — concluído;
 2. ~~concluir a validação física e o CP6 da R07~~ — concluído;
-3. executar R08M para fechar Open Graph sobre os estados já estabilizados;
-4. executar o gate integrado e declarar o MVP completo.
+3. ~~executar R08M para fechar Open Graph sobre os estados já estabilizados~~ — concluído;
+4. ~~executar o gate integrado e declarar o MVP completo~~ — concluído.
 
 Essa ordem termina fatias pequenas antes de abrir a próxima, reutiliza os contratos comprovados e evita que divisão automática, campeonato ou marketplace atrasem o piloto.
 
