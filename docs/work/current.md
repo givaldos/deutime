@@ -2,7 +2,7 @@
 release: R08M
 work_package: WP-R08M-03
 scope: event_share_card_preview_pilot
-branch_or_commit: "dev"
+branch_or_commit: "main@35f9e03"
 checkpoint: CP3
 status: ready
 completed_ac:
@@ -27,18 +27,27 @@ tests:
   - "WP-R08M-03: 62 arquivos/355 testes Vitest; smoke e telemetria redigida verdes"
   - "build Next.js 16.3 com Webpack: aprovado; Turbopack local limitado pelo sandbox"
   - "npm audit: zero vulnerabilidades"
-blocker: null
-next_action: "Integrar a preparação do WP-R08M-03; após o deploy, confirmar a sonda desligada, ativar event_share_card somente em demo-campo pela RPC auditada e executar saúde, smoke e previews físicos."
+  - "produção: sonda false confirmou 16 eventos em fallback e zero projeções"
+  - "produção: CI, Database, CodeQL, Terraform e smoke somente leitura aprovados"
+  - "preflight: signed URL removida do HTML público; fallback privado e cartão público cobertos"
+blocker: "Ativação exige sessão verificada de owner/admin de demo-campo; nenhuma credencial autenticada de operador está disponível no ambiente."
+next_action: "Com owner/admin autenticado, ativar event_share_card somente em demo-campo pela RPC set_team_feature_flag; em seguida executar a sonda com true, o smoke com EXPECT_EVENT_SHARE_CARD_ENABLED=true e os previews físicos antes de avançar CP4/CP5."
 ---
 
 # Trabalho atual
 
-WP-R08M-03 preparou a sonda agregada restrita a `service_role`, telemetria
+WP-R08M-03 implantou a sonda agregada restrita a `service_role`, telemetria
 redigida, smoke anônimo de HTML/GET/HEAD do PNG e o roteiro de ativação e
 rollback. A coorte histórica `demo-campo` foi confirmada sem versionar UUID,
-operador ou evento.
+operador ou evento. A sonda de produção, ainda desligada, confirmou 16 eventos
+em fallback e nenhuma projeção.
 
-O checkpoint avançou para CP3 sem ativar nenhum time. A retomada começa após o
-deploy da sonda: confirmar `EXPECT_EVENT_SHARE_CARD_ENABLED=false`, ativar só a
-coorte autorizada pela RPC, repetir saúde e smoke e coletar os previews físicos
-antes de avançar CP4/CP5.
+O preflight detectou e removeu duas signed URLs de logo do HTML público e
+ajustou o smoke ao cache `private, no-store` do fallback nominal, preservando a
+exigência de cache público quando o cartão evolutivo estiver ativo. O smoke
+final de produção passou.
+
+O checkpoint permanece em CP3 sem ativar nenhum time. A retomada exige uma
+sessão verificada de owner/admin para acionar a RPC auditada; depois, repetir a
+saúde com expectativa `true`, o smoke e os previews físicos antes de avançar
+CP4/CP5.
