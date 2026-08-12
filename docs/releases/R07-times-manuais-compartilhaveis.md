@@ -1,7 +1,7 @@
 ---
 id: R07
 type: vertical
-status: ready
+status: completed
 outcome: "Permitir que a diretoria mantenha equipes internas com escudos padronizados, receba uma divisão automática ajustável por toque, publique a escalação e compartilhe uma imagem segura pelo WhatsApp."
 depends_on:
   - R02
@@ -12,7 +12,7 @@ baseline:
   - BASE-ATTENDANCE
   - BASE-WRITES
   - BASE-PUBLIC
-verified_at: "d750647"
+verified_at: "0428f32"
 decisions:
   - DEC-EVENT-MATCH
   - DEC-PUBLIC-PRIVACY
@@ -235,13 +235,13 @@ inferir posições reais, e usam apenas `Compartilhar` na ação principal.
 - [x] `AC-R07-01` — Staff cria e ordena de 2 a 12 equipes válidas, com nomes únicos no evento e cores opcionais válidas.
 - [x] `AC-R07-02` — Somente vínculo ativo do mesmo time com RSVP SIM pode ser distribuído; indisponíveis e excluídos nunca entram por cliente adulterado ou concorrência.
 - [x] `AC-R07-03` — Manager edita o rascunho; somente owner/admin publica ou retira publicação, sempre pela sessão e com auditoria agregada.
-- [ ] `AC-R07-04` — No celular, colocar, mover, retirar e recolocar atleta funciona por toque e por alternativa acessível sem depender de arrastar.
+- [x] `AC-R07-04` — No celular, colocar, mover, retirar e recolocar atleta funciona por toque e por alternativa acessível sem depender de arrastar.
 - [x] `AC-R07-05` — Salvar, repetir, concorrer ou reenviar a mesma solicitação produz um único estado completo, sem atleta duplicado ou cross-tenant.
 - [x] `AC-R07-06` — Equipe pode ser ligada a um lado de partida sem alterar RSVP, presença real, lances ou estatísticas.
 - [x] `AC-R07-07` — Publicação cria revisão explícita; edição de rascunho não muda a revisão ativa e revogação de consentimento remove identidade da projeção seguinte.
 - [x] `AC-R07-08` — Imagem compartilhável respeita branding, revisão, consentimento e fallback de escudo, sem PII, capability ou segredo em HTML, URL, metadata e logs.
 - [x] `AC-R07-09` — Flag desligada, revisão ausente ou falha de imagem preserva lista de confirmados, link canônico e jornada privada utilizável.
-- [ ] `AC-R07-10` — RLS, grants mínimos, N/N−1, telemetria redigida, piloto Android/iPhone, smoke e rollback por flag possuem evidência.
+- [x] `AC-R07-10` — RLS, grants mínimos, N/N−1, telemetria redigida, piloto Android/iPhone, smoke e rollback por flag possuem evidência.
 - [x] `AC-R07-11` — Owner/admin salva modelos reutilizáveis do próprio time; outro time não lê nem altera, e eventos históricos não mudam quando o modelo muda.
 - [x] `AC-R07-12` — Evento novo nasce com sugestão reproduzível, espalha preferências de goleiro e mantém diferença máxima de uma pessoa, sem nota oculta e sem persistir antes de salvar.
 - [x] `AC-R07-13` — Owner/admin mantém de 2 a 12 equipes internas com nome, cor e escudo padronizado; evento referencia a identidade e guarda snapshot, e desativação não altera fatos anteriores.
@@ -683,3 +683,23 @@ do WhatsApp.
 - a evidência responsiva em navegador desktop não substitui aparelhos físicos.
   Próxima ação: repetir as quatro transições em Android e iPhone reais, também
   no navegador interno do WhatsApp, para concluir `AC-R07-04`.
+
+### `WP-R07-06` — CP6 concluído
+
+- em 12 de agosto de 2026, o responsável confirmou a revisão integral das
+  evidências em Android e iPhone físicos, incluindo a jornada por toque, a
+  alternativa acessível e o acesso pelo navegador interno do WhatsApp;
+- essa confirmação física completa as evidências técnicas já registradas para
+  colocar, mover, retirar e recolocar, sem arrastar e sem overflow, encerrando
+  `AC-R07-04`;
+- RLS, grants mínimos, compatibilidade N/N−1, telemetria redigida, piloto,
+  smoke e rollback por flag já estavam comprovados nos checkpoints anteriores;
+  a validação física encerra também `AC-R07-10`;
+- o smoke final somente leitura em `https://deutime.app` passou; o evento
+  público opcional não está configurado. A sonda agregada não foi repetida
+  localmente porque `LINEUP_PILOT_TEAM_ID` não está definido, mantendo como
+  referência a evidência produtiva do CP5;
+- os 17 critérios de aceite possuem evidência, `team_division` permanece no
+  rollout isolado da coorte demo e o fallback/rollback continuam documentados;
+- R07 está concluída e o checkpoint voltou a `idle`. A próxima ação é
+  selecionar e preparar a próxima release priorizada.
