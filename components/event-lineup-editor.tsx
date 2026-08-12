@@ -217,7 +217,7 @@ export function EventLineupEditor({
         <input type="hidden" name="assignments" value={JSON.stringify(assignments)} />
         <input type="hidden" name="exclusions" value={JSON.stringify(exclusions)} />
 
-        <fieldset>
+        <fieldset className="min-w-0">
           <legend className="font-black text-slate-900">Ajuste se precisar</legend>
           <p className="mt-1 text-xs leading-5 text-slate-600">
             A sugestão equilibra quantidade e espalha goleiros. Toque em uma pessoa para movê-la ao próximo time.
