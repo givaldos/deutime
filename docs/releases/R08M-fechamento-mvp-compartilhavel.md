@@ -305,7 +305,7 @@ usado, sem copiar dados pessoais para a evidência.
   `WP-R08M-03`, preparar coorte demo, telemetria redigida, runbook, previews
   físicos e smoke/rollback antes de qualquer piloto.
 
-### `WP-R08M-03` — preparação de CP3 concluída
+### `WP-R08M-03` — CP5 concluído
 
 - a coorte operacional disponível foi confirmada por leitura agregada como
   `demo-campo`, com um owner/admin ativo e 16 eventos agendados; nenhum UUID ou
@@ -341,9 +341,28 @@ usado, sem copiar dados pessoais para a evidência.
   ensinou o smoke a aceitar essa política somente com a flag desligada e a
   continuar exigindo cache público no cartão ativo, integrado pelo merge
   commit `35f9e03`;
-- o pós-merge final aprovou CI, Database, CodeQL, Terraform e smoke somente
-  leitura em produção; `event_share_card` continua desligada;
-- a ativação não foi executada porque o ambiente não possui sessão verificada
-  do owner/admin de `demo-campo`. A próxima ação é o operador autenticado
-  ativar a coorte pela RPC auditada, repetir saúde/smoke com expectativa `true`
-  e coletar os previews físicos antes de avançar a CP4/CP5.
+- o pós-merge da preparação aprovou CI, Database, CodeQL, Terraform e smoke
+  somente leitura em produção com `event_share_card` ainda desligada;
+- o PR `#187` adicionou a superfície operacional autenticada e foi integrado em
+  `main` pelo merge commit `4e54835`; a interface só aparece para a coorte
+  configurada, deriva o time da rota e mantém autorização e auditoria na RPC;
+- `EVENT_SHARE_PILOT_TEAM_ID` foi configurada como variável sensível somente em
+  Production e o redeploy do merge concluiu antes de qualquer escrita na flag;
+- a sonda pré-ativação confirmou `public_event_page=true`, 16 eventos no
+  fallback e zero projeções; após a ativação autenticada, confirmou os dois
+  gates ligados, 16 projeções e zero fallback;
+- o smoke de produção com expectativa ativa passou nas execuções
+  `31637255535` e `31637397456`, incluindo canonical, versão opaca, GET/HEAD do
+  PNG, cache e headers de privacidade, sem versionar o evento usado;
+- o rollback pela mesma superfície devolveu 16 eventos ao fallback e zero
+  projeções; a reativação final restaurou 16 projeções, zero fallback e deixou
+  a coorte `demo-campo` ativa;
+- a observação de produção mostrou fase `lineup`, `fallback=false`, duração
+  limitada e erro `none`; a imagem registrou somente fase/fallback, as mudanças
+  da flag registraram apenas o booleano e não houve warning, error ou fatal na
+  janela observada;
+- o responsável confirmou a revisão integral das evidências físicas em iPhone
+  e Android, incluindo o navegador interno do WhatsApp; com a matriz móvel e o
+  ensaio operacional aceitos, `AC-R08M-11` e `AC-R08M-12` foram concluídos;
+- próxima ação: `WP-R08M-04`, executar o gate integrado do ciclo completo e os
+  cenários de falha/fallback de `AC-R08M-13` e `AC-R08M-14`.

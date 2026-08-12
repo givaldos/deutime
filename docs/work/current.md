@@ -1,9 +1,9 @@
 ---
 release: R08M
-work_package: WP-R08M-03
-scope: event_share_card_preview_pilot
-branch_or_commit: "main@de785c7"
-checkpoint: CP3
+work_package: WP-R08M-04
+scope: integrated_mvp_gate
+branch_or_commit: "main@4e54835"
+checkpoint: CP5
 status: ready
 completed_ac:
   - AC-R08M-01
@@ -16,41 +16,35 @@ completed_ac:
   - AC-R08M-08
   - AC-R08M-09
   - AC-R08M-10
+  - AC-R08M-11
+  - AC-R08M-12
 dirty_files: []
 tests:
-  - "pgTAP focado R08M: 40/40 assertions aprovadas"
-  - "db:reset: reconstrução limpa; db:test: 43 arquivos e 1.055 testes aprovados"
-  - "db:lint: nenhum aviso novo; db:types: somente RPC e enum R08M"
-  - "WP-R08M-02 focado: 38/38 casos de página, metadata, PNG e fallback aprovados"
-  - "Vitest: 61 arquivos e 347 testes aprovados; TypeScript e ESLint verdes"
-  - "WP-R08M-03: sonda pgTAP 25/25; banco completo 44 arquivos/1.080 testes"
-  - "WP-R08M-03: 62 arquivos/355 testes Vitest; smoke e telemetria redigida verdes"
-  - "build Next.js 16.3 com Webpack: aprovado; Turbopack local limitado pelo sandbox"
-  - "npm audit: zero vulnerabilidades"
-  - "produção: sonda false confirmou 16 eventos em fallback e zero projeções"
-  - "produção: CI, Database, CodeQL, Terraform e smoke somente leitura aprovados"
-  - "preflight: signed URL removida do HTML público; fallback privado e cartão público cobertos"
-blocker: "A sessão verificada de owner/admin de demo-campo está disponível, mas o produto não expõe action/UI para chamar set_team_feature_flag e o ambiente local não possui acesso operacional ao Supabase."
-next_action: "Autorizar e implementar uma action/página operacional autenticada, limitada ao EVENT_SHARE_PILOT_TEAM_ID e delegando à RPC set_team_feature_flag; depois configurar a coorte em produção, ativar demo-campo e executar sonda, smoke e previews."
+  - "controle operacional focado: 4 arquivos e 15 testes aprovados"
+  - "gate local: ESLint, TypeScript, 65 arquivos/368 testes Vitest e build Webpack aprovados"
+  - "npm audit: zero vulnerabilidades; histórico de migrations preservado"
+  - "PR #187 e merge 4e54835: Quality, Database, CodeQL, dependências, Terraform e Vercel verdes"
+  - "produção pré-ativação: 16 eventos no fallback e zero projeções"
+  - "produção ativa: 16 projeções, zero fallback e public_event_page preservada"
+  - "rollback ensaiado: zero projeções e 16 fallbacks; reativação final comprovada"
+  - "Smoke 31637255535 e 31637397456: jornadas públicas somente leitura aprovadas com expectativa ativa"
+  - "telemetria produtiva redigida por fase/fallback/duração/erro; janela sem warning, error ou fatal"
+  - "responsável confirmou revisão integral das evidências em iPhone e Android físicos, incluindo navegador interno do WhatsApp"
+blocker: null
+next_action: "Executar WP-R08M-04: provar o ciclo completo de AC-R08M-13 e a matriz de falhas, automações desligadas e recuperação de AC-R08M-14; depois fechar CP6."
 ---
 
 # Trabalho atual
 
-WP-R08M-03 implantou a sonda agregada restrita a `service_role`, telemetria
-redigida, smoke anônimo de HTML/GET/HEAD do PNG e o roteiro de ativação e
-rollback. A coorte histórica `demo-campo` foi confirmada sem versionar UUID,
-operador ou evento. A sonda de produção, ainda desligada, confirmou 16 eventos
-em fallback e nenhuma projeção.
+WP-R08M-03 concluiu CP4 e CP5. A coorte `demo-campo` foi configurada somente em
+Production, ativada por sessão autenticada e deixada ativa após um rollback
+completo. As sondas provaram a transição de 16 fallbacks para 16 projeções, a
+volta integral ao fallback e a reativação final; os dois smokes com expectativa
+ativa passaram.
 
-O preflight detectou e removeu duas signed URLs de logo do HTML público e
-ajustou o smoke ao cache `private, no-store` do fallback nominal, preservando a
-exigência de cache público quando o cartão evolutivo estiver ativo. O smoke
-final de produção passou.
-
-O checkpoint permanece em CP3 sem ativar nenhum time. Uma sessão verificada de
-owner/admin foi confirmada na interface, mas não existe action/UI para a flag e
-a CLI local não possui acesso operacional ao Supabase. A retomada deve criar
-uma action/página autenticada, limitada à coorte configurada no ambiente e
-delegando à RPC existente — sem escrita direta nem impersonação — e então
-repetir a saúde com expectativa `true`, o smoke e os previews físicos antes de
-avançar CP4/CP5.
+A telemetria observada permaneceu agregada e redigida, sem warning, error ou
+fatal na janela. O responsável confirmou a revisão integral das evidências em
+iPhone e Android físicos, incluindo navegador interno do WhatsApp. A release
+avança para `WP-R08M-04` em CP5, sem bloqueio: a próxima retomada executa o gate
+integrado do ciclo MVP e os cenários de falha/fallback de `AC-R08M-13` e
+`AC-R08M-14` antes de fechar CP6.
