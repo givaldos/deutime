@@ -116,13 +116,28 @@ export const getPublicEventShareState = cache(
 
 export const getPublicEventShareStateWithFallback = cache(
   async (publicId: string): Promise<PublicEventShareState | null> => {
+    const startedAt = Date.now();
     try {
-      return await getPublicEventShareState(publicId);
+      const state = await getPublicEventShareState(publicId);
+      console.info("public_event_share_state.observed", {
+        phase: state?.phase ?? "fallback",
+        fallback: state === null,
+        durationMs: durationSince(startedAt),
+        error: "none",
+      });
+      return state;
     } catch {
-      console.error("public_event_share_state.failed", {
-        reason: "projection_unavailable",
+      console.error("public_event_share_state.observed", {
+        phase: "fallback",
+        fallback: true,
+        durationMs: durationSince(startedAt),
+        error: "projection_unavailable",
       });
       return null;
     }
   },
 );
+
+function durationSince(startedAt: number) {
+  return Math.min(30_000, Math.max(0, Date.now() - startedAt));
+}

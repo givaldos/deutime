@@ -9,12 +9,26 @@ const publicEventId = "fdf577af-5cc4-489f-81cb-65fac548167b";
 function htmlResponse(
   status = 200,
   headers: Record<string, string> = {},
+  body = "<!doctype html><html></html>",
 ) {
-  return new Response("<!doctype html><html></html>", {
+  return new Response(body, {
     status,
     headers: {
       "content-type": "text/html; charset=utf-8",
       ...headers,
+    },
+  });
+}
+
+function imageResponse() {
+  return new Response(new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]), {
+    status: 200,
+    headers: {
+      "content-type": "image/png",
+      "cache-control": "public, max-age=300, stale-while-revalidate=3600",
+      "referrer-policy": "no-referrer",
+      "x-robots-tag": "noindex, nofollow, noimageindex",
+      "x-content-type-options": "nosniff",
     },
   });
 }
@@ -44,7 +58,7 @@ describe("smoke de produção", () => {
           "cache-control": "private, no-store, max-age=0",
           "referrer-policy": "no-referrer",
           "x-robots-tag": "noindex, nofollow, noarchive",
-        }),
+        }, `<link rel="canonical" href="/e/${publicEventId}">`),
       )
       .mockResolvedValueOnce(
         new Response(null, {
@@ -54,7 +68,9 @@ describe("smoke de produção", () => {
             "x-content-type-options": "nosniff",
           },
         }),
-      );
+      )
+      .mockResolvedValueOnce(imageResponse())
+      .mockResolvedValueOnce(imageResponse());
 
     await expect(
       runProductionSmoke({
@@ -65,7 +81,7 @@ describe("smoke de produção", () => {
       }),
     ).resolves.toEqual({ publicEventChecked: true });
 
-    expect(fetchImpl).toHaveBeenCalledTimes(4);
+    expect(fetchImpl).toHaveBeenCalledTimes(6);
     expect(fetchImpl.mock.calls[2]?.[0]).toEqual(
       new URL(`https://deutime.app/e/${publicEventId}`),
     );
@@ -73,6 +89,49 @@ describe("smoke de produção", () => {
       method: "GET",
       redirect: "manual",
     });
+    expect(fetchImpl.mock.calls[4]?.[0]).toEqual(
+      new URL(`https://deutime.app/e/${publicEventId}/convite.png`),
+    );
+    expect(fetchImpl.mock.calls[5]?.[1]).toMatchObject({ method: "HEAD" });
+  });
+
+  it("exige versão opaca quando o cartão evolutivo está ativo", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(
+        htmlResponse(
+          200,
+          {
+            "cache-control": "private, no-store, max-age=0",
+            "referrer-policy": "no-referrer",
+            "x-robots-tag": "noindex, nofollow, noarchive",
+          },
+          `<link rel="canonical" href="/e/${publicEventId}"><meta property="og:image" content="/e/${publicEventId}/convite.png?v=0123456789ab">`,
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(null, {
+          status: 405,
+          headers: {
+            "referrer-policy": "no-referrer",
+            "x-content-type-options": "nosniff",
+          },
+        }),
+      )
+      .mockResolvedValueOnce(imageResponse())
+      .mockResolvedValueOnce(imageResponse());
+
+    await expect(
+      runProductionSmoke({
+        mode: "production-readonly",
+        appUrl: "https://deutime.app",
+        publicEventId,
+        expectEventShareCardEnabled: true,
+        fetchImpl,
+      }),
+    ).resolves.toEqual({ publicEventChecked: true });
   });
 
   it("alerta quando a política segura do evento regrede", async () => {
