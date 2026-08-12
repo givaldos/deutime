@@ -1,7 +1,7 @@
 ---
 release: R07
 work_package: WP-R07-06
-scope: public_lineup_pitch_layout
+scope: mobile_lineup_touch_journey
 branch_or_commit: "dev"
 checkpoint: CP4
 status: idle
@@ -23,6 +23,11 @@ completed_ac:
   - AC-R07-17
 dirty_files: []
 tests:
+  - "transições mobile: 2 arquivos, 9 testes focados verdes"
+  - "Vitest completo: 60 arquivos, 329 testes verdes"
+  - "ensaio autenticado 390x844: mover, retirar, recolocar e seleção manual funcionando; sem overflow"
+  - "alvos de toque: Retirar e select com 48px"
+  - "ESLint, TypeScript, next build --webpack e auditoria com 0 vulnerabilidades: verdes"
   - "PR #170 e merge 9cd8235: checks obrigatórios verdes"
   - "produção 390x844: dois campos de 290px, documento 390px e Compartilhar 316px, sem overflow"
   - "produção convite.png 1200x630: dois campos e 14 primeiros nomes renderizados"
@@ -58,7 +63,7 @@ tests:
   - "Deploy database 31542818301 e Smoke 31542863602: verdes"
   - "Vercel produção 8y3nfqLj8W6ipw6hXFjYcGGYaVVn: concluído"
 blocker: null
-next_action: "Seguir para o próximo item priorizado de R07; formação visual pública encerrada em produção."
+next_action: "Promover a jornada por toque e repetir mover, retirar, recolocar e seleção manual em Android e iPhone."
 ---
 
 # Trabalho atual
@@ -94,3 +99,12 @@ primeiros nomes. O pacote está em `idle`, pronto para promoção.
 Promoção concluída no merge `9cd8235`. A conferência do evento real repetiu as
 medidas sem overflow e validou a imagem compartilhável em produção; o escopo
 `public_lineup_pitch_layout` permanece em `idle` e sem pendências.
+
+O próximo escopo fecha a evidência funcional de `AC-R07-04`: colocar, mover,
+retirar e recolocar passam por transições puras cobertas por teste. O cartão
+mobile torna `Retirar` visível e mantém o seletor nativo como alternativa aos
+atalhos por toque.
+
+Validação local concluída em `390x844`, incluindo as quatro transições e a
+alternativa manual. O pacote volta a `idle`; `AC-R07-04` permanece aberto até
+o ensaio físico em Android e iPhone após a promoção.
