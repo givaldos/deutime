@@ -2,7 +2,7 @@
 release: R07
 work_package: WP-R07-06
 scope: release_closure
-branch_or_commit: "0428f32"
+branch_or_commit: "dev"
 checkpoint: CP6
 status: idle
 completed_ac:
@@ -23,11 +23,10 @@ completed_ac:
   - AC-R07-15
   - AC-R07-16
   - AC-R07-17
-dirty_files:
-  - docs/releases/R07-times-manuais-compartilhaveis.md
-  - docs/work/current.md
+dirty_files: []
 tests:
   - "responsável confirmou a revisão integral das evidências em Android e iPhone físicos, incluindo navegador interno do WhatsApp"
+  - "PR #176 e merge 08c0245: conclusão documental integrada; CI, Database, CodeQL, Terraform e Smoke 31616187097 verdes"
   - "PR #174 e merge e55c149: checks obrigatórios verdes"
   - "produção: Vercel deutime-cs3cqi6f4-deu-time.vercel.app e Smoke 31610690607 verdes"
   - "produção responsiva 360x800 e 390x844: quatro transições verdes, sem overflow e com alvos de 48px"
