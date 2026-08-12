@@ -23,6 +23,10 @@ completed_ac:
   - AC-R07-17
 dirty_files: []
 tests:
+  - "PR #170 e merge 9cd8235: checks obrigatórios verdes"
+  - "produção 390x844: dois campos de 290px, documento 390px e Compartilhar 316px, sem overflow"
+  - "produção convite.png 1200x630: dois campos e 14 primeiros nomes renderizados"
+  - "workflows main: CI, Database 31550516605, CodeQL, Terraform e Smoke 31550557606 verdes"
   - "formação visual pública: 4 arquivos, 21 testes focados verdes"
   - "Vitest completo: 59 arquivos, 324 testes verdes"
   - "ensaio anônimo 390x844: documento e campos com 390px, sem rolagem horizontal; Compartilhar com 316px"
@@ -54,7 +58,7 @@ tests:
   - "Deploy database 31542818301 e Smoke 31542863602: verdes"
   - "Vercel produção 8y3nfqLj8W6ipw6hXFjYcGGYaVVn: concluído"
 blocker: null
-next_action: "Promover a formação visual pela rotina dev → PR → main e conferir o evento real após o deploy."
+next_action: "Seguir para o próximo item priorizado de R07; formação visual pública encerrada em produção."
 ---
 
 # Trabalho atual
@@ -86,3 +90,7 @@ mesma regra, e a ação primária passa a se chamar somente `Compartilhar`.
 Implementação e validação local concluídas: a página não cria rolagem
 horizontal em `390x844`, e a imagem `1200x630` mostra dois campos com 14
 primeiros nomes. O pacote está em `idle`, pronto para promoção.
+
+Promoção concluída no merge `9cd8235`. A conferência do evento real repetiu as
+medidas sem overflow e validou a imagem compartilhável em produção; o escopo
+`public_lineup_pitch_layout` permanece em `idle` e sem pendências.

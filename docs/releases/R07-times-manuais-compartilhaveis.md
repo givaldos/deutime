@@ -609,3 +609,15 @@ do WhatsApp.
   conhecida do sandbox ao abrir porta;
 - próxima ação: promover pela rotina `dev → PR → main` e repetir a conferência
   anônima no evento real após o deploy.
+
+### `WP-R07-06` — CP5 formação visual pública em produção
+
+- PR `#170`, merge `9cd8235`; CI, Database, CodeQL, Terraform, Dependency
+  Review, Vercel e Smoke verdes;
+- ensaio no evento real `Automação WhatsApp`, em `390x844`, confirmou dois
+  campos de `290px`, documento limitado a `390px`, ausência de rolagem
+  horizontal e botão `Compartilhar` de `316px` sem estouro;
+- a imagem pública `1200x630` renderizou os dois campos, 14 jogadores e somente
+  os primeiros nomes; cores, escudo e marcações esportivas permaneceram
+  legíveis;
+- `main` e `dev` foram sincronizadas no merge. `AC-R07-17` está concluído.
