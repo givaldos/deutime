@@ -284,6 +284,8 @@ usado, sem copiar dados pessoais para a evidência.
 - o build Turbopack local continuou impedido de abrir a porta interna no
   sandbox; o build Webpack equivalente passou, e o workflow CI permanece como
   gate obrigatório do PR;
+- o PR `#180` aprovou qualidade, banco, CodeQL, dependências, Terraform e
+  preview; o conteúdo foi integrado em `main` pelo merge commit `bbb1f86`;
 - `event_share_card` permanece desligada para todos os times. Próxima ação:
   `WP-R08M-03`, preparar coorte demo, telemetria redigida, runbook, previews
   físicos e smoke/rollback antes de qualquer piloto.
