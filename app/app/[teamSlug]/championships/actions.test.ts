@@ -20,10 +20,17 @@ vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 
 import {
   addChampionshipParticipant,
+  advanceChampionshipGroups,
   createChampionship,
+  decideChampionshipQualifier,
+  generateChampionshipFixtures,
   generateLeagueFixtures,
   linkChampionshipFixture,
+  publishChampionshipFormat,
   publishLeagueChampionship,
+  releaseChampionshipFixture,
+  resolveChampionshipFixture,
+  withdrawChampionshipParticipant,
 } from "./actions";
 
 const ids = {
@@ -40,6 +47,7 @@ function createForm() {
   form.set("teamSlug", "liga-a");
   form.set("requestId", ids.request);
   form.set("name", "Liga da Vila");
+  form.set("format", "league");
   form.set("winPoints", "3");
   form.set("drawPoints", "1");
   form.set("lossPoints", "0");
@@ -99,10 +107,32 @@ describe("ações do campeonato de pontos corridos", () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/app/liga-a/championships");
   });
 
+  it("cria grupos com configuração validada no servidor", async () => {
+    mocks.rpc.mockResolvedValue({
+      data: { championship_id: ids.championship, replayed: false },
+      error: null,
+    });
+    mocks.redirect.mockImplementation(() => {
+      throw new Error("NEXT_REDIRECT");
+    });
+    const form = createForm();
+    form.set("format", "groups_knockout");
+    form.set("groupCount", "2");
+    form.set("qualifiersPerGroup", "1");
+
+    await expect(createChampionship({}, form)).rejects.toThrow("NEXT_REDIRECT");
+    expect(mocks.rpc).toHaveBeenCalledWith("create_championship_draft", expect.objectContaining({
+      requested_format: "groups_knockout",
+      requested_group_count: 2,
+      requested_qualifiers_per_group: 1,
+    }));
+  });
+
   it("adiciona adversário externo como snapshot estreito", async () => {
     mocks.rpc.mockResolvedValue({ data: { replayed: false }, error: null });
     const form = commandForm();
     form.set("seed", "2");
+    form.set("groupNumber", "1");
     form.set("kind", "external");
     form.set("externalName", "Visitante");
     form.set("externalColor", "#2563EB");
@@ -116,7 +146,7 @@ describe("ações do campeonato de pontos corridos", () => {
       requested_championship_id: ids.championship,
       request_id: ids.request,
       requested_seed: 2,
-      requested_group_number: null,
+      requested_group_number: 1,
       requested_internal_team_id: null,
       requested_external_name: "Visitante",
       requested_external_color: "#2563EB",
@@ -148,6 +178,59 @@ describe("ações do campeonato de pontos corridos", () => {
     });
   });
 
+  it("roteia geração e publicação dos formatos novos pelas RPCs estreitas", async () => {
+    mocks.rpc.mockResolvedValue({ data: { replayed: false }, error: null });
+    const form = commandForm();
+    form.set("format", "knockout");
+    await expect(generateChampionshipFixtures({}, form)).resolves.toMatchObject({ outcome: "success" });
+    expect(mocks.rpc).toHaveBeenLastCalledWith("generate_championship_fixtures", {
+      requested_championship_id: ids.championship,
+      request_id: ids.request,
+    });
+    await expect(publishChampionshipFormat({}, form)).resolves.toMatchObject({ outcome: "success" });
+    expect(mocks.rpc).toHaveBeenLastCalledWith("publish_championship_format", {
+      requested_championship_id: ids.championship,
+      request_id: ids.request,
+    });
+  });
+
+  it("registra vaga empatada e avança grupos sem enviar a tabela", async () => {
+    mocks.rpc.mockResolvedValue({ data: { replayed: false }, error: null });
+    const decision = commandForm();
+    decision.set("groupNumber", "1");
+    decision.set("qualifierPosition", "1");
+    decision.set("participantId", "e9600000-0000-4000-8000-000000000001");
+    decision.set("reason", "Desempate confirmado pela organização");
+    await expect(decideChampionshipQualifier({}, decision)).resolves.toMatchObject({ outcome: "success" });
+    expect(mocks.rpc).toHaveBeenLastCalledWith("decide_championship_qualifier", expect.objectContaining({
+      requested_group_number: 1,
+      requested_qualifier_position: 1,
+      requested_reason: "Desempate confirmado pela organização",
+    }));
+    await expect(advanceChampionshipGroups({}, commandForm())).resolves.toMatchObject({ outcome: "success" });
+    expect(mocks.rpc).toHaveBeenLastCalledWith("advance_championship_groups", {
+      requested_championship_id: ids.championship,
+      request_id: ids.request,
+    });
+  });
+
+  it("envia decisão eliminatória explícita sem alterar o placar", async () => {
+    mocks.rpc.mockResolvedValue({ data: { replayed: false }, error: null });
+    const form = commandForm();
+    form.set("fixtureId", ids.fixture);
+    form.set("winnerId", "e9600000-0000-4000-8000-000000000001");
+    form.set("resolution", "penalties");
+    form.set("reason", "Vitória confirmada nos pênaltis");
+    await expect(resolveChampionshipFixture({}, form)).resolves.toMatchObject({ outcome: "success" });
+    expect(mocks.rpc).toHaveBeenLastCalledWith("resolve_championship_knockout_fixture", {
+      requested_fixture_id: ids.fixture,
+      request_id: ids.request,
+      requested_winner_id: "e9600000-0000-4000-8000-000000000001",
+      requested_resolution: "penalties",
+      requested_reason: "Vitória confirmada nos pênaltis",
+    });
+  });
+
   it("vincula somente IDs e deixa lados e tenant para a RPC", async () => {
     mocks.rpc.mockResolvedValue({ data: { replayed: false }, error: null });
     const form = commandForm();
@@ -161,6 +244,38 @@ describe("ações do campeonato de pontos corridos", () => {
       requested_fixture_id: ids.fixture,
       request_id: ids.request,
       requested_match_id: ids.match,
+    });
+  });
+
+  it("libera apenas o vínculo futuro com motivo auditável", async () => {
+    mocks.rpc.mockResolvedValue({ data: { replayed: false }, error: null });
+    const form = commandForm();
+    form.set("fixtureId", ids.fixture);
+    form.set("reason", "Data alterada em acordo com as equipes");
+    await expect(releaseChampionshipFixture({}, form)).resolves.toMatchObject({
+      outcome: "success",
+      message: expect.stringContaining("novo agendamento"),
+    });
+    expect(mocks.rpc).toHaveBeenCalledWith("release_championship_fixture_match", {
+      requested_fixture_id: ids.fixture,
+      request_id: ids.request,
+      requested_reason: "Data alterada em acordo com as equipes",
+    });
+  });
+
+  it("retira participante por RPC e não envia alteração de resultados", async () => {
+    mocks.rpc.mockResolvedValue({ data: { replayed: false }, error: null });
+    const form = commandForm();
+    form.set("participantId", "e9600000-0000-4000-8000-000000000001");
+    form.set("reason", "Equipe desistiu da competição");
+    await expect(withdrawChampionshipParticipant({}, form)).resolves.toMatchObject({
+      outcome: "success",
+      message: expect.stringContaining("preservados"),
+    });
+    expect(mocks.rpc).toHaveBeenCalledWith("withdraw_championship_participant", {
+      requested_participant_id: "e9600000-0000-4000-8000-000000000001",
+      request_id: ids.request,
+      requested_reason: "Equipe desistiu da competição",
     });
   });
 
