@@ -346,7 +346,7 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
   robustez, telemetria, runbook e executar o piloto controlado até CP6, incluindo
   a evidência física em Android, iPhone e navegador interno do WhatsApp.
 
-### `WP-R09-05` — CP4 concluído; CP5 pendente
+### `WP-R09-05` — CP5 concluído; CP6 pendente
 
 - `get_championship_pilot_health` entrega exclusivamente a `service_role` uma
   leitura agregada e sem PII de flags, formatos, estados, projeções, comandos e
@@ -395,3 +395,38 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
 - o checkpoint avança a CP4 sem ativar organização real. Próxima ação: executar
   CP5 em uma única organização demo com deploy isolado, pré-sonda, ativação,
   smoke, observação, alerta, fallback e rollback; depois sincronizar CP6.
+- o commit `764d175` foi redeployado com a coorte demo configurada como variável
+  sensível somente em Production. O deployment ficou `Ready` em 1m23s, o smoke
+  inicial passou em 18s e a pré-sonda permaneceu desligada e sem divergências;
+- após confirmação explícita, a RPC auditada ativou somente a coorte demo. Um
+  campeonato sintético de pontos corridos publicou dois participantes, um
+  confronto e uma página. A sonda exigiu projeção completa 1/1, sem fallback ou
+  divergência, e o smoke público `31740181134` passou em 15s;
+- a telemetria observada expôs apenas formato, contagens, fallback, duração e
+  categoria de erro. Duas leituras ficaram abaixo de 310ms, com
+  `fallback=false` e `error=none`; as mudanças de flag registraram somente os
+  booleanos `true` e `false`;
+- uma partida sintética foi vinculada e concluída pela jornada existente. A
+  sonda confirmou um vínculo e reconstrução sem divergência. A transição após
+  publicar o formato exibiu uma única página 404 transitória no detalhe
+  administrativo, recuperada no primeiro reload e sem repetição; corrigir essa
+  experiência é a ação de endurecimento anterior a CP6;
+- o rollback desligou a flag e preservou um campeonato, dois participantes, um
+  confronto e o vínculo no fallback. A sonda confirmou projeção 0/1 e zero
+  divergências; o smoke `31740889363` exigiu 404 na mesma página pública e
+  passou em 12s. Agenda, partida e súmula permaneceram utilizáveis e os atalhos
+  de campeonato desapareceram;
+- CP5 termina com `championships` desligada. A variável de coorte permanece
+  server-only em Production e o smoke contínuo conserva o identificador público
+  sintético apenas no Environment `production`, com expectativa desligada.
+- a causa do 404 transitório foi isolada no timeout fail-closed da leitura da
+  flag durante o re-render concorrente da Server Action. O gate específico de
+  campeonatos agora exige duas leituras negativas consecutivas; uma segunda
+  leitura positiva recupera a rota e registra somente
+  `championship_feature_lookup.recovered`, sem identificador;
+- a regressão cobre resposta positiva imediata, negativa transitória recuperada
+  e duas negativas preservando o estado desligado. Passaram 2 arquivos/17
+  testes focados, TypeScript, lint, 76 arquivos/429 testes Vitest, build de
+  produção Webpack e auditoria sem vulnerabilidades. Production permanece com
+  a flag desligada, projeção 0/1, fallback 1/1 e zero divergências até a
+  promoção do artefato corretivo.
