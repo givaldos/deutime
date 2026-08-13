@@ -124,10 +124,34 @@ export const getPublicChampionship = cache(
 
 export const getPublicChampionshipWithFallback = cache(
   async (publicId: string): Promise<PublicChampionship | null> => {
+    const startedAt = Date.now();
     try {
-      return await getPublicChampionship(publicId);
+      const state = await getPublicChampionship(publicId);
+      console.info("public_championship_projection.observed", {
+        format: state?.championship.format ?? "fallback",
+        participantCount: state?.participants.length ?? 0,
+        fixtureCount: state?.fixtures.length ?? 0,
+        standingCount: state?.standings.length ?? 0,
+        fallback: state === null,
+        durationMs: durationSince(startedAt),
+        error: "none",
+      });
+      return state;
     } catch {
+      console.error("public_championship_projection.observed", {
+        format: "fallback",
+        participantCount: 0,
+        fixtureCount: 0,
+        standingCount: 0,
+        fallback: true,
+        durationMs: durationSince(startedAt),
+        error: "projection_unavailable",
+      });
       return null;
     }
   },
 );
+
+function durationSince(startedAt: number) {
+  return Math.min(30_000, Math.max(0, Date.now() - startedAt));
+}

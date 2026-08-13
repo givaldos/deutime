@@ -58,15 +58,24 @@ const HEADERS = {
 };
 
 async function adminFetch(method, path, body) {
-  const res = await fetch(`${BASE}${path}`, {
-    method,
-    headers: HEADERS,
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const text = await res.text();
-  let json;
-  try { json = JSON.parse(text); } catch { json = { raw: text }; }
-  return { status: res.status, ok: res.ok, body: json };
+  const maxAttempts = 5;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const res = await fetch(`${BASE}${path}`, {
+        method,
+        headers: HEADERS,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const text = await res.text();
+      let json;
+      try { json = JSON.parse(text); } catch { json = { raw: text }; }
+      return { status: res.status, ok: res.ok, body: json };
+    } catch (error) {
+      if (attempt === maxAttempts) throw error;
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 500));
+    }
+  }
 }
 
 async function ensureUser() {

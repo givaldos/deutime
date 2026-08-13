@@ -2,12 +2,15 @@ import { pathToFileURL } from "node:url";
 
 const publicEventIdPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const publicChampionshipIdPattern = publicEventIdPattern;
 
 export async function runProductionSmoke({
   mode,
   appUrl,
   publicEventId,
   expectEventShareCardEnabled = false,
+  publicChampionshipId,
+  expectChampionshipEnabled = false,
   fetchImpl = fetch,
 }) {
   if (mode !== "production-readonly") {
@@ -29,12 +32,31 @@ export async function runProductionSmoke({
     );
   }
 
-  return { publicEventChecked: Boolean(publicEventId) };
+  if (publicChampionshipId) {
+    validatePublicChampionshipId(publicChampionshipId);
+    await checkPublicChampionshipJourney(
+      publicChampionshipId,
+      canonicalAppUrl,
+      expectChampionshipEnabled,
+      fetchImpl,
+    );
+  }
+
+  return {
+    publicEventChecked: Boolean(publicEventId),
+    publicChampionshipChecked: Boolean(publicChampionshipId),
+  };
 }
 
 export function validatePublicEventId(publicEventId) {
   if (!publicEventIdPattern.test(publicEventId)) {
     throw new Error("SMOKE_PUBLIC_EVENT_ID deve ser um UUID canônico.");
+  }
+}
+
+export function validatePublicChampionshipId(publicChampionshipId) {
+  if (!publicChampionshipIdPattern.test(publicChampionshipId)) {
+    throw new Error("SMOKE_PUBLIC_CHAMPIONSHIP_ID deve ser um UUID canônico.");
   }
 }
 
@@ -151,6 +173,61 @@ async function checkPublicEventJourney(
   requirePublicEventImageHeaders(imageHeadResponse, imagePath);
 }
 
+async function checkPublicChampionshipJourney(
+  publicChampionshipId,
+  appUrl,
+  expectChampionshipEnabled,
+  fetchImpl,
+) {
+  const pathname = `/c/${publicChampionshipId}`;
+  const response = await fetchImpl(new URL(pathname, appUrl), {
+    redirect: "follow",
+    signal: AbortSignal.timeout(10_000),
+  });
+
+  requireHeader(response, pathname, "cache-control", "no-store");
+  requireHeader(response, pathname, "referrer-policy", "no-referrer");
+  requireHeader(response, pathname, "x-robots-tag", "noindex");
+  requireHeader(response, pathname, "x-robots-tag", "nofollow");
+  requireHeader(response, pathname, "x-content-type-options", "nosniff");
+
+  if (!expectChampionshipEnabled) {
+    if (response.status !== 404) {
+      throw new Error(
+        `${pathname} deveria estar no fallback, mas respondeu HTTP ${response.status}.`,
+      );
+    }
+    return;
+  }
+
+  if (!response.ok) {
+    throw new Error(`${pathname} indisponível: HTTP ${response.status}.`);
+  }
+  requireHeader(response, pathname, "content-type", "text/html");
+  const html = await response.text();
+  const canonicalPattern = new RegExp(
+    `<link[^>]+rel=["']canonical["'][^>]+href=["'][^"']*/c/${publicChampionshipId}["']`,
+    "i",
+  );
+  if (!canonicalPattern.test(html)) {
+    throw new Error(`${pathname} não preservou a URL canônica do campeonato.`);
+  }
+  if (
+    /athlete_id|championship_id|participant_id|fixture_id|team_id|venue_address|capability=|token=|secret=/i.test(
+      html,
+    )
+  ) {
+    throw new Error(`${pathname} publicou dado privado ou identificador interno.`);
+  }
+  if (
+    !html.includes("Regulamento publicado") ||
+    !html.includes("Confrontos") ||
+    !html.includes("Compartilhar campeonato")
+  ) {
+    throw new Error(`${pathname} não publicou os blocos mínimos do campeonato.`);
+  }
+}
+
 function requirePublicEventImageHeaders(
   response,
   pathname,
@@ -195,11 +272,16 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
     publicEventId: process.env.SMOKE_PUBLIC_EVENT_ID?.trim(),
     expectEventShareCardEnabled:
       process.env.EXPECT_EVENT_SHARE_CARD_ENABLED === "true",
+    publicChampionshipId: process.env.SMOKE_PUBLIC_CHAMPIONSHIP_ID?.trim(),
+    expectChampionshipEnabled:
+      process.env.EXPECT_CHAMPIONSHIP_ENABLED === "true",
   });
 
-  console.log(
-    result.publicEventChecked
-      ? "Smoke de produção somente leitura concluído, incluindo evento público."
-      : "Smoke de produção somente leitura concluído; evento público não configurado.",
-  );
+  const checked = [
+    result.publicEventChecked ? "evento público" : null,
+    result.publicChampionshipChecked ? "campeonato público" : null,
+  ].filter(Boolean);
+  console.log(checked.length
+    ? `Smoke de produção somente leitura concluído, incluindo ${checked.join(" e ")}.`
+    : "Smoke de produção somente leitura concluído; jornadas opcionais não configuradas.");
 }
