@@ -42,7 +42,7 @@ const SUPABASE_URL      = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.
 const SERVICE_ROLE_KEY  = process.env.SUPABASE_SECRET_KEY;
 const SEED_USER_ID      = "00000000-0000-0000-0000-000000000001";
 const SEED_EMAIL        = "admin@deutime.dev";
-const SEED_PASSWORD     = "Dev@2026!";
+const SEED_PASSWORD     = "DeuTime@2026!";
 
 if (!SERVICE_ROLE_KEY) {
   console.error("❌  SUPABASE_SECRET_KEY não encontrada em .env.local");

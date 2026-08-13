@@ -5,6 +5,7 @@ import {
   type ChampionshipActionState,
 } from "@/app/app/[teamSlug]/championships/actions";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
+import { createRequestId } from "@/lib/client/request-id";
 import { Button } from "@/components/ui/button";
 import { Check, ExternalLink, Link2, Share2 } from "lucide-react";
 import Link from "next/link";
@@ -114,7 +115,7 @@ export function ChampionshipPublicControls({
   championshipName: string;
 }) {
   const [state, action, pending] = useActionState(setChampionshipPublicMode, initialState);
-  const [requestId] = useState(() => crypto.randomUUID());
+  const [requestId] = useState(createRequestId);
   const fields = (
     <>
       <input type="hidden" name="teamId" value={teamId} />
