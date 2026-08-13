@@ -25,8 +25,9 @@ tests:
   - "partida sintética vinculada e concluída; sonda sem divergência de reconstrução"
   - "rollback CP5: flag desligada, projeção 0/1, fatos preservados, smoke 404 aprovado em 12s e fallback existente íntegro"
   - "correção do 404: 2 arquivos/17 testes focados, TypeScript, 76 arquivos/429 testes, build Webpack e auditoria sem vulnerabilidades"
-blocker: "Correção local pronta; falta publicar e promover o artefato antes de repetir a transição controlada e declarar CP6."
-next_action: "Publicar a correção do gate server-side, promover o mesmo artefato e repetir uma ativação controlada sem 404, com rollback final desligado."
+  - "PR #199: qualidade, banco, CodeQL, dependências, Terraform e Vercel Preview aprovados; jobs condicionais ignorados"
+blocker: "Aguardando confirmação do responsável para integrar o PR #199 em dev; a promoção a main e a reativação controlada permanecem separadas."
+next_action: "Integrar o PR #199 em dev após confirmação, preparar a promoção do mesmo artefato e repetir a transição controlada sem 404, com rollback final desligado."
 ---
 
 # Trabalho atual
@@ -136,3 +137,10 @@ vulnerabilidades. O build Turbopack foi bloqueado apenas pela tentativa do
 processador de CSS de abrir uma porta proibida no executor. A sonda de produção
 confirmou que a flag continua desligada, com projeção 0/1, fallback 1/1 e zero
 divergências enquanto o artefato corretivo ainda não foi promovido.
+
+A correção foi reaplicada sobre uma branch limpa baseada em `dev` no commit
+`b3aa767` e publicada no PR #199. O Vercel Preview ficou `Ready`; qualidade,
+banco, CodeQL, revisão de dependências e Terraform passaram, com banco em 2m54s
+e qualidade em 1m23s. Os jobs de smoke e Supabase Preview foram ignorados pelas
+condições dos workflows. O PR está pronto para integração em `dev`, mas merge,
+promoção a `main` e nova ativação controlada continuam como ações separadas.
