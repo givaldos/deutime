@@ -39,6 +39,36 @@ describe("content security policy", () => {
     expect(policy).not.toContain("http://127.0.0.1:54321");
     expect(policy).not.toContain("http://localhost:54321");
   });
+
+  it("allows only the configured private Supabase origin for physical local validation", () => {
+    const policy = buildContentSecurityPolicy(
+      "physical-nonce",
+      false,
+      "http://192.168.15.15:54321/rest/v1",
+    );
+
+    expect(policy).toContain("img-src 'self' blob: data:");
+    expect(policy).toContain(" http://192.168.15.15:54321");
+    expect(policy).toContain(" ws://192.168.15.15:54321");
+    expect(policy).not.toContain("upgrade-insecure-requests");
+  });
+
+  it("does not widen the policy for an insecure public or malformed origin", () => {
+    const insecurePublic = buildContentSecurityPolicy(
+      "public-nonce",
+      false,
+      "http://example.com:54321",
+    );
+    const malformed = buildContentSecurityPolicy(
+      "malformed-nonce",
+      false,
+      "não-é-url",
+    );
+
+    expect(insecurePublic).not.toContain("example.com");
+    expect(insecurePublic).toContain("upgrade-insecure-requests");
+    expect(malformed).toContain("upgrade-insecure-requests");
+  });
 });
 
 describe("route security headers", () => {

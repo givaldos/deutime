@@ -14,6 +14,7 @@ import {
   type ChampionshipActionState,
 } from "@/app/app/[teamSlug]/championships/actions";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
+import { createRequestId } from "@/lib/client/request-id";
 import {
   championshipTiebreakKeys,
   championshipTiebreakLabels,
@@ -75,7 +76,7 @@ export function CreateChampionshipForm({
   teamSlug: string;
 }) {
   const [state, action, pending] = useActionState(createChampionship, initialState);
-  const [requestId] = useState(() => crypto.randomUUID());
+  const [requestId] = useState(createRequestId);
   const [format, setFormat] = useState<ChampionshipFormat>("league");
 
   return (
@@ -183,7 +184,7 @@ export function AddParticipantForm({
   internalSquads: { id: string; name: string; color: string; badgeKey: InternalSquadBadgeKey }[];
 }) {
   const [state, action, pending] = useActionState(addChampionshipParticipant, initialState);
-  const [requestId] = useState(() => crypto.randomUUID());
+  const [requestId] = useState(createRequestId);
   const [kind, setKind] = useState<"internal" | "external">(
     internalSquads.length ? "internal" : "external",
   );
@@ -293,8 +294,8 @@ export function ChampionshipPublicationControls({
 }) {
   const [generateState, generateAction] = useActionState(generateChampionshipFixtures, initialState);
   const [publishState, publishAction] = useActionState(publishChampionshipFormat, initialState);
-  const [generateRequestId] = useState(() => crypto.randomUUID());
-  const [publishRequestId] = useState(() => crypto.randomUUID());
+  const [generateRequestId] = useState(createRequestId);
+  const [publishRequestId] = useState(createRequestId);
   const expected = format === "league"
     ? expectedLeagueFixtureCount(participantCount)
     : format === "groups_knockout"
@@ -367,7 +368,7 @@ export function LinkFixtureForm({
   matches: { id: string; eventTitle: string; ordinal: number; sideLabels: [string, string] }[];
 }) {
   const [state, action, pending] = useActionState(linkChampionshipFixture, initialState);
-  const [requestId] = useState(() => crypto.randomUUID());
+  const [requestId] = useState(createRequestId);
 
   return (
     <form action={action} className="mt-3 space-y-2">
@@ -438,7 +439,7 @@ export function QualifierDecisionForm({
   candidates: { id: string; name: string }[];
 }) {
   const [state, action, pending] = useActionState(decideChampionshipQualifier, initialState);
-  const [requestId] = useState(() => crypto.randomUUID());
+  const [requestId] = useState(createRequestId);
   return (
     <form action={action} className="space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
       <ChampionshipHiddenFields teamId={teamId} teamSlug={teamSlug} championshipId={championshipId} requestId={state.nextRequestId ?? requestId} />
@@ -478,7 +479,7 @@ export function GroupAdvanceControl({
   disabled: boolean;
 }) {
   const [state, action, pending] = useActionState(advanceChampionshipGroups, initialState);
-  const [requestId] = useState(() => crypto.randomUUID());
+  const [requestId] = useState(createRequestId);
   return (
     <form action={action} className="space-y-3">
       <ChampionshipHiddenFields teamId={teamId} teamSlug={teamSlug} championshipId={championshipId} requestId={state.nextRequestId ?? requestId} />
@@ -509,8 +510,8 @@ export function KnockoutResolutionForm({
 }) {
   const [scoreState, scoreAction, scorePending] = useActionState(resolveChampionshipFixture, initialState);
   const [manualState, manualAction, manualPending] = useActionState(resolveChampionshipFixture, initialState);
-  const [scoreRequestId] = useState(() => crypto.randomUUID());
-  const [manualRequestId] = useState(() => crypto.randomUUID());
+  const [scoreRequestId] = useState(createRequestId);
+  const [manualRequestId] = useState(createRequestId);
   const [resolution, setResolution] = useState(
     matchStatus === "finalized" ? "penalties" : "walkover",
   );
@@ -577,7 +578,7 @@ export function ReleaseFixtureForm({
   fixtureId: string;
 }) {
   const [state, action, pending] = useActionState(releaseChampionshipFixture, initialState);
-  const [requestId] = useState(() => crypto.randomUUID());
+  const [requestId] = useState(createRequestId);
   return (
     <details className="mt-3 rounded-xl border border-dashed border-slate-200 p-3">
       <summary className="min-h-11 cursor-pointer list-none py-2 text-sm font-black text-slate-600">
@@ -612,7 +613,7 @@ export function WithdrawParticipantForm({
   participantId: string;
 }) {
   const [state, action, pending] = useActionState(withdrawChampionshipParticipant, initialState);
-  const [requestId] = useState(() => crypto.randomUUID());
+  const [requestId] = useState(createRequestId);
   return (
     <details className="mt-2 rounded-xl border border-dashed border-slate-200 px-3">
       <summary className="min-h-11 cursor-pointer list-none py-3 text-xs font-black text-slate-600">

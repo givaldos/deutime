@@ -1,6 +1,19 @@
 import type { NextResponse } from "next/server";
 
-export function buildContentSecurityPolicy(nonce: string, isDevelopment: boolean) {
+export function buildContentSecurityPolicy(
+  nonce: string,
+  isDevelopment: boolean,
+  supabaseUrl?: string,
+) {
+  const runtimeSources = getSupabaseRuntimeSources(supabaseUrl);
+  const imageRuntimeSources = runtimeSources.httpOrigin
+    ? ` ${runtimeSources.httpOrigin}`
+    : "";
+  const connectRuntimeSources = [
+    runtimeSources.httpOrigin,
+    runtimeSources.websocketOrigin,
+  ].filter(Boolean).map((source) => ` ${source}`).join("");
+
   return [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ""} https://challenges.cloudflare.com`,
@@ -12,17 +25,66 @@ export function buildContentSecurityPolicy(nonce: string, isDevelopment: boolean
       ? "style-src 'self' 'unsafe-inline'"
       : `style-src 'self' 'nonce-${nonce}'`,
     ...(isDevelopment ? [] : ["style-src-attr 'unsafe-inline'"]),
-    `img-src 'self' blob: data: https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com${isDevelopment ? " http://127.0.0.1:54321 http://localhost:54321" : ""}`,
+    `img-src 'self' blob: data: https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com${isDevelopment ? " http://127.0.0.1:54321 http://localhost:54321" : ""}${imageRuntimeSources}`,
     "font-src 'self'",
-    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com${isDevelopment ? " http://127.0.0.1:54321 ws://127.0.0.1:54321 http://localhost:54321 ws://localhost:54321" : ""}`,
+    `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com${isDevelopment ? " http://127.0.0.1:54321 ws://127.0.0.1:54321 http://localhost:54321 ws://localhost:54321" : ""}${connectRuntimeSources}`,
     "frame-src https://challenges.cloudflare.com https://www.googletagmanager.com",
     "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    ...(isDevelopment ? [] : ["upgrade-insecure-requests"]),
+    ...(isDevelopment || runtimeSources.isPrivateHttp
+      ? []
+      : ["upgrade-insecure-requests"]),
   ].join("; ");
+}
+
+function getSupabaseRuntimeSources(supabaseUrl?: string) {
+  if (!supabaseUrl) {
+    return {
+      httpOrigin: null,
+      websocketOrigin: null,
+      isPrivateHttp: false,
+    };
+  }
+
+  try {
+    const url = new URL(supabaseUrl);
+    if (url.protocol === "https:") {
+      return {
+        httpOrigin: url.origin,
+        websocketOrigin: `wss://${url.host}`,
+        isPrivateHttp: false,
+      };
+    }
+    if (url.protocol === "http:" && isPrivateNetworkHost(url.hostname)) {
+      return {
+        httpOrigin: url.origin,
+        websocketOrigin: `ws://${url.host}`,
+        isPrivateHttp: true,
+      };
+    }
+  } catch {
+    // Configuração inválida não amplia a política.
+  }
+
+  return {
+    httpOrigin: null,
+    websocketOrigin: null,
+    isPrivateHttp: false,
+  };
+}
+
+function isPrivateNetworkHost(hostname: string) {
+  if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1") {
+    return true;
+  }
+  if (/^10(?:\.\d{1,3}){3}$/.test(hostname) || /^192\.168(?:\.\d{1,3}){2}$/.test(hostname)) {
+    return true;
+  }
+  const match = hostname.match(/^172\.(\d{1,3})(?:\.\d{1,3}){2}$/);
+  return Boolean(match && Number(match[1]) >= 16 && Number(match[1]) <= 31);
 }
 
 export function applySecurityHeaders(

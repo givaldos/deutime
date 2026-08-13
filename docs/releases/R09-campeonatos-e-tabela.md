@@ -346,7 +346,7 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
   robustez, telemetria, runbook e executar o piloto controlado até CP6, incluindo
   a evidência física em Android, iPhone e navegador interno do WhatsApp.
 
-### `WP-R09-05` — CP3 concluído; CP4 pendente
+### `WP-R09-05` — CP4 concluído; CP5 pendente
 
 - `get_championship_pilot_health` entrega exclusivamente a `service_role` uma
   leitura agregada e sem PII de flags, formatos, estados, projeções, comandos e
@@ -372,9 +372,26 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
 - o ciclo sintético em 390×844 confirmou ausência de overflow global, alvo de
   48 px, isolamento da coorte, ativação, sonda verde, agenda preservada e
   rollback. A flag terminou desligada e nenhuma organização real foi ativada;
-- ESLint, TypeScript, 74 arquivos e 422 testes Vitest, build de produção Webpack,
+- ESLint, TypeScript, 75 arquivos e 426 testes Vitest, build de produção Webpack,
   integridade forward-only das migrations, tipos regenerados e auditoria com
   zero vulnerabilidades passaram;
-- o checkpoint avança a CP3. CP4 ainda exige registrar a jornada desta versão em
-  Android, iPhone e navegador interno do WhatsApp; somente depois o piloto de
-  uma organização demo pode executar CP5 e a sincronização final de CP6.
+- a revisão física desta versão cobriu em Android e iPhone os dois cenários
+  sintéticos, pontos corridos e mata-mata, por toque, leitor de tela,
+  compartilhamento real e navegador interno do WhatsApp. O responsável aprovou
+  ambos os aparelhos sem registrar falha;
+- a origem HTTP privada revelou três lacunas antes do gate: senha do seed abaixo
+  do mínimo atual, CSP/origem de desenvolvimento sem o host LAN configurado e
+  `crypto.randomUUID` indisponível fora de contexto seguro. A correção mantém
+  produção fechada, aceita somente origem HTTP privada configurada e usa UUID v4
+  por `getRandomValues` quando necessário;
+- o rollback desligou a flag pela RPC auditada. A sonda confirmou dois
+  campeonatos, quatro participantes e dois confrontos preservados, ambas as
+  páginas em fallback, zero projeções ativas e zero divergências. Os dois
+  cenários exclusivamente locais foram então removidos e o seed neutro foi
+  reconstruído;
+- smoke ativo da tabela e smoke 404 pós-rollback das páginas de tabela e chave
+  passaram com headers privados. O gate final aprovou 50 arquivos e 1.317 testes
+  pgTAP, mantendo apenas os dois avisos legados do banco;
+- o checkpoint avança a CP4 sem ativar organização real. Próxima ação: executar
+  CP5 em uma única organização demo com deploy isolado, pré-sonda, ativação,
+  smoke, observação, alerta, fallback e rollback; depois sincronizar CP6.

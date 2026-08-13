@@ -401,7 +401,7 @@ set session_replication_role = default;
 do $$
 begin
   raise notice '=== Seed concluído ===';
-  raise notice 'Usuário admin: admin@deutime.dev / Dev@2026!';
+  raise notice 'Usuário admin: admin@deutime.dev / DeuTime@2026!';
   raise notice '';
   raise notice 'Times criados:';
   raise notice '  /app/campo-fc        — Futebol de Campo FC   (44 atletas = 4 times de 11)';
