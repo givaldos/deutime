@@ -4,6 +4,7 @@ import { AppContainer } from "@/components/ui/app-shell";
 import { getChampionships } from "@/lib/data/championships";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { championshipFormatLabels } from "@/lib/features/championships/rules";
 import { ArrowLeft, ChevronRight, LockKeyhole, Plus, Trophy } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -67,7 +68,7 @@ export default async function ChampionshipsPage({
         {canConfigure ? (
           <details className="app-surface group p-5 sm:p-7" open={championships.length === 0}>
             <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-black text-graphite">
-              <span className="flex items-center gap-3"><Plus className="size-5 text-emerald-700" aria-hidden /> Novo pontos corridos</span>
+              <span className="flex items-center gap-3"><Plus className="size-5 text-emerald-700" aria-hidden /> Novo campeonato</span>
               <span className="text-xs text-slate-400 group-open:hidden">Abrir</span>
             </summary>
             <div className="mt-5 border-t border-slate-100 pt-5">
@@ -96,7 +97,7 @@ export default async function ChampionshipsPage({
                   <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-amber-50 text-amber-700"><Trophy className="size-5" aria-hidden /></span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-black text-graphite">{championship.name}</span>
-                    <span className="mt-1 block text-xs font-bold text-slate-500">Pontos corridos · {statusLabels[championship.status]}</span>
+                    <span className="mt-1 block text-xs font-bold text-slate-500">{championshipFormatLabels[championship.format]} · {statusLabels[championship.status]}</span>
                   </span>
                   <ChevronRight className="size-5 shrink-0 text-slate-400" aria-hidden />
                 </Link>

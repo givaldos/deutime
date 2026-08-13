@@ -15,22 +15,50 @@ const badgeKey = z.enum([
   "diamond",
 ]);
 
-export const createChampionshipSchema = z.object({
-  teamId: uuid,
-  teamSlug,
-  requestId: uuid,
-  name: z.string().trim().min(2, "Dê um nome ao campeonato.").max(120),
-  winPoints: z.coerce.number().int().min(0).max(10),
-  drawPoints: z.coerce.number().int().min(0).max(10),
-  lossPoints: z.coerce.number().int().min(0).max(10),
-  tiebreakOrder: z
-    .array(z.enum(championshipTiebreakKeys))
-    .min(1)
-    .max(4)
-    .refine((items) => new Set(items).size === items.length, {
-      message: "Não repita um critério de desempate.",
-    }),
-});
+export const championshipFormat = z.enum([
+  "league",
+  "groups_knockout",
+  "knockout",
+]);
+
+export const createChampionshipSchema = z
+  .object({
+    teamId: uuid,
+    teamSlug,
+    requestId: uuid,
+    name: z.string().trim().min(2, "Dê um nome ao campeonato.").max(120),
+    format: championshipFormat,
+    winPoints: z.coerce.number().int().min(0).max(10),
+    drawPoints: z.coerce.number().int().min(0).max(10),
+    lossPoints: z.coerce.number().int().min(0).max(10),
+    groupCount: z.coerce.number().int().min(2).max(8).optional(),
+    qualifiersPerGroup: z.coerce.number().int().min(1).max(2).optional(),
+    tiebreakOrder: z
+      .array(z.enum(championshipTiebreakKeys))
+      .min(1)
+      .max(4)
+      .refine((items) => new Set(items).size === items.length, {
+        message: "Não repita um critério de desempate.",
+      }),
+  })
+  .superRefine((value, context) => {
+    if (value.format === "groups_knockout") {
+      if (!value.groupCount) {
+        context.addIssue({
+          code: "custom",
+          path: ["groupCount"],
+          message: "Informe a quantidade de grupos.",
+        });
+      }
+      if (!value.qualifiersPerGroup) {
+        context.addIssue({
+          code: "custom",
+          path: ["qualifiersPerGroup"],
+          message: "Informe quantos avançam por grupo.",
+        });
+      }
+    }
+  });
 
 export const addChampionshipParticipantSchema = z
   .object({
@@ -39,6 +67,7 @@ export const addChampionshipParticipantSchema = z
     championshipId: uuid,
     requestId: uuid,
     seed: z.coerce.number().int().min(1).max(32),
+    groupNumber: z.coerce.number().int().min(1).max(8).optional(),
     kind: z.enum(["internal", "external"]),
     internalTeamId: z.string().optional().transform((value) => value || null),
     externalName: z.string().trim().max(80).optional(),
@@ -86,7 +115,59 @@ export const championshipCommandSchema = z.object({
   requestId: uuid,
 });
 
+export const championshipFormatCommandSchema = championshipCommandSchema.extend({
+  format: championshipFormat,
+});
+
 export const linkChampionshipFixtureSchema = championshipCommandSchema.extend({
   fixtureId: uuid,
   matchId: uuid,
 });
+
+export const releaseChampionshipFixtureSchema = championshipCommandSchema.extend({
+  fixtureId: uuid,
+  reason: z.string().trim().min(3, "Explique por que a partida será remarcada.").max(500),
+});
+
+export const withdrawChampionshipParticipantSchema = championshipCommandSchema.extend({
+  participantId: uuid,
+  reason: z.string().trim().min(3, "Explique a retirada do participante.").max(500),
+});
+
+export const decideChampionshipQualifierSchema = championshipCommandSchema.extend({
+  groupNumber: z.coerce.number().int().min(1).max(8),
+  qualifierPosition: z.coerce.number().int().min(1).max(2),
+  participantId: uuid,
+  reason: z.string().trim().min(3, "Explique a decisão da vaga.").max(500),
+});
+
+export const resolveChampionshipFixtureSchema = championshipCommandSchema
+  .extend({
+    fixtureId: uuid,
+    winnerId: z.string().optional().transform((value) => value || null),
+    resolution: z.enum([
+      "score",
+      "penalties",
+      "walkover",
+      "regulation",
+      "administrative",
+    ]),
+    reason: z.string().trim().max(500).optional(),
+  })
+  .superRefine((value, context) => {
+    if (value.resolution === "score") return;
+    if (!value.winnerId || !uuid.safeParse(value.winnerId).success) {
+      context.addIssue({
+        code: "custom",
+        path: ["winnerId"],
+        message: "Escolha quem avança.",
+      });
+    }
+    if (!value.reason || value.reason.length < 3) {
+      context.addIssue({
+        code: "custom",
+        path: ["reason"],
+        message: "Explique a decisão eliminatória.",
+      });
+    }
+  });

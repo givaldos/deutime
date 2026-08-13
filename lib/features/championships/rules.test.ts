@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   describeLeagueProgress,
+  expectedGroupFixtureCount,
+  expectedKnockoutFixtureCount,
+  expectedKnockoutRoundCount,
   expectedLeagueFixtureCount,
   expectedLeagueRoundCount,
+  nextBracketSize,
 } from "./rules";
 
 describe("regras de apresentação de pontos corridos", () => {
@@ -27,5 +31,26 @@ describe("regras de apresentação de pontos corridos", () => {
       total: 6,
       complete: true,
     });
+  });
+});
+
+describe("chave eliminatória", () => {
+  it.each([
+    [2, 2, 1, 1],
+    [5, 8, 7, 3],
+    [16, 16, 15, 4],
+  ])(
+    "%i participantes ocupam chave %i com %i jogos em %i fases",
+    (participants, size, fixtures, rounds) => {
+      expect(nextBracketSize(participants)).toBe(size);
+      expect(expectedKnockoutFixtureCount(participants)).toBe(fixtures);
+      expect(expectedKnockoutRoundCount(participants)).toBe(rounds);
+    },
+  );
+
+  it("soma confrontos independentes da fase de grupos", () => {
+    expect(expectedGroupFixtureCount([3, 3])).toBe(6);
+    expect(expectedGroupFixtureCount([4, 4])).toBe(12);
+    expect(expectedGroupFixtureCount([2])).toBe(0);
   });
 });

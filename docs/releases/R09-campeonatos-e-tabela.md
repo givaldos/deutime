@@ -285,3 +285,33 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
 - o checkpoint avançou para CP2 sem ativar organização. Próxima ação:
   `WP-R09-03`, acrescentar grupos e mata-mata sobre o mesmo contrato, sem iniciar
   página pública ou piloto.
+
+### `WP-R09-03` — CP2 concluído
+
+- a criação mobile aceita os três formatos; grupos exigem distribuição explícita
+  e quantidade de classificados válida, enquanto o mata-mata direto preserva a
+  ordem dos seeds;
+- a geração transacional produz rodadas independentes por grupo ou uma chave de
+  potência de dois, com byes auditados e slots das fases seguintes derivados dos
+  vencedores, sem duplicar confrontos no replay;
+- a classificação de grupo é reconstruída da súmula e posição absolutamente
+  empatada exige escolha e motivo antes do avanço. Classificados alimentam uma
+  única chave eliminatória sob lock;
+- placar não empatado decide o vencedor; empate, pênaltis, W.O., regulamento e
+  decisão administrativa exigem vencedor e motivo explícitos sem criar gols. A
+  correção propaga a snapshots futuros limpos e falha fechada depois do primeiro
+  fato da dependência;
+- confronto futuro ainda sem fatos ou participação pode ser liberado para outro
+  agendamento. Retirada preserva partidas concluídas, anula somente o futuro e
+  promove o adversário no mata-mata por decisão administrativa auditada;
+- o pgTAP novo aprovou 63 casos; a suíte completa aprovou 47 arquivos e 1.218
+  testes, incluindo papéis, replay, RLS, cross-tenant, flag desligada e ausência
+  de contador esportivo paralelo;
+- ESLint, TypeScript, 67 arquivos e 391 testes Vitest, build de produção Webpack,
+  integridade forward-only das migrations e auditoria com zero vulnerabilidades
+  passaram. O lint do banco manteve somente dois avisos legados fora do escopo;
+- a jornada de criação, grupos, publicação, classificação e fallback foi exercida
+  no navegador; as evidências móveis em iPhone e Android foram revisadas pelo
+  responsável. A flag voltou a ficar desligada e nenhum time foi ativado;
+- o checkpoint permanece em CP2. Próxima ação: `WP-R09-04`, criar a projeção
+  anônima mínima e a página compartilhável sem ampliar a audiência dos eventos.

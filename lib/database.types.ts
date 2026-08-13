@@ -567,6 +567,63 @@ export type Database = {
           },
         ]
       }
+      championship_qualification_decisions: {
+        Row: {
+          championship_id: string
+          created_at: string
+          created_by: string
+          group_number: number
+          id: string
+          participant_id: string
+          qualifier_position: number
+          reason: string
+          team_id: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          championship_id: string
+          created_at?: string
+          created_by: string
+          group_number: number
+          id?: string
+          participant_id: string
+          qualifier_position: number
+          reason: string
+          team_id: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          championship_id?: string
+          created_at?: string
+          created_by?: string
+          group_number?: number
+          id?: string
+          participant_id?: string
+          qualifier_position?: number
+          reason?: string
+          team_id?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "championship_qualification_de_participant_id_championship__fkey"
+            columns: ["participant_id", "championship_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "championship_participants"
+            referencedColumns: ["id", "championship_id", "team_id"]
+          },
+          {
+            foreignKeyName: "championship_qualification_decisio_championship_id_team_id_fkey"
+            columns: ["championship_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "championships"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
       championships: {
         Row: {
           created_at: string
@@ -3303,6 +3360,16 @@ export type Database = {
         }
         Returns: string
       }
+      advance_championship_groups: {
+        Args: { request_id: string; requested_championship_id: string }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       cancel_event_as_staff: {
         Args: {
           cancel_scope: string
@@ -3495,6 +3562,23 @@ export type Database = {
           invite_token: string
         }[]
       }
+      decide_championship_qualifier: {
+        Args: {
+          request_id: string
+          requested_championship_id: string
+          requested_group_number: number
+          requested_participant_id: string
+          requested_qualifier_position: number
+          requested_reason: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       delete_match_incident_as_staff: {
         Args: { requested_incident_id: string }
         Returns: boolean
@@ -3561,6 +3645,16 @@ export type Database = {
         Args: { requested_match_id: string }
         Returns: undefined
       }
+      generate_championship_fixtures: {
+        Args: { request_id: string; requested_championship_id: string }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       generate_league_fixtures: {
         Args: { request_id: string; requested_championship_id: string }
         Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
@@ -3570,6 +3664,27 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      get_championship_group_standings: {
+        Args: { requested_championship_id: string }
+        Returns: {
+          draws: number
+          goal_difference: number
+          goals_against: number
+          goals_for: number
+          group_number: number
+          head_to_head_points: number
+          losses: number
+          participant_badge_key: Database["public"]["Enums"]["internal_squad_badge_key"]
+          participant_color: string
+          participant_id: string
+          participant_name: string
+          participant_seed: number
+          played: number
+          points: number
+          rank_position: number
+          wins: number
+        }[]
       }
       get_championship_standings: {
         Args: { requested_championship_id: string }
@@ -3887,6 +4002,16 @@ export type Database = {
           skipped_slots: number
         }[]
       }
+      publish_championship_format: {
+        Args: { request_id: string; requested_championship_id: string }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       publish_event_lineup: {
         Args: { request_id: string; requested_event_id: string }
         Returns: Database["public"]["CompositeTypes"]["event_lineup_command_result"]
@@ -3953,6 +4078,20 @@ export type Database = {
           idle_expires_at: string
         }[]
       }
+      release_championship_fixture_match: {
+        Args: {
+          request_id: string
+          requested_fixture_id: string
+          requested_reason: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       release_notification_claim: {
         Args: { requested_lease_token: string; requested_outbox_id: string }
         Returns: boolean
@@ -3999,6 +4138,22 @@ export type Database = {
       report_match_comment: {
         Args: { requested_comment_id: string; requested_reason: string }
         Returns: string
+      }
+      resolve_championship_knockout_fixture: {
+        Args: {
+          request_id: string
+          requested_fixture_id: string
+          requested_reason?: string
+          requested_resolution?: Database["public"]["Enums"]["championship_fixture_resolution"]
+          requested_winner_id?: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       resolve_event_access_for_verified_session: {
         Args: { requested_public_id: string }
@@ -4349,6 +4504,20 @@ export type Database = {
         Args: { requested_match_id: string; requested_reason: string }
         Returns: undefined
       }
+      withdraw_championship_participant: {
+        Args: {
+          request_id: string
+          requested_participant_id: string
+          requested_reason: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       withdraw_event_lineup_publication: {
         Args: { request_id: string; requested_event_id: string }
         Returns: Database["public"]["CompositeTypes"]["event_lineup_command_result"]
@@ -4378,6 +4547,11 @@ export type Database = {
         | "link_fixture"
         | "generate"
         | "publish"
+        | "decide_qualifier"
+        | "advance"
+        | "resolve"
+        | "release_fixture"
+        | "withdraw"
       championship_fixture_resolution:
         | "score"
         | "penalties"
@@ -4668,6 +4842,11 @@ export const Constants = {
         "link_fixture",
         "generate",
         "publish",
+        "decide_qualifier",
+        "advance",
+        "resolve",
+        "release_fixture",
+        "withdraw",
       ],
       championship_fixture_resolution: [
         "score",

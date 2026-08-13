@@ -9,6 +9,8 @@ type Participant = Database["public"]["Tables"]["championship_participants"]["Ro
 type Fixture = Database["public"]["Tables"]["championship_fixtures"]["Row"];
 type FixtureSlot = Database["public"]["Tables"]["championship_fixture_slots"]["Row"];
 type Standing = Database["public"]["Functions"]["get_championship_standings"]["Returns"][number];
+type GroupStanding = Database["public"]["Functions"]["get_championship_group_standings"]["Returns"][number];
+type QualificationDecision = Database["public"]["Tables"]["championship_qualification_decisions"]["Row"];
 
 export type ChampionshipSummary = Pick<
   Championship,
@@ -45,6 +47,8 @@ export type ChampionshipWorkspace = {
   fixtures: Fixture[];
   slots: FixtureSlot[];
   standings: Standing[];
+  groupStandings: GroupStanding[];
+  qualificationDecisions: QualificationDecision[];
   internalSquads: {
     id: string;
     name: string;
@@ -86,7 +90,7 @@ export async function getChampionshipWorkspace(
   }
   if (!championship) return null;
 
-  const [participantsResult, fixturesResult, slotsResult, standingsResult, squadsResult] =
+  const [participantsResult, fixturesResult, slotsResult, decisionsResult, squadsResult] =
     await Promise.all([
       supabase
         .from("championship_participants")
@@ -106,9 +110,13 @@ export async function getChampionshipWorkspace(
         .select("*")
         .eq("championship_id", championshipId)
         .eq("team_id", teamId),
-      supabase.rpc("get_championship_standings", {
-        requested_championship_id: championshipId,
-      }),
+      supabase
+        .from("championship_qualification_decisions")
+        .select("*")
+        .eq("championship_id", championshipId)
+        .eq("team_id", teamId)
+        .order("group_number")
+        .order("qualifier_position"),
       supabase
         .from("team_squad_presets")
         .select("id, name, color, badge_key")
@@ -120,10 +128,26 @@ export async function getChampionshipWorkspace(
     participantsResult.error ||
     fixturesResult.error ||
     slotsResult.error ||
-    standingsResult.error ||
+    decisionsResult.error ||
     squadsResult.error
   ) {
     throw new Error("Não foi possível montar a área do campeonato.");
+  }
+
+  let standings: Standing[] = [];
+  let groupStandings: GroupStanding[] = [];
+  if (championship.format === "league") {
+    const result = await supabase.rpc("get_championship_standings", {
+      requested_championship_id: championshipId,
+    });
+    if (result.error) throw new Error("Não foi possível montar a classificação.");
+    standings = result.data ?? [];
+  } else if (championship.format === "groups_knockout") {
+    const result = await supabase.rpc("get_championship_group_standings", {
+      requested_championship_id: championshipId,
+    });
+    if (result.error) throw new Error("Não foi possível montar os grupos.");
+    groupStandings = result.data ?? [];
   }
 
   const fixtures = fixturesResult.data ?? [];
@@ -225,7 +249,9 @@ export async function getChampionshipWorkspace(
     participants: participantsResult.data ?? [],
     fixtures,
     slots: slotsResult.data ?? [],
-    standings: standingsResult.data ?? [],
+    standings,
+    groupStandings,
+    qualificationDecisions: decisionsResult.data ?? [],
     internalSquads: (squadsResult.data ?? []).map((squad) => ({
       id: squad.id,
       name: squad.name,
