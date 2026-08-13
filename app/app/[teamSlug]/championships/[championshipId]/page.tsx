@@ -8,12 +8,14 @@ import {
   ReleaseFixtureForm,
   WithdrawParticipantForm,
 } from "@/components/championship-forms";
+import { ChampionshipPublicControls } from "@/components/championship-public-controls";
 import { InternalSquadBadge } from "@/components/internal-squad-badge";
 import { TeamAppHeader } from "@/components/team-app-header";
 import { AppContainer } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
 import { getChampionshipWorkspace } from "@/lib/data/championships";
 import { championshipFormatLabels } from "@/lib/features/championships/rules";
+import { getAppUrl } from "@/lib/env/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   ArrowLeft,
@@ -73,6 +75,7 @@ export default async function ChampionshipPage({
   } = workspace;
   const canConfigure = membership.role === "owner" || membership.role === "admin";
   const canOperate = canConfigure || membership.role === "manager";
+  const publicUrl = new URL(`/c/${championship.public_id}`, getAppUrl()).toString();
   const availableInternalSquads = workspace.internalSquads.filter(
     (squad) => !participants.some((participant) => participant.internal_team_id === squad.id),
   );
@@ -236,6 +239,18 @@ export default async function ChampionshipPage({
               ))}
             </div>
           </section>
+        ) : null}
+
+        {championship.status !== "draft" && canConfigure ? (
+          <ChampionshipPublicControls
+            teamId={team.id}
+            teamSlug={team.slug}
+            championshipId={championship.id}
+            publicId={championship.public_id}
+            publicMode={championship.public_mode}
+            publicUrl={publicUrl}
+            championshipName={championship.name}
+          />
         ) : null}
 
         {standings.length ? <StandingsTable title="Classificação" standings={standings} /> : null}

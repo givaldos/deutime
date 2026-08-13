@@ -315,3 +315,33 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
   responsável. A flag voltou a ficar desligada e nenhum time foi ativado;
 - o checkpoint permanece em CP2. Próxima ação: `WP-R09-04`, criar a projeção
   anônima mínima e a página compartilhável sem ampliar a audiência dos eventos.
+
+### `WP-R09-04` — CP2 concluído
+
+- `get_public_championship` entrega ao papel anônimo somente quatro blocos
+  estritos — regulamento, participantes, classificação e confrontos — sem IDs
+  internos, atletas, endereço, autoria ou motivo administrativo;
+- a classificação continua derivada de todas as súmulas finalizadas. Placar e
+  link para `/e/{public_id}` só entram na projeção quando a própria partida e a
+  página pública do evento já os autorizam, sem ampliação por sessão autenticada;
+- owner/admin publica ou recolhe a página por RPC transacional e idempotente.
+  Rascunho, manager, outro tenant, flag desligada e publicação recolhida falham
+  fechados, preservando campeonato, agenda, partidas e histórico;
+- `/c/{public_id}` mostra regulamento, identidades visuais, tabela ou chave e
+  compartilhamento manual pronto para WhatsApp. Metadados e headers mantêm
+  `noindex`, `nofollow`, `no-referrer` e `private, no-store`;
+- o cliente valida a projeção com schema estrito e tolera schema N−1, função
+  ausente ou indisponibilidade retornando o mesmo estado não público, sem
+  consultar tabelas-base nem expor um erro privilegiado;
+- o pgTAP novo aprovou 41 casos; a suíte completa aprovou 48 arquivos e 1.259
+  testes, incluindo grants, RLS, cross-tenant, flag, três formatos, byes,
+  classificação fiel e condicionamento de placar/link;
+- ESLint, TypeScript, 70 arquivos e 404 testes Vitest, build de produção Webpack,
+  integridade forward-only das migrations e auditoria com zero vulnerabilidades
+  passaram. O lint do banco manteve somente dois avisos legados fora do escopo;
+- a rota foi exercitada em 390×844 e 360×800, sem overflow global, com rolagem
+  própria na tabela, alvo de compartilhamento de 48 px e console limpo. O cenário
+  local foi removido e nenhum time ou flag permaneceu ativado;
+- o checkpoint permanece em CP2. Próxima ação: `WP-R09-05`, acrescentar
+  robustez, telemetria, runbook e executar o piloto controlado até CP6, incluindo
+  a evidência física em Android, iPhone e navegador interno do WhatsApp.

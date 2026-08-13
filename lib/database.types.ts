@@ -3846,6 +3846,10 @@ export type Database = {
           yellow_cards: number
         }[]
       }
+      get_public_championship: {
+        Args: { requested_public_id: string }
+        Returns: Json
+      }
       get_public_event_lineup: {
         Args: { requested_public_id: string }
         Returns: Json
@@ -4258,6 +4262,20 @@ export type Database = {
         }
         Returns: Database["public"]["Enums"]["athlete_status"]
       }
+      set_championship_public_mode: {
+        Args: {
+          request_id: string
+          requested_championship_id: string
+          requested_mode: Database["public"]["Enums"]["championship_public_mode"]
+        }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_event_attendance_as_staff: {
         Args: {
           next_status: Database["public"]["Enums"]["attendance_status"]
@@ -4552,6 +4570,7 @@ export type Database = {
         | "resolve"
         | "release_fixture"
         | "withdraw"
+        | "set_public_mode"
       championship_fixture_resolution:
         | "score"
         | "penalties"
@@ -4847,6 +4866,7 @@ export const Constants = {
         "resolve",
         "release_fixture",
         "withdraw",
+        "set_public_mode",
       ],
       championship_fixture_resolution: [
         "score",

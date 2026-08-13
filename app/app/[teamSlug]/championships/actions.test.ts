@@ -30,6 +30,7 @@ import {
   publishLeagueChampionship,
   releaseChampionshipFixture,
   resolveChampionshipFixture,
+  setChampionshipPublicMode,
   withdrawChampionshipParticipant,
 } from "./actions";
 
@@ -277,6 +278,25 @@ describe("ações do campeonato de pontos corridos", () => {
       request_id: ids.request,
       requested_reason: "Equipe desistiu da competição",
     });
+  });
+
+  it("publica a projeção anônima por RPC e revalida o ID público", async () => {
+    mocks.rpc.mockResolvedValue({ data: { replayed: false }, error: null });
+    const form = commandForm();
+    form.set("publicId", "e9700000-0000-4000-8000-000000000001");
+    form.set("mode", "public");
+    await expect(setChampionshipPublicMode({}, form)).resolves.toMatchObject({
+      outcome: "success",
+      message: expect.stringContaining("link"),
+    });
+    expect(mocks.rpc).toHaveBeenCalledWith("set_championship_public_mode", {
+      requested_championship_id: ids.championship,
+      request_id: ids.request,
+      requested_mode: "public",
+    });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith(
+      "/c/e9700000-0000-4000-8000-000000000001",
+    );
   });
 
   it("traduz negação sem expor detalhes internos do banco", async () => {
