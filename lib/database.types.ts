@@ -3561,6 +3561,35 @@ export type Database = {
         Args: { requested_match_id: string }
         Returns: undefined
       }
+      generate_league_fixtures: {
+        Args: { request_id: string; requested_championship_id: string }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      get_championship_standings: {
+        Args: { requested_championship_id: string }
+        Returns: {
+          draws: number
+          goal_difference: number
+          goals_against: number
+          goals_for: number
+          head_to_head_points: number
+          losses: number
+          participant_badge_key: Database["public"]["Enums"]["internal_squad_badge_key"]
+          participant_color: string
+          participant_id: string
+          participant_name: string
+          played: number
+          points: number
+          rank_position: number
+          wins: number
+        }[]
+      }
       get_craque_vote_result: {
         Args: { requested_match_id: string }
         Returns: {
@@ -3864,6 +3893,16 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "event_lineup_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      publish_league_championship: {
+        Args: { request_id: string; requested_championship_id: string }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -4333,7 +4372,12 @@ export type Database = {
         | "declined"
         | "maybe"
         | "waitlist"
-      championship_command_kind: "create" | "add_participant" | "link_fixture"
+      championship_command_kind:
+        | "create"
+        | "add_participant"
+        | "link_fixture"
+        | "generate"
+        | "publish"
       championship_fixture_resolution:
         | "score"
         | "penalties"
@@ -4618,7 +4662,13 @@ export const Constants = {
         "maybe",
         "waitlist",
       ],
-      championship_command_kind: ["create", "add_participant", "link_fixture"],
+      championship_command_kind: [
+        "create",
+        "add_participant",
+        "link_fixture",
+        "generate",
+        "publish",
+      ],
       championship_fixture_resolution: [
         "score",
         "penalties",

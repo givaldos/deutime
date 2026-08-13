@@ -254,3 +254,34 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
 - o checkpoint avançou para CP1 sem ativar time. Próxima ação: `WP-R09-02`,
   entregar o caminho fino de pontos corridos atrás da flag e manter a agenda,
   partidas e súmula atuais como fallback.
+
+### `WP-R09-02` — CP2 concluído
+
+- owner/admin cria no celular um rascunho de pontos corridos com pontuação e
+  catálogo fechado de desempates; participantes internos preservam o snapshot
+  do time da casa e adversários externos não recebem identidade nem acesso;
+- `generate_league_fixtures` usa o algoritmo round-robin de turno único sob lock,
+  produz uma grade determinística e revisável e preserva os mesmos confrontos no
+  replay da mesma intenção;
+- `publish_league_championship` valida quantidade, dois lados e unicidade de cada
+  par antes de promover toda a grade; publicações concorrentes convergem para um
+  único estado e deixam recibos idempotentes;
+- manager, owner e admin vinculam uma partida ainda sem fatos ao confronto
+  publicado. A RPC revalida tenant, congela os snapshots nos lados e mantém o
+  vínculo 1:1 fora de `event_matches`;
+- `get_championship_standings` reconstrói pontos, jogos, vitórias, empates,
+  derrotas, gols, saldo, confronto direto e posições compartilhadas somente a
+  partir de partidas finalizadas; anulação retira o resultado sem contador
+  esportivo independente;
+- o pgTAP focado aprovou 31 casos de flag, papel, geração, replay, publicação,
+  vínculo, placar, anulação e cross-tenant; a suíte completa aprovou 46 arquivos
+  e 1.155 testes;
+- ESLint, TypeScript, 67 arquivos e 381 testes Vitest passaram; o build Webpack
+  compilou as duas rotas novas. O Turbopack local permaneceu limitado pelo bind
+  de porta do ambiente, sem erro de aplicação;
+- a jornada foi exercitada ponta a ponta em 390×844 e 360×800, com alvos novos
+  de 48–56 px, sem overflow da página e com rolagem própria na tabela. Após o
+  ensaio, a flag foi desligada, o atalho sumiu e a rota voltou a falhar fechada;
+- o checkpoint avançou para CP2 sem ativar organização. Próxima ação:
+  `WP-R09-03`, acrescentar grupos e mata-mata sobre o mesmo contrato, sem iniciar
+  página pública ou piloto.
