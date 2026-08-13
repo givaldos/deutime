@@ -2,7 +2,7 @@
 release: R09
 work_package: WP-R09-01
 scope: championship_contract
-branch_or_commit: "codex/r09-preparacao"
+branch_or_commit: "dev"
 checkpoint: CP0
 status: ready
 completed_ac: []
