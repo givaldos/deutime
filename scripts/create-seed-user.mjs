@@ -42,7 +42,7 @@ const SUPABASE_URL      = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.
 const SERVICE_ROLE_KEY  = process.env.SUPABASE_SECRET_KEY;
 const SEED_USER_ID      = "00000000-0000-0000-0000-000000000001";
 const SEED_EMAIL        = "admin@deutime.dev";
-const SEED_PASSWORD     = "Dev@2026!";
+const SEED_PASSWORD     = "DeuTime@2026!";
 
 if (!SERVICE_ROLE_KEY) {
   console.error("❌  SUPABASE_SECRET_KEY não encontrada em .env.local");
@@ -58,15 +58,24 @@ const HEADERS = {
 };
 
 async function adminFetch(method, path, body) {
-  const res = await fetch(`${BASE}${path}`, {
-    method,
-    headers: HEADERS,
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const text = await res.text();
-  let json;
-  try { json = JSON.parse(text); } catch { json = { raw: text }; }
-  return { status: res.status, ok: res.ok, body: json };
+  const maxAttempts = 5;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const res = await fetch(`${BASE}${path}`, {
+        method,
+        headers: HEADERS,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const text = await res.text();
+      let json;
+      try { json = JSON.parse(text); } catch { json = { raw: text }; }
+      return { status: res.status, ok: res.ok, body: json };
+    } catch (error) {
+      if (attempt === maxAttempts) throw error;
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 500));
+    }
+  }
 }
 
 async function ensureUser() {

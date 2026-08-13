@@ -1,10 +1,10 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 12 de agosto de 2026.
+> Atualizado em 13 de agosto de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
-**Legenda:** ✅ concluído · 🟡 em execução · ⬜ falta para o MVP · ⚪ pós-MVP
+**Legenda:** ✅ concluído · 🟡 em execução · ⬜ planejado · ⚪ horizonte futuro
 
 ## Objetivo do MVP
 
@@ -13,6 +13,8 @@ O **MVP funcional completo** permite que um time real execute pelo celular e pel
 **elenco → evento → chamada → confirmação → lembretes → divisão dos times → partida → súmula → Craque da Galera → conversa → histórico**
 
 O MVP é considerado completo para **piloto controlado**, não para disponibilidade geral em escala. Nenhuma etapa pode depender de intervenção no banco, expor dados sem consentimento ou perder a operação quando WhatsApp, tempo real, vídeo, votação ou conversa estiverem desligados.
+
+**Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na R08M. A R09 é a única vertical ativa: três formatos e a página compartilhável passaram por CP2, a flag continua desligada e nenhum time foi ativado.
 
 ## Estado executivo
 
@@ -28,6 +30,7 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | **R03R — Lembretes econômicos** | ✅ `completed` | Duas cotas configuráveis, somente para pendentes, com envio manual/automático idempotente e custo agregado. | [Abrir](releases/R03R-lembretes-economicos.md) |
 | **R07 — Times reutilizáveis e divisão compartilhável** | ✅ `completed` | Equipes reutilizáveis, sugestão, publicação, primeiros nomes, formação visual e jornada por toque validadas em produção. | [Abrir](releases/R07-times-manuais-compartilhaveis.md) |
 | **R08M — Fechamento do MVP compartilhável** | ✅ `completed` | Open Graph por fase, piloto compartilhável, ciclo integrado, falhas e fallbacks comprovados. | [Abrir](releases/R08M-fechamento-mvp-compartilhavel.md) |
+| **R09 — Campeonatos e tabela** | 🟡 `active / CP2` | Três formatos, classificação, chave e página anônima compartilhável concluídos; robustez e piloto controlado são o próximo pacote. | [Abrir](releases/R09-campeonatos-e-tabela.md) |
 
 ## Cronograma consolidado
 
@@ -39,10 +42,12 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | 4. Lembretes econômicos | ✅ concluído | R03R entregou duas cotas automáticas ou manuais somente para quem ainda não confirmou, sem duplicidade. |
 | 5. Divisão compartilhável | ✅ concluído | R07 comprovou equipes internas, sugestão, publicação, formação visual, jornada por toque e rollback em Android/iPhone. |
 | 6. Fechamento do MVP | ✅ concluído | R08M concluiu Open Graph por fase, previews físicos, piloto, rollback e o gate integrado do ciclo completo. |
-| 7. Evoluções de produto | ⚪ pós-MVP | Campeonatos, reconhecimento e, quando houver densidade, marketplace e pagamentos. |
-| 8. Última evolução técnica | ⚪ por último | Avaliar e somente então migrar a mensageria da Twilio para a WhatsApp Cloud API direta da Meta. |
+| 7. Descoberta pós-MVP | 🟡 contínua, sem implementação | Reunir recomendações, evidências, métricas, dependências e critérios de aceite; eliminar duplicidades e separar requisito de ideia. |
+| 8. Evoluções de produto | 🟡 R09 ativa | Executar campeonatos como única vertical; reconhecimento será reavaliado após o piloto e marketplace exige densidade. |
+| 9. Consolidação e escala | ⬜ depois das verticais | Executar somente as melhorias transversais priorizadas por risco, uso real ou retorno mensurável. |
+| 10. Última evolução técnica | ⚪ por último | Revalidar os requisitos e somente então migrar a mensageria da Twilio para a WhatsApp Cloud API direta da Meta. |
 
-## O que falta para o MVP completo
+## Entregas do MVP concluídas
 
 ### 1. R06 concluída — conversa segura
 
@@ -73,18 +78,18 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 - [x] manter lista de confirmados como fallback quando a capacidade estiver desligada ou a imagem falhar;
 - [x] validar mobile, autorização, RLS, retry, cross-tenant, telemetria e rollback antes do piloto.
 
-### 4. Fechar a identidade compartilhável do evento
+### 4. R08M concluída — identidade compartilhável do evento
 
 - [x] mostrar o escudo específico do time na página do evento, com fallback da marca;
-- [ ] evoluir o Open Graph conforme a fase: chamada, escalação, placar/súmula, votação aberta e resultado;
-- [ ] incluir somente informações públicas autorizadas — time, modalidade, data, horário, estado e, quando permitido, escalação, placar ou vencedor;
-- [ ] impedir credencial, identidade sem consentimento, localização privada e endereço personalizado em HTML, imagem, logs, analytics ou `Referer`;
-- [ ] conferir o preview principalmente no WhatsApp e também em Instagram, Telegram e iMessage.
+- [x] evoluir o Open Graph conforme a fase: chamada, escalação, placar/súmula, votação aberta e resultado;
+- [x] incluir somente informações públicas autorizadas — time, modalidade, data, horário, estado e, quando permitido, escalação, placar ou vencedor;
+- [x] impedir credencial, identidade sem consentimento, localização privada e endereço personalizado em HTML, imagem, logs, analytics ou `Referer`;
+- [x] conferir o preview principalmente no WhatsApp e também em Instagram, Telegram e iMessage.
 
-### 5. Passar pelo gate integrado do MVP
+### 5. R08M concluída — gate integrado do MVP
 
-- [ ] executar com um time piloto o ciclo completo, da criação do evento ao pós-jogo, em Android, iPhone e navegador interno do WhatsApp;
-- [ ] comprovar caminho manual para chamada, confirmação, escalação, súmula e consulta quando cada automação estiver desligada;
+- [x] executar com um time piloto o ciclo completo, da criação do evento ao pós-jogo, em Android, iPhone e navegador interno do WhatsApp;
+- [x] comprovar caminho manual para chamada, confirmação, escalação, súmula e consulta quando cada automação estiver desligada;
 - [x] ensaiar cancelamento, remarcação, opt-out, link encaminhado, retry, falha do provedor, tempo real indisponível e rollback por flag;
 - [x] validar custos e limites dos disparos, telemetria redigida, suporte e responsáveis por incidentes;
 - [x] encerrar todos os pacotes do MVP com critérios, evidências, documentação e checkpoints em `idle`, sem bloqueador conhecido.
@@ -96,14 +101,34 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 3. ~~executar R08M para fechar Open Graph sobre os estados já estabilizados~~ — concluído;
 4. ~~executar o gate integrado e declarar o MVP completo~~ — concluído.
 
-Essa ordem termina fatias pequenas antes de abrir a próxima, reutiliza os contratos comprovados e evita que divisão automática, campeonato ou marketplace atrasem o piloto.
+Essa ordem preserva o histórico de como o MVP foi fechado. A partir daqui, a sequência passa a ser orientada por uso real e mantém somente uma vertical ativa por vez.
+
+## Próximas entregas e entrada de melhorias
+
+O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implementações em paralelo. Toda recomendação ou melhoria deve registrar problema observado, público afetado, evidência, benefício esperado, dependências, risco, fallback e critério de aceite. Itens semelhantes são consolidados antes de receber prioridade.
+
+| Sequência | Entrega | Condição para iniciar |
+|---|---|---|
+| 1 | ~~Selecionar a próxima vertical entre R09 e R10~~ | ✅ R09 selecionada e preparada em CP0 |
+| 2 | Entregar a R09 | uma única frente ativa, com piloto e CP6 |
+| 3 | Reavaliar a vertical restante e melhorias transversais | dados de uso da entrega anterior e ausência de bloqueador operacional |
+| 4 | Descobrir marketplace e pagamentos | densidade real de oferta e demanda, modelo de confiança e viabilidade transacional |
+| 5 | Implementar melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
+| 6 | Migrar da Twilio para a Meta | última entrega; requisitos e preços revalidados imediatamente antes do CP0 |
+
+Levantar requisitos agora não autoriza implementação. Exceções à sequência existem somente para segurança, indisponibilidade, obrigação legal, perda de dados ou custo operacional que ameace a continuidade do produto.
+
+A R09 foi escolhida antes da R10 porque fecha a lacuna observável entre partidas
+isoladas e uma competição, reutilizando os contratos estabilizados de partidas e
+equipes internas. A escolha prioriza prontidão e continuidade da jornada; o
+piloto da R09 deve fornecer os dados de uso para reavaliar reconhecimento.
 
 ## Pós-MVP — releases verticais
 
 | Release | Estado | Resultado autossuficiente | Depende de | Decisão antes de promover | Fallback |
 |---|---|---|---|---|---|
 | **R08 — Divisão automática** | ↪️ `incorporado à R07` | Sugestão reproduzível, ajustável e explicável foi incorporada à jornada de divisão para não entregar uma experiência fragmentada. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Ajuste manual |
-| **R09 — Campeonatos, camisas e tabela** | ⚪ `não iniciado` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento e histórico. | R04, R07 | modelo de campeonato | Histórico por partida |
+| **R09 — Campeonatos e tabela** | 🟡 `active / CP2` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento e histórico. | R04, R07, R08M | `DEC-CHAMPIONSHIP-MODEL` aceita | Histórico por partida |
 | **R10 — Reconhecimento** | ⚪ `não iniciado` | Pontos positivos, Craques e perfis consentidos, sem ranking constrangedor. | R04, R05 | — | Estatísticas básicas |
 
 ### R09 — campeonatos configuráveis
@@ -116,17 +141,17 @@ Uma pessoa administradora autorizada poderá criar campeonatos em três formatos
 
 O campeonato pertence às partidas, não à recorrência do evento. Um evento pode conter vários confrontos, e amistosos continuam sem campeonato. Cancelar uma ocorrência futura libera a partida para remarcação sem apagá-la; cancelar ocorrências futuras de uma série preserva todos os confrontos pendentes. Partida concluída nunca é excluída: anulação ou correção exige motivo, auditoria e recálculo transacional da tabela ou do chaveamento.
 
-Antes de promover R09, a descoberta deve fechar participantes aceitos, pontuação, desempate, geração e edição de confrontos, empate no mata-mata e publicação mobile-first compartilhável pelo WhatsApp.
+A descoberta da R09 foi concluída em `DEC-CHAMPIONSHIP-MODEL`: participantes aceitos, pontuação, desempate, geração e edição de confrontos, empate no mata-mata e publicação mobile-first compartilhável pelo WhatsApp estão fechados. Os três formatos e a projeção anônima passaram por CP2 sem ativar time; a próxima ação é robustez, telemetria, runbook e piloto controlado.
 
-## Não bloqueia o MVP funcional
+## Fora do MVP entregue
 
-- divisão automática, campeonatos, gamificação ampliada e análises avançadas;
+- evoluções do equilíbrio automático, campeonatos, gamificação ampliada e análises avançadas;
 - marketplace, pagamentos, árbitros, quadras, churrasco e descoberta aberta de atletas;
 - PWA, chat geral, mensagens privadas, anexos e ingestão automática de vídeo;
 - migração da Twilio para a WhatsApp Cloud API direta da Meta, enquanto custo e escala não justificarem a troca;
 - staging completo, Terraform com state importado, automação E2E generalizada e melhorias técnicas já registradas como adiadas no MVP.
 
-Esses itens não bloqueiam o piloto funcional, mas segurança e operação para disponibilidade geral devem ser reavaliadas antes de ampliar a escala, incluindo pentest independente, restauração comprovada, observabilidade ampliada e obrigações de LGPD.
+Esses itens não fizeram parte do gate do piloto funcional. Segurança e operação para disponibilidade geral devem ser reavaliadas antes de ampliar a escala, incluindo pentest independente, restauração comprovada, observabilidade ampliada e obrigações de LGPD.
 
 ## Horizonte exploratório — marketplace do futebol amador
 
@@ -143,7 +168,18 @@ Este horizonte não recebe release, prazo ou implementação agora. Sua promoç�
 
 ## Última evolução planejada — WhatsApp Cloud API direta da Meta
 
-Esta é deliberadamente a **última entrega do cronograma**. Ela só entra em descoberta depois do MVP concluído e das evoluções de produto priorizadas, inclusive campeonatos, reconhecimento e marketplace. Até lá, o fluxo comprovado permanece na Twilio com compartilhamento manual como fallback.
+Esta é deliberadamente a **última entrega do cronograma**. Ela só entra em descoberta formal e CP0 depois do MVP concluído e das evoluções de produto priorizadas, inclusive campeonatos, reconhecimento e marketplace. Até lá, o fluxo comprovado permanece na Twilio com compartilhamento manual como fallback.
+
+O levantamento inicial pode acontecer agora, sem desenho definitivo nem implementação. Ele deve manter um registro curto de:
+
+- volume mensal por tipo de mensagem, destinatários efetivos, entrega, leitura, falha e custo total;
+- tarifas da Twilio e da Meta separadas, câmbio e ponto de equilíbrio estimado;
+- titularidade do número, WABA, Business Manager, templates e possibilidade de migração ou coexistência;
+- requisitos de credenciais, permissões, webhook, qualidade, limites, suporte e resposta a incidentes;
+- compatibilidade com outbox, worker agendado, envio manual, idempotência, retry, kill switches e fallback;
+- riscos, dúvidas abertas e fontes oficiais com data de consulta.
+
+Esse registro é insumo, não especificação executável. Preços, API, permissões, templates, limites e processo de migração devem ser pesquisados novamente quando essa entrega for promovida a CP0.
 
 A integração direta é uma evolução de custo e escala. A tarifa da Meta continua existindo; o ganho esperado é retirar a cobrança adicional e a camada operacional da Twilio. Antes de promover o trabalho, o DeuTime deve calcular o ponto de equilíbrio com volume real de chamadas e lembretes, verificar a titularidade e a migração do número atual e confirmar templates, limites e qualidade da conta na Meta.
 
@@ -181,7 +217,8 @@ flowchart LR
     MVP --> R10["R10 Reconhecimento"]
     R09 --> MARKET["Marketplace e pagamentos"]
     R10 --> MARKET
-    MARKET --> META["Por último: API direta da Meta"]
+    MARKET --> SCALE["Melhorias comprovadas de escala"]
+    SCALE --> META["Por último: API direta da Meta"]
 ```
 
 ## Regras de promoção

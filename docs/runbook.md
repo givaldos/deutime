@@ -308,6 +308,99 @@ que `projected_events=0`, todos os eventos da janela voltaram a
 utilizável. Não reverta migrations e não altere `public_event_page`,
 `event_matches` ou `voting` como parte desse rollback.
 
+### Piloto de campeonatos — R09
+
+Use uma única organização demo sem PII e sem participante que dependa de outro
+tenant. Configure `CHAMPIONSHIP_PILOT_TEAM_ID` somente no ambiente protegido da
+aplicação e no cofre operacional local. Sem a variável, o controle não aparece
+e a feature permanece desligada. Confirme previamente a coorte e um owner/admin:
+
+```sql
+select team.id as team_id, membership.user_id as operator_id,
+  count(championship.id) as campeonatos_existentes
+from public.teams team
+join public.team_memberships membership on membership.team_id = team.id
+left join public.championships championship on championship.team_id = team.id
+where team.slug = '<SLUG_DEMO>'
+  and membership.status = 'active'
+  and membership.role in ('owner', 'admin')
+group by team.id, membership.user_id;
+```
+
+Antes da ativação, a sonda exige `service_role` e deve confirmar a flag
+desligada. O retorno contém apenas flags, contagens e horários agregados:
+
+```bash
+CHAMPIONSHIP_PILOT_TEAM_ID='<CHAMPIONSHIP_PILOT_TEAM_ID>' \
+EXPECT_CHAMPIONSHIP_ENABLED=false \
+npm run pilot:championship:health
+```
+
+Ative pelo controle **Piloto de campeonatos** nas configurações do time, usando
+a sessão verificada do owner/admin e a confirmação explícita. Como alternativa
+operacional, use a mesma RPC auditada:
+
+```sql
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '<OPERATOR_ID>', true);
+select public.set_team_feature_flag(
+  '<CHAMPIONSHIP_PILOT_TEAM_ID>'::uuid,
+  'championships',
+  true
+);
+commit;
+```
+
+Depois da ativação:
+
+1. criar pela interface um campeonato sintético e publicar sua página;
+2. repetir a sonda com `EXPECT_CHAMPIONSHIP_ENABLED=true` e
+   `EXPECT_CHAMPIONSHIP_PROJECTION=true`;
+3. configurar no Environment `production` somente
+   `SMOKE_PUBLIC_CHAMPIONSHIP_ID` com o UUID público sintético e
+   `EXPECT_CHAMPIONSHIP_ENABLED=true`;
+4. despachar o workflow `Smoke` e exigir `200`, canonical `/c`, HTML,
+   `private, no-store`, `no-referrer`, `noindex`, `nofollow`, `nosniff` e os
+   blocos mínimos de regulamento, confrontos e compartilhamento;
+5. vincular e concluir uma partida sintética pela jornada normal, repetir a
+   sonda e confirmar `reconstruction_mismatches=0`;
+6. observar `public_championship_projection.observed`: formato, contagens,
+   fallback, duração e categoria de erro são permitidos; nome, IDs, endereço,
+   motivo e exceção não são;
+7. observar `championship_pilot.flag_changed` somente como booleano e registrar
+   horários do deployment, ativação, smoke e rollback.
+
+Interrompa imediatamente se o smoke falhar, aparecer
+`projection_unavailable`, houver `fallback_championships>0` com a flag ligada,
+`reconstruction_mismatches>0`, vazamento no HTML ou três falhas operacionais em
+15 minutos. Duração acima de três segundos em três leituras consecutivas pausa
+a ampliação para investigação. R09 não altera outbox nem kill switches de
+integração; `integration_produce` e `integration_consume` permanecem desligados.
+
+Registre a verificação física sem nomes, URLs ou identificadores:
+
+| Plataforma | Contexto | Formato | Toque/teclado/leitor | Compartilhamento | Fallback | Resultado |
+|---|---|---|---|---|---|---|
+| WhatsApp Android | conversa + navegador interno | `<formato>` | `<ok/falha>` | `<ok/falha>` | `<não/usado>` | `<ok/falha>` |
+| WhatsApp iPhone | conversa + navegador interno | `<formato>` | `<ok/falha>` | `<ok/falha>` | `<não/usado>` | `<ok/falha>` |
+
+O rollback usa o mesmo controle ou RPC com `false`. Em seguida:
+
+1. executar a sonda com `EXPECT_CHAMPIONSHIP_ENABLED=false` e confirmar
+   `projected_championships=0`, candidatos em `fallback_championships` e fatos
+   preservados;
+2. executar o smoke com `EXPECT_CHAMPIONSHIP_ENABLED=false` e exigir `404` na
+   mesma `/c`, mantendo todos os headers privados;
+3. abrir agenda, partida e súmula pela interface e confirmar que continuam
+   utilizáveis, enquanto os atalhos de campeonato desaparecem;
+4. manter a flag desligada e promover o último deployment bom se a regressão
+   estiver na aplicação. Banco recebe somente correção forward-only.
+
+Sem staging isolado, escrita, concorrência, alternância de flag e limpeza usam
+somente Supabase local com dados sintéticos. Produção recebe exclusivamente
+sonda agregada e smoke anônimo de leitura.
+
 ### Retenção diária — R05/R06
 
 A Vercel chama `GET /api/internal/craque/retention` uma vez por dia, às

@@ -10,6 +10,7 @@ export async function proxy(request: NextRequest) {
   const contentSecurityPolicy = buildContentSecurityPolicy(
     nonce,
     process.env.NODE_ENV === "development",
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
   );
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);

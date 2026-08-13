@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import {
   applySecurityHeaders,
   buildContentSecurityPolicy,
+  isPublicChampionshipPath,
   isPublicEventPath,
   referrerPolicyForPath,
   shouldLoadThirdPartyAnalytics,
@@ -38,6 +39,36 @@ describe("content security policy", () => {
     expect(policy).not.toContain("http://127.0.0.1:54321");
     expect(policy).not.toContain("http://localhost:54321");
   });
+
+  it("allows only the configured private Supabase origin for physical local validation", () => {
+    const policy = buildContentSecurityPolicy(
+      "physical-nonce",
+      false,
+      "http://192.168.15.15:54321/rest/v1",
+    );
+
+    expect(policy).toContain("img-src 'self' blob: data:");
+    expect(policy).toContain(" http://192.168.15.15:54321");
+    expect(policy).toContain(" ws://192.168.15.15:54321");
+    expect(policy).not.toContain("upgrade-insecure-requests");
+  });
+
+  it("does not widen the policy for an insecure public or malformed origin", () => {
+    const insecurePublic = buildContentSecurityPolicy(
+      "public-nonce",
+      false,
+      "http://example.com:54321",
+    );
+    const malformed = buildContentSecurityPolicy(
+      "malformed-nonce",
+      false,
+      "não-é-url",
+    );
+
+    expect(insecurePublic).not.toContain("example.com");
+    expect(insecurePublic).toContain("upgrade-insecure-requests");
+    expect(malformed).toContain("upgrade-insecure-requests");
+  });
 });
 
 describe("route security headers", () => {
@@ -62,6 +93,21 @@ describe("route security headers", () => {
     expect(referrerPolicyForPath("/t/time-publico")).toBe(
       "strict-origin-when-cross-origin",
     );
+  });
+
+  it("aplica no-referrer, no-store e noindex ao campeonato compartilhado", () => {
+    const pathname = "/c/ca000000-0000-4000-8000-000000000001";
+    const response = applySecurityHeaders(
+      NextResponse.next(),
+      buildContentSecurityPolicy("test-nonce", false),
+      pathname,
+    );
+
+    expect(isPublicChampionshipPath(pathname)).toBe(true);
+    expect(referrerPolicyForPath(pathname)).toBe("no-referrer");
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store, max-age=0");
+    expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow, noarchive");
+    expect(shouldLoadThirdPartyAnalytics(pathname)).toBe(false);
   });
 
   it("preserves no-referrer on existing credential routes", () => {

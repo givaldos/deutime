@@ -22,6 +22,8 @@ jobs:
       APP_URL: ${{ vars.APP_URL }}
       SMOKE_PUBLIC_EVENT_ID: ${{ vars.SMOKE_PUBLIC_EVENT_ID }}
       EXPECT_EVENT_SHARE_CARD_ENABLED: ${{ vars.EXPECT_EVENT_SHARE_CARD_ENABLED }}
+      SMOKE_PUBLIC_CHAMPIONSHIP_ID: ${{ vars.SMOKE_PUBLIC_CHAMPIONSHIP_ID }}
+      EXPECT_CHAMPIONSHIP_ENABLED: ${{ vars.EXPECT_CHAMPIONSHIP_ENABLED }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4

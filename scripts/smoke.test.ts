@@ -1,10 +1,12 @@
 import {
   runProductionSmoke,
+  validatePublicChampionshipId,
   validatePublicEventId,
 } from "./smoke.mjs";
 import { describe, expect, it, vi } from "vitest";
 
 const publicEventId = "fdf577af-5cc4-489f-81cb-65fac548167b";
+const publicChampionshipId = "c8f577af-5cc4-489f-81cb-65fac548167b";
 
 function htmlResponse(
   status = 200,
@@ -45,7 +47,10 @@ describe("smoke de produção", () => {
         appUrl: "https://deutime.app",
         fetchImpl,
       }),
-    ).resolves.toEqual({ publicEventChecked: false });
+    ).resolves.toEqual({
+      publicEventChecked: false,
+      publicChampionshipChecked: false,
+    });
 
     expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
@@ -81,7 +86,10 @@ describe("smoke de produção", () => {
         publicEventId,
         fetchImpl,
       }),
-    ).resolves.toEqual({ publicEventChecked: true });
+    ).resolves.toEqual({
+      publicEventChecked: true,
+      publicChampionshipChecked: false,
+    });
 
     expect(fetchImpl).toHaveBeenCalledTimes(6);
     expect(fetchImpl.mock.calls[2]?.[0]).toEqual(
@@ -133,7 +141,87 @@ describe("smoke de produção", () => {
         expectEventShareCardEnabled: true,
         fetchImpl,
       }),
-    ).resolves.toEqual({ publicEventChecked: true });
+    ).resolves.toEqual({
+      publicEventChecked: true,
+      publicChampionshipChecked: false,
+    });
+  });
+
+  it("verifica a projeção anônima mínima do campeonato", async () => {
+    const headers = {
+      "cache-control": "private, no-store, max-age=0",
+      "referrer-policy": "no-referrer",
+      "x-robots-tag": "noindex, nofollow, noarchive",
+      "x-content-type-options": "nosniff",
+    };
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(htmlResponse(
+        200,
+        headers,
+        `<link rel="canonical" href="/c/${publicChampionshipId}"><h2>Regulamento publicado</h2><h2>Confrontos</h2><button>Compartilhar campeonato</button>`,
+      ));
+
+    await expect(runProductionSmoke({
+      mode: "production-readonly",
+      appUrl: "https://deutime.app",
+      publicChampionshipId,
+      expectChampionshipEnabled: true,
+      fetchImpl,
+    })).resolves.toEqual({
+      publicEventChecked: false,
+      publicChampionshipChecked: true,
+    });
+    expect(fetchImpl.mock.calls[2]?.[0]).toEqual(
+      new URL(`https://deutime.app/c/${publicChampionshipId}`),
+    );
+  });
+
+  it("confirma o fallback 404 do campeonato após rollback", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(htmlResponse(404, {
+        "cache-control": "private, no-store, max-age=0",
+        "referrer-policy": "no-referrer",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "x-content-type-options": "nosniff",
+      }));
+
+    await expect(runProductionSmoke({
+      mode: "production-readonly",
+      appUrl: "https://deutime.app",
+      publicChampionshipId,
+      expectChampionshipEnabled: false,
+      fetchImpl,
+    })).resolves.toEqual({
+      publicEventChecked: false,
+      publicChampionshipChecked: true,
+    });
+  });
+
+  it("alerta se a página do campeonato expõe identificador interno", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(htmlResponse(200, {
+        "cache-control": "private, no-store, max-age=0",
+        "referrer-policy": "no-referrer",
+        "x-robots-tag": "noindex, nofollow, noarchive",
+        "x-content-type-options": "nosniff",
+      }, `<link rel="canonical" href="/c/${publicChampionshipId}">championship_id=vazou Regulamento publicado Confrontos Compartilhar campeonato`));
+
+    await expect(runProductionSmoke({
+      mode: "production-readonly",
+      appUrl: "https://deutime.app",
+      publicChampionshipId,
+      expectChampionshipEnabled: true,
+      fetchImpl,
+    })).rejects.toThrow("publicou dado privado ou identificador interno");
   });
 
   it("exige cache público para a imagem quando o cartão está ativo", async () => {
@@ -235,6 +323,9 @@ describe("smoke de produção", () => {
 
     expect(() => validatePublicEventId("../auth/login")).toThrow(
       "SMOKE_PUBLIC_EVENT_ID deve ser um UUID canônico.",
+    );
+    expect(() => validatePublicChampionshipId("../app/segredo")).toThrow(
+      "SMOKE_PUBLIC_CHAMPIONSHIP_ID deve ser um UUID canônico.",
     );
   });
 });

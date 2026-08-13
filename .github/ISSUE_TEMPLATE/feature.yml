@@ -23,6 +23,7 @@ body:
         - R06 — Conversa da súmula
         - R07 — Times reutilizáveis e divisão compartilhável
         - R08M — Fechamento do MVP compartilhável
+        - R09 — Campeonatos e tabela
     validations:
       required: true
   - type: input

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { requireUser } from "@/lib/auth/dal";
 import { getAppUrl } from "@/lib/env/server";
+import { isChampionshipsEnabled } from "@/lib/features/championships/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   ArrowRight,
@@ -218,6 +219,7 @@ export default async function TeamDashboardPage({
     teamSlug: currentTeam.slug,
   }).slice(0, 8);
   const canEditTeam = membership.role === "owner" || membership.role === "admin";
+  const championshipsEnabled = await isChampionshipsEnabled(currentTeam.id);
 
   return (
     <main className="app-canvas min-h-screen pb-24">
@@ -258,6 +260,13 @@ export default async function TeamDashboardPage({
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            {championshipsEnabled ? (
+              <Button asChild variant="outline" size="icon" className="size-11 rounded-xl" title="Campeonatos">
+                <Link href={`/app/${currentTeam.slug}/championships`} aria-label="Campeonatos">
+                  <Trophy aria-hidden />
+                </Link>
+              </Button>
+            ) : null}
             {canEditTeam ? (
               <Button asChild variant="outline" size="icon" className="size-11 rounded-xl" title="Editar time">
                 <Link href={`/app/${currentTeam.slug}/settings`} aria-label="Editar time">
