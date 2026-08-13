@@ -3686,6 +3686,39 @@ export type Database = {
           wins: number
         }[]
       }
+      get_championship_pilot_health: {
+        Args: { requested_team_id: string }
+        Returns: {
+          active_championships: number
+          archived_championships: number
+          championships_enabled: boolean
+          championships_total: number
+          commands_24h: number
+          completed_championships: number
+          draft_championships: number
+          fallback_championships: number
+          finalized_fixtures: number
+          fixtures_total: number
+          groups_knockout_championships: number
+          knockout_championships: number
+          last_command_at: string
+          last_flag_change_at: string
+          league_championships: number
+          linked_fixtures: number
+          observed_at: string
+          page_candidates: number
+          participants_total: number
+          projected_championships: number
+          projected_fixtures: number
+          projected_participants: number
+          projected_standings: number
+          public_event_page_enabled: boolean
+          published_championships: number
+          reconstruction_mismatches: number
+          resolved_fixtures: number
+          void_fixtures: number
+        }[]
+      }
       get_championship_standings: {
         Args: { requested_championship_id: string }
         Returns: {

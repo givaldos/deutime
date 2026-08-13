@@ -5,6 +5,7 @@ import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { TeamMediaManager } from "@/components/team-media-manager";
 import { TeamSettingsForm } from "@/components/team-settings-form";
 import { EventSharePilotControl } from "@/components/event-share-pilot-control";
+import { ChampionshipPilotControl } from "@/components/championship-pilot-control";
 import { InternalSquadManager } from "@/components/internal-squad-manager";
 import { WhatsAppReminderSettingsForm } from "@/components/whatsapp-reminder-settings-form";
 import { AppContainer } from "@/components/ui/app-shell";
@@ -14,6 +15,7 @@ import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { parseEventSharePilotConfig } from "@/lib/features/public-event/pilot-config";
+import { parseChampionshipPilotConfig } from "@/lib/features/championships/pilot-config";
 import { getInternalSquads } from "@/lib/data/internal-squads";
 import {
   ArrowLeft,
@@ -99,15 +101,27 @@ export default async function TeamSettingsPage({
     console.error("event_share_pilot.config_invalid");
   }
   const eventSharePilotEligible = eventSharePilotTeamId === team.id;
+  let championshipPilotTeamId: string | null = null;
+  try {
+    championshipPilotTeamId =
+      parseChampionshipPilotConfig(process.env)?.teamId ?? null;
+  } catch {
+    console.error("championship_pilot.config_invalid");
+  }
+  const championshipPilotEligible = championshipPilotTeamId === team.id;
   const [
     whatsappRemindersEnabled,
     teamDivisionEnabled,
     eventShareCardEnabled,
+    championshipsEnabled,
   ] = await Promise.all([
     isTeamFeatureEnabled(team.id, "whatsapp_reminders"),
     isTeamFeatureEnabled(team.id, "team_division"),
     eventSharePilotEligible
       ? isTeamFeatureEnabled(team.id, "event_share_card")
+      : Promise.resolve(false),
+    championshipPilotEligible
+      ? isTeamFeatureEnabled(team.id, "championships")
       : Promise.resolve(false),
   ]);
   const internalSquads = teamDivisionEnabled ? await getInternalSquads(team.id) : [];
@@ -232,6 +246,14 @@ export default async function TeamSettingsPage({
             teamName={team.name}
             teamSlug={team.slug}
             enabled={eventShareCardEnabled}
+          />
+        ) : null}
+
+        {championshipPilotEligible ? (
+          <ChampionshipPilotControl
+            teamName={team.name}
+            teamSlug={team.slug}
+            enabled={championshipsEnabled}
           />
         ) : null}
 

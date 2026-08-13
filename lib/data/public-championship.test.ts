@@ -2,7 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-const mocks = vi.hoisted(() => ({ rpc: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  rpc: vi.fn(),
+  info: vi.fn(),
+  error: vi.fn(),
+}));
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(async () => ({ rpc: mocks.rpc })),
@@ -52,7 +56,11 @@ const validProjection = {
 };
 
 describe("getPublicChampionship", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(console, "info").mockImplementation(mocks.info);
+    vi.spyOn(console, "error").mockImplementation(mocks.error);
+  });
 
   it("rejeita identificador inválido antes do banco", async () => {
     await expect(getPublicChampionship("../segredo")).resolves.toBeNull();
@@ -86,5 +94,42 @@ describe("getPublicChampionship", () => {
     await expect(getPublicChampionshipWithFallback(
       "ca000000-0000-4000-8000-000000000002",
     )).resolves.toBeNull();
+    expect(mocks.error).toHaveBeenCalledWith(
+      "public_championship_projection.observed",
+      expect.objectContaining({
+        format: "fallback",
+        participantCount: 0,
+        fixtureCount: 0,
+        standingCount: 0,
+        fallback: true,
+        error: "projection_unavailable",
+      }),
+    );
+    expect(JSON.stringify(mocks.error.mock.calls)).not.toContain(
+      "ca000000-0000-4000-8000-000000000002",
+    );
+  });
+
+  it("registra somente formato, contagens e duração da projeção", async () => {
+    mocks.rpc.mockResolvedValue({ data: validProjection, error: null });
+
+    await expect(getPublicChampionshipWithFallback(
+      "ca000000-0000-4000-8000-000000000003",
+    )).resolves.toEqual(validProjection);
+    expect(mocks.info).toHaveBeenCalledWith(
+      "public_championship_projection.observed",
+      expect.objectContaining({
+        format: "league",
+        participantCount: 2,
+        fixtureCount: 1,
+        standingCount: 0,
+        fallback: false,
+        error: "none",
+        durationMs: expect.any(Number),
+      }),
+    );
+    const serialized = JSON.stringify(mocks.info.mock.calls);
+    expect(serialized).not.toContain("Liga Pública");
+    expect(serialized).not.toContain(publicId);
   });
 });

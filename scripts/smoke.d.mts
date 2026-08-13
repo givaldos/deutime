@@ -8,7 +8,15 @@ export function runProductionSmoke(options: {
   appUrl: string;
   publicEventId?: string;
   expectEventShareCardEnabled?: boolean;
+  publicChampionshipId?: string;
+  expectChampionshipEnabled?: boolean;
   fetchImpl?: SmokeFetch;
-}): Promise<{ publicEventChecked: boolean }>;
+}): Promise<{
+  publicEventChecked: boolean;
+  publicChampionshipChecked: boolean;
+}>;
 
 export function validatePublicEventId(publicEventId: string): void;
+export function validatePublicChampionshipId(
+  publicChampionshipId: string,
+): void;

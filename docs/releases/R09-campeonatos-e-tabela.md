@@ -345,3 +345,36 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
 - o checkpoint permanece em CP2. Próxima ação: `WP-R09-05`, acrescentar
   robustez, telemetria, runbook e executar o piloto controlado até CP6, incluindo
   a evidência física em Android, iPhone e navegador interno do WhatsApp.
+
+### `WP-R09-05` — CP3 concluído; CP4 pendente
+
+- `get_championship_pilot_health` entrega exclusivamente a `service_role` uma
+  leitura agregada e sem PII de flags, formatos, estados, projeções, comandos e
+  reconstrução da classificação. `anon` e `authenticated` não recebem grant;
+  time ausente ou fora da coorte observada não amplia a leitura;
+- a sonda `pilot:championship:health` valida UUID, coerência dos agregados, estado
+  esperado da flag, projeção completa, fallback e divergência de reconstrução,
+  sem imprimir segredo, identificador de time, nome ou corpo bruto de erro;
+- concorrência real em duas sessões confirmou um único efeito e um único recibo
+  para geração e publicação simultâneas. A suíte focada aprovou 36 casos da
+  sonda e 22 casos de concorrência; o gate completo aprovou 50 arquivos e 1.317
+  testes pgTAP, mantendo apenas dois avisos legados no lint do banco;
+- a projeção pública emite telemetria apenas com formato, contagens, fallback,
+  duração limitada e erro grosseiro. O smoke anônimo cobre a página `/c` ativa e
+  o mesmo endereço em rollback 404, incluindo headers privados e ausência de
+  IDs internos, campos privados e segredos;
+- o controle operacional aparece somente para o único `team_id` configurado,
+  exige confirmação explícita e delega a escrita à RPC auditada da flag. Sem
+  configuração ele fica inerte; valor inválido falha fechado;
+- o runbook define pré-sonda, ativação, observação, limiares de parada, smoke,
+  suporte, reconstrução, fallback manual e rollback. R09 continua sem outbox ou
+  efeito externo automático; compartilhamento segue manual e local;
+- o ciclo sintético em 390×844 confirmou ausência de overflow global, alvo de
+  48 px, isolamento da coorte, ativação, sonda verde, agenda preservada e
+  rollback. A flag terminou desligada e nenhuma organização real foi ativada;
+- ESLint, TypeScript, 74 arquivos e 422 testes Vitest, build de produção Webpack,
+  integridade forward-only das migrations, tipos regenerados e auditoria com
+  zero vulnerabilidades passaram;
+- o checkpoint avança a CP3. CP4 ainda exige registrar a jornada desta versão em
+  Android, iPhone e navegador interno do WhatsApp; somente depois o piloto de
+  uma organização demo pode executar CP5 e a sincronização final de CP6.

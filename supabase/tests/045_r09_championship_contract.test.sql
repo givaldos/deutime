@@ -54,7 +54,12 @@ select ok(
   'RLS está habilitada em confrontos'
 );
 select is(
-  (select count(*) from public.team_feature_flags where feature = 'championships'),
+  (
+    select count(*)
+    from public.team_feature_flags
+    where feature = 'championships'
+      and enabled
+  ),
   0::bigint,
   'a expansão não ativa nenhum time'
 );
