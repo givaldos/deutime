@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import {
   applySecurityHeaders,
   buildContentSecurityPolicy,
+  isPublicChampionshipPath,
   isPublicEventPath,
   referrerPolicyForPath,
   shouldLoadThirdPartyAnalytics,
@@ -62,6 +63,21 @@ describe("route security headers", () => {
     expect(referrerPolicyForPath("/t/time-publico")).toBe(
       "strict-origin-when-cross-origin",
     );
+  });
+
+  it("aplica no-referrer, no-store e noindex ao campeonato compartilhado", () => {
+    const pathname = "/c/ca000000-0000-4000-8000-000000000001";
+    const response = applySecurityHeaders(
+      NextResponse.next(),
+      buildContentSecurityPolicy("test-nonce", false),
+      pathname,
+    );
+
+    expect(isPublicChampionshipPath(pathname)).toBe(true);
+    expect(referrerPolicyForPath(pathname)).toBe("no-referrer");
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store, max-age=0");
+    expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow, noarchive");
+    expect(shouldLoadThirdPartyAnalytics(pathname)).toBe(false);
   });
 
   it("preserves no-referrer on existing credential routes", () => {

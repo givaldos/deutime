@@ -1,35 +1,35 @@
 ---
 release: R09
-work_package: WP-R09-04
-scope: public_championship_projection
-branch_or_commit: "codex/r09-grupos-mata-mata"
+work_package: WP-R09-05
+scope: championship_robustness_and_pilot
+branch_or_commit: "codex/r09-pagina-publica"
 checkpoint: CP2
 status: ready
-completed_ac: [AC-R09-01, AC-R09-03, AC-R09-06, AC-R09-07, AC-R09-08, AC-R09-09]
+completed_ac: [AC-R09-01, AC-R09-03, AC-R09-06, AC-R09-07, AC-R09-08, AC-R09-09, AC-R09-10, AC-R09-12]
 dirty_files: []
 tests:
-  - "pgTAP focado WP-R09-03: 63/63 assertions aprovadas"
-  - "db:reset limpo; db:test: 47 arquivos e 1.218 testes aprovados"
+  - "pgTAP focado WP-R09-04: 41/41 assertions aprovadas"
+  - "db:test: 48 arquivos e 1.259 testes aprovados"
   - "db:lint: nenhum aviso novo; dois avisos legados permanecem fora do escopo"
-  - "migrations forward-only, schema reaplicado e tipos regenerados"
-  - "gate de app: ESLint, TypeScript e 67 arquivos/391 testes Vitest aprovados"
+  - "migrations forward-only preservadas e tipos regenerados"
+  - "gate de app: ESLint, TypeScript e 70 arquivos/404 testes Vitest aprovados"
   - "build de produção Webpack aprovado; auditoria: zero vulnerabilidades"
-  - "jornada no navegador aprovada; evidências iPhone e Android revisadas pelo responsável; fallback reativado"
+  - "rota /c aprovada em 390x844 e 360x800; headers privados aprovados; cenário local removido e fallback preservado"
 blocker: null
-next_action: "Implementar WP-R09-04 com projeção anônima mínima, rota /c/{public_id} e compartilhamento seguro, mantendo championships desligada."
+next_action: "Executar WP-R09-05 com robustez, telemetria, runbook e piloto controlado CP3-CP6, incluindo Android, iPhone e navegador interno do WhatsApp."
 ---
 
 # Trabalho atual
 
-WP-R09-03 concluiu grupos e mata-mata atrás da flag `championships`. Owner/admin
-gera grupos ou chave direta, decide vagas absolutamente empatadas com motivo,
-avança classificados e resolve empate eliminatório, W.O. ou decisão
-administrativa sem inventar placar.
+WP-R09-04 concluiu a projeção anônima mínima e a página `/c/{public_id}` atrás da
+flag `championships`. Owner/admin publica ou recolhe o endereço por intenção
+idempotente; sessões autenticadas não ampliam a audiência.
 
-Byes e dependências são estruturais e idempotentes. Correções propagam apenas
-antes do confronto dependente começar; remarcação e retirada preservam o
-histórico concluído e falham fechadas diante de fatos já iniciados.
+Regulamento, identidades visuais, tabela e chave continuam derivados do contrato
+do campeonato. Placar e link da partida aparecem somente após autorização
+pública já existente; atletas, endereço, IDs internos e motivos não entram na
+projeção. Schema N−1, flag desligada ou falha retornam o mesmo estado não público.
 
 O checkpoint permanece em CP2 sem ativar organização. A retomada começa em
-`WP-R09-04`, com projeção pública mínima e compartilhamento seguro. Piloto,
-telemetria e rollout continuam fora até o pacote seguinte.
+`WP-R09-05`, com robustez, telemetria, runbook e piloto controlado. A evidência
+física em Android, iPhone e navegador interno do WhatsApp integra esse gate.

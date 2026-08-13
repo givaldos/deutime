@@ -40,7 +40,7 @@ export function applySecurityHeaders(
   );
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
 
-  if (isPublicEventPath(pathname)) {
+  if (isSensitivePublicPath(pathname)) {
     response.headers.set("Cache-Control", "private, no-store, max-age=0");
     response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
   }
@@ -59,8 +59,16 @@ export function isPublicEventPath(pathname: string) {
   return pathname === "/e" || pathname.startsWith("/e/");
 }
 
+export function isPublicChampionshipPath(pathname: string) {
+  return pathname === "/c" || pathname.startsWith("/c/");
+}
+
+export function isSensitivePublicPath(pathname: string) {
+  return isPublicEventPath(pathname) || isPublicChampionshipPath(pathname);
+}
+
 export function shouldLoadThirdPartyAnalytics(pathname: string) {
-  return !isPublicEventPath(pathname);
+  return !isSensitivePublicPath(pathname);
 }
 
 export function referrerPolicyForPath(pathname: string) {
@@ -68,7 +76,7 @@ export function referrerPolicyForPath(pathname: string) {
     pathname === "/auth/recovery" ||
     pathname === "/auth/update-password" ||
     pathname.startsWith("/invite/") ||
-    isPublicEventPath(pathname)
+    isSensitivePublicPath(pathname)
     ? "no-referrer"
     : "strict-origin-when-cross-origin";
 }

@@ -7,6 +7,7 @@ import {
   addChampionshipParticipantSchema,
   championshipCommandSchema,
   championshipFormatCommandSchema,
+  championshipPublicModeSchema,
   createChampionshipSchema,
   decideChampionshipQualifierSchema,
   linkChampionshipFixtureSchema,
@@ -199,6 +200,57 @@ export async function publishChampionshipFormat(
   formData: FormData,
 ): Promise<ChampionshipActionState> {
   return runChampionshipFormatCommand(previousState, formData, "publish");
+}
+
+export async function setChampionshipPublicMode(
+  previousState: ChampionshipActionState,
+  formData: FormData,
+): Promise<ChampionshipActionState> {
+  await requireUser();
+  const attempt = (previousState.attempt ?? 0) + 1;
+  const parsed = championshipPublicModeSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    championshipId: formData.get("championshipId"),
+    publicId: formData.get("publicId"),
+    requestId: formData.get("requestId"),
+    mode: formData.get("mode"),
+  });
+  if (!parsed.success) {
+    return { attempt, outcome: "error", message: "Publicação inválida." };
+  }
+  if (!(await isChampionshipsEnabled(parsed.data.teamId))) {
+    return { attempt, outcome: "error", message: "Campeonatos estão desligados." };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("set_championship_public_mode", {
+    requested_championship_id: parsed.data.championshipId,
+    request_id: parsed.data.requestId,
+    requested_mode: parsed.data.mode,
+  });
+  if (error || !data) {
+    return {
+      attempt,
+      outcome: "error",
+      message: errorMessage(error?.code, "Não foi possível alterar a página pública."),
+    };
+  }
+
+  revalidateChampionship(parsed.data.teamSlug, parsed.data.championshipId);
+  revalidatePath(`/c/${parsed.data.publicId}`);
+  return {
+    attempt,
+    outcome: "success",
+    nextRequestId: randomUUID(),
+    message: parsed.data.mode === "public"
+      ? data.replayed
+        ? "Esta página já estava publicada."
+        : "Página publicada. O link já pode ser compartilhado."
+      : data.replayed
+        ? "Esta página já estava recolhida."
+        : "Página recolhida. O link não mostra mais o campeonato.",
+  };
 }
 
 async function runChampionshipFormatCommand(

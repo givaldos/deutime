@@ -119,6 +119,11 @@ export const championshipFormatCommandSchema = championshipCommandSchema.extend(
   format: championshipFormat,
 });
 
+export const championshipPublicModeSchema = championshipCommandSchema.extend({
+  publicId: uuid,
+  mode: z.enum(["private", "public"]),
+});
+
 export const linkChampionshipFixtureSchema = championshipCommandSchema.extend({
   fixtureId: uuid,
   matchId: uuid,

@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 12 de agosto de 2026.
+> Atualizado em 13 de agosto de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -14,7 +14,7 @@ O **MVP funcional completo** permite que um time real execute pelo celular e pel
 
 O MVP é considerado completo para **piloto controlado**, não para disponibilidade geral em escala. Nenhuma etapa pode depender de intervenção no banco, expor dados sem consentimento ou perder a operação quando WhatsApp, tempo real, vídeo, votação ou conversa estiverem desligados.
 
-**Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na R08M. A R09 é a única vertical ativa: pontos corridos, grupos e mata-mata passaram por CP2, a flag continua desligada e nenhum time foi ativado.
+**Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na R08M. A R09 é a única vertical ativa: três formatos e a página compartilhável passaram por CP2, a flag continua desligada e nenhum time foi ativado.
 
 ## Estado executivo
 
@@ -30,7 +30,7 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | **R03R — Lembretes econômicos** | ✅ `completed` | Duas cotas configuráveis, somente para pendentes, com envio manual/automático idempotente e custo agregado. | [Abrir](releases/R03R-lembretes-economicos.md) |
 | **R07 — Times reutilizáveis e divisão compartilhável** | ✅ `completed` | Equipes reutilizáveis, sugestão, publicação, primeiros nomes, formação visual e jornada por toque validadas em produção. | [Abrir](releases/R07-times-manuais-compartilhaveis.md) |
 | **R08M — Fechamento do MVP compartilhável** | ✅ `completed` | Open Graph por fase, piloto compartilhável, ciclo integrado, falhas e fallbacks comprovados. | [Abrir](releases/R08M-fechamento-mvp-compartilhavel.md) |
-| **R09 — Campeonatos e tabela** | 🟡 `active / CP2` | Três formatos mobile, geração/publicação idempotente, classificação, byes, avanço e decisões eliminatórias concluídos; página compartilhável é o próximo pacote. | [Abrir](releases/R09-campeonatos-e-tabela.md) |
+| **R09 — Campeonatos e tabela** | 🟡 `active / CP2` | Três formatos, classificação, chave e página anônima compartilhável concluídos; robustez e piloto controlado são o próximo pacote. | [Abrir](releases/R09-campeonatos-e-tabela.md) |
 
 ## Cronograma consolidado
 
@@ -141,7 +141,7 @@ Uma pessoa administradora autorizada poderá criar campeonatos em três formatos
 
 O campeonato pertence às partidas, não à recorrência do evento. Um evento pode conter vários confrontos, e amistosos continuam sem campeonato. Cancelar uma ocorrência futura libera a partida para remarcação sem apagá-la; cancelar ocorrências futuras de uma série preserva todos os confrontos pendentes. Partida concluída nunca é excluída: anulação ou correção exige motivo, auditoria e recálculo transacional da tabela ou do chaveamento.
 
-A descoberta da R09 foi concluída em `DEC-CHAMPIONSHIP-MODEL`: participantes aceitos, pontuação, desempate, geração e edição de confrontos, empate no mata-mata e publicação mobile-first compartilhável pelo WhatsApp estão fechados. Os três formatos passaram por CP2 sem ativar time; a próxima ação é expor uma projeção anônima mínima e compartilhável sobre o mesmo contrato.
+A descoberta da R09 foi concluída em `DEC-CHAMPIONSHIP-MODEL`: participantes aceitos, pontuação, desempate, geração e edição de confrontos, empate no mata-mata e publicação mobile-first compartilhável pelo WhatsApp estão fechados. Os três formatos e a projeção anônima passaram por CP2 sem ativar time; a próxima ação é robustez, telemetria, runbook e piloto controlado.
 
 ## Fora do MVP entregue
 
