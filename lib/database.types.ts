@@ -291,6 +291,356 @@ export type Database = {
           },
         ]
       }
+      championship_commands: {
+        Row: {
+          action: Database["public"]["Enums"]["championship_command_kind"]
+          actor_id: string
+          championship_id: string | null
+          created_at: string
+          id: string
+          request_id: string
+          result: Json
+          team_id: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["championship_command_kind"]
+          actor_id: string
+          championship_id?: string | null
+          created_at?: string
+          id?: string
+          request_id: string
+          result: Json
+          team_id: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["championship_command_kind"]
+          actor_id?: string
+          championship_id?: string | null
+          created_at?: string
+          id?: string
+          request_id?: string
+          result?: Json
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "championship_commands_championship_id_fkey"
+            columns: ["championship_id"]
+            isOneToOne: false
+            referencedRelation: "championships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "championship_commands_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      championship_fixture_slots: {
+        Row: {
+          championship_id: string
+          created_at: string
+          fixture_id: string
+          kind: Database["public"]["Enums"]["championship_fixture_slot_kind"]
+          participant_id: string | null
+          side_index: number
+          source_fixture_id: string | null
+          team_id: string
+        }
+        Insert: {
+          championship_id: string
+          created_at?: string
+          fixture_id: string
+          kind: Database["public"]["Enums"]["championship_fixture_slot_kind"]
+          participant_id?: string | null
+          side_index: number
+          source_fixture_id?: string | null
+          team_id: string
+        }
+        Update: {
+          championship_id?: string
+          created_at?: string
+          fixture_id?: string
+          kind?: Database["public"]["Enums"]["championship_fixture_slot_kind"]
+          participant_id?: string | null
+          side_index?: number
+          source_fixture_id?: string | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "championship_fixture_slots_fixture_id_championship_id_team_fkey"
+            columns: ["fixture_id", "championship_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "championship_fixtures"
+            referencedColumns: ["id", "championship_id", "team_id"]
+          },
+          {
+            foreignKeyName: "championship_fixture_slots_participant_id_championship_id__fkey"
+            columns: ["participant_id", "championship_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "championship_participants"
+            referencedColumns: ["id", "championship_id", "team_id"]
+          },
+          {
+            foreignKeyName: "championship_fixture_slots_source_fixture_id_championship__fkey"
+            columns: ["source_fixture_id", "championship_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "championship_fixtures"
+            referencedColumns: ["id", "championship_id", "team_id"]
+          },
+        ]
+      }
+      championship_fixtures: {
+        Row: {
+          championship_id: string
+          created_at: string
+          created_by: string
+          group_number: number | null
+          id: string
+          linked_at: string | null
+          linked_by: string | null
+          match_id: string | null
+          ordinal: number
+          resolution:
+            | Database["public"]["Enums"]["championship_fixture_resolution"]
+            | null
+          resolution_reason: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          round_number: number
+          stage: Database["public"]["Enums"]["championship_fixture_stage"]
+          status: Database["public"]["Enums"]["championship_fixture_status"]
+          team_id: string
+          updated_at: string
+          updated_by: string
+          winner_participant_id: string | null
+        }
+        Insert: {
+          championship_id: string
+          created_at?: string
+          created_by: string
+          group_number?: number | null
+          id?: string
+          linked_at?: string | null
+          linked_by?: string | null
+          match_id?: string | null
+          ordinal: number
+          resolution?:
+            | Database["public"]["Enums"]["championship_fixture_resolution"]
+            | null
+          resolution_reason?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          round_number: number
+          stage: Database["public"]["Enums"]["championship_fixture_stage"]
+          status?: Database["public"]["Enums"]["championship_fixture_status"]
+          team_id: string
+          updated_at?: string
+          updated_by: string
+          winner_participant_id?: string | null
+        }
+        Update: {
+          championship_id?: string
+          created_at?: string
+          created_by?: string
+          group_number?: number | null
+          id?: string
+          linked_at?: string | null
+          linked_by?: string | null
+          match_id?: string | null
+          ordinal?: number
+          resolution?:
+            | Database["public"]["Enums"]["championship_fixture_resolution"]
+            | null
+          resolution_reason?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          round_number?: number
+          stage?: Database["public"]["Enums"]["championship_fixture_stage"]
+          status?: Database["public"]["Enums"]["championship_fixture_status"]
+          team_id?: string
+          updated_at?: string
+          updated_by?: string
+          winner_participant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "championship_fixtures_championship_id_team_id_fkey"
+            columns: ["championship_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "championships"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "championship_fixtures_match_id_team_id_fkey"
+            columns: ["match_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "event_matches"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "championship_fixtures_match_id_team_id_fkey"
+            columns: ["match_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "public_match_directory"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "championship_fixtures_winner_participant_id_championship_i_fkey"
+            columns: ["winner_participant_id", "championship_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "championship_participants"
+            referencedColumns: ["id", "championship_id", "team_id"]
+          },
+        ]
+      }
+      championship_participants: {
+        Row: {
+          championship_id: string
+          created_at: string
+          created_by: string
+          group_number: number | null
+          id: string
+          internal_team_id: string | null
+          kind: Database["public"]["Enums"]["championship_participant_kind"]
+          seed: number
+          snapshot_badge_key: Database["public"]["Enums"]["internal_squad_badge_key"]
+          snapshot_color: string
+          snapshot_name: string
+          status: Database["public"]["Enums"]["championship_participant_status"]
+          team_id: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          championship_id: string
+          created_at?: string
+          created_by: string
+          group_number?: number | null
+          id?: string
+          internal_team_id?: string | null
+          kind: Database["public"]["Enums"]["championship_participant_kind"]
+          seed: number
+          snapshot_badge_key: Database["public"]["Enums"]["internal_squad_badge_key"]
+          snapshot_color: string
+          snapshot_name: string
+          status?: Database["public"]["Enums"]["championship_participant_status"]
+          team_id: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          championship_id?: string
+          created_at?: string
+          created_by?: string
+          group_number?: number | null
+          id?: string
+          internal_team_id?: string | null
+          kind?: Database["public"]["Enums"]["championship_participant_kind"]
+          seed?: number
+          snapshot_badge_key?: Database["public"]["Enums"]["internal_squad_badge_key"]
+          snapshot_color?: string
+          snapshot_name?: string
+          status?: Database["public"]["Enums"]["championship_participant_status"]
+          team_id?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "championship_participants_championship_id_team_id_fkey"
+            columns: ["championship_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "championships"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "championship_participants_internal_team_id_team_id_fkey"
+            columns: ["internal_team_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "team_squad_presets"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
+      championships: {
+        Row: {
+          created_at: string
+          created_by: string
+          draw_points: number
+          format: Database["public"]["Enums"]["championship_format"]
+          group_count: number | null
+          id: string
+          loss_points: number
+          name: string
+          public_id: string
+          public_mode: Database["public"]["Enums"]["championship_public_mode"]
+          published_at: string | null
+          published_by: string | null
+          qualifiers_per_group: number | null
+          status: Database["public"]["Enums"]["championship_status"]
+          team_id: string
+          tiebreak_order: Database["public"]["Enums"]["championship_tiebreak_key"][]
+          updated_at: string
+          updated_by: string
+          win_points: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          draw_points?: number
+          format: Database["public"]["Enums"]["championship_format"]
+          group_count?: number | null
+          id?: string
+          loss_points?: number
+          name: string
+          public_id?: string
+          public_mode?: Database["public"]["Enums"]["championship_public_mode"]
+          published_at?: string | null
+          published_by?: string | null
+          qualifiers_per_group?: number | null
+          status?: Database["public"]["Enums"]["championship_status"]
+          team_id: string
+          tiebreak_order?: Database["public"]["Enums"]["championship_tiebreak_key"][]
+          updated_at?: string
+          updated_by: string
+          win_points?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          draw_points?: number
+          format?: Database["public"]["Enums"]["championship_format"]
+          group_count?: number | null
+          id?: string
+          loss_points?: number
+          name?: string
+          public_id?: string
+          public_mode?: Database["public"]["Enums"]["championship_public_mode"]
+          published_at?: string | null
+          published_by?: string | null
+          qualifiers_per_group?: number | null
+          status?: Database["public"]["Enums"]["championship_status"]
+          team_id?: string
+          tiebreak_order?: Database["public"]["Enums"]["championship_tiebreak_key"][]
+          updated_at?: string
+          updated_by?: string
+          win_points?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "championships_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       communication_consents: {
         Row: {
           athlete_id: string
@@ -2914,6 +3264,25 @@ export type Database = {
         }
         Returns: boolean
       }
+      add_championship_participant: {
+        Args: {
+          request_id: string
+          requested_championship_id: string
+          requested_external_badge_key: Database["public"]["Enums"]["internal_squad_badge_key"]
+          requested_external_color: string
+          requested_external_name: string
+          requested_group_number: number
+          requested_internal_team_id: string
+          requested_seed: number
+        }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       add_match_incident_as_staff: {
         Args: {
           incident_assist_athlete_id?: string
@@ -3024,6 +3393,27 @@ export type Database = {
           requested_team_id: string
         }
         Returns: string
+      }
+      create_championship_draft: {
+        Args: {
+          request_id: string
+          requested_draw_points: number
+          requested_format: Database["public"]["Enums"]["championship_format"]
+          requested_group_count?: number
+          requested_loss_points: number
+          requested_name: string
+          requested_qualifiers_per_group?: number
+          requested_team_id: string
+          requested_tiebreak_order: Database["public"]["Enums"]["championship_tiebreak_key"][]
+          requested_win_points: number
+        }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       create_event_as_staff: {
         Args: {
@@ -3360,6 +3750,20 @@ export type Database = {
           expires_at: string
           public_id: string
         }[]
+      }
+      link_championship_fixture_match: {
+        Args: {
+          request_id: string
+          requested_fixture_id: string
+          requested_match_id: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       link_event_lineup_squad_to_match_side: {
         Args: {
@@ -3929,6 +4333,31 @@ export type Database = {
         | "declined"
         | "maybe"
         | "waitlist"
+      championship_command_kind: "create" | "add_participant" | "link_fixture"
+      championship_fixture_resolution:
+        | "score"
+        | "penalties"
+        | "walkover"
+        | "regulation"
+        | "administrative"
+      championship_fixture_slot_kind: "participant" | "winner" | "loser" | "bye"
+      championship_fixture_stage: "league" | "group" | "knockout"
+      championship_fixture_status: "draft" | "scheduled" | "finalized" | "void"
+      championship_format: "league" | "groups_knockout" | "knockout"
+      championship_participant_kind: "internal" | "external"
+      championship_participant_status: "active" | "withdrawn"
+      championship_public_mode: "private" | "public"
+      championship_status:
+        | "draft"
+        | "published"
+        | "active"
+        | "completed"
+        | "archived"
+      championship_tiebreak_key:
+        | "wins"
+        | "goal_difference"
+        | "goals_for"
+        | "head_to_head"
       consent_status: "granted" | "revoked"
       craque_vote_status: "counted" | "revoked"
       event_change_kind:
@@ -3972,6 +4401,7 @@ export type Database = {
         | "event_matches"
         | "whatsapp_reminders"
         | "event_share_card"
+        | "championships"
       internal_squad_badge_key:
         | "shield"
         | "stripes"
@@ -4012,6 +4442,12 @@ export type Database = {
       team_role: "owner" | "admin" | "manager"
     }
     CompositeTypes: {
+      championship_command_result: {
+        request_id: string | null
+        championship_id: string | null
+        entity_id: string | null
+        replayed: boolean | null
+      }
       event_command_result: {
         request_id: string | null
         event_id: string | null
@@ -4182,6 +4618,34 @@ export const Constants = {
         "maybe",
         "waitlist",
       ],
+      championship_command_kind: ["create", "add_participant", "link_fixture"],
+      championship_fixture_resolution: [
+        "score",
+        "penalties",
+        "walkover",
+        "regulation",
+        "administrative",
+      ],
+      championship_fixture_slot_kind: ["participant", "winner", "loser", "bye"],
+      championship_fixture_stage: ["league", "group", "knockout"],
+      championship_fixture_status: ["draft", "scheduled", "finalized", "void"],
+      championship_format: ["league", "groups_knockout", "knockout"],
+      championship_participant_kind: ["internal", "external"],
+      championship_participant_status: ["active", "withdrawn"],
+      championship_public_mode: ["private", "public"],
+      championship_status: [
+        "draft",
+        "published",
+        "active",
+        "completed",
+        "archived",
+      ],
+      championship_tiebreak_key: [
+        "wins",
+        "goal_difference",
+        "goals_for",
+        "head_to_head",
+      ],
       consent_status: ["granted", "revoked"],
       craque_vote_status: ["counted", "revoked"],
       event_change_kind: [
@@ -4229,6 +4693,7 @@ export const Constants = {
         "event_matches",
         "whatsapp_reminders",
         "event_share_card",
+        "championships",
       ],
       internal_squad_badge_key: [
         "shield",
