@@ -13,9 +13,10 @@ O DeuTime é um SaaS multi-time. A mesma pessoa pode administrar vários times, 
 4. **Presença** — `event_attendance` registra a resposta do atleta para uma ocorrência específica.
 5. **Divisão e escalação** — `event_squads` representa os times planejados de um evento; `lineup_spots` posiciona atletas confirmados, sem transformar RSVP ou escalação em participação real.
 6. **Súmula e estatísticas** — o modelo legado mantém uma `match_report` por evento. Conforme [`DEC-EVENT-MATCH`](decisions/DEC-EVENT-MATCH.md), a expansão R04 preserva o evento como contêiner de zero a muitas partidas, cada uma com dois lados, participação real própria e fatos esportivos append-only. Estatísticas derivam somente de partidas encerradas, sem contador paralelo.
-7. **Conversa da súmula** — conforme [`DEC-CONVERSATION-LIFETIME`](decisions/DEC-CONVERSATION-LIFETIME.md), comentários privados pertencem à partida, exigem identidade verificada e audiência congelada SIM/TALVEZ ou staff ativo; escrita fecha em sete dias e não cria chat geral.
-8. **Comunicação** — `communication_consents` registra opt-in/opt-out e evidência; `notification_outbox` desacopla eventos do domínio do futuro provedor de WhatsApp.
-9. **Auditoria** — `audit_logs` registra mudanças sensíveis de estado sem armazenar o conteúdo completo da PII.
+7. **Campeonatos** — conforme [`DEC-CHAMPIONSHIP-MODEL`](decisions/DEC-CHAMPIONSHIP-MODEL.md), campeonato, participantes, confrontos e slots pertencem a um único `team_id`; o vínculo opcional 1:1 fica no confronto novo e referencia `event_matches` sem alterar a partida. A flag `championships` nasce desligada, tabelas não são públicas e classificação futura deriva somente de fatos finalizados.
+8. **Conversa da súmula** — conforme [`DEC-CONVERSATION-LIFETIME`](decisions/DEC-CONVERSATION-LIFETIME.md), comentários privados pertencem à partida, exigem identidade verificada e audiência congelada SIM/TALVEZ ou staff ativo; escrita fecha em sete dias e não cria chat geral.
+9. **Comunicação** — `communication_consents` registra opt-in/opt-out e evidência; `notification_outbox` desacopla eventos do domínio do futuro provedor de WhatsApp.
+10. **Auditoria** — `audit_logs` registra mudanças sensíveis de estado sem armazenar o conteúdo completo da PII.
 
 ## Componentes
 

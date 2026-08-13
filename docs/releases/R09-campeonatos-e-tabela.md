@@ -1,7 +1,7 @@
 ---
 id: R09
 type: vertical
-status: ready
+status: active
 outcome: "Permitir que a diretoria organize campeonatos em pontos corridos, grupos com mata-mata ou mata-mata, vincule partidas e compartilhe tabela ou chaveamento atualizados sem perder o histórico."
 depends_on: [R04, R07, R08M]
 baseline:
@@ -233,3 +233,24 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
   localizados; a R09 satisfaz a Definition of Ready;
 - próxima ação: `WP-R09-01`, adicionar a expansão inerte da flag, tabelas,
   RLS, grants e RPCs sem criar consumidor nem ativar organização.
+
+### `WP-R09-01` — CP1 concluído
+
+- a flag tipada `championships` foi adicionada em migration isolada e nenhum
+  registro de `team_feature_flags` foi criado pela expansão;
+- `championships`, `championship_participants`, `championship_fixtures` e
+  `championship_fixture_slots` carregam `team_id`, RLS e grants mínimos;
+- o vínculo 1:1 pertence a `championship_fixtures.match_id` e referencia a chave
+  composta da partida. `event_matches` não recebeu coluna nem dependência nova;
+- participantes internos preservam snapshot da equipe do mesmo tenant;
+  adversários externos não criam conta, atleta, vínculo ou acesso cross-tenant;
+- `create_championship_draft`, `add_championship_participant` e
+  `link_championship_fixture_match` validam papéis e flag, delegam escritas
+  transacionais e mantêm recibos idempotentes invisíveis ao cliente;
+- o pgTAP focado aprovou 44 casos dos três formatos, regras inválidas, flag desligada, papéis,
+  replay, snapshots, RLS, cross-tenant, vínculo, grants e auditoria redigida;
+- `db:reset`, censo dinâmico, lint, tipos e suíte completa confirmaram expansão
+  forward-only, sem consumidor e compatível com app/schema N/N−1;
+- o checkpoint avançou para CP1 sem ativar time. Próxima ação: `WP-R09-02`,
+  entregar o caminho fino de pontos corridos atrás da flag e manter a agenda,
+  partidas e súmula atuais como fallback.
