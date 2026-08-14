@@ -3,6 +3,11 @@ name: Smoke
 on:
   deployment_status:
   workflow_dispatch:
+    inputs:
+      expect_championship_enabled:
+        description: "Exigir a página pública do campeonato ativa (use false apenas em rollback manual)."
+        required: true
+        default: "true"
 
 permissions:
   contents: read
@@ -23,7 +28,7 @@ jobs:
       SMOKE_PUBLIC_EVENT_ID: ${{ vars.SMOKE_PUBLIC_EVENT_ID }}
       EXPECT_EVENT_SHARE_CARD_ENABLED: ${{ vars.EXPECT_EVENT_SHARE_CARD_ENABLED }}
       SMOKE_PUBLIC_CHAMPIONSHIP_ID: ${{ vars.SMOKE_PUBLIC_CHAMPIONSHIP_ID }}
-      EXPECT_CHAMPIONSHIP_ENABLED: ${{ vars.EXPECT_CHAMPIONSHIP_ENABLED }}
+      EXPECT_CHAMPIONSHIP_ENABLED: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.expect_championship_enabled || 'true' }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
