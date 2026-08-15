@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createPrivilegedClient } from "@/lib/supabase/privileged";
 import { createClient } from "@/lib/supabase/server";
 import { cache } from "react";
 import { z } from "zod";
@@ -100,6 +101,12 @@ const publicChampionshipSchema = z.object({
 export type PublicChampionship = z.infer<typeof publicChampionshipSchema>;
 export type PublicChampionshipFixture = z.infer<typeof publicFixtureSchema>;
 export type PublicChampionshipStanding = z.infer<typeof publicStandingSchema>;
+export type PublicChampionshipOrganizer = {
+  slug: string;
+  name: string;
+  logo_url: string | null;
+  cover_url: string | null;
+};
 
 export const getPublicChampionship = cache(
   async (publicId: string): Promise<PublicChampionship | null> => {
@@ -147,6 +154,68 @@ export const getPublicChampionshipWithFallback = cache(
         durationMs: durationSince(startedAt),
         error: "projection_unavailable",
       });
+      return null;
+    }
+  },
+);
+
+export const getPublicChampionshipOrganizer = cache(
+  async (publicId: string): Promise<PublicChampionshipOrganizer | null> => {
+    if (!publicChampionshipId.safeParse(publicId).success) return null;
+
+    try {
+      // A identidade do organizador só é consultada depois que a mesma RPC
+      // anônima confirma que o campeonato está efetivamente publicado.
+      const state = await getPublicChampionship(publicId);
+      if (!state) return null;
+
+      const privileged = createPrivilegedClient();
+      const { data: championship, error: championshipError } = await privileged
+        .from("championships")
+        .select("team_id")
+        .eq("public_id", publicId)
+        .eq("public_mode", "public")
+        .in("status", ["published", "active", "completed"])
+        .maybeSingle();
+      if (championshipError || !championship?.team_id) return null;
+
+      const { data: team, error: teamError } = await privileged
+        .from("teams")
+        .select("slug, name, team_media(kind, storage_path)")
+        .eq("id", championship.team_id)
+        .eq("is_public", true)
+        .in("team_media.kind", ["logo", "cover"])
+        .maybeSingle();
+      if (teamError || !team?.slug || !team.name) return null;
+
+      const logoPath = team.team_media.find((item) => item.kind === "logo")?.storage_path;
+      const coverPath = team.team_media.find((item) => item.kind === "cover")?.storage_path;
+      const mediaPaths = [logoPath, coverPath].filter(
+        (path): path is string => Boolean(path),
+      );
+      const signedUrlByPath = new Map<string, string>();
+      if (mediaPaths.length) {
+        const { data: signedMedia, error: signedMediaError } = await privileged.storage
+          .from("team_media")
+          .createSignedUrls(mediaPaths, 3600);
+        if (!signedMediaError) {
+          for (const item of signedMedia ?? []) {
+            if (item.path && item.signedUrl) {
+              signedUrlByPath.set(item.path, item.signedUrl);
+            }
+          }
+        }
+      }
+
+      return {
+        slug: team.slug,
+        name: team.name,
+        logo_url: logoPath ? signedUrlByPath.get(logoPath) ?? null : null,
+        cover_url: coverPath ? signedUrlByPath.get(coverPath) ?? null : null,
+      };
+    } catch {
+      // Branding é aprimoramento visual: indisponibilidade nunca derruba a
+      // projeção esportiva nem amplia o acesso a um time não público.
       return null;
     }
   },

@@ -430,8 +430,35 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
   produção Webpack e auditoria sem vulnerabilidades. Production permanece com
   a flag desligada, projeção 0/1, fallback 1/1 e zero divergências até a
   promoção do artefato corretivo.
-- o PR #199 publica a correção isolada sobre `dev`. Qualidade, banco, CodeQL,
+- o PR #199 publicou a correção isolada sobre `dev`. Qualidade, banco, CodeQL,
   dependências, Terraform e Vercel Preview passaram; banco concluiu em 2m54s e
   qualidade em 1m23s. Smoke e Supabase Preview foram ignorados pelas condições
-  dos workflows. Integração, promoção e nova ativação controlada permanecem
-  checkpoints separados.
+  dos workflows. Após confirmação, o PR foi integrado por squash no commit
+  `4cea6bb`. Promoção a `main`, deployment e nova ativação controlada permanecem
+  checkpoints separados; a flag segue desligada.
+- o PR #200 promove o mesmo artefato para `main`. A ancestralidade divergente do
+  squash anterior foi reconciliada em `f368757` sem mudança de conteúdo; o PR
+  ficou `MERGEABLE/CLEAN`, com oito checks aprovados e dois condicionais
+  ignorados. Após confirmação, o PR foi integrado por squash em `f24a0f9`; o
+  deployment Vercel, CI, CodeQL, banco e Terraform passaram. O smoke automático
+  `31743568341` exigiu `championships=false` e validou evento e campeonato
+  públicos em cerca de 13s. A pré-sonda agregada ainda deve ser executada no
+  contexto protegido que possui a variável sensível da coorte; nenhuma ativação
+  ocorreu.
+- com Production declarada como ambiente de homologação, o controle autenticado
+  e auditado reativou `championships` somente em `demo-campo`. Página pública do
+  time, cartão evolutivo, equipes internas e lembretes já estavam ativos. A rota
+  administrativa exibiu o campeonato publicado sem 404 e a projeção pública
+  mostrou dois participantes, um confronto, classificação, canonical próprio e
+  `noindex, nofollow, nocache`. Os kill switches globais de produção e consumo
+  externo permaneceram desligados, nenhuma outra organização foi alterada e a
+  sonda agregada pós-ativação ficou pendente por indisponibilidade do executor
+  protegido; o rollback auditado continua visível no controle operacional.
+- após revisão da homologação, o hero de `/c` foi alinhado ao padrão de `/t`:
+  capa ou gradiente, escudo, selo `Página oficial`, nome e link do time, além de
+  marca e status mantidos na mesma linha no celular. O branding é carregado
+  server-side somente para campeonato publicado de um time já público; caminhos
+  privados não chegam ao HTML, URLs de mídia são assinadas e qualquer falha
+  preserva a projeção esportiva com fallback. Passaram 2 arquivos/12 testes
+  focados, TypeScript, ESLint e build Webpack. A revisão com dados reais ficou
+  para o Preview porque o executor local não alcançou o Supabase remoto.
