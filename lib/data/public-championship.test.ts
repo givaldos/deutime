@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
   rpc: vi.fn(),
   privilegedFrom: vi.fn(),
   storageFrom: vi.fn(),
-  createSignedUrls: vi.fn(),
+  createSignedUrl: vi.fn(),
   info: vi.fn(),
   error: vi.fn(),
 }));
@@ -24,6 +24,7 @@ vi.mock("@/lib/supabase/privileged", () => ({
 import {
   getPublicChampionship,
   getPublicChampionshipOrganizer,
+  getPublicChampionshipOrganizerMediaUrl,
   getPublicChampionshipWithFallback,
 } from "./public-championship";
 
@@ -164,30 +165,46 @@ describe("getPublicChampionship", () => {
     mocks.privilegedFrom.mockImplementation((table: string) =>
       table === "championships" ? championshipQuery : teamQuery,
     );
-    mocks.storageFrom.mockReturnValue({
-      createSignedUrls: mocks.createSignedUrls,
-    });
-    mocks.createSignedUrls.mockResolvedValue({
-      data: [
-        { path: "time/logo.webp", signedUrl: "https://media.example.test/logo.webp" },
-        { path: "time/capa.webp", signedUrl: "https://media.example.test/capa.webp" },
-      ],
-      error: null,
-    });
-
     await expect(getPublicChampionshipOrganizer(organizerPublicId)).resolves.toEqual({
       slug: "time-da-vila",
       name: "Time da Vila",
-      logo_url: "https://media.example.test/logo.webp",
-      cover_url: "https://media.example.test/capa.webp",
+      logo_url: `/c/${organizerPublicId}/media/logo`,
+      cover_url: `/c/${organizerPublicId}/media/cover`,
     });
     expect(teamQuery.eq).toHaveBeenCalledWith("is_public", true);
     expect(teamQuery.in).toHaveBeenCalledWith("team_media.kind", ["logo", "cover"]);
-    expect(mocks.storageFrom).toHaveBeenCalledWith("team_media");
-    expect(mocks.createSignedUrls).toHaveBeenCalledWith(
-      ["time/logo.webp", "time/capa.webp"],
-      3600,
+    expect(mocks.createSignedUrl).not.toHaveBeenCalled();
+  });
+
+  it("assina a mídia somente dentro do proxy server-side", async () => {
+    const mediaPublicId = "ca000000-0000-4000-8000-000000000006";
+    mocks.rpc.mockResolvedValue({ data: validProjection, error: null });
+    mocks.privilegedFrom.mockImplementation((table: string) =>
+      table === "championships"
+        ? createQuery({
+            data: { team_id: "ca200000-0000-4000-8000-000000000003" },
+            error: null,
+          })
+        : createQuery({
+            data: {
+              slug: "time-da-vila",
+              name: "Time da Vila",
+              team_media: [{ kind: "logo", storage_path: "time/logo.webp" }],
+            },
+            error: null,
+          }),
     );
+    mocks.storageFrom.mockReturnValue({ createSignedUrl: mocks.createSignedUrl });
+    mocks.createSignedUrl.mockResolvedValue({
+      data: { signedUrl: "https://media.example.test/logo.webp?token=privado" },
+      error: null,
+    });
+
+    await expect(
+      getPublicChampionshipOrganizerMediaUrl(mediaPublicId, "logo"),
+    ).resolves.toBe("https://media.example.test/logo.webp?token=privado");
+    expect(mocks.storageFrom).toHaveBeenCalledWith("team_media");
+    expect(mocks.createSignedUrl).toHaveBeenCalledWith("time/logo.webp", 60);
   });
 
   it("mantém o campeonato utilizável quando a identidade pública não está disponível", async () => {
@@ -205,7 +222,7 @@ describe("getPublicChampionship", () => {
     await expect(
       getPublicChampionshipOrganizer(privateOrganizerPublicId),
     ).resolves.toBeNull();
-    expect(mocks.createSignedUrls).not.toHaveBeenCalled();
+    expect(mocks.createSignedUrl).not.toHaveBeenCalled();
   });
 });
 

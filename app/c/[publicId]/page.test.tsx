@@ -134,8 +134,8 @@ describe("public championship route", () => {
     mocks.getPublicChampionshipOrganizer.mockResolvedValue({
       slug: "time-da-vila",
       name: "Time da Vila",
-      logo_url: "https://media.example.test/logo.webp",
-      cover_url: "https://media.example.test/capa.webp",
+      logo_url: `/c/${publicId}/media/logo`,
+      cover_url: `/c/${publicId}/media/cover`,
     });
   });
 
@@ -171,6 +171,10 @@ describe("public championship route", () => {
     expect(html).toContain("Time da Vila");
     expect(html).toContain("Escudo do Time da Vila");
     expect(html).toContain("/t/time-da-vila");
+    expect(html).toContain(`/c/${publicId}/media/logo`);
+    expect(html).toContain(`/c/${publicId}/media/cover`);
+    expect(html).not.toContain("token=");
+    expect(html).not.toContain("storage_path");
     expect(html).toContain("flex-nowrap");
     expect(html).toContain("whitespace-nowrap");
     expect(html).toContain("Classificação");
