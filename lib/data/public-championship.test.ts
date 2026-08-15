@@ -4,6 +4,9 @@ vi.mock("server-only", () => ({}));
 
 const mocks = vi.hoisted(() => ({
   rpc: vi.fn(),
+  privilegedFrom: vi.fn(),
+  storageFrom: vi.fn(),
+  createSignedUrls: vi.fn(),
   info: vi.fn(),
   error: vi.fn(),
 }));
@@ -11,9 +14,16 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(async () => ({ rpc: mocks.rpc })),
 }));
+vi.mock("@/lib/supabase/privileged", () => ({
+  createPrivilegedClient: vi.fn(() => ({
+    from: mocks.privilegedFrom,
+    storage: { from: mocks.storageFrom },
+  })),
+}));
 
 import {
   getPublicChampionship,
+  getPublicChampionshipOrganizer,
   getPublicChampionshipWithFallback,
 } from "./public-championship";
 
@@ -132,4 +142,82 @@ describe("getPublicChampionship", () => {
     expect(serialized).not.toContain("Liga Pública");
     expect(serialized).not.toContain(publicId);
   });
+
+  it("anexa somente a identidade de um time que já possui página pública", async () => {
+    const organizerPublicId = "ca000000-0000-4000-8000-000000000004";
+    const championshipQuery = createQuery({
+      data: { team_id: "ca200000-0000-4000-8000-000000000001" },
+      error: null,
+    });
+    const teamQuery = createQuery({
+      data: {
+        slug: "time-da-vila",
+        name: "Time da Vila",
+        team_media: [
+          { kind: "logo", storage_path: "time/logo.webp" },
+          { kind: "cover", storage_path: "time/capa.webp" },
+        ],
+      },
+      error: null,
+    });
+    mocks.rpc.mockResolvedValue({ data: validProjection, error: null });
+    mocks.privilegedFrom.mockImplementation((table: string) =>
+      table === "championships" ? championshipQuery : teamQuery,
+    );
+    mocks.storageFrom.mockReturnValue({
+      createSignedUrls: mocks.createSignedUrls,
+    });
+    mocks.createSignedUrls.mockResolvedValue({
+      data: [
+        { path: "time/logo.webp", signedUrl: "https://media.example.test/logo.webp" },
+        { path: "time/capa.webp", signedUrl: "https://media.example.test/capa.webp" },
+      ],
+      error: null,
+    });
+
+    await expect(getPublicChampionshipOrganizer(organizerPublicId)).resolves.toEqual({
+      slug: "time-da-vila",
+      name: "Time da Vila",
+      logo_url: "https://media.example.test/logo.webp",
+      cover_url: "https://media.example.test/capa.webp",
+    });
+    expect(teamQuery.eq).toHaveBeenCalledWith("is_public", true);
+    expect(teamQuery.in).toHaveBeenCalledWith("team_media.kind", ["logo", "cover"]);
+    expect(mocks.storageFrom).toHaveBeenCalledWith("team_media");
+    expect(mocks.createSignedUrls).toHaveBeenCalledWith(
+      ["time/logo.webp", "time/capa.webp"],
+      3600,
+    );
+  });
+
+  it("mantém o campeonato utilizável quando a identidade pública não está disponível", async () => {
+    const privateOrganizerPublicId = "ca000000-0000-4000-8000-000000000005";
+    mocks.rpc.mockResolvedValue({ data: validProjection, error: null });
+    mocks.privilegedFrom.mockImplementation((table: string) =>
+      table === "championships"
+        ? createQuery({
+            data: { team_id: "ca200000-0000-4000-8000-000000000002" },
+            error: null,
+          })
+        : createQuery({ data: null, error: null }),
+    );
+
+    await expect(
+      getPublicChampionshipOrganizer(privateOrganizerPublicId),
+    ).resolves.toBeNull();
+    expect(mocks.createSignedUrls).not.toHaveBeenCalled();
+  });
 });
+
+function createQuery(result: { data: unknown; error: unknown }) {
+  const query = {
+    select: vi.fn(),
+    eq: vi.fn(),
+    in: vi.fn(),
+    maybeSingle: vi.fn().mockResolvedValue(result),
+  };
+  query.select.mockReturnValue(query);
+  query.eq.mockReturnValue(query);
+  query.in.mockReturnValue(query);
+  return query;
+}

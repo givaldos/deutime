@@ -1,7 +1,10 @@
+/* eslint-disable @next/next/no-img-element -- URLs assinadas seguem o padrão da página pública do time. */
+
 import { BrandMark } from "@/components/brand-mark";
 import { ChampionshipShareButton } from "@/components/championship-public-controls";
 import { InternalSquadBadge } from "@/components/internal-squad-badge";
 import {
+  getPublicChampionshipOrganizer,
   getPublicChampionshipWithFallback,
   type PublicChampionshipFixture,
   type PublicChampionshipStanding,
@@ -11,7 +14,7 @@ import {
   championshipFormatLabels,
   championshipTiebreakLabels,
 } from "@/lib/features/championships/rules";
-import { CalendarDays, ExternalLink, ShieldCheck, Trophy, UsersRound } from "lucide-react";
+import { BadgeCheck, CalendarDays, ExternalLink, ShieldCheck, Trophy, UsersRound } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -82,7 +85,10 @@ export default async function PublicChampionshipPage({
   params,
 }: PublicChampionshipPageProps) {
   const { publicId } = await params;
-  const state = await getPublicChampionshipWithFallback(publicId);
+  const [state, organizer] = await Promise.all([
+    getPublicChampionshipWithFallback(publicId),
+    getPublicChampionshipOrganizer(publicId),
+  ]);
   if (!state) notFound();
 
   const { championship, participants, standings, fixtures } = state;
@@ -92,21 +98,57 @@ export default async function PublicChampionshipPage({
 
   return (
     <main className="min-h-svh bg-[#f5f4ef] pb-12 text-graphite">
-      <header className="relative overflow-hidden bg-[#0d2b22] px-5 pb-16 pt-5 text-white sm:pb-20 sm:pt-6">
-        <div className="pointer-events-none absolute left-0 top-0 h-full w-1.5 bg-volt" />
-        <div className="pointer-events-none absolute -right-24 -top-28 size-72 rounded-full bg-emerald-400/10 blur-3xl" />
-        <div className="relative mx-auto max-w-3xl pl-3">
-          <div className="flex items-center justify-between gap-4">
-            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-xs font-black text-emerald-200"><Trophy className="size-4" aria-hidden />{statusLabels[championship.status]}</span>
-            <BrandMark inverted className="opacity-70" />
+      <header className="relative min-h-[34rem] overflow-hidden bg-grass text-white sm:min-h-[38rem]">
+        {organizer?.cover_url ? (
+          <img
+            src={organizer.cover_url}
+            alt={`Capa do ${organizer.name}`}
+            className="absolute inset-0 size-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgba(16,185,129,.32),transparent_40%),radial-gradient(circle_at_10%_90%,rgba(14,165,233,.18),transparent_35%),linear-gradient(145deg,#020617,#052e24)]" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/65 via-slate-950/40 to-slate-950" />
+        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-slate-950 to-transparent" />
+
+        <div className="relative mx-auto flex min-h-[34rem] max-w-3xl flex-col px-5 pb-16 pt-5 sm:min-h-[38rem] sm:px-8 sm:pb-20 sm:pt-6">
+          <div className="flex flex-nowrap items-center justify-between gap-3">
+            <span className="sm:hidden"><BrandMark compact /></span>
+            <span className="hidden sm:inline-flex"><BrandMark inverted /></span>
+            <span className="inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-white/20 bg-grass/35 px-4 text-xs font-black text-white shadow-lg backdrop-blur-md">
+              <Trophy className="size-4 text-emerald-300" aria-hidden />
+              {statusLabels[championship.status]}
+            </span>
           </div>
-          <p className="mt-8 text-xs font-black uppercase tracking-[0.18em] text-volt">{championshipFormatLabels[championship.format]}</p>
-          <h1 className="mt-2 break-words text-4xl font-black leading-[0.95] tracking-[-0.04em] sm:text-5xl">{championship.name}</h1>
-          <p className="mt-4 max-w-xl text-sm leading-6 text-slate-300">Tabela e chave derivadas das súmulas. Placar e link da partida aparecem somente quando a organização já os publicou.</p>
-          <div className="mt-6 grid grid-cols-3 gap-2 text-center">
-            {[[participants.length, "Equipes"], [fixtures.length, "Jogos"], [fixtures.filter((fixture) => fixture.status === "finalized" || fixture.status === "void").length, "Resolvidos"]].map(([value, label]) => (
-              <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-3"><p className="text-lg font-black text-white">{value}</p><p className="mt-0.5 text-[10px] font-bold text-slate-400">{label}</p></div>
-            ))}
+
+          <div className="mt-auto">
+            {organizer ? (
+              <Link href={`/t/${organizer.slug}`} className="group inline-flex max-w-full items-center gap-3 rounded-2xl pr-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-lime/40">
+                <span className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-[1.4rem] border-4 border-white/15 bg-white/10 text-2xl font-black shadow-2xl backdrop-blur sm:size-24">
+                  {organizer.logo_url ? (
+                    <img src={organizer.logo_url} alt={`Escudo do ${organizer.name}`} className="size-full object-cover" />
+                  ) : (
+                    organizer.name.slice(0, 2).toUpperCase()
+                  )}
+                </span>
+                <span className="min-w-0">
+                  <span className="flex items-center gap-2 text-emerald-300">
+                    <BadgeCheck className="size-4 shrink-0" aria-hidden />
+                    <span className="text-[11px] font-black uppercase tracking-[0.16em]">Página oficial</span>
+                  </span>
+                  <span className="mt-1 block break-words text-xl font-black leading-tight text-white group-hover:text-emerald-100 sm:text-2xl">{organizer.name}</span>
+                </span>
+              </Link>
+            ) : null}
+
+            <p className={`${organizer ? "mt-6" : "mt-8"} text-xs font-black uppercase tracking-[0.18em] text-volt`}>{championshipFormatLabels[championship.format]}</p>
+            <h1 className="mt-2 break-words text-4xl font-black leading-[0.95] tracking-[-0.04em] sm:text-5xl">{championship.name}</h1>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-slate-300">Tabela e chave derivadas das súmulas. Placar e link da partida aparecem somente quando a organização já os publicou.</p>
+            <div className="mt-6 grid grid-cols-3 gap-2 text-center">
+              {[[participants.length, "Equipes"], [fixtures.length, "Jogos"], [fixtures.filter((fixture) => fixture.status === "finalized" || fixture.status === "void").length, "Resolvidos"]].map(([value, label]) => (
+                <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm"><p className="text-lg font-black text-white">{value}</p><p className="mt-0.5 text-[10px] font-bold text-slate-300">{label}</p></div>
+              ))}
+            </div>
           </div>
         </div>
       </header>

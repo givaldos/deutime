@@ -14,7 +14,7 @@ O **MVP funcional completo** permite que um time real execute pelo celular e pel
 
 O MVP é considerado completo para **piloto controlado**, não para disponibilidade geral em escala. Nenhuma etapa pode depender de intervenção no banco, expor dados sem consentimento ou perder a operação quando WhatsApp, tempo real, vídeo, votação ou conversa estiverem desligados.
 
-**Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na R08M. A R09 é a única vertical ativa: três formatos e a página compartilhável passaram por CP2, a flag continua desligada e nenhum time foi ativado.
+**Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na R08M. A R09 é a única vertical ativa e chegou ao CP5: implementação, robustez, página compartilhável, validação física e piloto com rollback foram comprovados. A flag está desligada; faltam a pré-sonda protegida, uma última ativação controlada e o fechamento documental do CP6.
 
 ## Estado executivo
 
@@ -30,7 +30,7 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | **R03R — Lembretes econômicos** | ✅ `completed` | Duas cotas configuráveis, somente para pendentes, com envio manual/automático idempotente e custo agregado. | [Abrir](releases/R03R-lembretes-economicos.md) |
 | **R07 — Times reutilizáveis e divisão compartilhável** | ✅ `completed` | Equipes reutilizáveis, sugestão, publicação, primeiros nomes, formação visual e jornada por toque validadas em produção. | [Abrir](releases/R07-times-manuais-compartilhaveis.md) |
 | **R08M — Fechamento do MVP compartilhável** | ✅ `completed` | Open Graph por fase, piloto compartilhável, ciclo integrado, falhas e fallbacks comprovados. | [Abrir](releases/R08M-fechamento-mvp-compartilhavel.md) |
-| **R09 — Campeonatos e tabela** | 🟡 `active / CP2` | Três formatos, classificação, chave e página anônima compartilhável concluídos; robustez e piloto controlado são o próximo pacote. | [Abrir](releases/R09-campeonatos-e-tabela.md) |
+| **R09 — Campeonatos e tabela** | 🟡 `active / CP5` | Três formatos, classificação, chave, página anônima, robustez e piloto com rollback concluídos; correção publicada e CP6 pendente. | [Abrir](releases/R09-campeonatos-e-tabela.md) |
 
 ## Cronograma consolidado
 
@@ -43,7 +43,7 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | 5. Divisão compartilhável | ✅ concluído | R07 comprovou equipes internas, sugestão, publicação, formação visual, jornada por toque e rollback em Android/iPhone. |
 | 6. Fechamento do MVP | ✅ concluído | R08M concluiu Open Graph por fase, previews físicos, piloto, rollback e o gate integrado do ciclo completo. |
 | 7. Descoberta pós-MVP | 🟡 contínua, sem implementação | Reunir recomendações, evidências, métricas, dependências e critérios de aceite; eliminar duplicidades e separar requisito de ideia. |
-| 8. Evoluções de produto | 🟡 R09 ativa | Executar campeonatos como única vertical; reconhecimento será reavaliado após o piloto e marketplace exige densidade. |
+| 8. Evoluções de produto | 🟡 R09 em conclusão | Finalizar a pré-sonda e a ativação controlada pós-correção, retornar ao fallback e fechar CP6; só então reavaliar reconhecimento. |
 | 9. Consolidação e escala | ⬜ depois das verticais | Executar somente as melhorias transversais priorizadas por risco, uso real ou retorno mensurável. |
 | 10. Última evolução técnica | ⚪ por último | Revalidar os requisitos e somente então migrar a mensageria da Twilio para a WhatsApp Cloud API direta da Meta. |
 
@@ -110,7 +110,7 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 | Sequência | Entrega | Condição para iniciar |
 |---|---|---|
 | 1 | ~~Selecionar a próxima vertical entre R09 e R10~~ | ✅ R09 selecionada e preparada em CP0 |
-| 2 | Entregar a R09 | uma única frente ativa, com piloto e CP6 |
+| 2 | Concluir a R09 | CP5 comprovado; pré-sonda protegida, ativação controlada final, rollback e CP6 pendentes |
 | 3 | Reavaliar a vertical restante e melhorias transversais | dados de uso da entrega anterior e ausência de bloqueador operacional |
 | 4 | Descobrir marketplace e pagamentos | densidade real de oferta e demanda, modelo de confiança e viabilidade transacional |
 | 5 | Implementar melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
@@ -123,12 +123,26 @@ isoladas e uma competição, reutilizando os contratos estabilizados de partidas
 equipes internas. A escolha prioriza prontidão e continuidade da jornada; o
 piloto da R09 deve fornecer os dados de uso para reavaliar reconhecimento.
 
+### Entregas da R09
+
+- [x] definir participantes, limites, três formatos, pontuação, desempates, geração, empate eliminatório, correções e publicação;
+- [x] criar a expansão inerte com flag por time, RLS, grants mínimos, RPCs transacionais, idempotência e proteção cross-tenant;
+- [x] entregar pontos corridos com classificação reconstruída exclusivamente das partidas finalizadas;
+- [x] entregar fase de grupos + mata-mata e mata-mata direto, incluindo seeds, byes, avanço e decisões auditadas;
+- [x] vincular cada confronto opcionalmente a uma partida sem transformar campeonato em recorrência nem quebrar amistosos;
+- [x] publicar `/c/{public_id}` com regulamento, participantes, tabela ou chave, compartilhamento manual e projeção anônima mínima;
+- [x] validar toque, teclado, leitor de tela, Android, iPhone e navegador interno do WhatsApp;
+- [x] comprovar concorrência, telemetria redigida, smoke, fallback e rollback; publicar a correção do 404 com a flag desligada;
+- [ ] executar a pré-sonda agregada no contexto operacional protegido, sem recuperar ou expor o identificador sensível da coorte;
+- [ ] após autorização separada, repetir a ativação controlada pós-correção, observar a projeção e retornar a flag ao estado desligado;
+- [ ] consolidar os critérios restantes, evidências finais e encerrar a R09 em CP6 com checkpoint `idle`.
+
 ## Pós-MVP — releases verticais
 
 | Release | Estado | Resultado autossuficiente | Depende de | Decisão antes de promover | Fallback |
 |---|---|---|---|---|---|
 | **R08 — Divisão automática** | ↪️ `incorporado à R07` | Sugestão reproduzível, ajustável e explicável foi incorporada à jornada de divisão para não entregar uma experiência fragmentada. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Ajuste manual |
-| **R09 — Campeonatos e tabela** | 🟡 `active / CP2` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento e histórico. | R04, R07, R08M | `DEC-CHAMPIONSHIP-MODEL` aceita | Histórico por partida |
+| **R09 — Campeonatos e tabela** | 🟡 `active / CP5` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento, página compartilhável e piloto com rollback. | R04, R07, R08M | fechar CP6 após ativação final | Histórico por partida |
 | **R10 — Reconhecimento** | ⚪ `não iniciado` | Pontos positivos, Craques e perfis consentidos, sem ranking constrangedor. | R04, R05 | — | Estatísticas básicas |
 
 ### R09 — campeonatos configuráveis
@@ -141,7 +155,7 @@ Uma pessoa administradora autorizada poderá criar campeonatos em três formatos
 
 O campeonato pertence às partidas, não à recorrência do evento. Um evento pode conter vários confrontos, e amistosos continuam sem campeonato. Cancelar uma ocorrência futura libera a partida para remarcação sem apagá-la; cancelar ocorrências futuras de uma série preserva todos os confrontos pendentes. Partida concluída nunca é excluída: anulação ou correção exige motivo, auditoria e recálculo transacional da tabela ou do chaveamento.
 
-A descoberta da R09 foi concluída em `DEC-CHAMPIONSHIP-MODEL`: participantes aceitos, pontuação, desempate, geração e edição de confrontos, empate no mata-mata e publicação mobile-first compartilhável pelo WhatsApp estão fechados. Os três formatos e a projeção anônima passaram por CP2 sem ativar time; a próxima ação é robustez, telemetria, runbook e piloto controlado.
+A descoberta da R09 foi concluída em `DEC-CHAMPIONSHIP-MODEL`: participantes aceitos, pontuação, desempate, geração e edição de confrontos, empate no mata-mata e publicação mobile-first compartilhável pelo WhatsApp estão fechados. Os três formatos, a projeção anônima, robustez, telemetria, runbook e validação física passaram; o piloto CP5 ativou uma coorte, comprovou reconstrução e retornou ao fallback. Após a correção publicada, a próxima ação é executar a pré-sonda no contexto protegido e somente então solicitar autorização para a ativação controlada final que precede o CP6.
 
 ## Fora do MVP entregue
 
