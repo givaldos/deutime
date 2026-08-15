@@ -3,12 +3,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   getPublicChampionshipWithFallback: vi.fn(),
+  getPublicChampionshipOrganizer: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/data/public-championship", () => ({
   getPublicChampionshipWithFallback:
     mocks.getPublicChampionshipWithFallback,
+  getPublicChampionshipOrganizer:
+    mocks.getPublicChampionshipOrganizer,
 }));
 vi.mock("@/lib/env/server", () => ({
   getAppUrl: () => "https://deutime.app",
@@ -127,6 +130,13 @@ function props(id = publicId) {
 describe("public championship route", () => {
   beforeEach(() => {
     mocks.getPublicChampionshipWithFallback.mockReset();
+    mocks.getPublicChampionshipOrganizer.mockReset();
+    mocks.getPublicChampionshipOrganizer.mockResolvedValue({
+      slug: "time-da-vila",
+      name: "Time da Vila",
+      logo_url: "https://media.example.test/logo.webp",
+      cover_url: "https://media.example.test/capa.webp",
+    });
   });
 
   it("publica metadados contextuais, canônicos e não indexáveis", async () => {
@@ -157,6 +167,12 @@ describe("public championship route", () => {
     const html = renderToStaticMarkup(await PublicChampionshipPage(props()));
 
     expect(html).toContain("Regulamento publicado");
+    expect(html).toContain("Página oficial");
+    expect(html).toContain("Time da Vila");
+    expect(html).toContain("Escudo do Time da Vila");
+    expect(html).toContain("/t/time-da-vila");
+    expect(html).toContain("flex-nowrap");
+    expect(html).toContain("whitespace-nowrap");
     expect(html).toContain("Classificação");
     expect(html).toContain("Verde");
     expect(html).toContain("Azul");
@@ -199,6 +215,18 @@ describe("public championship route", () => {
     expect(html).toContain("Avança: Verde · Regulamento");
     expect(html).not.toContain("Classificação");
     expect(html).not.toContain("Abrir página da partida");
+  });
+
+  it("preserva o campeonato quando o time não possui identidade pública", async () => {
+    mocks.getPublicChampionshipWithFallback.mockResolvedValue(leagueProjection);
+    mocks.getPublicChampionshipOrganizer.mockResolvedValue(null);
+
+    const html = renderToStaticMarkup(await PublicChampionshipPage(props()));
+
+    expect(html).toContain("Liga da Vila");
+    expect(html).toContain("Classificação");
+    expect(html).not.toContain("Página oficial");
+    expect(html).not.toContain("Escudo do");
   });
 
   it("falha fechado com o mesmo 404 quando a projeção não está pública", async () => {
