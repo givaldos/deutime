@@ -2,6 +2,7 @@
 release: R09
 work_package: WP-R09-05
 scope: championship_robustness_and_pilot
+<<<<<<< HEAD
 branch_or_commit: "codex/r09-cp6-publication-retry (base f24a0f9)"
 checkpoint: CP5
 status: in_progress
@@ -13,6 +14,13 @@ dirty_files:
   - docs/work/current.md
   - lib/data/public-championship.test.ts
   - lib/data/public-championship.ts
+=======
+branch_or_commit: "codex/r09-cp6-publication-retry"
+checkpoint: CP5
+status: in_progress
+completed_ac: [AC-R09-01, AC-R09-03, AC-R09-06, AC-R09-07, AC-R09-08, AC-R09-09, AC-R09-10, AC-R09-11, AC-R09-12, AC-R09-13, AC-R09-14]
+dirty_files: []
+>>>>>>> dev
 tests:
   - "pgTAP focado WP-R09-05: sonda 36/36 e concorrência real 22/22"
   - "db:test: 50 arquivos e 1.317 testes aprovados"
@@ -32,6 +40,7 @@ tests:
   - "rollback CP5: flag desligada, projeção 0/1, fatos preservados, smoke 404 aprovado em 12s e fallback existente íntegro"
   - "correção do 404: 2 arquivos/17 testes focados, TypeScript, 76 arquivos/429 testes, build Webpack e auditoria sem vulnerabilidades"
   - "PR #199: qualidade, banco, CodeQL, dependências, Terraform e Vercel Preview aprovados; jobs condicionais ignorados"
+<<<<<<< HEAD
   - "PR #199 integrado por squash em dev no commit 4cea6bb"
   - "PR #200: oito checks aprovados, dois condicionais ignorados e estado MERGEABLE/CLEAN"
   - "PR #200 integrado em main no commit f24a0f9; deployment Vercel, CI, CodeQL, banco, Terraform e smoke 31743568341 aprovados"
@@ -42,6 +51,10 @@ tests:
   - "contrato de branding: nome, escudo e capa somente para time já público; indisponibilidade preserva a página esportiva"
 blocker: "A rota local não alcançou o Supabase do executor, então a revisão visual com dados reais depende do Preview; a sonda agregada pós-ativação continua dependente do executor operacional protegido."
 next_action: "Publicar a correção isolada em Preview, revisar /c em 390x844 e 360x800 contra o padrão de /t e, após confirmação, promover mantendo os kill switches externos desligados."
+=======
+blocker: "Aguardando confirmação do responsável para integrar o PR #199 em dev; a promoção a main e a reativação controlada permanecem separadas."
+next_action: "Integrar o PR #199 em dev após confirmação, preparar a promoção do mesmo artefato e repetir a transição controlada sem 404, com rollback final desligado."
+>>>>>>> dev
 ---
 
 # Trabalho atual
@@ -158,6 +171,7 @@ banco, CodeQL, revisão de dependências e Terraform passaram, com banco em 2m54
 e qualidade em 1m23s. Os jobs de smoke e Supabase Preview foram ignorados pelas
 condições dos workflows. O PR está pronto para integração em `dev`, mas merge,
 promoção a `main` e nova ativação controlada continuam como ações separadas.
+<<<<<<< HEAD
 
 Após confirmação do responsável, o PR #199 foi integrado por squash em `dev`
 no commit `4cea6bb`. A correção agora compõe a linha de integração, enquanto
@@ -225,3 +239,5 @@ build de produção Webpack. O build Turbopack permaneceu bloqueado apenas pela
 tentativa conhecida do processador CSS de abrir uma porta proibida no executor.
 A rota local compilou, mas não alcançou o Supabase remoto; a conferência visual
 com dados reais deve ocorrer no Preview antes da promoção.
+=======
+>>>>>>> dev

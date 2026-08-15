@@ -430,6 +430,7 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
   produção Webpack e auditoria sem vulnerabilidades. Production permanece com
   a flag desligada, projeção 0/1, fallback 1/1 e zero divergências até a
   promoção do artefato corretivo.
+<<<<<<< HEAD
 - o PR #199 publicou a correção isolada sobre `dev`. Qualidade, banco, CodeQL,
   dependências, Terraform e Vercel Preview passaram; banco concluiu em 2m54s e
   qualidade em 1m23s. Smoke e Supabase Preview foram ignorados pelas condições
@@ -462,3 +463,10 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
   preserva a projeção esportiva com fallback. Passaram 2 arquivos/12 testes
   focados, TypeScript, ESLint e build Webpack. A revisão com dados reais ficou
   para o Preview porque o executor local não alcançou o Supabase remoto.
+=======
+- o PR #199 publica a correção isolada sobre `dev`. Qualidade, banco, CodeQL,
+  dependências, Terraform e Vercel Preview passaram; banco concluiu em 2m54s e
+  qualidade em 1m23s. Smoke e Supabase Preview foram ignorados pelas condições
+  dos workflows. Integração, promoção e nova ativação controlada permanecem
+  checkpoints separados.
+>>>>>>> dev
