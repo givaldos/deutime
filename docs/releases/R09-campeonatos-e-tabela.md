@@ -480,3 +480,9 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
   mantém assinatura e caminho somente no servidor. Passaram 4 arquivos/26
   testes focados, 77 arquivos/436 testes completos, TypeScript, ESLint e build
   Webpack; o HTML não contém token nem storage path.
+- o PR #205 integrou o proxy em `dev` no merge commit `405bc94`, e o PR #206 o
+  promoveu para `main` no merge commit `5a14bdb`. Cada PR passou oito checks
+  aplicáveis. CI, CodeQL, banco e Terraform pós-push também passaram; o smoke
+  ativo `31911184612` validou evento e campeonato públicos em produção sem
+  token ou identificador interno. O conflito está encerrado e CP6 volta a
+  depender somente da sonda agregada no executor operacional protegido.

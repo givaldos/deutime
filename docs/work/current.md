@@ -2,18 +2,11 @@
 release: R09
 work_package: WP-R09-05
 scope: championship_robustness_and_pilot
-branch_or_commit: "codex/r09-public-branding-proxy"
+branch_or_commit: "dev"
 checkpoint: CP5
 status: in_progress
 completed_ac: [AC-R09-01, AC-R09-03, AC-R09-06, AC-R09-07, AC-R09-08, AC-R09-09, AC-R09-10, AC-R09-11, AC-R09-12, AC-R09-13, AC-R09-14]
-dirty_files:
-  - app/c/[publicId]/media/[kind]/route.test.ts
-  - app/c/[publicId]/media/[kind]/route.ts
-  - app/c/[publicId]/page.test.tsx
-  - docs/releases/R09-campeonatos-e-tabela.md
-  - docs/work/current.md
-  - lib/data/public-championship.test.ts
-  - lib/data/public-championship.ts
+dirty_files: []
 tests:
   - "pgTAP focado WP-R09-05: sonda 36/36 e concorrência real 22/22"
   - "db:test: 50 arquivos e 1.317 testes aprovados"
@@ -43,8 +36,10 @@ tests:
   - "contrato de branding: nome, escudo e capa somente para time já público; indisponibilidade preserva a página esportiva"
   - "sincronização #203: 3 arquivos/15 testes focados, ESLint, TypeScript, 76 arquivos/432 testes Vitest e build Webpack aprovados"
   - "hotfix de mídia pública: 4 arquivos/26 testes focados, 77 arquivos/436 testes completos, TypeScript, ESLint e build Webpack aprovados; HTML sem token ou storage_path"
-blocker: "O smoke pós-deploy 31910553453 bloqueou o token da URL assinada no HTML; o proxy same-origin está validado localmente e aguarda promoção."
-next_action: "Publicar o hotfix em dev e main, aguardar os gates e repetir o smoke ativo até aprovar sem token ou identificador interno."
+  - "PRs #205 e #206: oito checks aplicáveis verdes em cada promoção; main atualizada em 5a14bdb"
+  - "smoke pós-deploy 31911184612: evento e campeonato públicos aprovados em produção, sem token ou identificador interno"
+blocker: "Nenhum bloqueio técnico de sincronização ou mídia pública; CP6 ainda depende da sonda agregada no executor operacional protegido."
+next_action: "Executar a sonda agregada pós-ativação no contexto protegido e sincronizar as evidências de CP6."
 ---
 
 # Trabalho atual
@@ -246,6 +241,14 @@ ESLint e o build Webpack passaram; o HTML renderizado não contém `token=` nem
 `storage_path`.
 A rota local compilou, mas não alcançou o Supabase remoto; a conferência visual
 com dados reais deve ocorrer no Preview antes da promoção.
+
+O PR #205 integrou o hotfix em `dev` no merge commit `405bc94`, e o PR #206 o
+promoveu para `main` no merge commit `5a14bdb`. Cada promoção passou oito checks
+aplicáveis. No pós-push de `main`, CI, CodeQL, banco e Terraform passaram; o
+smoke ativo `31911184612` validou em produção o evento e o campeonato públicos,
+sem token ou identificador interno no HTML. Não resta bloqueio de Git ou de
+privacidade da mídia; a próxima ação da release volta a ser a sonda agregada de
+CP6 no executor operacional protegido.
 
 O PR #202 integrou a correção visual em `dev` no commit `ed6cd09`, enquanto o
 PR #201 havia atualizado o smoke diretamente em `main` no commit `122e843`.
