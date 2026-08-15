@@ -358,9 +358,9 @@ Depois da ativação:
 2. repetir a sonda com `EXPECT_CHAMPIONSHIP_ENABLED=true` e
    `EXPECT_CHAMPIONSHIP_PROJECTION=true`;
 3. configurar no Environment `production` somente
-   `SMOKE_PUBLIC_CHAMPIONSHIP_ID` com o UUID público sintético e
-   `EXPECT_CHAMPIONSHIP_ENABLED=true`;
-4. despachar o workflow `Smoke` e exigir `200`, canonical `/c`, HTML,
+   `SMOKE_PUBLIC_CHAMPIONSHIP_ID` com o UUID público sintético;
+4. despachar o workflow `Smoke` com o input padrão
+   `expect_championship_enabled=true` e exigir `200`, canonical `/c`, HTML,
    `private, no-store`, `no-referrer`, `noindex`, `nofollow`, `nosniff` e os
    blocos mínimos de regulamento, confrontos e compartilhamento;
 5. vincular e concluir uma partida sintética pela jornada normal, repetir a
@@ -390,8 +390,9 @@ O rollback usa o mesmo controle ou RPC com `false`. Em seguida:
 1. executar a sonda com `EXPECT_CHAMPIONSHIP_ENABLED=false` e confirmar
    `projected_championships=0`, candidatos em `fallback_championships` e fatos
    preservados;
-2. executar o smoke com `EXPECT_CHAMPIONSHIP_ENABLED=false` e exigir `404` na
-   mesma `/c`, mantendo todos os headers privados;
+2. executar o smoke com `EXPECT_CHAMPIONSHIP_ENABLED=false` localmente ou
+   despachar o workflow `Smoke` com `expect_championship_enabled=false`, e
+   exigir `404` na mesma `/c`, mantendo todos os headers privados;
 3. abrir agenda, partida e súmula pela interface e confirmar que continuam
    utilizáveis, enquanto os atalhos de campeonato desaparecem;
 4. manter a flag desligada e promover o último deployment bom se a regressão
