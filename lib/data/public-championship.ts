@@ -108,6 +108,13 @@ export type PublicChampionshipOrganizer = {
   cover_url: string | null;
 };
 
+type PublicChampionshipOrganizerRecord = PublicChampionshipOrganizer & {
+  logo_path: string | null;
+  cover_path: string | null;
+};
+
+export type PublicChampionshipOrganizerMediaKind = "logo" | "cover";
+
 export const getPublicChampionship = cache(
   async (publicId: string): Promise<PublicChampionship | null> => {
     if (!publicChampionshipId.safeParse(publicId).success) return null;
@@ -159,8 +166,8 @@ export const getPublicChampionshipWithFallback = cache(
   },
 );
 
-export const getPublicChampionshipOrganizer = cache(
-  async (publicId: string): Promise<PublicChampionshipOrganizer | null> => {
+const getPublicChampionshipOrganizerRecord = cache(
+  async (publicId: string): Promise<PublicChampionshipOrganizerRecord | null> => {
     if (!publicChampionshipId.safeParse(publicId).success) return null;
 
     try {
@@ -190,32 +197,54 @@ export const getPublicChampionshipOrganizer = cache(
 
       const logoPath = team.team_media.find((item) => item.kind === "logo")?.storage_path;
       const coverPath = team.team_media.find((item) => item.kind === "cover")?.storage_path;
-      const mediaPaths = [logoPath, coverPath].filter(
-        (path): path is string => Boolean(path),
-      );
-      const signedUrlByPath = new Map<string, string>();
-      if (mediaPaths.length) {
-        const { data: signedMedia, error: signedMediaError } = await privileged.storage
-          .from("team_media")
-          .createSignedUrls(mediaPaths, 3600);
-        if (!signedMediaError) {
-          for (const item of signedMedia ?? []) {
-            if (item.path && item.signedUrl) {
-              signedUrlByPath.set(item.path, item.signedUrl);
-            }
-          }
-        }
-      }
-
       return {
         slug: team.slug,
         name: team.name,
-        logo_url: logoPath ? signedUrlByPath.get(logoPath) ?? null : null,
-        cover_url: coverPath ? signedUrlByPath.get(coverPath) ?? null : null,
+        logo_url: null,
+        cover_url: null,
+        logo_path: logoPath ?? null,
+        cover_path: coverPath ?? null,
       };
     } catch {
       // Branding é aprimoramento visual: indisponibilidade nunca derruba a
       // projeção esportiva nem amplia o acesso a um time não público.
+      return null;
+    }
+  },
+);
+
+export const getPublicChampionshipOrganizer = cache(
+  async (publicId: string): Promise<PublicChampionshipOrganizer | null> => {
+    const organizer = await getPublicChampionshipOrganizerRecord(publicId);
+    if (!organizer) return null;
+
+    return {
+      slug: organizer.slug,
+      name: organizer.name,
+      logo_url: organizer.logo_path ? `/c/${publicId}/media/logo` : null,
+      cover_url: organizer.cover_path ? `/c/${publicId}/media/cover` : null,
+    };
+  },
+);
+
+export const getPublicChampionshipOrganizerMediaUrl = cache(
+  async (
+    publicId: string,
+    kind: PublicChampionshipOrganizerMediaKind,
+  ): Promise<string | null> => {
+    const organizer = await getPublicChampionshipOrganizerRecord(publicId);
+    const storagePath = kind === "logo"
+      ? organizer?.logo_path
+      : organizer?.cover_path;
+    if (!storagePath) return null;
+
+    try {
+      const privileged = createPrivilegedClient();
+      const { data, error } = await privileged.storage
+        .from("team_media")
+        .createSignedUrl(storagePath, 60);
+      return error ? null : data?.signedUrl ?? null;
+    } catch {
       return null;
     }
   },

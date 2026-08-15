@@ -458,8 +458,9 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
   capa ou gradiente, escudo, selo `Página oficial`, nome e link do time, além de
   marca e status mantidos na mesma linha no celular. O branding é carregado
   server-side somente para campeonato publicado de um time já público; caminhos
-  privados não chegam ao HTML, URLs de mídia são assinadas e qualquer falha
-  preserva a projeção esportiva com fallback. Passaram 2 arquivos/12 testes
+  privados não chegam ao HTML, a mídia usa rota same-origin com assinatura
+  mantida somente no servidor e qualquer falha preserva a projeção esportiva
+  com fallback. Passaram 2 arquivos/12 testes
   focados, TypeScript, ESLint e build Webpack. A revisão com dados reais ficou
   para o Preview porque o executor local não alcançou o Supabase remoto.
 - o PR #202 integrou o branding de `/c` em `dev` no commit `ed6cd09`, mas o PR
@@ -470,3 +471,12 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
   documentos pelo PR #202. Passaram 3 arquivos/15 testes focados, ESLint,
   TypeScript, 76 arquivos/432 testes Vitest e build Webpack; o Turbopack foi
   bloqueado somente pela porta interna proibida do executor.
+- o PR #204 sincronizou `main` em `dev` com oito checks aplicáveis verdes. O PR
+  #203 reabriu `MERGEABLE`, repetiu os oito checks e atualizou `main` no merge
+  commit `0b4117f`; `dev` avançou ao mesmo commit, preservando ancestralidade. O
+  smoke pós-deploy `31910553453` detectou `token=` da mídia assinada no HTML e
+  falhou fechado. O hotfix substitui essas URLs por um proxy same-origin que
+  revalida publicação, aceita apenas JPEG/PNG/WebP, aplica headers privados e
+  mantém assinatura e caminho somente no servidor. Passaram 4 arquivos/26
+  testes focados, 77 arquivos/436 testes completos, TypeScript, ESLint e build
+  Webpack; o HTML não contém token nem storage path.
