@@ -100,6 +100,7 @@ export function PlayerPortalNavigation({
               <Link
                 key={item.href}
                 href={item.href}
+                aria-label={item.label}
                 aria-current={selected ? "page" : undefined}
                 className={`flex h-14 w-full touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-[1.1rem] text-[10px] font-bold transition-colors [-webkit-tap-highlight-color:transparent] active:bg-white/10 ${
                   selected
@@ -108,7 +109,7 @@ export function PlayerPortalNavigation({
                 }`}
               >
                 <item.icon className={`size-5 ${selected ? "text-emerald-600" : ""}`} aria-hidden />
-                <span aria-label={item.label}>{item.mobileLabel}</span>
+                <span>{item.mobileLabel}</span>
               </Link>
             );
           })}
