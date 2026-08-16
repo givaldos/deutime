@@ -2,7 +2,7 @@
 release: R10
 work_package: DP-R10-01
 scope: recognition_model_discovery
-branch_or_commit: "codex/r10-model-prototype"
+branch_or_commit: "codex/r10-cohort-review-1"
 checkpoint: CP0
 status: in_progress
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03]
@@ -13,8 +13,9 @@ tests:
   - "protótipo: 390 px e 360 px sem overflow ou recorte"
   - "protótipo: controles com alvo mínimo de 44 px"
   - "protótipo: visão privada, consentimento e prévia pública funcionais"
-blocker: "Implementação não autorizada: DEC-RECOGNITION-MODEL segue proposed e a coorte ainda não validou compreensão nem intenção de uso."
-next_action: "Apresentar o protótipo descartável a três pessoas da coorte sem explicação prévia; registrar somente contagens de compreensão e intenção para aceitar ou estacionar R10 no CP0."
+  - "coorte: 1/3 revisão; compreensão 1/1; intenção respondida 0/1"
+blocker: "Implementação não autorizada: DEC-RECOGNITION-MODEL segue proposed; faltam a intenção da primeira revisão e duas revisões completas da coorte."
+next_action: "Coletar se a primeira pessoa usaria novamente a visão ou publicaria o resumo e obter mais duas revisões completas, sem explicação prévia."
 ---
 
 # Trabalho atual
@@ -28,13 +29,16 @@ O eventual resumo público possui finalidade de consentimento própria,
 desligada por padrão e revogável pelo titular. A implementação continua fora de
 escopo enquanto `DEC-RECOGNITION-MODEL` estiver `proposed`.
 
-O protótipo mobile descartável foi verificado tecnicamente em 390 px e 360 px,
-mas ainda não foi avaliado por pessoas da coorte. Portanto, `AC-R10-04`,
-`AC-R10-05` e CP0 permanecem abertos.
+O protótipo mobile descartável foi verificado tecnicamente em 390 px e 360 px.
+A primeira revisão humana confirmou os quatro limites do modelo, com o
+consentimento testado desligado. A resposta não informou intenção de uso; esse
+dado não foi inferido. Portanto, `AC-R10-04`, `AC-R10-05` e CP0 permanecem
+abertos.
 
 ## Próxima ação
 
-Apresentar o protótipo sem explicação prévia a três pessoas da coorte. Registrar
-somente as contagens das cinco respostas previstas no ADR; aceitar a decisão e
-promover R10 a `ready` apenas se o sinal mínimo for atingido. Caso contrário,
-estacionar a vertical com a métrica de reabertura preservada.
+Perguntar à primeira pessoa se usaria novamente a visão ou publicaria o resumo.
+Depois, apresentar o protótipo sem explicação prévia a mais duas pessoas e
+registrar somente as contagens previstas no ADR. Aceitar a decisão e promover
+R10 a `ready` apenas se o sinal mínimo for atingido; caso contrário, estacionar
+a vertical com a métrica de reabertura preservada.
