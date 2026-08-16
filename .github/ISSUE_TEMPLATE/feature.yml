@@ -24,6 +24,7 @@ body:
         - R07 — Times reutilizáveis e divisão compartilhável
         - R08M — Fechamento do MVP compartilhável
         - R09 — Campeonatos e tabela
+        - R10 — Reconhecimento positivo
     validations:
       required: true
   - type: input

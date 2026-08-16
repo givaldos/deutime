@@ -1,38 +1,40 @@
 ---
-release: R09
-work_package: WP-R09-05
-scope: championship_robustness_and_pilot
-branch_or_commit: "R09@479de34"
-checkpoint: CP6
-status: idle
-completed_ac: [AC-R09-01, AC-R09-02, AC-R09-03, AC-R09-04, AC-R09-05, AC-R09-06, AC-R09-07, AC-R09-08, AC-R09-09, AC-R09-10, AC-R09-11, AC-R09-12, AC-R09-13, AC-R09-14]
+release: R10
+work_package: DP-R10-01
+scope: recognition_model_discovery
+branch_or_commit: "codex/r10-discovery-cp0"
+checkpoint: CP0
+status: in_progress
+completed_ac: [AC-R10-01]
 dirty_files: []
 tests:
-  - "sonda operacional: 1 arquivo/4 testes focados aprovados"
-  - "duas leituras protegidas consecutivas: championships=true, projeção 1/1, fallback 0 e divergências 0"
-  - "confirmação protegida: dois participantes, um confronto vinculado e duração de 733ms"
-  - "smoke ativo 31911485737: evento e campeonato públicos aprovados no commit 479de34"
-  - "gates pós-push: CI, banco, CodeQL e Terraform aprovados"
-blocker: "Nenhum."
-next_action: "R09 concluída; selecionar a próxima release ou pacote ativo antes de iniciar nova implementação."
+  - "baseline R10: 2 arquivos/6 testes focados aprovados"
+  - "TypeScript aprovado"
+  - "métricas protegidas: 2 perfis públicos, 2 partidas finalizadas e 3 participações reais"
+  - "sinal de uso: 0 consentimentos por vínculo, 0 votos e 0 times com voting ativa"
+blocker: "Implementação não autorizada: faltam DEC-RECOGNITION-MODEL, protótipo compreendido e sinal mínimo de uso."
+next_action: "Executar DP-R10-01: comparar opções de fonte, catálogo, pertencimento, consentimento e reversão; validar protótipo descartável com a coorte antes de decidir CP0."
 ---
 
 # Trabalho atual
 
-R09 concluiu CP6. Os quatorze critérios de aceite possuem evidência no pacote
-da release, incluindo isolamento multi-time, reconstrução da classificação,
-publicação anônima mínima, experiência móvel e rollback por flag.
+R09 encerrou CP6. A vertical seguinte, R10, foi reavaliada contra os contratos
+existentes de participação real, Craque da Galera, perfil público e
+consentimento por time.
 
-A sonda agregada foi executada no contexto protegido da coorte demo em duas
-leituras consecutivas. Ambas confirmaram a capacidade ativa, projeção pública
-completa 1/1, dois participantes, um confronto vinculado, zero fallback e zero
-divergência de reconstrução, sem imprimir segredo ou identificador interno.
+A leitura protegida de homologação encontrou base técnica, mas nenhum uso de
+votação: existem dois perfis públicos, duas partidas finalizadas e três
+participações reais; consentimentos por vínculo, votos e times com `voting`
+ativa permanecem em zero. Nenhum nome, ID, cédula ou conteúdo pessoal foi
+impresso.
 
-O smoke ativo de produção/homologação aprovou evento e campeonato públicos no
-commit `479de34`. A flag da coorte permanece ativa, o rollback auditado segue
-disponível e os kill switches globais continuam desligados.
+R10 entra somente em `discovery`. `DP-R10-01` deve produzir
+`DEC-RECOGNITION-MODEL` ou estacionar formalmente a vertical. Migration, flag,
+RPC, Action e interface de produção permanecem fora de escopo até existir
+contrato aceito e evidência mínima de demanda.
 
 ## Próxima ação
 
-Selecionar a próxima release ou pacote ativo. Nenhuma implementação permanece
-pendente na R09.
+Comparar as opções do modelo de reconhecimento e validar um protótipo mobile
+descartável com pessoas da coorte, preservando estatísticas básicas e o resultado
+agregado do Craque como fallback.
