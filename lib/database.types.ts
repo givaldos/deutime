@@ -3872,6 +3872,16 @@ export type Database = {
           voting_closes_at: string
         }[]
       }
+      get_my_player_statistics: {
+        Args: never
+        Returns: {
+          assists: number
+          goals: number
+          matches_played: number
+          red_cards: number
+          yellow_cards: number
+        }[]
+      }
       get_my_recognitions: {
         Args: never
         Returns: {
@@ -3885,16 +3895,6 @@ export type Database = {
           source_id: string
           team_id: string
           team_name: string
-        }[]
-      }
-      get_my_player_statistics: {
-        Args: never
-        Returns: {
-          assists: number
-          goals: number
-          matches_played: number
-          red_cards: number
-          yellow_cards: number
         }[]
       }
       get_public_championship: {
@@ -4382,7 +4382,7 @@ export type Database = {
         }
         Returns: undefined
       }
-      set_public_sports_activity_consent: {
+      set_public_recognition_summary_consent: {
         Args: {
           request_id: string
           requested_athlete_id: string
@@ -4409,7 +4409,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      set_public_recognition_summary_consent: {
+      set_public_sports_activity_consent: {
         Args: {
           request_id: string
           requested_athlete_id: string
@@ -4748,11 +4748,11 @@ export type Database = {
       match_incident_kind: "goal" | "yellow_card" | "red_card"
       match_public_mode: "private" | "final_result" | "live"
       match_status: "scheduled" | "live" | "finalized" | "void"
-      recognition_kind: "goal_recorded" | "assist_recorded" | "crowd_star"
       membership_status: "invited" | "active" | "suspended"
       message_channel: "whatsapp" | "email" | "push"
       message_status: "pending" | "processing" | "sent" | "failed" | "cancelled"
       organization_mode: "single_squad" | "split_teams"
+      recognition_kind: "goal_recorded" | "assist_recorded" | "crowd_star"
       registration_source: "admin" | "public_form" | "import"
       runtime_control_key:
         | "integration_produce"
@@ -5058,11 +5058,11 @@ export const Constants = {
       match_incident_kind: ["goal", "yellow_card", "red_card"],
       match_public_mode: ["private", "final_result", "live"],
       match_status: ["scheduled", "live", "finalized", "void"],
-      recognition_kind: ["goal_recorded", "assist_recorded", "crowd_star"],
       membership_status: ["invited", "active", "suspended"],
       message_channel: ["whatsapp", "email", "push"],
       message_status: ["pending", "processing", "sent", "failed", "cancelled"],
       organization_mode: ["single_squad", "split_teams"],
+      recognition_kind: ["goal_recorded", "assist_recorded", "crowd_star"],
       registration_source: ["admin", "public_form", "import"],
       runtime_control_key: [
         "integration_produce",
@@ -5081,3 +5081,4 @@ export const Constants = {
     },
   },
 } as const
+
