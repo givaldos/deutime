@@ -14,7 +14,7 @@ O **MVP funcional completo** permite que um time real execute pelo celular e pel
 
 O MVP é considerado completo para **piloto controlado**, não para disponibilidade geral em escala. Nenhuma etapa pode depender de intervenção no banco, expor dados sem consentimento ou perder a operação quando WhatsApp, tempo real, vídeo, votação ou conversa estiverem desligados.
 
-**Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na R08M e a R09 encerrou CP6 com campeonato, página compartilhável, piloto, sonda protegida e rollback comprovados. A R10 entrou somente em descoberta: os componentes de Craque, perfil e consentimento existem, mas a homologação ainda não apresenta uso de votação que autorize pontos ou ranking.
+**Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na R08M e a R09 encerrou CP6. A R10 concluiu a descoberta em CP0: três de três revisões compreenderam o modelo factual e demonstraram intenção de uso; a implementação começa inerte, sem pontos, ranking ou time ativado.
 
 ## Estado executivo
 
@@ -31,7 +31,7 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | **R07 — Times reutilizáveis e divisão compartilhável** | ✅ `completed` | Equipes reutilizáveis, sugestão, publicação, primeiros nomes, formação visual e jornada por toque validadas em produção. | [Abrir](releases/R07-times-manuais-compartilhaveis.md) |
 | **R08M — Fechamento do MVP compartilhável** | ✅ `completed` | Open Graph por fase, piloto compartilhável, ciclo integrado, falhas e fallbacks comprovados. | [Abrir](releases/R08M-fechamento-mvp-compartilhavel.md) |
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Três formatos, classificação, chave, página anônima, robustez, piloto e sonda protegida concluídos. | [Abrir](releases/R09-campeonatos-e-tabela.md) |
-| **R10 — Reconhecimento positivo** | 🔎 `discovery` | Baseline de Craque, perfil e consentimento inventariado; implementação aguarda contrato e evidência de demanda. | [Abrir](releases/R10-reconhecimento-positivo.md) |
+| **R10 — Reconhecimento positivo** | 🟡 `ready / CP0` | Cartões factuais privados e resumo público consentido definidos; coorte `3/3` compreendeu e usaria o modelo. | [Abrir](releases/R10-reconhecimento-positivo.md) |
 
 ## Cronograma consolidado
 
@@ -44,7 +44,7 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | 5. Divisão compartilhável | ✅ concluído | R07 comprovou equipes internas, sugestão, publicação, formação visual, jornada por toque e rollback em Android/iPhone. |
 | 6. Fechamento do MVP | ✅ concluído | R08M concluiu Open Graph por fase, previews físicos, piloto, rollback e o gate integrado do ciclo completo. |
 | 7. Descoberta pós-MVP | 🟡 contínua, sem implementação | Reunir recomendações, evidências, métricas, dependências e critérios de aceite; eliminar duplicidades e separar requisito de ideia. |
-| 8. Evoluções de produto | 🔎 R10 em descoberta | Fechar o modelo de reconhecimento, consentimento e antiabuso; promover somente com sinal mínimo de uso. |
+| 8. Evoluções de produto | 🟡 R10 pronta | Implementar reconhecimento factual por pacotes, começando pela expansão inerte e mantendo a flag desligada. |
 | 9. Consolidação e escala | ⬜ depois das verticais | Executar somente as melhorias transversais priorizadas por risco, uso real ou retorno mensurável. |
 | 10. Última evolução técnica | ⚪ por último | Revalidar os requisitos e somente então migrar a mensageria da Twilio para a WhatsApp Cloud API direta da Meta. |
 
@@ -112,17 +112,18 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 |---|---|---|
 | 1 | ~~Selecionar a próxima vertical entre R09 e R10~~ | ✅ R09 selecionada e preparada em CP0 |
 | 2 | ~~Concluir a R09~~ | ✅ CP6, sonda protegida e documentação concluídos |
-| 3 | Reavaliar a vertical restante e melhorias transversais | 🔎 R10 aberta somente em descoberta; contrato e sinal de uso pendentes |
-| 4 | Descobrir marketplace e pagamentos | densidade real de oferta e demanda, modelo de confiança e viabilidade transacional |
-| 5 | Implementar melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
-| 6 | Migrar da Twilio para a Meta | última entrega; requisitos e preços revalidados imediatamente antes do CP0 |
+| 3 | ~~Reavaliar a vertical restante e melhorias transversais~~ | ✅ R10 preparada em CP0 após contrato aceito e sinal de uso `3/3` |
+| 4 | Implementar a R10 | uma única frente ativa, começando por expansão inerte sem consumidor |
+| 5 | Descobrir marketplace e pagamentos | densidade real de oferta e demanda, modelo de confiança e viabilidade transacional |
+| 6 | Implementar melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
+| 7 | Migrar da Twilio para a Meta | última entrega; requisitos e preços revalidados imediatamente antes do CP0 |
 
 Levantar requisitos agora não autoriza implementação. Exceções à sequência existem somente para segurança, indisponibilidade, obrigação legal, perda de dados ou custo operacional que ameace a continuidade do produto.
 
-A R09 foi escolhida antes da R10 porque fecha a lacuna observável entre partidas
-isoladas e uma competição, reutilizando os contratos estabilizados de partidas e
-equipes internas. A escolha prioriza prontidão e continuidade da jornada; o
-piloto da R09 deve fornecer os dados de uso para reavaliar reconhecimento.
+A R09 foi escolhida antes da R10 porque fechava a lacuna observável entre
+partidas isoladas e uma competição, reutilizando os contratos estabilizados de
+partidas e equipes internas. Após o piloto da R09, esses dados foram usados para
+reavaliar reconhecimento sem autorizar pontos ou ranking.
 
 ### Entregas da R09
 
@@ -144,7 +145,7 @@ piloto da R09 deve fornecer os dados de uso para reavaliar reconhecimento.
 |---|---|---|---|---|---|
 | **R08 — Divisão automática** | ↪️ `incorporado à R07` | Sugestão reproduzível, ajustável e explicável foi incorporada à jornada de divisão para não entregar uma experiência fragmentada. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Ajuste manual |
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento, página compartilhável e piloto com rollback. | R04, R07, R08M | concluída | Histórico por partida |
-| **R10 — Reconhecimento positivo** | 🔎 `discovery` | Pontos positivos, Craques e perfis consentidos, sem ranking constrangedor. | R04, R05, R07 | fechar modelo, privacidade e sinal de uso | Estatísticas básicas |
+| **R10 — Reconhecimento positivo** | 🟡 `ready / CP0` | Cartões factuais privados e resumo consentido, sem ranking constrangedor. | R04, R05, R07 | `DEC-RECOGNITION-MODEL` aceita | Estatísticas básicas |
 
 ### R09 — campeonatos configuráveis
 
@@ -162,12 +163,13 @@ A descoberta da R09 foi concluída em `DEC-CHAMPIONSHIP-MODEL`: participantes ac
 
 A reavaliação agregada de homologação encontrou dois perfis públicos, duas
 partidas finalizadas e três participações reais, mas nenhum consentimento por
-vínculo, nenhum voto e nenhum time com votação ativa. Assim, R10 não começa por
-uma tabela de pontos: entra em descoberta para definir fonte autoritativa,
-catálogo positivo, pertencimento por time, consentimento, correção, retenção e
-antiabuso. O pacote [`R10-reconhecimento-positivo`](releases/R10-reconhecimento-positivo.md)
-autoriza somente `DP-R10-01`; código de produção depende de decisão aceita,
-protótipo compreendido e sinal mínimo de uso.
+vínculo, nenhum voto e nenhum time com votação ativa. Por isso, R10 não começa
+por uma tabela de pontos: `DEC-RECOGNITION-MODEL` adotou cartões factuais de gol,
+assistência e Craque agregado, privados por padrão e sem ranking. Três de três
+pessoas compreenderam os quatro limites e demonstraram intenção de uso. O pacote
+[`R10-reconhecimento-positivo`](releases/R10-reconhecimento-positivo.md) está
+pronto em CP0; a próxima ação é a expansão inerte de `WP-R10-01`, sem consumidor
+nem ativação de time.
 
 ## Fora do MVP entregue
 

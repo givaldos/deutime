@@ -1,7 +1,9 @@
 # DEC-RECOGNITION-MODEL — Reconhecimento positivo derivado de fatos esportivos
 
-- Status: proposed
+- Status: accepted
 - Data: 2026-08-15
+- Aceita em: 2026-08-16 — coorte `3/3` compreendeu os quatro limites e `3/3`
+  demonstrou intenção positiva de uso
 - Release: R10
 - Responsáveis: produto e engenharia do DeuTime
 
@@ -16,8 +18,9 @@ pessoas.
 Em 2026-08-15, a leitura protegida de homologação encontrou duas partidas
 finalizadas e três participações reais, mas nenhum voto, consentimento esportivo
 ou time com `voting` ativa. A decisão precisa, portanto, separar o contrato
-seguro da autorização de implementar: o modelo pode ser proposto e testado, mas
-R10 continua em descoberta até existir compreensão e sinal de demanda na coorte.
+seguro da autorização de implementar: o modelo foi primeiro proposto e testado,
+e a implementação só foi autorizada depois de existir compreensão e sinal de
+demanda na coorte.
 
 ## Opções consideradas
 
@@ -34,11 +37,11 @@ R10 continua em descoberta até existir compreensão e sinal de demanda na coort
    não testa se uma apresentação privada e factual resolve a necessidade de
    reconhecimento.
 
-## Decisão proposta
+## Decisão
 
-Adotar a opção 3 apenas como contrato e protótipo da descoberta. Nenhum schema,
-flag, RPC, Action, interface de produção ou efeito externo está autorizado até
-que a validação da coorte aceite esta decisão ou estacione R10.
+Adotar a opção 3. A implementação avança somente pelos pacotes da R10, começando
+por expansão inerte com flag desligada. Aceitar esta decisão não ativa time,
+publica resumo nem cria efeito externo.
 
 ### Fonte e catálogo `recognition-v1`
 
@@ -118,15 +121,20 @@ A coorte deve revisar sem explicação prévia e responder, em contagens agregad
 - se distinguiu o resumo público do detalhe privado;
 - se usaria a visão novamente ou escolheria publicar o resumo.
 
-Sinal mínimo proposto: três pessoas do piloto revisam; todas compreendem os
+Sinal mínimo adotado: três pessoas do piloto revisam; todas compreendem os
 quatro limites de privacidade/modelo e pelo menos duas demonstram intenção de
 uso. Abaixo disso, ou se `voting` continuar sem uso após mais três partidas
 finalizadas da coorte, R10 deve ser estacionada e reaberta somente quando houver
 novo sinal comportamental.
 
+Em 2026-08-16, a coorte terminou com três revisões sem explicação prévia. As três
+pessoas compreenderam os quatro limites, usariam a visão e escolheriam publicar
+o resumo; uma testou consentimento desligado e duas, ligado. Somente contagens
+agregadas foram registradas. O limiar foi atingido e esta decisão foi aceita.
+
 ## Plano de migração e reversão
 
-Se a decisão for aceita, a implementação futura segue expansão inerte:
+Com a decisão aceita, a implementação segue expansão inerte:
 
 1. catálogo tipado e projeção privada por tenant, sem consumidor;
 2. testes positivo, negativo, concorrente e cross-tenant;
