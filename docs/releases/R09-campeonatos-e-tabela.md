@@ -1,7 +1,7 @@
 ---
 id: R09
 type: vertical
-status: active
+status: completed
 outcome: "Permitir que a diretoria organize campeonatos em pontos corridos, grupos com mata-mata ou mata-mata, vincule partidas e compartilhe tabela ou chaveamento atualizados sem perder o histórico."
 depends_on: [R04, R07, R08M]
 baseline:
@@ -9,7 +9,7 @@ baseline:
   - BASE-MATCH-REPORT
   - BASE-PUBLIC
   - BASE-WRITES
-verified_at: "b4b8e1c"
+verified_at: "479de34"
 decisions:
   - DEC-EVENT-MATCH
   - DEC-PUBLIC-PRIVACY
@@ -155,20 +155,20 @@ pelo WhatsApp; com a capacidade desligada, as partidas continuam acessíveis.
 
 ## Critérios de aceite
 
-- [ ] `AC-R09-01` — Owner/admin cria campeonato válido nos três formatos, com limites, pontos e desempates validados server-side; manager e atleta não alteram regulamento.
-- [ ] `AC-R09-02` — Participante referencia somente equipe interna do mesmo tenant ou snapshot externo, sem conceder acesso nem reescrever histórico após edição da equipe.
-- [ ] `AC-R09-03` — Geração de confrontos é reproduzível, revisável antes da publicação e idempotente diante de retry; publicação concorrente produz uma única grade.
-- [ ] `AC-R09-04` — Confronto e partida possuem vínculo um-para-um dentro do mesmo tenant; amistoso permanece desvinculado e o primeiro fato esportivo congela os lados.
-- [ ] `AC-R09-05` — Encerrar partida atualiza a classificação transacionalmente a partir do placar e regulamento, sem contador esportivo independente.
-- [ ] `AC-R09-06` — Pontos, jogos, vitórias, empates, derrotas, gols pró, gols contra, saldo e desempates permanecem corretos em empate absoluto, anulação e correção.
-- [ ] `AC-R09-07` — Grupos classificam a quantidade publicada e alimentam o mata-mata; byes e avanço nunca criam confronto duplicado.
-- [ ] `AC-R09-08` — Empate eliminatório, W.O. ou vaga ainda empatada exigem decisão explícita, motivo e auditoria, sem inventar gols no placar.
-- [ ] `AC-R09-09` — Cancelamento futuro libera confronto para remarcação; retirada e correção preservam partidas concluídas e falham fechadas quando um confronto dependente já começou.
-- [ ] `AC-R09-10` — `/c/{public_id}` mostra somente regulamento, participantes, placares autorizados, tabela e chaveamento, sem PII, endereço privado, ID interno ou ampliação por sessão/capability.
-- [ ] `AC-R09-11` — Tabelas, chaves, RLS, grants e RPCs impedem leitura e escrita cross-tenant e cobrem sucesso, negação e concorrência em pgTAP.
-- [ ] `AC-R09-12` — Flag desligada, schema N−1 ou falha da projeção preservam agenda, partidas, súmula, página do evento e histórico existentes.
-- [ ] `AC-R09-13` — Criação, revisão, tabela, chaveamento e compartilhamento funcionam por toque, teclado e leitor de tela em larguras móveis, Android, iPhone e navegador interno do WhatsApp.
-- [ ] `AC-R09-14` — Piloto isolado comprova telemetria sem PII, smoke, alerta, suporte, reconstrução da classificação, fallback e rollback por flag.
+- [x] `AC-R09-01` — Owner/admin cria campeonato válido nos três formatos, com limites, pontos e desempates validados server-side; manager e atleta não alteram regulamento.
+- [x] `AC-R09-02` — Participante referencia somente equipe interna do mesmo tenant ou snapshot externo, sem conceder acesso nem reescrever histórico após edição da equipe.
+- [x] `AC-R09-03` — Geração de confrontos é reproduzível, revisável antes da publicação e idempotente diante de retry; publicação concorrente produz uma única grade.
+- [x] `AC-R09-04` — Confronto e partida possuem vínculo um-para-um dentro do mesmo tenant; amistoso permanece desvinculado e o primeiro fato esportivo congela os lados.
+- [x] `AC-R09-05` — Encerrar partida atualiza a classificação transacionalmente a partir do placar e regulamento, sem contador esportivo independente.
+- [x] `AC-R09-06` — Pontos, jogos, vitórias, empates, derrotas, gols pró, gols contra, saldo e desempates permanecem corretos em empate absoluto, anulação e correção.
+- [x] `AC-R09-07` — Grupos classificam a quantidade publicada e alimentam o mata-mata; byes e avanço nunca criam confronto duplicado.
+- [x] `AC-R09-08` — Empate eliminatório, W.O. ou vaga ainda empatada exigem decisão explícita, motivo e auditoria, sem inventar gols no placar.
+- [x] `AC-R09-09` — Cancelamento futuro libera confronto para remarcação; retirada e correção preservam partidas concluídas e falham fechadas quando um confronto dependente já começou.
+- [x] `AC-R09-10` — `/c/{public_id}` mostra somente regulamento, participantes, placares autorizados, tabela e chaveamento, sem PII, endereço privado, ID interno ou ampliação por sessão/capability.
+- [x] `AC-R09-11` — Tabelas, chaves, RLS, grants e RPCs impedem leitura e escrita cross-tenant e cobrem sucesso, negação e concorrência em pgTAP.
+- [x] `AC-R09-12` — Flag desligada, schema N−1 ou falha da projeção preservam agenda, partidas, súmula, página do evento e histórico existentes.
+- [x] `AC-R09-13` — Criação, revisão, tabela, chaveamento e compartilhamento funcionam por toque, teclado e leitor de tela em larguras móveis, Android, iPhone e navegador interno do WhatsApp.
+- [x] `AC-R09-14` — Piloto isolado comprova telemetria sem PII, smoke, alerta, suporte, reconstrução da classificação, fallback e rollback por flag.
 
 ## Riscos e controles
 
@@ -346,7 +346,7 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
   robustez, telemetria, runbook e executar o piloto controlado até CP6, incluindo
   a evidência física em Android, iPhone e navegador interno do WhatsApp.
 
-### `WP-R09-05` — CP5 concluído; CP6 pendente
+### `WP-R09-05` — CP6 concluído
 
 - `get_championship_pilot_health` entrega exclusivamente a `service_role` uma
   leitura agregada e sem PII de flags, formatos, estados, projeções, comandos e
@@ -486,3 +486,14 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
   ativo `31911184612` validou evento e campeonato públicos em produção sem
   token ou identificador interno. O conflito está encerrado e CP6 volta a
   depender somente da sonda agregada no executor operacional protegido.
+- em 2026-08-15 22:24 BRT, duas leituras consecutivas da sonda protegida
+  confirmaram `championships=true` somente na coorte demo, um campeonato
+  publicado, projeção 1/1, dois participantes, um confronto vinculado, zero
+  fallback e zero divergência de reconstrução. A confirmação concluiu em 733ms
+  e não imprimiu segredo nem identificador interno;
+- o smoke ativo `31911485737` aprovou evento e campeonato públicos sobre o
+  commit `479de34`. A flag da coorte permanece ativa em homologação, o rollback
+  auditado continua disponível e os kill switches globais seguem desligados;
+- os quatorze critérios possuem evidência duradoura, documentação e rollout
+  estão sincronizados e não resta bloqueio técnico. R09 encerra CP6 com o
+  checkpoint limpo.
