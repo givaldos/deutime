@@ -505,6 +505,8 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
 - passaram o teste focado (1 arquivo/5 testes), TypeScript, ESLint, 77
   arquivos/436 testes e o build Webpack. O Turbopack ficou bloqueado somente
   pela porta interna proibida do executor. O Preview compilou, mas a rota
-  falhou fechada em 404 porque a coorte não está ativa nesse ambiente; a
-  validação visual final permanece no smoke somente leitura da rota ativa após
-  o deploy.
+  falhou fechada em 404 porque a coorte não está ativa nesse ambiente;
+- após o deploy, o smoke somente leitura `31973901783` passou e a rota ativa foi
+  verificada em 390 px e 320 px: o cartão sobrepõe o banner em exatamente 32 px,
+  a camada visível nessa faixa é o próprio cartão, o contêiner computa
+  `position: relative` e `z-index: 10`, e não existe overflow horizontal.
