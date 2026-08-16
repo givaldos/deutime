@@ -1,47 +1,46 @@
 ---
 release: R10
-work_package: WP-R10-01
-scope: recognition_contract
-branch_or_commit: "codex/r10-cp0-ready"
-checkpoint: CP0
+work_package: WP-R10-02
+scope: recognition_private_view
+branch_or_commit: "codex/r10-recognition-contract"
+checkpoint: CP1
 status: ready
-completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05]
+completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-10, AC-R10-11]
 dirty_files: []
 tests:
-  - "base R10: 2 arquivos/6 testes focados aprovados"
-  - "TypeScript aprovado"
-  - "protótipo: 390 px e 360 px sem overflow ou recorte"
-  - "protótipo: controles com alvo mínimo de 44 px"
-  - "protótipo: visão privada, consentimento e prévia pública funcionais"
-  - "coorte: 3/3 revisões; compreensão 3/3; intenção positiva 3/3; publicação 3/3"
-  - "coorte: consentimento testado desligado em 1 revisão e ligado em 2 revisões"
-  - "gate: lint, TypeScript e 77 arquivos/436 testes aprovados"
-  - "build de produção: Webpack aprovado; Turbopack limitado por porta interna do sandbox (EPERM)"
+  - "R10 pgTAP: 61 casos de contrato e 22 casos com duas conexões reais aprovados"
+  - "Database CI: reset, lint, suíte completa e tipos gerados aprovados"
+  - "gate: lint, TypeScript e 78 arquivos/438 testes aprovados"
+  - "build de produção Webpack aprovado"
+  - "npm audit de produção: 0 vulnerabilidades"
+  - "CodeQL, dependency review e Terraform aprovados"
+  - "N/N-1: expansão sem consumidor e sem ativação de time"
 blocker: null
-next_action: "Implementar WP-R10-01 com expansão inerte da flag recognition, catálogo recognition-v1, consentimento, RPCs e tipos, sem consumidor nem ativação de time."
+next_action: "Implementar WP-R10-02 com a visão privada móvel /me/reconhecimentos atrás da flag recognition, sem ativar time e preservando o perfil atual como fallback."
 ---
 
 # Trabalho atual
 
-`DP-R10-01` comparou quatro opções e aceitou cartões factuais derivados de gol,
-assistência e resultado agregado fechado do Craque. O contrato não cria pontos,
-nota, ranking ou escrita global: cada item pertence a `athlete_id + team_id` e
-acompanha correções da fonte autoritativa.
+`WP-R10-01` entregou a expansão inerte do reconhecimento positivo. O catálogo
+`recognition-v1` possui somente gol, assistência e Craque agregado fechado;
+todos os cartões são projeções reconstruíveis dos fatos esportivos, sem pontos,
+nota, ranking, ledger ou contador paralelo.
 
-O resumo público possui finalidade de consentimento própria, desligada por
-padrão e revogável pelo titular.
+A identidade vem da sessão e cada item preserva `athlete_id + team_id`. O
+primeiro marco de ativação impede retroatividade, a flag fecha leituras e
+consentimento, e correções ou anulações da fonte recompõem a projeção.
 
-Três revisões humanas sem explicação prévia confirmaram os quatro limites do
-modelo; as três pessoas usariam a visão e escolheriam publicar o resumo. Uma
-testou o consentimento desligado e duas, ligado. As contagens permanecem
-agregadas, sem identidade ou conteúdo pessoal.
+O resumo público permanece vazio sem `public_recognition_summary_v1` concedido
+pelo próprio titular. Sua RPC retorna somente categoria e contagem, sem partida,
+data, voto, colocação, time ou identificadores internos.
 
-`DEC-RECOGNITION-MODEL` está aceita e a R10 satisfaz a Definition of Ready. O
-CP0 foi concluído sem ativar flag, time, consumidor ou efeito externo.
+O CP1 foi comprovado por 83 asserções R10, incluindo duas conexões reais, além
+do reset, lint, suíte histórica e tipos gerados no workflow Database. Nenhum
+time, consumidor, interface ou efeito externo foi ativado.
 
 ## Próxima ação
 
-Implementar `WP-R10-01` como expansão inerte: adicionar a flag `recognition`
-desligada por padrão, o catálogo `recognition-v1`, a finalidade versionada de
-consentimento, RPCs e tipos com RLS e grants mínimos. Não criar interface nem
-ativar organização neste pacote.
+Implementar `WP-R10-02`: criar a visão privada mobile-first em
+`/me/reconhecimentos`, consumindo `get_my_recognitions()` somente atrás da flag
+`recognition`. Manter perfil e estatísticas atuais como fallback e não ativar
+organização neste pacote.

@@ -2095,6 +2095,7 @@ export type Database = {
           notes: string | null
           side_id: string | null
           team_id: string
+          updated_at: string
         }
         Insert: {
           assist_athlete_id?: string | null
@@ -2110,6 +2111,7 @@ export type Database = {
           notes?: string | null
           side_id?: string | null
           team_id: string
+          updated_at?: string
         }
         Update: {
           assist_athlete_id?: string | null
@@ -2125,6 +2127,7 @@ export type Database = {
           notes?: string | null
           side_id?: string | null
           team_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -3879,6 +3882,21 @@ export type Database = {
           yellow_cards: number
         }[]
       }
+      get_my_recognitions: {
+        Args: never
+        Returns: {
+          catalog_version: string
+          event_id: string
+          event_title: string
+          kind: Database["public"]["Enums"]["recognition_kind"]
+          match_id: string
+          match_ordinal: number
+          recognized_at: string
+          source_id: string
+          team_id: string
+          team_name: string
+        }[]
+      }
       get_public_championship: {
         Args: { requested_public_id: string }
         Returns: Json
@@ -3899,6 +3917,14 @@ export type Database = {
           matches_played: number
           red_cards: number
           yellow_cards: number
+        }[]
+      }
+      get_public_recognition_summary: {
+        Args: { requested_handle: string }
+        Returns: {
+          catalog_version: string
+          kind: Database["public"]["Enums"]["recognition_kind"]
+          recognition_count: number
         }[]
       }
       get_team_invitation_preview: {
@@ -4356,6 +4382,33 @@ export type Database = {
         }
         Returns: undefined
       }
+      set_public_recognition_summary_consent: {
+        Args: {
+          request_id: string
+          requested_athlete_id: string
+          requested_granted: boolean
+          requested_terms_version: string
+        }
+        Returns: {
+          athlete_id: string
+          created_at: string
+          evidence: string
+          granted_at: string | null
+          purpose: Database["public"]["Enums"]["athlete_public_consent_purpose"]
+          revoked_at: string | null
+          status: Database["public"]["Enums"]["consent_status"]
+          team_id: string
+          terms_version: string
+          updated_at: string
+          updated_by: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "athlete_public_consents"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_public_sports_activity_consent: {
         Args: {
           request_id: string
@@ -4584,6 +4637,7 @@ export type Database = {
       athlete_public_consent_purpose:
         | "public_player_profile"
         | "public_sports_activity"
+        | "public_recognition_summary_v1"
       athlete_status: "pending" | "active" | "inactive" | "rejected"
       attendance_source: "web" | "admin" | "whatsapp"
       attendance_status:
@@ -4672,6 +4726,7 @@ export type Database = {
         | "whatsapp_reminders"
         | "event_share_card"
         | "championships"
+        | "recognition"
       internal_squad_badge_key:
         | "shield"
         | "stripes"
@@ -4697,6 +4752,7 @@ export type Database = {
       message_channel: "whatsapp" | "email" | "push"
       message_status: "pending" | "processing" | "sent" | "failed" | "cancelled"
       organization_mode: "single_squad" | "split_teams"
+      recognition_kind: "goal_recorded" | "assist_recorded" | "crowd_star"
       registration_source: "admin" | "public_form" | "import"
       runtime_control_key:
         | "integration_produce"
@@ -4878,6 +4934,7 @@ export const Constants = {
       athlete_public_consent_purpose: [
         "public_player_profile",
         "public_sports_activity",
+        "public_recognition_summary_v1",
       ],
       athlete_status: ["pending", "active", "inactive", "rejected"],
       attendance_source: ["web", "admin", "whatsapp"],
@@ -4976,6 +5033,7 @@ export const Constants = {
         "whatsapp_reminders",
         "event_share_card",
         "championships",
+        "recognition",
       ],
       internal_squad_badge_key: [
         "shield",
@@ -5004,6 +5062,7 @@ export const Constants = {
       message_channel: ["whatsapp", "email", "push"],
       message_status: ["pending", "processing", "sent", "failed", "cancelled"],
       organization_mode: ["single_squad", "split_teams"],
+      recognition_kind: ["goal_recorded", "assist_recorded", "crowd_star"],
       registration_source: ["admin", "public_form", "import"],
       runtime_control_key: [
         "integration_produce",
