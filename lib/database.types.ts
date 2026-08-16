@@ -3869,6 +3869,21 @@ export type Database = {
           voting_closes_at: string
         }[]
       }
+      get_my_recognitions: {
+        Args: never
+        Returns: {
+          catalog_version: string
+          event_id: string
+          event_title: string
+          kind: Database["public"]["Enums"]["recognition_kind"]
+          match_id: string
+          match_ordinal: number
+          recognized_at: string
+          source_id: string
+          team_id: string
+          team_name: string
+        }[]
+      }
       get_my_player_statistics: {
         Args: never
         Returns: {
@@ -3899,6 +3914,14 @@ export type Database = {
           matches_played: number
           red_cards: number
           yellow_cards: number
+        }[]
+      }
+      get_public_recognition_summary: {
+        Args: { requested_handle: string }
+        Returns: {
+          catalog_version: string
+          kind: Database["public"]["Enums"]["recognition_kind"]
+          recognition_count: number
         }[]
       }
       get_team_invitation_preview: {
@@ -4383,6 +4406,33 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      set_public_recognition_summary_consent: {
+        Args: {
+          request_id: string
+          requested_athlete_id: string
+          requested_granted: boolean
+          requested_terms_version: string
+        }
+        Returns: {
+          athlete_id: string
+          created_at: string
+          evidence: string
+          granted_at: string | null
+          purpose: Database["public"]["Enums"]["athlete_public_consent_purpose"]
+          revoked_at: string | null
+          status: Database["public"]["Enums"]["consent_status"]
+          team_id: string
+          terms_version: string
+          updated_at: string
+          updated_by: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "athlete_public_consents"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_runtime_control: {
         Args: {
           requested_control: Database["public"]["Enums"]["runtime_control_key"]
@@ -4584,6 +4634,7 @@ export type Database = {
       athlete_public_consent_purpose:
         | "public_player_profile"
         | "public_sports_activity"
+        | "public_recognition_summary_v1"
       athlete_status: "pending" | "active" | "inactive" | "rejected"
       attendance_source: "web" | "admin" | "whatsapp"
       attendance_status:
@@ -4672,6 +4723,7 @@ export type Database = {
         | "whatsapp_reminders"
         | "event_share_card"
         | "championships"
+        | "recognition"
       internal_squad_badge_key:
         | "shield"
         | "stripes"
@@ -4693,6 +4745,7 @@ export type Database = {
       match_incident_kind: "goal" | "yellow_card" | "red_card"
       match_public_mode: "private" | "final_result" | "live"
       match_status: "scheduled" | "live" | "finalized" | "void"
+      recognition_kind: "goal_recorded" | "assist_recorded" | "crowd_star"
       membership_status: "invited" | "active" | "suspended"
       message_channel: "whatsapp" | "email" | "push"
       message_status: "pending" | "processing" | "sent" | "failed" | "cancelled"
@@ -4878,6 +4931,7 @@ export const Constants = {
       athlete_public_consent_purpose: [
         "public_player_profile",
         "public_sports_activity",
+        "public_recognition_summary_v1",
       ],
       athlete_status: ["pending", "active", "inactive", "rejected"],
       attendance_source: ["web", "admin", "whatsapp"],
@@ -4976,6 +5030,7 @@ export const Constants = {
         "whatsapp_reminders",
         "event_share_card",
         "championships",
+        "recognition",
       ],
       internal_squad_badge_key: [
         "shield",
@@ -5000,6 +5055,7 @@ export const Constants = {
       match_incident_kind: ["goal", "yellow_card", "red_card"],
       match_public_mode: ["private", "final_result", "live"],
       match_status: ["scheduled", "live", "finalized", "void"],
+      recognition_kind: ["goal_recorded", "assist_recorded", "crowd_star"],
       membership_status: ["invited", "active", "suspended"],
       message_channel: ["whatsapp", "email", "push"],
       message_status: ["pending", "processing", "sent", "failed", "cancelled"],
@@ -5022,4 +5078,3 @@ export const Constants = {
     },
   },
 } as const
-
