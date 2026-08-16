@@ -177,6 +177,7 @@ describe("public championship route", () => {
     expect(html).not.toContain("storage_path");
     expect(html).toContain("flex-nowrap");
     expect(html).toContain("whitespace-nowrap");
+    expect(html).toContain("relative z-10 mx-auto -mt-8");
     expect(html).toContain("Classificação");
     expect(html).toContain("Verde");
     expect(html).toContain("Azul");
