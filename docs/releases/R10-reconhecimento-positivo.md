@@ -9,7 +9,7 @@ baseline:
   - BASE-MATCH-REPORT
   - BASE-PUBLIC
   - BASE-WRITES
-verified_at: "85d805f"
+verified_at: "05f68f4"
 decisions:
   - DEC-CROWD-STAR
   - DEC-POSITIVE-POINTS
@@ -160,7 +160,7 @@ de ausência, atraso, derrota ou qualquer comportamento constrangedor.
 - [x] `AC-R10-07` — O catálogo `recognition-v1` deriva somente gol, assistência
   e Craque agregado de partida finalizada; replay, concorrência, correção e
   reversão não duplicam nem deixam cartão órfão.
-- [ ] `AC-R10-08` — A visão privada explica a origem sem pontos, nota, série ou
+- [x] `AC-R10-08` — A visão privada explica a origem sem pontos, nota, série ou
   comparação e preserva estatísticas e Craque atuais quando flag, schema ou
   projeção estiverem indisponíveis.
 - [ ] `AC-R10-09` — `public_recognition_summary_v1` nasce desligado, só pode ser
@@ -330,3 +330,32 @@ cache público, abuso e experiência Android/iPhone.
   inerte. O checkpoint avançou para CP1 sem interface, consumidor, time ativado
   ou efeito externo. Próxima ação: `WP-R10-02`, entregar a visão privada móvel
   atrás da flag e preservar o perfil e as estatísticas atuais como fallback.
+
+### `WP-R10-02` — CP2 concluído
+
+- `/me/reconhecimentos` é um Server Component autenticado que consome
+  `get_my_recognitions()` somente quando ao menos um vínculo ativo possui a
+  flag `recognition`; a RPC continua derivando pessoa e tenant da sessão;
+- a navegação mobile e desktop inclui a jornada apenas com a flag ligada. O
+  quarto alvo móvel preserva 56 px de altura e rótulo visual abreviado,
+  mantendo nome acessível completo e `aria-current` na rota selecionada;
+- os cartões usam o catálogo único `recognition-v1`, explicam time, evento,
+  partida e tipo da origem e não renderizam IDs internos. A linguagem afirma
+  explicitamente que não existem pontos, notas, sequência ou ranking;
+- estado vazio explica que somente fatos de partidas encerradas entram. Flag
+  desligada, vínculo ausente, schema antigo, RPC indisponível ou payload fora
+  do catálogo falham fechados para uma tela que mantém acesso a perfil,
+  estatísticas e resultado atual do Craque;
+- a lista privada não cria escrita, cache público, telemetria pessoal ou efeito
+  externo. Nenhuma organização foi ativada e o resumo público continua sem
+  consumidor neste pacote;
+- 10 testes novos cobrem disponibilidade por vínculo, validação estrita,
+  catálogo inválido, flag/schema/RPC indisponíveis, happy path, origem, estado
+  vazio e navegação condicional. O gate local aprovou lint, TypeScript, 81
+  arquivos/448 testes, build Webpack e audit com zero vulnerabilidades;
+- o PR aprovou Database, tipos gerados, CodeQL, dependency review, Terraform e
+  Vercel Preview. Android, iPhone, leitor de tela real e navegador interno do
+  WhatsApp permanecem para CP4; `AC-R10-12` continua aberto;
+- o checkpoint avançou para CP2 sem ativar time. Próxima ação: `WP-R10-03`,
+  entregar consentimento por vínculo e resumo no perfil público com revogação
+  imediata, preservando a visão privada independentemente da decisão pública.
