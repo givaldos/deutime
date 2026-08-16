@@ -153,7 +153,7 @@ export default async function PublicChampionshipPage({
         </div>
       </header>
 
-      <div className="mx-auto -mt-8 max-w-3xl space-y-6 px-4 sm:px-5">
+      <div className="relative z-10 mx-auto -mt-8 max-w-3xl space-y-6 px-4 sm:px-5">
         <section className="app-surface p-5 sm:p-6" aria-labelledby="rules-title">
           <div className="flex items-start gap-3"><span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-700"><ShieldCheck className="size-5" aria-hidden /></span><div><p className="app-kicker">Regulamento publicado</p><h2 id="rules-title" className="mt-1 text-xl font-black">Como vale</h2></div></div>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
