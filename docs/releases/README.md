@@ -26,7 +26,8 @@ Cada arquivo desta pasta é o contexto operacional autossuficiente de uma releas
 | [R06 — Conversa da súmula](R06-conversa-da-sumula.md) | `completed` | Conversa privada, moderação, retenção e validação física entregues |
 | [R07 — Times reutilizáveis e divisão compartilhável](R07-times-manuais-compartilhaveis.md) | `completed` | Equipes internas, sugestão, publicação e jornada por toque entregues |
 | [R08M — Fechamento do MVP compartilhável](R08M-fechamento-mvp-compartilhavel.md) | `completed` | Open Graph por fase e gate integrado do MVP concluídos |
-| [R09 — Campeonatos e tabela](R09-campeonatos-e-tabela.md) | `ready` | CP0 concluído; próxima ação é a expansão inerte do contrato de campeonato |
+| [R09 — Campeonatos e tabela](R09-campeonatos-e-tabela.md) | `completed` | Três formatos, página pública, piloto, sonda agregada e CP6 concluídos |
+| [R10 — Reconhecimento positivo](R10-reconhecimento-positivo.md) | `discovery` | Baseline inventariado; contrato, consentimento e sinal de uso ainda pendentes |
 
 Uma release só recebe arquivo próprio quando a anterior estabilizar seus contratos. Ao promovê-la, adicione-a também ao dropdown do template de issue. Isso evita abrir trabalho sem pacote, reduz especificação prematura e limita o contexto mantido.
 
