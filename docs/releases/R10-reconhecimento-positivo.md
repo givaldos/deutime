@@ -1,7 +1,7 @@
 ---
 id: R10
 type: vertical
-status: discovery
+status: ready
 outcome: "Permitir que a pessoa atleta acompanhe reconhecimentos positivos derivados de fatos esportivos confiáveis e escolha, por consentimento, quais agregados aparecem no próprio perfil, sem ranking constrangedor."
 depends_on: [R04, R05, R07]
 baseline:
@@ -9,7 +9,7 @@ baseline:
   - BASE-MATCH-REPORT
   - BASE-PUBLIC
   - BASE-WRITES
-verified_at: "acbbeaf"
+verified_at: "df9e54a"
 decisions:
   - DEC-CROWD-STAR
   - DEC-POSITIVE-POINTS
@@ -31,7 +31,7 @@ invariants:
 
 ## Resultado demonstrável
 
-Resultado proposto para validação: no celular, a pessoa atleta verificada vê
+No celular, a pessoa atleta verificada vê
 somente os próprios reconhecimentos positivos, entende de qual fato esportivo
 cada item veio e escolhe se um agregado pode aparecer no perfil público. A
 diretoria não vê cédula individual, não consente pela pessoa e não cria ranking
@@ -67,26 +67,32 @@ de ausência, atraso, derrota ou qualquer comportamento constrangedor.
 - novas categorias exigirão catálogo versionado e evidência de uso, sem scripts
   livres ou pesos retroativos;
 - marketplace, prêmio material, ranking global e recomendação automática ficam
-  fora desta descoberta.
+  fora desta release.
 
 ## Escopo
 
 ### Incluído
 
-- inventário de Craque, perfis, consentimentos, participação e estatísticas;
-- métricas agregadas sem nomes, IDs, cédulas ou conteúdo pessoal;
-- opções para fonte, unidade de pertencimento, consentimento, correção,
-  retenção, abuso e fallback do reconhecimento;
-- decisão explícita de promover, reduzir ou estacionar R10;
-- protótipo descartável mobile, se necessário para validar compreensão.
+- catálogo fechado `recognition-v1` com gol, assistência e resultado agregado
+  fechado do Craque, sempre derivados de fatos finalizados;
+- projeção privada dos próprios reconhecimentos para a sessão global verificada,
+  preservando vínculo e origem por time;
+- correção, reversão, replay idempotente e início não retroativo por ativação;
+- consentimento próprio `public_recognition_summary_v1`, versionado, desligado
+  por padrão e revogável pela pessoa em cada vínculo;
+- resumo público somente por categoria consentida, sem partida, data, voto,
+  colocação ou detalhe privado;
+- flag `recognition` desligada por padrão, telemetria agregada, piloto isolado,
+  fallback, rollback e compatibilidade N/N−1.
 
 ### Fora
 
-- migration, tabela, RPC, Action ou interface de produção;
-- ativação de flag, alteração de voto ou publicação automática;
+- saldo, pontos, nota, série, nível ou ranking público ou privado entre pessoas;
+- reconhecimento manual, alteração de voto ou reidentificação de cédula;
 - pontos negativos, ranking de ausência/atraso/derrota ou comparação pública;
 - inferência de habilidade, preço, contratação, prêmio ou punição;
-- mensagem automática de WhatsApp ou qualquer novo efeito externo.
+- retroatividade para partidas anteriores à ativação, mensagem automática de
+  WhatsApp ou qualquer novo efeito externo.
 
 ## Contratos e decisões
 
@@ -98,34 +104,42 @@ de ausência, atraso, derrota ou qualquer comportamento constrangedor.
   versionado e revogável para ampliar o perfil público;
 - `DEC-ANONYMOUS-RETENTION` continua governando voto e recibo, sem retenção
   adicional criada por reconhecimento;
-- a descoberta deve produzir `DEC-RECOGNITION-MODEL` ou registrar formalmente
-  que a vertical permanece estacionada. Antes dessa decisão, schema,
-  autorização e superfície pública não estão prontos para implementação.
-- `DEC-RECOGNITION-MODEL` está `proposed`: recomenda cartões factuais derivados
-  de gol, assistência e resultado agregado fechado do Craque, sem pontos ou
-  ranking. A aceitação permanece condicionada à validação humana da coorte.
+- `DEC-RECOGNITION-MODEL` está `accepted`: adota cartões factuais derivados de
+  gol, assistência e resultado agregado fechado do Craque, sem pontos ou
+  ranking, após o protótipo atingir compreensão `3/3` e intenção positiva
+  `3/3` na coorte;
+- cada item pertence a `athlete_id + team_id`; identidade e vínculos são
+  derivados da sessão verificada, e nenhuma Action aceita tenant ou pessoa como
+  autoridade fornecida pelo cliente;
+- a projeção privada e o resumo público permanecem reconstruíveis. Escritas de
+  consentimento ficam em RPC transacional, com grants mínimos e RLS.
 
 ## Entry points
 
-- código: `lib/data/craque.ts`, `lib/data/public-player.ts` e
+- código existente: `lib/data/craque.ts`, `lib/data/public-player.ts` e
   `app/me/perfil/editar/page.tsx`;
-- banco: `craque_votes`, `match_participations`, `player_profiles` e
-  `athlete_public_consents`, nas migrations `202608070005`, `202608080002`,
-  `202608080004` e `202608110002`;
-- testes: `lib/features/craque/validation.test.ts` e
-  `app/p/[handle]/page.test.tsx`;
+- expansão planejada: `lib/features/recognition/`,
+  `app/me/reconhecimentos/page.tsx`, projeção de resumo em
+  `lib/data/public-player.ts` e controle em `app/me/perfil/editar/page.tsx`;
+- banco: próxima migration `*_r10_recognition_contract.sql`, adicionando a flag,
+  a finalidade de consentimento e RPCs de projeção sem editar migrations
+  aplicadas; fontes existentes em `match_events`, `match_participations`,
+  `craque_votes` e `athlete_public_consents`;
+- testes planejados: `supabase/tests/*_r10_recognition_contract.test.sql`,
+  `lib/features/recognition/rules.test.ts`,
+  `app/me/reconhecimentos/page.test.tsx` e `app/p/[handle]/page.test.tsx`;
 - documentação: `docs/product-context.md`, decisões de privacidade/retenção,
   roadmap e este pacote.
 
 ## Pacotes de trabalho
 
-Enquanto `status: discovery`, somente o pacote `DP-R10-01` está autorizado.
-Pacotes `WP-*` serão definidos depois de uma decisão aceita e de sinal mínimo de
-uso; nenhum código de produção começa nesta fase.
-
 | Pacote | Critérios | Entry points principais | Validação |
 |---|---|---|---|
 | `DP-R10-01` — contrato de reconhecimento | `AC-R10-01` a `05` | métricas agregadas, decisões e protótipo descartável | revisão de produto, privacidade e ameaça |
+| `WP-R10-01` — expansão inerte | `AC-R10-06`, `07`, `10`, `11` | flag, catálogo, consentimento, RPCs e tipos | `VAL-DB`, censo e N/N−1 |
+| `WP-R10-02` — visão privada | `AC-R10-06` a `08`, `12` | projeção por sessão e jornada `/me/reconhecimentos` | `VAL-APP` + `VAL-DB` |
+| `WP-R10-03` — resumo consentido | `AC-R10-09` a `12` | controle por vínculo, projeção pública e cache | `VAL-PUBLIC` + `VAL-APP` + `VAL-DB` |
+| `WP-R10-04` — robustez e piloto | `AC-R10-07` a `13` | correção, telemetria, runbook, fallback e coorte | CP3–CP6 + Android/iPhone |
 
 ## Critérios de aceite
 
@@ -137,10 +151,31 @@ uso; nenhum código de produção começa nesta fase.
 - [x] `AC-R10-03` — Pertencimento por time e eventual agregação no perfil global
   possuem consentimento, retenção, revogação e isolamento cross-tenant
   explícitos.
-- [ ] `AC-R10-04` — Um protótipo mobile demonstra compreensão sem comparação
+- [x] `AC-R10-04` — Um protótipo mobile demonstra compreensão sem comparação
   constrangedora e registra evidência de demanda com pessoas do piloto.
-- [ ] `AC-R10-05` — A decisão final promove R10 a `ready` ou a estaciona com
+- [x] `AC-R10-05` — A decisão final promove R10 a `ready` ou a estaciona com
   motivo, métrica de reabertura e fallback preservado.
+- [ ] `AC-R10-06` — A pessoa verificada vê somente os próprios cartões e a
+  origem por vínculo ativo; staff, outra pessoa e outro tenant falham fechados.
+- [ ] `AC-R10-07` — O catálogo `recognition-v1` deriva somente gol, assistência
+  e Craque agregado de partida finalizada; replay, concorrência, correção e
+  reversão não duplicam nem deixam cartão órfão.
+- [ ] `AC-R10-08` — A visão privada explica a origem sem pontos, nota, série ou
+  comparação e preserva estatísticas e Craque atuais quando flag, schema ou
+  projeção estiverem indisponíveis.
+- [ ] `AC-R10-09` — `public_recognition_summary_v1` nasce desligado, só pode ser
+  concedido ou revogado pelo titular e retira imediatamente a fatia pública sem
+  reduzir qualquer acesso privado.
+- [ ] `AC-R10-10` — O perfil público soma somente categorias consentidas por
+  vínculo, sem expor partida, data, voto, colocação, identificador interno ou
+  time sem consentimento, mesmo diante de sessão ou capability.
+- [ ] `AC-R10-11` — RPCs, RLS e grants mínimos derivam pessoa e tenant da sessão
+  e cobrem sucesso, negação, concorrência e isolamento cross-tenant em pgTAP.
+- [ ] `AC-R10-12` — Visão privada, consentimento e resumo público funcionam por
+  toque, teclado e leitor de tela em larguras móveis, Android, iPhone e
+  navegador interno do WhatsApp.
+- [ ] `AC-R10-13` — Piloto isolado comprova telemetria sem PII, smoke, alerta,
+  correção, revogação, fallback e rollback pela flag.
 
 ## Riscos e controles
 
@@ -151,7 +186,7 @@ uso; nenhum código de produção começa nesta fase.
 | reconhecimento cruza times | pertencer ao `athlete_id + team_id`; agregar somente na leitura consentida | matriz cross-tenant e revogação |
 | correção duplica pontuação | derivar de fato autoritativo com chave idempotente e reversão auditada | replay, correção e concorrência |
 | perfil público amplia finalidade | consentimento próprio, versionado e revogável | concessão, recusa e retirada imediata |
-| produto nasce sem demanda | manter `discovery` até existir sinal do piloto | métricas agregadas e entrevista/protótipo |
+| produto nasce sem demanda | implementar somente após o sinal aceito e pilotar uma coorte antes de expandir | métricas agregadas, uso no piloto e fallback |
 
 ## Validação
 
@@ -160,20 +195,20 @@ npm test -- 'lib/features/craque/validation.test.ts' 'app/p/[handle]/page.test.t
 npm run typecheck
 ```
 
-Uma futura implementação exigirá `VAL-APP`, `VAL-DB` e `VAL-PUBLIC`, incluindo
+A implementação exige `VAL-APP`, `VAL-DB` e `VAL-PUBLIC`, incluindo
 pgTAP positivo, negativo, concorrente e cross-tenant, consentimento/revogação,
 cache público, abuso e experiência Android/iPhone.
 
 ## Rollout, fallback e rollback
 
-- flag futura: `recognition`, tipada e desligada por padrão; ainda não criada;
-- piloto: uma única organização demo após sinal e decisão aceitos;
+- flag planejada: `recognition`, tipada e desligada por padrão;
+- piloto: uma única organização demo depois de CP4;
 - telemetria: categorias e contagens agregadas, nunca pessoa, voto ou motivo;
 - fallback: estatísticas básicas e resultado agregado do Craque continuam como
   hoje, sem pontos;
-- efeitos externos: nenhum nesta descoberta; compartilhamento futuro começa
-  manual e local;
-- rollback futuro: desligar `recognition`, preservando fatos esportivos e votos;
+- efeitos externos: nenhum; eventual compartilhamento começa manual e local;
+- rollback: desligar `recognition`, invalidar o resumo público e preservar fatos
+  esportivos e votos;
 - compatibilidade N/N−1: expansão inerte antes de qualquer consumidor.
 
 ## Evidências e checkpoint
@@ -243,3 +278,25 @@ cache público, abuso e experiência Android/iPhone.
 - o sinal mínimo de intenção já foi atingido, mas a coorte ainda não está
   completa. `AC-R10-04`, `AC-R10-05` e CP0 permanecem pendentes até a terceira
   revisão, ainda sem explicação prévia.
+
+### `DP-R10-01` — terceira revisão registrada; CP0 concluído
+
+- em 2026-08-16, uma terceira pessoa revisou o protótipo sem explicação prévia e
+  confirmou os quatro limites: visão privada, fatos esportivos finalizados,
+  ausência de ranking e resumo público somente com consentimento;
+- a pessoa usaria a visão e escolheria publicar o resumo. O consentimento foi
+  testado ligado, sem registrar identidade ou conteúdo pessoal;
+- contagens finais agregadas: revisões `3/3`; compreensão dos quatro limites
+  `3/3`; intenção respondida e positiva `3/3`; escolha de publicação `3/3`;
+  consentimento testado desligado em uma revisão e ligado em duas;
+- o limiar de `DEC-RECOGNITION-MODEL` foi superado: todas as três pessoas
+  compreenderam o modelo e pelo menos duas demonstraram intenção de uso. A
+  decisão foi aceita, `AC-R10-04` e `AC-R10-05` foram concluídos e a R10 foi
+  promovida a `ready`;
+- resultado, dependências, decisão, escopo, entrypoints, riscos, critérios,
+  validação, rollout, fallback e rollback satisfazem a Definition of Ready;
+- a revalidação aprovou 2 arquivos/6 testes focados, lint, TypeScript, 77
+  arquivos/436 testes e o build de produção com Webpack. O build Turbopack
+  encontrou somente a restrição de porta interna do sandbox (`EPERM`);
+- próxima ação: `WP-R10-01`, adicionar a expansão inerte da flag `recognition`,
+  catálogo, consentimento, RPCs e tipos, sem consumidor nem ativação de time.
