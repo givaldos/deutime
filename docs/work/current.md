@@ -2,39 +2,39 @@
 release: R10
 work_package: DP-R10-01
 scope: recognition_model_discovery
-branch_or_commit: "codex/r10-discovery-cp0"
+branch_or_commit: "codex/r10-model-prototype"
 checkpoint: CP0
 status: in_progress
-completed_ac: [AC-R10-01]
+completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03]
 dirty_files: []
 tests:
-  - "baseline R10: 2 arquivos/6 testes focados aprovados"
+  - "base R10: 2 arquivos/6 testes focados aprovados"
   - "TypeScript aprovado"
-  - "métricas protegidas: 2 perfis públicos, 2 partidas finalizadas e 3 participações reais"
-  - "sinal de uso: 0 consentimentos por vínculo, 0 votos e 0 times com voting ativa"
-blocker: "Implementação não autorizada: faltam DEC-RECOGNITION-MODEL, protótipo compreendido e sinal mínimo de uso."
-next_action: "Executar DP-R10-01: comparar opções de fonte, catálogo, pertencimento, consentimento e reversão; validar protótipo descartável com a coorte antes de decidir CP0."
+  - "protótipo: 390 px e 360 px sem overflow ou recorte"
+  - "protótipo: controles com alvo mínimo de 44 px"
+  - "protótipo: visão privada, consentimento e prévia pública funcionais"
+blocker: "Implementação não autorizada: DEC-RECOGNITION-MODEL segue proposed e a coorte ainda não validou compreensão nem intenção de uso."
+next_action: "Apresentar o protótipo descartável a três pessoas da coorte sem explicação prévia; registrar somente contagens de compreensão e intenção para aceitar ou estacionar R10 no CP0."
 ---
 
 # Trabalho atual
 
-R09 encerrou CP6. A vertical seguinte, R10, foi reavaliada contra os contratos
-existentes de participação real, Craque da Galera, perfil público e
-consentimento por time.
+`DP-R10-01` comparou quatro opções e propôs cartões factuais derivados de gol,
+assistência e resultado agregado fechado do Craque. O contrato não cria pontos,
+nota, ranking ou escrita global: cada item pertence a `athlete_id + team_id` e
+acompanha correções da fonte autoritativa.
 
-A leitura protegida de homologação encontrou base técnica, mas nenhum uso de
-votação: existem dois perfis públicos, duas partidas finalizadas e três
-participações reais; consentimentos por vínculo, votos e times com `voting`
-ativa permanecem em zero. Nenhum nome, ID, cédula ou conteúdo pessoal foi
-impresso.
+O eventual resumo público possui finalidade de consentimento própria,
+desligada por padrão e revogável pelo titular. A implementação continua fora de
+escopo enquanto `DEC-RECOGNITION-MODEL` estiver `proposed`.
 
-R10 entra somente em `discovery`. `DP-R10-01` deve produzir
-`DEC-RECOGNITION-MODEL` ou estacionar formalmente a vertical. Migration, flag,
-RPC, Action e interface de produção permanecem fora de escopo até existir
-contrato aceito e evidência mínima de demanda.
+O protótipo mobile descartável foi verificado tecnicamente em 390 px e 360 px,
+mas ainda não foi avaliado por pessoas da coorte. Portanto, `AC-R10-04`,
+`AC-R10-05` e CP0 permanecem abertos.
 
 ## Próxima ação
 
-Comparar as opções do modelo de reconhecimento e validar um protótipo mobile
-descartável com pessoas da coorte, preservando estatísticas básicas e o resultado
-agregado do Craque como fallback.
+Apresentar o protótipo sem explicação prévia a três pessoas da coorte. Registrar
+somente as contagens das cinco respostas previstas no ADR; aceitar a decisão e
+promover R10 a `ready` apenas se o sinal mínimo for atingido. Caso contrário,
+estacionar a vertical com a métrica de reabertura preservada.

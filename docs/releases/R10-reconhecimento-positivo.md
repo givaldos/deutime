@@ -16,6 +16,7 @@ decisions:
   - DEC-PLAYER-EVALUATION
   - DEC-PUBLIC-PRIVACY
   - DEC-ANONYMOUS-RETENTION
+  - DEC-RECOGNITION-MODEL
 invariants:
   - INV-MOBILE-WHATSAPP-FIRST
   - INV-RLS-MULTI-TIME
@@ -100,6 +101,9 @@ de ausência, atraso, derrota ou qualquer comportamento constrangedor.
 - a descoberta deve produzir `DEC-RECOGNITION-MODEL` ou registrar formalmente
   que a vertical permanece estacionada. Antes dessa decisão, schema,
   autorização e superfície pública não estão prontos para implementação.
+- `DEC-RECOGNITION-MODEL` está `proposed`: recomenda cartões factuais derivados
+  de gol, assistência e resultado agregado fechado do Craque, sem pontos ou
+  ranking. A aceitação permanece condicionada à validação humana da coorte.
 
 ## Entry points
 
@@ -127,10 +131,10 @@ uso; nenhum código de produção começa nesta fase.
 
 - [x] `AC-R10-01` — Baseline e uso foram inventariados sem expor identidade,
   cédula, vínculo ou identificador interno.
-- [ ] `AC-R10-02` — A fonte autoritativa e o catálogo fechado de reconhecimento
+- [x] `AC-R10-02` — A fonte autoritativa e o catálogo fechado de reconhecimento
   estão definidos, incluindo idempotência, correção, reversão e não
   retroatividade.
-- [ ] `AC-R10-03` — Pertencimento por time e eventual agregação no perfil global
+- [x] `AC-R10-03` — Pertencimento por time e eventual agregação no perfil global
   possuem consentimento, retenção, revogação e isolamento cross-tenant
   explícitos.
 - [ ] `AC-R10-04` — Um protótipo mobile demonstra compreensão sem comparação
@@ -186,3 +190,26 @@ cache público, abuso e experiência Android/iPhone.
 - R10 entra em `discovery`, não em implementação. Próxima ação: fechar as opções
   de `DEC-RECOGNITION-MODEL` e validar um protótipo sem produção com pessoas da
   coorte antes de decidir CP0.
+
+### `DP-R10-01` — modelo proposto; revisão da coorte pendente
+
+- as opções de livro de pontos, elogio manual, cartões factuais e estacionamento
+  foram comparadas. `DEC-RECOGNITION-MODEL` recomenda cartões derivados da
+  súmula finalizada e do resultado agregado do Craque, sem saldo, nota ou
+  ranking;
+- `recognition-v1` limita o catálogo a gol, assistência e Craque da Galera. A
+  projeção conceitual é idempotente por fonte, pertence a
+  `athlete_id + team_id`, começa somente após futura ativação e acompanha
+  correção ou reversão da fonte;
+- o resumo público exigiria consentimento próprio
+  `public_recognition_summary_v1`, desligado por padrão, versionado e revogável
+  pelo titular. Staff não publica pela pessoa e voto individual nunca entra na
+  projeção;
+- um protótipo mobile descartável foi criado com visão privada, consentimento e
+  prévia pública. A checagem técnica em 390 px e 360 px confirmou ausência de
+  overflow/recorte, alvo mínimo de 44 px e alternância funcional dos estados;
+- a base permaneceu íntegra: os dois testes focados somaram 6/6 aprovações e o
+  TypeScript passou sem erro;
+- essa checagem não é evidência da coorte. `AC-R10-04`, `AC-R10-05` e CP0
+  continuam pendentes até três pessoas do piloto revisarem sem explicação, com
+  contagens agregadas de compreensão e intenção de uso.
