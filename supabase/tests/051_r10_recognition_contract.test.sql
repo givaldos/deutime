@@ -40,7 +40,7 @@ select ok(
   'public_recognition_summary_v1' = any(enum_range(null::public.athlete_public_consent_purpose)::text[]),
   'finalidade pública própria existe no catálogo de consentimento'
 );
-select is_deeply(
+select is(
   enum_range(null::public.recognition_kind)::text[],
   array['goal_recorded','assist_recorded','crowd_star']::text[],
   'recognition-v1 contém somente três categorias factuais'
