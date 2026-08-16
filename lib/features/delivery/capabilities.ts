@@ -12,6 +12,7 @@ export const featureKeys = [
   "event_share_card",
   "whatsapp_reminders",
   "championships",
+  "recognition",
 ] as const;
 
 export type FeatureKey = (typeof featureKeys)[number];
