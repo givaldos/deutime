@@ -497,3 +497,14 @@ registra formato, estado, largura e resultado, sem nome de atleta ou endereço.
 - os quatorze critérios possuem evidência duradoura, documentação e rollout
   estão sincronizados e não resta bloqueio técnico. R09 encerra CP6 com o
   checkpoint limpo.
+- em 2026-08-16, a revisão da página pública ativa identificou que a margem
+  negativa do primeiro cartão o colocava parcialmente atrás do hero, pois o
+  contêiner não criava uma camada posicionada. O hotfix acrescenta
+  `relative z-10` ao conteúdo, preservando a sobreposição de 32 px com o cartão
+  à frente do banner, e inclui regressão no teste da rota;
+- passaram o teste focado (1 arquivo/5 testes), TypeScript, ESLint, 77
+  arquivos/436 testes e o build Webpack. O Turbopack ficou bloqueado somente
+  pela porta interna proibida do executor. O Preview compilou, mas a rota
+  falhou fechada em 404 porque a coorte não está ativa nesse ambiente; a
+  validação visual final permanece no smoke somente leitura da rota ativa após
+  o deploy.
