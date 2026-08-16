@@ -14,9 +14,10 @@ O DeuTime é um SaaS multi-time. A mesma pessoa pode administrar vários times, 
 5. **Divisão e escalação** — `event_squads` representa os times planejados de um evento; `lineup_spots` posiciona atletas confirmados, sem transformar RSVP ou escalação em participação real.
 6. **Súmula e estatísticas** — o modelo legado mantém uma `match_report` por evento. Conforme [`DEC-EVENT-MATCH`](decisions/DEC-EVENT-MATCH.md), a expansão R04 preserva o evento como contêiner de zero a muitas partidas, cada uma com dois lados, participação real própria e fatos esportivos append-only. Estatísticas derivam somente de partidas encerradas, sem contador paralelo.
 7. **Campeonatos** — conforme [`DEC-CHAMPIONSHIP-MODEL`](decisions/DEC-CHAMPIONSHIP-MODEL.md), campeonato, participantes, confrontos e slots pertencem a um único `team_id`; o vínculo opcional 1:1 fica no confronto novo e referencia `event_matches` sem alterar a partida. A flag `championships` nasce desligada e as tabelas não são públicas. Pontos corridos, grupos e chaves são gerados e publicados sob lock por RPCs idempotentes; classificação não possui contador próprio e é reconstruída dos fatos finalizados. Slots derivados representam avanço e byes, enquanto empate, retirada ou correção eliminatória exigem decisão auditada e falham fechados depois que uma dependência começa. A operação do piloto limita a ativação a um único `team_id` configurado, usa sonda agregada sem PII exclusiva de `service_role` e faz rollback somente pela flag, preservando fatos e auditoria.
-8. **Conversa da súmula** — conforme [`DEC-CONVERSATION-LIFETIME`](decisions/DEC-CONVERSATION-LIFETIME.md), comentários privados pertencem à partida, exigem identidade verificada e audiência congelada SIM/TALVEZ ou staff ativo; escrita fecha em sete dias e não cria chat geral.
-9. **Comunicação** — `communication_consents` registra opt-in/opt-out e evidência; `notification_outbox` desacopla eventos do domínio do futuro provedor de WhatsApp.
-10. **Auditoria** — `audit_logs` registra mudanças sensíveis de estado sem armazenar o conteúdo completo da PII.
+8. **Reconhecimento positivo** — conforme [`DEC-RECOGNITION-MODEL`](decisions/DEC-RECOGNITION-MODEL.md), `recognition-v1` projeta somente gol, assistência e resultado agregado fechado do Craque a partir de participação real em partida finalizada. Cada item pertence a `athlete_id + team_id`, acompanha correção ou reversão da fonte e não cria ledger, pontos ou ranking. A primeira ativação da flag `recognition` define o limite não retroativo; o resumo público exige `public_recognition_summary_v1` por vínculo e expõe somente categoria e contagem.
+9. **Conversa da súmula** — conforme [`DEC-CONVERSATION-LIFETIME`](decisions/DEC-CONVERSATION-LIFETIME.md), comentários privados pertencem à partida, exigem identidade verificada e audiência congelada SIM/TALVEZ ou staff ativo; escrita fecha em sete dias e não cria chat geral.
+10. **Comunicação** — `communication_consents` registra opt-in/opt-out e evidência; `notification_outbox` desacopla eventos do domínio do futuro provedor de WhatsApp.
+11. **Auditoria** — `audit_logs` registra mudanças sensíveis de estado sem armazenar o conteúdo completo da PII.
 
 ## Componentes
 
@@ -122,6 +123,14 @@ autorizados. IDs internos, capability, RSVP, contato, foto e demais dados
 pessoais não entram no JSON, HTML, metadata ou imagem. Imagens com escalação
 usam cache privado sem armazenamento compartilhado para que revogação tenha
 efeito na leitura seguinte.
+
+Na R10, `get_my_recognitions()` deriva a pessoa da sessão e lê somente vínculos
+ativos em times com `recognition` habilitada. A projeção começa no primeiro
+marco privado de ativação e é reconstruída de `match_events`, participação real
+e resultado agregado fechado do Craque. O resumo anônimo exige também perfil
+público e consentimento `public_recognition_summary_v1` concedido no vínculo;
+devolve apenas versão, categoria e contagem, recalculadas a cada leitura para
+que revogação ou rollback pela flag tenham efeito imediato.
 
 ## Perfil social e mídia
 

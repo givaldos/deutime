@@ -9,7 +9,7 @@ baseline:
   - BASE-MATCH-REPORT
   - BASE-PUBLIC
   - BASE-WRITES
-verified_at: "df9e54a"
+verified_at: "85d805f"
 decisions:
   - DEC-CROWD-STAR
   - DEC-POSITIVE-POINTS
@@ -155,9 +155,9 @@ de ausência, atraso, derrota ou qualquer comportamento constrangedor.
   constrangedora e registra evidência de demanda com pessoas do piloto.
 - [x] `AC-R10-05` — A decisão final promove R10 a `ready` ou a estaciona com
   motivo, métrica de reabertura e fallback preservado.
-- [ ] `AC-R10-06` — A pessoa verificada vê somente os próprios cartões e a
+- [x] `AC-R10-06` — A pessoa verificada vê somente os próprios cartões e a
   origem por vínculo ativo; staff, outra pessoa e outro tenant falham fechados.
-- [ ] `AC-R10-07` — O catálogo `recognition-v1` deriva somente gol, assistência
+- [x] `AC-R10-07` — O catálogo `recognition-v1` deriva somente gol, assistência
   e Craque agregado de partida finalizada; replay, concorrência, correção e
   reversão não duplicam nem deixam cartão órfão.
 - [ ] `AC-R10-08` — A visão privada explica a origem sem pontos, nota, série ou
@@ -166,10 +166,10 @@ de ausência, atraso, derrota ou qualquer comportamento constrangedor.
 - [ ] `AC-R10-09` — `public_recognition_summary_v1` nasce desligado, só pode ser
   concedido ou revogado pelo titular e retira imediatamente a fatia pública sem
   reduzir qualquer acesso privado.
-- [ ] `AC-R10-10` — O perfil público soma somente categorias consentidas por
+- [x] `AC-R10-10` — O perfil público soma somente categorias consentidas por
   vínculo, sem expor partida, data, voto, colocação, identificador interno ou
   time sem consentimento, mesmo diante de sessão ou capability.
-- [ ] `AC-R10-11` — RPCs, RLS e grants mínimos derivam pessoa e tenant da sessão
+- [x] `AC-R10-11` — RPCs, RLS e grants mínimos derivam pessoa e tenant da sessão
   e cobrem sucesso, negação, concorrência e isolamento cross-tenant em pgTAP.
 - [ ] `AC-R10-12` — Visão privada, consentimento e resumo público funcionam por
   toque, teclado e leitor de tela em larguras móveis, Android, iPhone e
@@ -300,3 +300,33 @@ cache público, abuso e experiência Android/iPhone.
   encontrou somente a restrição de porta interna do sandbox (`EPERM`);
 - próxima ação: `WP-R10-01`, adicionar a expansão inerte da flag `recognition`,
   catálogo, consentimento, RPCs e tipos, sem consumidor nem ativação de time.
+
+### `WP-R10-01` — CP1 concluído
+
+- as migrations forward-only adicionam a flag tipada `recognition`, a finalidade
+  `public_recognition_summary_v1` e o catálogo fechado `recognition-v1`; nenhum
+  registro de flag, consentimento ou ativação é criado pela expansão;
+- o primeiro instante de ativação por time fica em tabela privada sem grant ao
+  cliente e não muda em desligamento, reativação ou retry. A projeção ignora
+  partidas anteriores a esse marco e falha fechada enquanto a flag está off;
+- `get_my_recognitions()` deriva identidade da sessão e projeta somente gol,
+  assistência e resultado agregado fechado do Craque para vínculos ativos e
+  participações reais em partidas finalizadas, sem ledger ou contador paralelo;
+- `get_public_recognition_summary(handle)` devolve apenas versão, categoria e
+  contagem quando perfil e consentimento próprio do vínculo autorizam. Partida,
+  data, voto, colocação, pessoa, time e identificadores internos ficam ausentes;
+- `set_public_recognition_summary_consent` aceita somente o próprio vínculo
+  ativo, exige a capability ligada e registra auditoria redigida. Staff, outra
+  pessoa e outro tenant falham fechados;
+- uma correção forward-only completou a coluna `match_events.updated_at` já
+  esperada pelo trigger da R04, sem ampliar os grants de escrita do cliente;
+- o pgTAP focado aprovou 61 casos de contrato e 22 casos em duas conexões reais,
+  cobrindo sucesso, negação, não retroatividade, correção, reversão, replay,
+  rollback, concorrência, grants e isolamento cross-tenant;
+- o workflow Database aprovou reset integral, lint, toda a suíte histórica e a
+  comparação exata dos tipos gerados. Lint, TypeScript, 78 arquivos/438 testes,
+  build Webpack, audit sem vulnerabilidades, CodeQL e Terraform também passaram;
+- app antes do banco continua falhando fechado e banco antes do app permanece
+  inerte. O checkpoint avançou para CP1 sem interface, consumidor, time ativado
+  ou efeito externo. Próxima ação: `WP-R10-02`, entregar a visão privada móvel
+  atrás da flag e preservar o perfil e as estatísticas atuais como fallback.
