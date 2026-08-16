@@ -8,6 +8,12 @@ create type public.recognition_kind as enum (
   'crowd_star'
 );
 
+-- R04 já instalou o trigger match_events_set_updated_at, mas a tabela nasceu
+-- sem a coluna. A expansão forward-only torna correções internas executáveis;
+-- os grants continuam somente de leitura para clientes.
+alter table public.match_events
+  add column if not exists updated_at timestamptz not null default now();
+
 create table private.team_recognition_activations (
   team_id uuid primary key references public.teams(id) on delete cascade,
   activated_at timestamptz not null default now(),
@@ -411,6 +417,8 @@ grant execute on function public.set_public_recognition_summary_consent(uuid,boo
 
 comment on type public.recognition_kind is
   'R10: catálogo recognition-v1 fechado, factual e sem pontos ou ranking.';
+comment on column public.match_events.updated_at is
+  'R10: completa o contrato do trigger criado na R04 para correções internas.';
 comment on function public.get_my_recognitions() is
   'R10: projeção privada dos próprios reconhecimentos, derivada da sessão.';
 comment on function public.get_public_recognition_summary(text) is

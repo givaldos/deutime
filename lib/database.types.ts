@@ -2095,6 +2095,7 @@ export type Database = {
           notes: string | null
           side_id: string | null
           team_id: string
+          updated_at: string
         }
         Insert: {
           assist_athlete_id?: string | null
@@ -2110,6 +2111,7 @@ export type Database = {
           notes?: string | null
           side_id?: string | null
           team_id: string
+          updated_at?: string
         }
         Update: {
           assist_athlete_id?: string | null
@@ -2125,6 +2127,7 @@ export type Database = {
           notes?: string | null
           side_id?: string | null
           team_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
