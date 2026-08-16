@@ -2,14 +2,19 @@
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
-import { basename, join } from "node:path";
+import { join } from "node:path";
 
 const MAX_DIRTY_PATHS = 12;
-const MAX_HEADINGS = 32;
+const ALLOWED_OPTIONS = new Set(["--ids", "--map"]);
+const options = new Set(process.argv.slice(2));
 
 function fail(message) {
   process.stderr.write(`context:brief: ${message}\n`);
   process.exit(1);
+}
+
+for (const option of options) {
+  if (!ALLOWED_OPTIONS.has(option)) fail(`opcao desconhecida: ${option}. Use --ids ou --map.`);
 }
 
 function git(args, cwd) {
@@ -55,8 +60,12 @@ function headings(markdown) {
   return markdown
     .split(/\r?\n/)
     .map((line, index) => ({ line, number: index + 1 }))
-    .filter(({ line }) => /^#{2,3}\s+/.test(line))
-    .slice(0, MAX_HEADINGS);
+    .filter(({ line }) => /^#{2,3}\s+/.test(line));
+}
+
+function lineOf(lines, pattern) {
+  const index = lines.findIndex((line) => pattern.test(line));
+  return index === -1 ? null : index + 1;
 }
 
 function printWorktree(dirty) {
@@ -70,6 +79,11 @@ function printWorktree(dirty) {
   if (dirty.length > MAX_DIRTY_PATHS) {
     process.stdout.write(`- ... mais ${dirty.length - MAX_DIRTY_PATHS} caminho(s)\n`);
   }
+}
+
+function gitRef(root) {
+  const branch = git(["branch", "--show-current"], root);
+  return branch || git(["rev-parse", "--short", "HEAD"], root);
 }
 
 let root;
@@ -94,14 +108,10 @@ const dirty = git(["status", "--short"], root)
   .filter(Boolean);
 
 if (!release || release === "null") {
-  process.stdout.write("CONTEXTO ATIVO\n");
-  process.stdout.write("- Release: nenhuma\n");
-  process.stdout.write(`- Estado: ${scalar(currentYaml, "status") || "idle"}\n`);
+  process.stdout.write("CONTEXTO\n");
+  process.stdout.write(`- Release: nenhuma; estado: ${scalar(currentYaml, "status") || "idle"}\n`);
   process.stdout.write(`- Proxima acao: ${scalar(currentYaml, "next_action") || "selecionar o proximo pacote"}\n`);
   printWorktree(dirty);
-  process.stdout.write("\nLEITURA POR DEMANDA\n");
-  process.stdout.write("- Nao ha pacote ativo; nao carregue releases concluidas por prevencao.\n");
-  process.stdout.write("- Para planejar uma nova release, consulte apenas o indice de roadmap e promova um pacote pelo template.\n");
   process.exit(0);
 }
 
@@ -116,35 +126,54 @@ if (candidates.length !== 1) {
 const releaseRelative = `docs/releases/${candidates[0]}`;
 const releaseMarkdown = readFileSync(join(releaseDir, candidates[0]), "utf8");
 const releaseYaml = frontmatter(releaseMarkdown, releaseRelative);
+const releaseLines = releaseMarkdown.split(/\r?\n/);
+const workPackage = scalar(currentYaml, "work_package") || "nao informado";
+const recordedRef = scalar(currentYaml, "branch_or_commit") || "nao informado";
+const actualRef = gitRef(root);
 
-const fields = [
-  ["Release", release],
-  ["Pacote", scalar(currentYaml, "work_package") || "nao informado"],
-  ["Checkpoint", scalar(currentYaml, "checkpoint") || "nao informado"],
-  ["Estado", scalar(currentYaml, "status") || "nao informado"],
-  ["Branch/commit", scalar(currentYaml, "branch_or_commit") || "nao informado"],
-];
-
-process.stdout.write("CONTEXTO ATIVO\n");
-for (const [label, value] of fields) process.stdout.write(`- ${label}: ${value}\n`);
-process.stdout.write(`- Pacote da release: ${releaseRelative}\n`);
+process.stdout.write("CONTEXTO\n");
+process.stdout.write(`- Release: ${release}; pacote: ${workPackage}; checkpoint: ${scalar(currentYaml, "checkpoint") || "nao informado"}; estado: ${scalar(currentYaml, "status") || "nao informado"}\n`);
+process.stdout.write(`- Git: ${actualRef}${actualRef === recordedRef ? "" : `; checkpoint registra: ${recordedRef}`}\n`);
+process.stdout.write(`- Fonte: ${releaseRelative}\n`);
 process.stdout.write(`- Proxima acao: ${scalar(currentYaml, "next_action") || "nao informada"}\n`);
 
 printWorktree(dirty);
 
-process.stdout.write("\nIDS REFERENCIADOS\n");
-for (const key of ["baseline", "decisions", "invariants"]) {
-  const values = list(releaseYaml, key);
-  process.stdout.write(`- ${key}: ${values.length ? values.join(", ") : "nenhum"}\n`);
+const references = Object.fromEntries(
+  ["baseline", "decisions", "invariants"].map((key) => [key, list(releaseYaml, key)]),
+);
+process.stdout.write("\nREFERENCIAS\n");
+process.stdout.write(`- baseline ${references.baseline.length}; decisions ${references.decisions.length}; invariants ${references.invariants.length}. Detalhar: npm run context:brief -- --ids\n`);
+
+const windows = [
+  ["resultado", /^## Resultado demonstr[aá]vel/i],
+  ["contratos", /^## Contratos e decis[oõ]es/i],
+  ["entrypoints", /^## Entry points/i],
+  ["pacotes", /^## Pacotes de trabalho/i],
+  ["criterios", /^## Crit[eé]rios de aceite/i],
+  ["riscos", /^## Riscos e controles/i],
+  ["validacao", /^## Valida[cç][aã]o/i],
+  ["rollout", /^## Rollout/i],
+].map(([label, pattern]) => [label, lineOf(releaseLines, pattern)]);
+const currentWorkLine = releaseLines.findIndex((line) => line.includes(`\`${workPackage}\``));
+const formattedWindows = windows
+  .filter(([, line]) => line !== null)
+  .map(([label, line]) => `${label} L${line}`);
+if (currentWorkLine !== -1) formattedWindows.splice(4, 0, `WP atual L${currentWorkLine + 1}`);
+
+process.stdout.write("\nJANELAS\n");
+process.stdout.write(`- ${formattedWindows.join("; ")}\n`);
+
+if (options.has("--ids")) {
+  process.stdout.write("\nIDS\n");
+  for (const [key, values] of Object.entries(references)) {
+    process.stdout.write(`- ${key}: ${values.length ? values.join(", ") : "nenhum"}\n`);
+  }
 }
 
-process.stdout.write("\nMAPA DE SECOES\n");
-for (const heading of headings(releaseMarkdown)) {
-  process.stdout.write(`- L${heading.number}: ${heading.line}\n`);
+if (options.has("--map")) {
+  process.stdout.write("\nMAPA COMPLETO\n");
+  for (const heading of headings(releaseMarkdown)) {
+    process.stdout.write(`- L${heading.number}: ${heading.line}\n`);
+  }
 }
-
-process.stdout.write("\nLEITURA POR DEMANDA\n");
-process.stdout.write("- Comece pelo frontmatter, Resultado demonstravel e pacote de trabalho atual.\n");
-process.stdout.write("- Abra Contratos, criterios, riscos e entrypoints apenas para a camada afetada.\n");
-process.stdout.write("- Consulte evidencias historicas somente para regressao, auditoria ou passagem de checkpoint.\n");
-process.stdout.write(`- Fonte do resumo: ${basename(currentPath)} + ${candidates[0]}.\n`);

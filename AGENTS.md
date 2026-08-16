@@ -1,25 +1,19 @@
 # Instruções de desenvolvimento do DeuTime
 
-## Entrada com contexto mínimo
+## Entrada e contexto
 
-Antes de agir:
+Reduzir contexto nunca reduz invariantes, validação ou critérios de aceite.
 
-1. confira `git status --short` e preserve alterações existentes;
-2. execute `npm run context:brief` para localizar release, pacote, checkpoint, IDs e seções relevantes;
-3. leia no pacote ativo somente frontmatter, resultado, pacote de trabalho atual e trechos ligados ao pedido;
-4. consulte em `docs/product-context.md` somente os IDs referenciados;
-5. leia em `docs/development.md` somente o checkpoint ou perfil `VAL-*` necessário;
-6. abra inicialmente até três entrypoints de código e dois testes do pacote;
-7. amplie a busca apenas por evidência, usando `rg` e `git log -- <caminho>`.
-
-Não carregue por prevenção arquivos completos de roadmap, development, architecture, runbook, pacotes concluídos, evidências históricas ou logs. Saídas extensas devem ser filtradas para comando, causa e linhas acionáveis.
+- Em implementação, correção, retomada ou validação de release, use `$executar-release-deutime`; o resumo da skill já inclui worktree e contexto ativo.
+- Fora de release, confira `git status --short`, preserve alterações existentes e inspecione apenas os caminhos do pedido; não execute `context:brief` sem necessidade de contexto de release.
+- Abra documentos por seção e IDs canônicos por demanda. Não carregue preventivamente arquivos completos, pacotes concluídos, evidências históricas ou logs.
+- Amplie a busca somente por dependência comprovada, usando `rg` e `git log -- <caminho>`; filtre saídas para causa e linhas acionáveis.
 
 ## Roteamento da tarefa
 
-- Consulta, diagnóstico ou documentação local: agente principal, sem plano formal e validação mínima.
-- Mudança em um domínio: hipótese explícita, edição focada e teste focado.
-- Mudança entre camadas, banco, integração externa, autorização ou rollout: plano curto e checkpoints CP0–CP6.
-- Subagentes: somente para duas ou mais frentes independentes de leitura, teste ou triagem. Envie objetivo, caminhos e formato de retorno, não o histórico inteiro. Escritas sobrepostas ficam no agente principal.
+- Consulta, diagnóstico ou documentação local: agente principal, sem plano formal.
+- Um domínio: hipótese e teste focados. Entre camadas, banco, integração, autorização ou rollout: plano curto e checkpoints CP0–CP6.
+- Subagentes: somente para duas ou mais frentes independentes de leitura, teste ou triagem; envie objetivo, caminhos e retorno esperado, não o histórico. Escritas sobrepostas ficam no agente principal.
 
 Esses limites são o ponto de partida, não licença para ignorar dependências descobertas. Expanda somente quando houver motivo verificável.
 
@@ -38,7 +32,7 @@ Esses limites são o ponto de partida, não licença para ignorar dependências 
 
 ## Execução e retomada
 
-Use a skill `$executar-release-deutime` em implementação, correção, validação ou retomada de release. Respeite as fronteiras de `docs/architecture.md`, abrindo apenas a seção relacionada; evite ampliar Actions que misturam domínios.
+Respeite as fronteiras de `docs/architecture.md`, abrindo apenas a seção relacionada; evite ampliar Actions que misturam domínios.
 
 Ao interromper, substitua `docs/work/current.md` pelo último resultado e a próxima ação concreta. Antes do merge, registre evidências no arquivo da release e devolva o checkpoint a `idle`.
 
