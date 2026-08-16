@@ -33,8 +33,9 @@ jobs:
         run: npm run typecheck
       - name: Unit tests
         run: npm test
+      - name: Context workflow tests
+        run: npm run test:context
       - name: Production dependency audit
         run: npm audit --omit=dev --audit-level=moderate
       - name: Production build
         run: npm run build
-

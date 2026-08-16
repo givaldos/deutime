@@ -69,41 +69,33 @@ Preparar o futuro significa preservar extensibilidade e reversibilidade, não co
 
 Nesta seção, “tokens” significa contexto consumido por agentes de desenvolvimento. Credenciais de autenticação seguem o contrato separado de `DEC-PERSISTENT-ACCESS` e os controles de `security.md`.
 
-Comece por `npm run context:brief`. O comando mostra estado da worktree, release,
-pacote atual, checkpoint, próxima ação, IDs canônicos e linhas das seções sem
-copiar os documentos para a conversa.
+Em trabalho de release, comece por `npm run context:brief`. A saída padrão é
+curta e mostra worktree, release, checkpoint e janelas úteis. Revele as listas
+de IDs com `npm run context:brief -- --ids` e o mapa completo com
+`npm run context:brief -- --map`.
+Fora de release, não execute o resumo: confira a worktree e abra os caminhos do
+pedido.
 
 Para uma feature comum, carregue nesta ordem:
 
-1. `AGENTS.md` e o resumo de contexto;
-2. frontmatter, resultado e pacote de trabalho atual da release;
-3. apenas contratos, critérios, riscos e entrypoints da camada afetada;
-4. somente os IDs de contexto e decisões referenciados pelo pacote;
-5. a seção deste playbook correspondente ao checkpoint ou risco atual;
-6. inicialmente até três entrypoints de código e dois testes;
-7. histórico apenas dos caminhos que serão alterados.
+1. resumo, resultado e pacote de trabalho atual;
+2. contratos, critérios, riscos e entrypoints da camada afetada;
+3. IDs canônicos, checkpoint e perfis `VAL-*` aplicáveis;
+4. inicialmente até três entrypoints de código e dois testes;
+5. histórico apenas dos caminhos que serão alterados.
 
 O limite inicial é uma heurística de descoberta, não um teto de correção. Antes
 de abrir mais arquivos, registre a hipótese ou dependência que exige a expansão.
-Use `rg -n` com padrão e caminho específicos, leia o entorno da ocorrência e
-limite a saída de comandos. Em testes longos, preserve somente comando, resumo,
-falha e linhas acionáveis; a saída integral fica fora do contexto principal.
+Use `rg -n` com padrão e caminho específicos e leia somente o entorno. Preserve
+de testes longos apenas comando, resumo, falha e linhas acionáveis.
 
-### Roteamento proporcional
+### Agentes e qualidade
 
-| Classe | Sinal | Execução | Validação inicial |
-|---|---|---|---|
-| consulta | explicação ou diagnóstico sem escrita | agente principal, sem plano formal | inspeção somente leitura |
-| local | um domínio e poucos arquivos | hipótese, edição focada | teste focado |
-| transversal | UI + servidor, banco, integração, autorização ou rollout | plano curto e checkpoint | perfis `VAL-*` afetados |
-| paralela | duas ou mais perguntas independentes e predominantemente de leitura | subagentes com escopo isolado | agente principal integra evidências |
-
-Subagentes reduzem poluição do contexto principal e tempo de parede, mas elevam
-o consumo total. Não os use para uma mudança serial, um único caminho ou como
-substituto de uma hipótese. Prefira delegar exploração, triagem de logs e testes;
-mantenha escritas sobrepostas no agente principal. Cada delegação informa um
-objetivo verificável, caminhos permitidos, contexto mínimo e retorno em forma de
-conclusão, arquivo/linha, risco e próxima ação, sem logs brutos.
+Use agente único em consulta, mudança serial ou um domínio. Planeje brevemente
+mudanças transversais. Delegue somente duas ou mais frentes independentes de
+exploração, teste ou triagem; subagentes protegem o contexto principal, mas
+aumentam o consumo total. Mantenha escritas sobrepostas no agente principal e
+exija conclusão, arquivo/linha, risco e próxima ação, sem logs brutos.
 
 ### Memória duradoura
 
