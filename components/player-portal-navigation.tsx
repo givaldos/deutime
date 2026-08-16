@@ -2,28 +2,53 @@
 
 import { BrandMark } from "@/components/brand-mark";
 import { LogoutButton } from "@/components/logout-button";
-import { CalendarDays, Home, UserRound } from "lucide-react";
+import { CalendarDays, Home, Medal, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const items = [
-  { href: "/me", label: "Início", icon: Home, matches: (path: string) => path === "/me" },
+const baseItems = [
+  {
+    href: "/me",
+    label: "Início",
+    mobileLabel: "Início",
+    icon: Home,
+    matches: (path: string) => path === "/me",
+  },
   {
     href: "/me/agenda",
     label: "Agenda",
+    mobileLabel: "Agenda",
     icon: CalendarDays,
     matches: (path: string) => path.startsWith("/me/agenda"),
   },
   {
     href: "/me/perfil",
     label: "Perfil",
+    mobileLabel: "Perfil",
     icon: UserRound,
     matches: (path: string) => path.startsWith("/me/perfil"),
   },
 ] as const;
 
-export function PlayerPortalNavigation() {
+export function PlayerPortalNavigation({
+  recognitionEnabled = false,
+}: {
+  recognitionEnabled?: boolean;
+}) {
   const pathname = usePathname();
+  const items = recognitionEnabled
+    ? [
+        ...baseItems.slice(0, 2),
+        {
+          href: "/me/reconhecimentos",
+          label: "Reconhecimentos",
+          mobileLabel: "Reconhec.",
+          icon: Medal,
+          matches: (path: string) => path.startsWith("/me/reconhecimentos"),
+        },
+        baseItems[2],
+      ]
+    : baseItems;
 
   return (
     <>
@@ -64,13 +89,18 @@ export function PlayerPortalNavigation() {
         aria-label="Área do atleta"
         className="pointer-events-none fixed inset-x-0 bottom-0 z-50 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] pt-2 sm:hidden"
       >
-        <div className="pointer-events-auto mx-auto grid max-w-md grid-cols-3 rounded-[1.5rem] border border-white/10 bg-grass/95 p-1 shadow-float backdrop-blur-xl">
+        <div
+          className={`pointer-events-auto mx-auto grid max-w-md rounded-[1.5rem] border border-white/10 bg-grass/95 p-1 shadow-float backdrop-blur-xl ${
+            recognitionEnabled ? "grid-cols-4" : "grid-cols-3"
+          }`}
+        >
           {items.map((item) => {
             const selected = item.matches(pathname);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                aria-label={item.label}
                 aria-current={selected ? "page" : undefined}
                 className={`flex h-14 w-full touch-manipulation select-none flex-col items-center justify-center gap-1 rounded-[1.1rem] text-[10px] font-bold transition-colors [-webkit-tap-highlight-color:transparent] active:bg-white/10 ${
                   selected
@@ -79,7 +109,7 @@ export function PlayerPortalNavigation() {
                 }`}
               >
                 <item.icon className={`size-5 ${selected ? "text-emerald-600" : ""}`} aria-hidden />
-                {item.label}
+                <span>{item.mobileLabel}</span>
               </Link>
             );
           })}
