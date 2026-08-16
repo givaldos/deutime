@@ -1,11 +1,11 @@
 ---
 release: R10
-work_package: DP-R10-01
-scope: recognition_model_discovery
-branch_or_commit: "codex/r10-cohort-review-2"
+work_package: WP-R10-01
+scope: recognition_contract
+branch_or_commit: "codex/r10-cp0-ready"
 checkpoint: CP0
-status: in_progress
-completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03]
+status: ready
+completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05]
 dirty_files: []
 tests:
   - "base R10: 2 arquivos/6 testes focados aprovados"
@@ -13,33 +13,35 @@ tests:
   - "protótipo: 390 px e 360 px sem overflow ou recorte"
   - "protótipo: controles com alvo mínimo de 44 px"
   - "protótipo: visão privada, consentimento e prévia pública funcionais"
-  - "coorte: 2/3 revisões; compreensão 2/2; intenção positiva 2/2; publicação 2/2"
-  - "coorte: consentimento testado desligado em 1 revisão e ligado em 1 revisão"
-blocker: "Implementação não autorizada: DEC-RECOGNITION-MODEL segue proposed; falta uma revisão completa da coorte."
-next_action: "Apresentar o protótipo sem explicação prévia a uma terceira pessoa e registrar compreensão e intenção de uso em contagens agregadas."
+  - "coorte: 3/3 revisões; compreensão 3/3; intenção positiva 3/3; publicação 3/3"
+  - "coorte: consentimento testado desligado em 1 revisão e ligado em 2 revisões"
+  - "gate: lint, TypeScript e 77 arquivos/436 testes aprovados"
+  - "build de produção: Webpack aprovado; Turbopack limitado por porta interna do sandbox (EPERM)"
+blocker: null
+next_action: "Implementar WP-R10-01 com expansão inerte da flag recognition, catálogo recognition-v1, consentimento, RPCs e tipos, sem consumidor nem ativação de time."
 ---
 
 # Trabalho atual
 
-`DP-R10-01` comparou quatro opções e propôs cartões factuais derivados de gol,
+`DP-R10-01` comparou quatro opções e aceitou cartões factuais derivados de gol,
 assistência e resultado agregado fechado do Craque. O contrato não cria pontos,
 nota, ranking ou escrita global: cada item pertence a `athlete_id + team_id` e
 acompanha correções da fonte autoritativa.
 
-O eventual resumo público possui finalidade de consentimento própria,
-desligada por padrão e revogável pelo titular. A implementação continua fora de
-escopo enquanto `DEC-RECOGNITION-MODEL` estiver `proposed`.
+O resumo público possui finalidade de consentimento própria, desligada por
+padrão e revogável pelo titular.
 
-O protótipo mobile descartável foi verificado tecnicamente em 390 px e 360 px.
-Duas revisões humanas confirmaram os quatro limites do modelo e indicaram uso
-da visão e publicação do resumo. Uma testou o consentimento desligado e outra,
-ligado. As contagens permanecem agregadas, sem identidade ou conteúdo pessoal.
-O sinal mínimo de intenção foi atingido, mas `AC-R10-04`, `AC-R10-05` e CP0
-permanecem abertos até a terceira revisão.
+Três revisões humanas sem explicação prévia confirmaram os quatro limites do
+modelo; as três pessoas usariam a visão e escolheriam publicar o resumo. Uma
+testou o consentimento desligado e duas, ligado. As contagens permanecem
+agregadas, sem identidade ou conteúdo pessoal.
+
+`DEC-RECOGNITION-MODEL` está aceita e a R10 satisfaz a Definition of Ready. O
+CP0 foi concluído sem ativar flag, time, consumidor ou efeito externo.
 
 ## Próxima ação
 
-Apresentar o protótipo sem explicação prévia a uma terceira pessoa e registrar
-somente as contagens previstas no ADR. Aceitar a decisão e promover R10 a
-`ready` apenas se a terceira pessoa também compreender os quatro limites; caso
-contrário, estacionar a vertical com a métrica de reabertura preservada.
+Implementar `WP-R10-01` como expansão inerte: adicionar a flag `recognition`
+desligada por padrão, o catálogo `recognition-v1`, a finalidade versionada de
+consentimento, RPCs e tipos com RLS e grants mínimos. Não criar interface nem
+ativar organização neste pacote.
