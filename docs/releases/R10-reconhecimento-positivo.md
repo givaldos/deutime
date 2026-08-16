@@ -229,3 +229,17 @@ cache público, abuso e experiência Android/iPhone.
 - `AC-R10-04`, `AC-R10-05` e CP0 permanecem pendentes. Próxima coleta:
   compreensão e intenção de mais duas revisões completas, ainda sem explicação
   prévia.
+
+### `DP-R10-01` — segunda revisão da coorte registrada
+
+- em 2026-08-16, uma segunda pessoa respondeu ao protótipo e confirmou os
+  quatro limites do modelo, sem identidade ou conteúdo pessoal registrado;
+- a pessoa informou que usaria a visão e escolheria publicar o resumo. Nesta
+  avaliação, o consentimento foi testado ligado;
+- contagens agregadas: revisões `2/3`; compreensão dos quatro limites `2/2`;
+  intenção de uso respondida `2/2` e positiva `2/2`, com escolha de publicação
+  `2/2`; estados de consentimento testados: desligado em uma revisão e ligado
+  em uma revisão;
+- o sinal mínimo de intenção já foi atingido, mas a coorte ainda não está
+  completa. `AC-R10-04`, `AC-R10-05` e CP0 permanecem pendentes até a terceira
+  revisão, ainda sem explicação prévia.

@@ -2,7 +2,7 @@
 release: R10
 work_package: DP-R10-01
 scope: recognition_model_discovery
-branch_or_commit: "codex/r10-cohort-review-1-complete"
+branch_or_commit: "codex/r10-cohort-review-2"
 checkpoint: CP0
 status: in_progress
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03]
@@ -13,9 +13,10 @@ tests:
   - "protótipo: 390 px e 360 px sem overflow ou recorte"
   - "protótipo: controles com alvo mínimo de 44 px"
   - "protótipo: visão privada, consentimento e prévia pública funcionais"
-  - "coorte: 1/3 revisão; compreensão 1/1; intenção positiva 1/1; publicação 1/1"
-blocker: "Implementação não autorizada: DEC-RECOGNITION-MODEL segue proposed; faltam duas revisões completas da coorte."
-next_action: "Apresentar o protótipo sem explicação prévia a mais duas pessoas e registrar compreensão e intenção de uso em contagens agregadas."
+  - "coorte: 2/3 revisões; compreensão 2/2; intenção positiva 2/2; publicação 2/2"
+  - "coorte: consentimento testado desligado em 1 revisão e ligado em 1 revisão"
+blocker: "Implementação não autorizada: DEC-RECOGNITION-MODEL segue proposed; falta uma revisão completa da coorte."
+next_action: "Apresentar o protótipo sem explicação prévia a uma terceira pessoa e registrar compreensão e intenção de uso em contagens agregadas."
 ---
 
 # Trabalho atual
@@ -30,15 +31,15 @@ desligada por padrão e revogável pelo titular. A implementação continua fora
 escopo enquanto `DEC-RECOGNITION-MODEL` estiver `proposed`.
 
 O protótipo mobile descartável foi verificado tecnicamente em 390 px e 360 px.
-A primeira revisão humana confirmou os quatro limites do modelo, com o
-consentimento testado desligado. A avaliação foi completada em 2026-08-16: a
-pessoa usaria a visão e escolheria publicar o resumo. As contagens permanecem
-agregadas, sem identidade ou conteúdo pessoal. Portanto, `AC-R10-04`,
-`AC-R10-05` e CP0 permanecem abertos até as outras duas revisões.
+Duas revisões humanas confirmaram os quatro limites do modelo e indicaram uso
+da visão e publicação do resumo. Uma testou o consentimento desligado e outra,
+ligado. As contagens permanecem agregadas, sem identidade ou conteúdo pessoal.
+O sinal mínimo de intenção foi atingido, mas `AC-R10-04`, `AC-R10-05` e CP0
+permanecem abertos até a terceira revisão.
 
 ## Próxima ação
 
-Apresentar o protótipo sem explicação prévia a mais duas pessoas e registrar
+Apresentar o protótipo sem explicação prévia a uma terceira pessoa e registrar
 somente as contagens previstas no ADR. Aceitar a decisão e promover R10 a
-`ready` apenas se o sinal mínimo for atingido; caso contrário, estacionar a
-vertical com a métrica de reabertura preservada.
+`ready` apenas se a terceira pessoa também compreender os quatro limites; caso
+contrário, estacionar a vertical com a métrica de reabertura preservada.
