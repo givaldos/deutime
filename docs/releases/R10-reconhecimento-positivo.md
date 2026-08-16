@@ -213,3 +213,17 @@ cache público, abuso e experiência Android/iPhone.
 - essa checagem não é evidência da coorte. `AC-R10-04`, `AC-R10-05` e CP0
   continuam pendentes até três pessoas do piloto revisarem sem explicação, com
   contagens agregadas de compreensão e intenção de uso.
+
+### `DP-R10-01` — primeira revisão da coorte registrada
+
+- em 2026-08-15, uma pessoa revisou o protótipo e confirmou, sem identidade ou
+  conteúdo pessoal registrado, os quatro limites do modelo: visão privada,
+  origem em fatos esportivos finalizados, ausência de ranking e publicação do
+  resumo somente por consentimento;
+- contagens agregadas: revisões `1/3`; compreensão dos quatro limites `1/1`;
+  consentimento testado desligado `1/1`; intenção de uso respondida `0/1`;
+- a resposta não informa se a pessoa usaria novamente a visão ou publicaria o
+  resumo. Essa intenção não foi inferida do teste com consentimento desligado;
+- `AC-R10-04`, `AC-R10-05` e CP0 permanecem pendentes. Próxima coleta: intenção
+  da primeira revisão e mais duas revisões completas, ainda sem explicação
+  prévia.
