@@ -38,6 +38,7 @@ const player = {
     yellow_cards: 1,
     red_cards: 0,
   },
+  recognitions: [],
 };
 
 function props(handle = player.handle) {
@@ -71,6 +72,41 @@ describe("public player route", () => {
     expect(html).toContain("Meio-campo");
     expect(html).toContain("Estatísticas");
     expect(html).toContain("Assist.");
+  });
+
+  it("shows only consented aggregate recognition categories", async () => {
+    mocks.getPublicPlayer.mockResolvedValue({
+      ...player,
+      recognitions: [
+        {
+          catalog_version: "recognition-v1",
+          kind: "goal_recorded",
+          recognition_count: 4,
+        },
+        {
+          catalog_version: "recognition-v1",
+          kind: "crowd_star",
+          recognition_count: 2,
+        },
+      ],
+    });
+
+    const html = renderToStaticMarkup(await PublicPlayerPage(props()));
+
+    expect(html).toContain("Conquistas reconhecidas");
+    expect(html).toContain("Gols reconhecidos");
+    expect(html).toContain("Craques da Galera");
+    expect(html).toContain("sem ranking ou comparação");
+    expect(html).not.toContain("recognition-v1");
+    expect(html).not.toMatch(/team_id|source_id|match_id|event_id/);
+  });
+
+  it("preserves the current public profile when no summary is consented", async () => {
+    const html = renderToStaticMarkup(await PublicPlayerPage(props()));
+
+    expect(html).not.toContain("Conquistas reconhecidas");
+    expect(html).toContain("Estatísticas");
+    expect(html).toContain("Posições preferenciais");
   });
 
   it("returns not found for an invalid or absent public profile", async () => {

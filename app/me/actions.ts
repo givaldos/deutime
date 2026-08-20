@@ -229,3 +229,50 @@ export async function updateMySportsActivityConsent(formData: FormData) {
   revalidatePath("/me/perfil/editar");
   redirect(`/me/perfil/editar?consent=${parsed.data.granted ? "granted" : "revoked"}`);
 }
+
+const recognitionSummaryConsentSchema = z.object({
+  athleteId: z.string().uuid(),
+  granted: z.enum(["true", "false"]).transform((value) => value === "true"),
+  requestId: z.string().uuid(),
+});
+
+export async function updateMyRecognitionSummaryConsent(formData: FormData) {
+  const user = await requireUser();
+  const parsed = recognitionSummaryConsentSchema.safeParse({
+    athleteId: formData.get("athleteId"),
+    granted: formData.get("granted"),
+    requestId: formData.get("requestId"),
+  });
+  if (!parsed.success) {
+    redirect("/me/perfil/editar?recognitionConsent=error");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc(
+    "set_public_recognition_summary_consent",
+    {
+      requested_athlete_id: parsed.data.athleteId,
+      requested_granted: parsed.data.granted,
+      requested_terms_version: "r10-v1",
+      request_id: parsed.data.requestId,
+    },
+  );
+  if (error) redirect("/me/perfil/editar?recognitionConsent=error");
+
+  const { data: profile } = await supabase
+    .from("player_profiles")
+    .select("handle")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  revalidatePath("/me/perfil");
+  revalidatePath("/me/perfil/editar");
+  if (profile?.handle) {
+    revalidatePath(`/p/${profile.handle}`);
+  } else {
+    revalidatePath("/p/[handle]", "page");
+  }
+  redirect(
+    `/me/perfil/editar?recognitionConsent=${parsed.data.granted ? "granted" : "revoked"}`,
+  );
+}

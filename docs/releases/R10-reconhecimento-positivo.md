@@ -9,7 +9,7 @@ baseline:
   - BASE-MATCH-REPORT
   - BASE-PUBLIC
   - BASE-WRITES
-verified_at: "05f68f4"
+verified_at: "bc0fa00"
 decisions:
   - DEC-CROWD-STAR
   - DEC-POSITIVE-POINTS
@@ -163,7 +163,7 @@ de ausência, atraso, derrota ou qualquer comportamento constrangedor.
 - [x] `AC-R10-08` — A visão privada explica a origem sem pontos, nota, série ou
   comparação e preserva estatísticas e Craque atuais quando flag, schema ou
   projeção estiverem indisponíveis.
-- [ ] `AC-R10-09` — `public_recognition_summary_v1` nasce desligado, só pode ser
+- [x] `AC-R10-09` — `public_recognition_summary_v1` nasce desligado, só pode ser
   concedido ou revogado pelo titular e retira imediatamente a fatia pública sem
   reduzir qualquer acesso privado.
 - [x] `AC-R10-10` — O perfil público soma somente categorias consentidas por
@@ -359,3 +359,37 @@ cache público, abuso e experiência Android/iPhone.
 - o checkpoint avançou para CP2 sem ativar time. Próxima ação: `WP-R10-03`,
   entregar consentimento por vínculo e resumo no perfil público com revogação
   imediata, preservando a visão privada independentemente da decisão pública.
+
+### `WP-R10-03` — resumo consentido concluído; checkpoint em `idle`
+
+- o editor de perfil oferece uma escolha independente por vínculo somente para
+  times com a flag `recognition` ligada. A finalidade permanece desligada por
+  padrão e não herda a autorização de escalação pública;
+- a Server Action autentica a sessão, valida vínculo, decisão e idempotência e
+  delega a escrita à RPC transacional
+  `set_public_recognition_summary_consent()`. A RPC continua sendo a autoridade
+  para titularidade, vínculo ativo, tenant, flag, ativação e auditoria;
+- concessão e revogação invalidam o perfil público do próprio titular. Revogar
+  retira somente a fatia pública; a interface explica que a visão privada e o
+  acesso ao time permanecem inalterados;
+- `/p/{handle}` consome `get_public_recognition_summary()` e aceita estritamente
+  uma linha única por categoria de `recognition-v1`, contendo somente versão,
+  categoria e contagem positiva. IDs, time, partida, data, voto e colocação não
+  entram no modelo renderizado;
+- resumo vazio, RPC/schema indisponível, campo adicional, categoria duplicada
+  ou payload fora do catálogo falham fechados sem retirar perfil, estatísticas
+  ou posições atuais. App nova antes do banco e banco novo antes da app
+  permanecem compatíveis;
+- 19 testes focados em cinco arquivos cobrem flag por time, validação estrita,
+  concessão, negação, revogação, alvo móvel, linguagem, projeção mínima e
+  fallback. O gate aprovou lint, TypeScript, 84 arquivos/460 testes, teste de
+  contexto, build de produção Webpack e audit com zero vulnerabilidades;
+- o PR #238 aprovou Database com reset/RLS/pgTAP/tipos, CodeQL, dependency
+  review, Terraform e Vercel Preview. Nenhuma migration, tipo gerado, time,
+  consentimento real ou ativação foi alterado;
+- `AC-R10-09` está concluído. Android, iPhone, leitor de tela real, navegador
+  interno do WhatsApp, telemetria e piloto permanecem em `AC-R10-12/13`; o
+  checkpoint volta a `idle` antes do merge;
+- próxima ação: `WP-R10-04`, endurecer abuso, observabilidade, fallback e
+  rollback, verificar a experiência CP4 e só então avaliar piloto isolado em
+  uma organização demo.

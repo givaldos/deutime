@@ -1,8 +1,10 @@
 import { PlayerProfileForm } from "@/components/player-profile-form";
 import { PlayerAvatarManager } from "@/components/player-avatar-manager";
+import { PlayerRecognitionConsent } from "@/components/player-recognition-consent";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { updateMySportsActivityConsent } from "@/app/me/actions";
 import { requireUser } from "@/lib/auth/dal";
+import { loadRecognitionEnabledTeamIds } from "@/lib/data/recognition";
 import { createClient } from "@/lib/supabase/server";
 import { ArrowLeft, BadgeCheck, ShieldCheck, ShieldOff } from "lucide-react";
 import Link from "next/link";
@@ -11,7 +13,7 @@ import { notFound } from "next/navigation";
 export default async function EditPlayerProfilePage({
   searchParams,
 }: {
-  searchParams: Promise<{ consent?: string }>;
+  searchParams: Promise<{ consent?: string; recognitionConsent?: string }>;
 }) {
   const user = await requireUser();
   const query = await searchParams;
@@ -54,7 +56,12 @@ export default async function EditPlayerProfilePage({
     : { data: null };
   const teamIds = [...new Set((athleteLinks ?? []).map((athlete) => athlete.team_id))];
   const athleteIds = (athleteLinks ?? []).map((athlete) => athlete.id);
-  const [{ data: linkedTeams }, { data: sportsConsents }] = await Promise.all([
+  const [
+    { data: linkedTeams },
+    { data: sportsConsents },
+    { data: recognitionConsents },
+    recognitionEnabledTeamIds,
+  ] = await Promise.all([
     teamIds.length > 0
       ? supabase.from("teams").select("id, name").in("id", teamIds)
       : Promise.resolve({ data: [] }),
@@ -65,9 +72,31 @@ export default async function EditPlayerProfilePage({
           .eq("purpose", "public_sports_activity")
           .in("athlete_id", athleteIds)
       : Promise.resolve({ data: [] }),
+    athleteIds.length > 0
+      ? supabase
+          .from("athlete_public_consents")
+          .select("athlete_id, status")
+          .eq("purpose", "public_recognition_summary_v1")
+          .in("athlete_id", athleteIds)
+      : Promise.resolve({ data: [] }),
+    loadRecognitionEnabledTeamIds(teamIds),
   ]);
   const teamNameById = new Map((linkedTeams ?? []).map((team) => [team.id, team.name]));
   const consentByAthlete = new Map((sportsConsents ?? []).map((consent) => [consent.athlete_id, consent.status]));
+  const recognitionConsentByAthlete = new Map(
+    (recognitionConsents ?? []).map((consent) => [
+      consent.athlete_id,
+      consent.status,
+    ]),
+  );
+  const recognitionEnabledTeams = new Set(recognitionEnabledTeamIds);
+  const recognitionConsentLinks = (athleteLinks ?? [])
+    .filter((athlete) => recognitionEnabledTeams.has(athlete.team_id))
+    .map((athlete) => ({
+      athleteId: athlete.id,
+      teamName: teamNameById.get(athlete.team_id) ?? "Seu time",
+      granted: recognitionConsentByAthlete.get(athlete.id) === "granted",
+    }));
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 sm:py-10">
@@ -157,6 +186,11 @@ export default async function EditPlayerProfilePage({
           </p>
         </section>
       ) : null}
+
+      <PlayerRecognitionConsent
+        links={recognitionConsentLinks}
+        status={query.recognitionConsent}
+      />
 
       <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-slate-500">
         <ShieldCheck
