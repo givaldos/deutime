@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { getPublicPlayer } from "@/lib/data/public-player";
+import { recognitionCatalog } from "@/lib/features/recognition/catalog";
 import { BrandMark } from "@/components/brand-mark";
 import {
   BadgeCheck,
@@ -38,6 +39,11 @@ export default async function PublicPlayerPage({
     [player.statistics.yellow_cards, "Amarelos"],
     [player.statistics.red_cards, "Vermelhos"],
   ] as const;
+  const recognitionItems = (player.recognitions ?? []).map((recognition) => ({
+    count: recognition.recognition_count,
+    kind: recognition.kind,
+    label: recognitionCatalog[recognition.kind].publicLabel,
+  }));
 
   return (
     <main className="min-h-svh bg-[#f5f4ef] pb-10 text-graphite">
@@ -131,6 +137,41 @@ export default async function PublicPlayerPage({
             ))}
           </div>
         </section>
+
+        {recognitionItems.length ? (
+          <section
+            className="app-surface overflow-hidden"
+            aria-labelledby="player-recognitions"
+          >
+            <div className="px-5 pb-4 pt-5">
+              <p className="app-kicker">Reconhecimento positivo</p>
+              <h2 id="player-recognitions" className="mt-1 text-lg font-black">
+                Conquistas reconhecidas
+              </h2>
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                Resumo publicado pelo atleta, sem ranking ou comparação.
+              </p>
+            </div>
+            <div
+              className="grid grid-cols-1 gap-px border-t border-slate-100 bg-slate-100 sm:grid-cols-3"
+              aria-label="Totais de reconhecimentos publicados"
+            >
+              {recognitionItems.map((recognition) => (
+                <div
+                  key={recognition.kind}
+                  className="flex items-center justify-between gap-4 bg-white px-5 py-4 sm:block sm:text-center"
+                >
+                  <p className="text-2xl font-black leading-none text-emerald-800">
+                    {recognition.count}
+                  </p>
+                  <p className="text-xs font-bold text-slate-600 sm:mt-2">
+                    {recognition.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className="app-surface p-5">
           <div>

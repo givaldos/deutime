@@ -1,12 +1,62 @@
 import "server-only";
 
+import {
+  recognitionCatalogVersion,
+  recognitionKinds,
+} from "@/lib/features/recognition/catalog";
 import { createPrivilegedClient } from "@/lib/supabase/privileged";
 import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
+
+const publicRecognitionSchema = z
+  .object({
+    catalog_version: z.literal(recognitionCatalogVersion),
+    kind: z.enum(recognitionKinds),
+    recognition_count: z.number().int().positive().max(1_000_000),
+  })
+  .strict();
+
+const publicRecognitionListSchema = z
+  .array(publicRecognitionSchema)
+  .max(recognitionKinds.length)
+  .superRefine((items, context) => {
+    if (new Set(items.map((item) => item.kind)).size !== items.length) {
+      context.addIssue({
+        code: "custom",
+        message: "Categorias de reconhecimento duplicadas.",
+      });
+    }
+  });
+
+export type PublicRecognitionSummary = z.infer<
+  typeof publicRecognitionSchema
+>;
+
+export async function getPublicRecognitionSummary(
+  handle: string,
+): Promise<PublicRecognitionSummary[]> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc(
+      "get_public_recognition_summary",
+      { requested_handle: handle },
+    );
+    if (error) return [];
+
+    const parsed = publicRecognitionListSchema.safeParse(data ?? []);
+    return parsed.success ? parsed.data : [];
+  } catch {
+    return [];
+  }
+}
 
 export async function getPublicPlayer(handle: string) {
   const supabase = await createClient();
-  const [{ data, error }, { data: statisticRows, error: statisticsError }] =
-    await Promise.all([
+  const [
+    { data, error },
+    { data: statisticRows, error: statisticsError },
+    recognitions,
+  ] = await Promise.all([
       supabase
         .from("public_player_directory")
         .select(
@@ -17,6 +67,7 @@ export async function getPublicPlayer(handle: string) {
       supabase.rpc("get_public_player_statistics", {
         requested_handle: handle,
       }),
+      getPublicRecognitionSummary(handle),
     ]);
 
   if (error || statisticsError) {
@@ -32,6 +83,7 @@ export async function getPublicPlayer(handle: string) {
   return {
     ...data,
     photo_url: signedPhoto?.signedUrl ?? null,
+    recognitions,
     statistics: statisticRows?.[0] ?? {
       matches_played: 0,
       goals: 0,
