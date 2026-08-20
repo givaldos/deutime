@@ -27,6 +27,39 @@ const recognitionListSchema = z.array(recognitionSchema).max(1_000);
 
 export type Recognition = z.infer<typeof recognitionSchema>;
 
+async function lookupRecognitionEnabledTeamIds(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  teamIds: string[],
+): Promise<string[]> {
+  const uniqueTeamIds = [...new Set(teamIds)];
+  if (!uniqueTeamIds.length) return [];
+
+  const lookups = await Promise.all(
+    uniqueTeamIds.map(async (teamId) => ({
+      teamId,
+      result: await supabase.rpc("is_team_feature_enabled", {
+        requested_team_id: teamId,
+        requested_feature: "recognition",
+      }),
+    })),
+  );
+
+  return lookups
+    .filter(({ result }) => !result.error && result.data === true)
+    .map(({ teamId }) => teamId);
+}
+
+export async function loadRecognitionEnabledTeamIds(
+  teamIds: string[],
+): Promise<string[]> {
+  try {
+    const supabase = await createClient();
+    return await lookupRecognitionEnabledTeamIds(supabase, teamIds);
+  } catch {
+    return [];
+  }
+}
+
 export async function loadRecognitionAvailability(): Promise<boolean> {
   try {
     const supabase = await createClient();
@@ -44,16 +77,11 @@ export async function loadRecognitionAvailability(): Promise<boolean> {
     ];
     if (!activeTeamIds.length) return false;
 
-    const lookups = await Promise.all(
-      activeTeamIds.map((teamId) =>
-        supabase.rpc("is_team_feature_enabled", {
-          requested_team_id: teamId,
-          requested_feature: "recognition",
-        }),
-      ),
+    const enabledTeamIds = await lookupRecognitionEnabledTeamIds(
+      supabase,
+      activeTeamIds,
     );
-
-    return lookups.some((lookup) => !lookup.error && lookup.data === true);
+    return enabledTeamIds.length > 0;
   } catch {
     return false;
   }

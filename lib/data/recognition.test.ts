@@ -11,6 +11,7 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 import {
+  loadRecognitionEnabledTeamIds,
   loadMyRecognitions,
   loadRecognitionAvailability,
 } from "./recognition";
@@ -66,6 +67,32 @@ describe("recognition data", () => {
 
     mocks.rpc.mockRejectedValueOnce(new Error("schema indisponível"));
     await expect(loadRecognitionAvailability()).resolves.toBe(false);
+  });
+
+  it("retorna somente times únicos com reconhecimento habilitado", async () => {
+    const enabledTeamId = "b0200000-0000-4000-8000-000000000001";
+    const disabledTeamId = "b0200000-0000-4000-8000-000000000002";
+    mocks.rpc.mockImplementation(
+      (_name: string, args?: { requested_team_id?: string }) =>
+        Promise.resolve({
+          data: args?.requested_team_id === enabledTeamId,
+          error: null,
+        }),
+    );
+
+    await expect(
+      loadRecognitionEnabledTeamIds([
+        enabledTeamId,
+        enabledTeamId,
+        disabledTeamId,
+      ]),
+    ).resolves.toEqual([enabledTeamId]);
+    expect(mocks.rpc).toHaveBeenCalledTimes(2);
+
+    mocks.rpc.mockRejectedValueOnce(new Error("schema indisponível"));
+    await expect(
+      loadRecognitionEnabledTeamIds([enabledTeamId]),
+    ).resolves.toEqual([]);
   });
 
   it("aceita somente a projeção tipada recognition-v1", async () => {
