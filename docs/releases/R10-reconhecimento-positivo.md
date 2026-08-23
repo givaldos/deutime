@@ -492,3 +492,23 @@ cache público, abuso e experiência Android/iPhone.
 - nenhum time ou flag foi criado/ativado nas tentativas anteriores. A criação
   será repetida somente após a segunda correção chegar à produção, mantendo
   `AC-R10-13` aberto.
+
+### `WP-R10-04` — coorte sintética criada e controle operacional preparado
+
+- `202608230002` foi aplicada e verificada em produção. A mesma jornada
+  autenticada criou `R10 Demo Reconhecimentos`, com owner ativo, sem atletas,
+  jogos, fatos ou consentimentos reais;
+- a pré-sonda externa recusou um UUID da sessão que não pertencia à coorte e não
+  alterou estado. Para eliminar a necessidade de manipular identificadores, o
+  painel administrativo ganhou um controle exclusivo do slug sintético;
+- a Server Action autentica novamente, valida entrada, restringe a coorte antes
+  da consulta, relê o time sob RLS e delega somente à RPC
+  `set_team_feature_flag`. Uma pré-sonda agregada server-only exige flag e
+  projeções desligadas; a pós-sonda confirma ativação ou rollback, revertendo
+  imediatamente uma ativação não confirmada;
+- a interface explica que os reconhecimentos são privados, factuais e sem
+  pontos/ranking, exige confirmação explícita e oferece rollback preservando os
+  fatos esportivos. 9 testes focados, lint, TypeScript, 87 arquivos/475 testes,
+  teste de contexto e build Webpack passaram;
+- a flag `recognition` permanece desligada. O controle será promovido antes da
+  ativação e `AC-R10-13` continua aberto.
