@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/r10-profile-verified-team-creation"
+branch_or_commit: "codex/r10-pilot-control"
 checkpoint: idle
 status: ready
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12]
@@ -17,9 +17,10 @@ tests:
   - "CP4 preflight em produção/360 px: fallback privado, consentimento oculto, perfil público e alvos de 44–56 px aprovados; sem overflow horizontal"
   - "aceite do produto: navegador responsivo considerado evidência móvel suficiente para a R10; 3 arquivos/12 testes de interface e TypeScript aprovados"
   - "WhatsApp-first: criação de time por telefone confirmado ou perfil imutável verificado coberta por 1 arquivo/8 pgTAP; banco completo 54 arquivos/1436 testes"
+  - "controle R10: 2 arquivos/9 testes focados; aplicação completa 87 arquivos/475 testes, lint, TypeScript, contexto e build Webpack aprovados"
   - "rollout: nenhum time ativado; CP4 concluído por decisão explícita e AC-R10-13 permanece aberto"
 blocker: null
-next_action: "Promover a segunda correção forward-only de criação de time por perfil WhatsApp imutável; repetir a jornada autenticada e então executar pré-sonda, ativação, consentimento/revogação, smoke e rollback do CP5."
+next_action: "Promover o controle operacional R10; executar pré-sonda server-only, ativação auditada, fatos sintéticos, consentimento/revogação, smoke e rollback do CP5."
 ---
 
 # Trabalho atual
@@ -60,9 +61,18 @@ essa prova, que só nasce pelo cadastro guardado e não pode ser inserida por
 1.436 testes. Nenhuma organização foi criada antes da segunda correção chegar à
 produção.
 
+A segunda correção foi promovida e a jornada autenticada criou com sucesso a
+organização sintética `R10 Demo Reconhecimentos`, com owner ativo e sem atletas,
+jogos ou fatos reais. Para evitar qualquer acesso direto ao banco durante o
+piloto, o painel ganhou um controle restrito a essa coorte: autentica novamente,
+valida o slug, relê o time sob RLS, executa a pré-sonda agregada via cliente
+server-only e só então delega à RPC auditada. A pós-sonda confirma o estado; uma
+falha após ativação dispara rollback imediato pela mesma RPC. A flag continua
+desligada até esse controle chegar à produção.
+
 ## Próxima ação
 
-Promover a segunda correção, criar a organização demo pela mesma jornada autenticada e
-executar CP5 com dados sintéticos. Confirmar o estado desligado antes da
-ativação, observar projeção e consentimento, provar revogação, fallback e
-rollback e manter qualquer ampliação bloqueada até fechar `AC-R10-13`.
+Promover o controle operacional e executar CP5 com dados sintéticos. Confirmar
+o estado desligado na pré-sonda server-only antes da ativação, observar projeção
+e consentimento, provar revogação, fallback e rollback e manter qualquer
+ampliação bloqueada até fechar `AC-R10-13`.
