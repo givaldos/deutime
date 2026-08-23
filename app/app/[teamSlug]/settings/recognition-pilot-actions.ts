@@ -22,7 +22,7 @@ export type RecognitionPilotActionState = {
 export type RecognitionPilotSeedState = RecognitionPilotActionState;
 
 const syntheticPhone = "+15550100010";
-const syntheticEmail = "r10-pilot-athlete@deutime.invalid";
+const syntheticEmail = "r10-pilot-athlete@example.test";
 const syntheticUserTag = "r10_recognition_pilot_v1";
 
 type RecognitionPilotHealth = {
@@ -220,17 +220,20 @@ export async function prepareRecognitionPilotAthlete(
   });
   let syntheticUser = created.data.user;
   if (!syntheticUser) {
-    const listed = await privileged.auth.admin.listUsers({ page: 1, perPage: 1_000 });
-    syntheticUser = listed.data.users.find(
-      (candidate) =>
-        candidate.phone === syntheticPhone &&
-        candidate.user_metadata?.pilot_tag === syntheticUserTag,
-    ) ?? null;
+    for (let page = 1; page <= 100 && !syntheticUser; page += 1) {
+      const listed = await privileged.auth.admin.listUsers({ page, perPage: 1_000 });
+      if (listed.error) break;
+      syntheticUser = listed.data.users.find(
+        (candidate) => candidate.user_metadata?.pilot_tag === syntheticUserTag,
+      ) ?? null;
+      if (listed.data.users.length < 1_000) break;
+    }
   }
   if (!syntheticUser) {
     return { outcome: "error", message: "Não foi possível preparar a identidade sintética." };
   }
   const updated = await privileged.auth.admin.updateUserById(syntheticUser.id, {
+    phone: syntheticPhone,
     email: syntheticEmail,
     password,
     phone_confirm: true,

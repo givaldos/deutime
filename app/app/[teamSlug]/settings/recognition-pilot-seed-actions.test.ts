@@ -102,7 +102,7 @@ describe("preparação do atleta sintético R10", () => {
         user: {
           id: userId,
           phone: "+15550100010",
-          email: "r10-pilot-athlete@deutime.invalid",
+          email: "r10-pilot-athlete@example.test",
           user_metadata: { pilot_tag: "r10_recognition_pilot_v1" },
         },
       },
@@ -132,7 +132,7 @@ describe("preparação do atleta sintético R10", () => {
       { requested_athlete_id: athleteId, decision: "approve" },
     );
     expect(mocks.signInWithPassword).toHaveBeenCalledWith({
-      email: "r10-pilot-athlete@deutime.invalid",
+      email: "r10-pilot-athlete@example.test",
       password: expect.stringMatching(/^R10!/),
     });
     expect(mocks.info).toHaveBeenCalledWith(
@@ -151,6 +151,30 @@ describe("preparação do atleta sintético R10", () => {
       message: "Somente owner ou admin pode preparar o piloto.",
     });
     expect(mocks.createUser).not.toHaveBeenCalled();
+  });
+
+  it("recupera a identidade etiquetada em páginas posteriores do Auth", async () => {
+    mocks.createUser.mockResolvedValue({ data: { user: null }, error: { code: "phone_exists" } });
+    mocks.listUsers
+      .mockResolvedValueOnce({
+        data: { users: Array.from({ length: 1_000 }, (_, index) => ({
+          id: `outro-${index}`,
+          user_metadata: {},
+        })) },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: { users: [{
+          id: userId,
+          phone: "+15550100010",
+          user_metadata: { pilot_tag: "r10_recognition_pilot_v1" },
+        }] },
+        error: null,
+      });
+    await expect(prepareRecognitionPilotAthlete({}, seedForm())).resolves.toMatchObject({
+      outcome: "success",
+    });
+    expect(mocks.listUsers).toHaveBeenNthCalledWith(2, { page: 2, perPage: 1_000 });
   });
 
   it("exige confirmação explícita antes de qualquer consulta", async () => {
