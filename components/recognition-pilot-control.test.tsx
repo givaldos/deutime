@@ -40,6 +40,9 @@ describe("controle visual do piloto de reconhecimentos", () => {
     expect(html).toContain('value="false"');
     expect(html).toContain("preservação dos fatos");
     expect(html).toContain("Preparar atleta sintético");
+    expect(html).toContain("Publicar resumo sintético");
+    expect(html).toContain("Revogar resumo sintético");
+    expect(html).toContain('name="publicConsent"');
     expect(html).toContain("exclusivamente sintéticos");
   });
 });
