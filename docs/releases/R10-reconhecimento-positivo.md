@@ -566,3 +566,14 @@ cache público, abuso e experiência Android/iPhone.
 - falhas registram apenas etapa e código. 7 testes focados e a aplicação
   completa com 88 arquivos/480 testes, lint, TypeScript, contexto e build
   Webpack passaram; a coorte permanece sem fatos até a promoção e repetição.
+
+### `WP-R10-04` — aprovação sintética sob a sessão owner
+
+- o link administrativo iniciou a sessão e concluiu cadastro e perfil em
+  produção. A leitura seguinte falhou fechada porque a RLS oculta do próprio
+  atleta o vínculo ainda pendente;
+- a leitura de estado passa para a sessão owner/admin já validada pela ação. O
+  atleta continua executando somente cadastro e perfil, e a aprovação continua
+  na RPC de revisão autorizada e auditada;
+- 5 testes focados e a aplicação completa com 88 arquivos/480 testes, lint e
+  TypeScript passaram. Ainda não há fato esportivo na coorte.
