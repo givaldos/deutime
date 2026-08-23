@@ -41,7 +41,9 @@ vi.mock("@/lib/supabase/server", () => ({
     from: vi.fn((table: string) =>
       table === "teams"
         ? query(mocks.teamSingle)
-        : query(mocks.membershipSingle)),
+        : table === "athletes"
+          ? query(mocks.athleteSingle)
+          : query(mocks.membershipSingle)),
     rpc: mocks.ownerRpc,
   })),
 }));
@@ -66,7 +68,6 @@ vi.mock("@supabase/supabase-js", () => ({
       getSession: mocks.getSession,
     },
     rpc: mocks.athleteRpc,
-    from: vi.fn(() => query(mocks.athleteSingle)),
   })),
 }));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));

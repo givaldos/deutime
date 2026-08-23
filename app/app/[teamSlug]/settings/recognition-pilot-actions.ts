@@ -310,7 +310,7 @@ export async function prepareRecognitionPilotAthlete(
   if (profile.error || profile.data !== "r10-sintetico") {
     return { outcome: "error", message: "O perfil público sintético não foi preparado." };
   }
-  const status = await athleteClient
+  const status = await supabase
     .from("athletes")
     .select("status")
     .eq("id", registration.data)
