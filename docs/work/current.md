@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "bffe775"
+branch_or_commit: "codex/r10-profile-verified-team-creation"
 checkpoint: idle
 status: ready
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12]
@@ -16,10 +16,10 @@ tests:
   - "npm audit: 0 vulnerabilidades"
   - "CP4 preflight em produção/360 px: fallback privado, consentimento oculto, perfil público e alvos de 44–56 px aprovados; sem overflow horizontal"
   - "aceite do produto: navegador responsivo considerado evidência móvel suficiente para a R10; 3 arquivos/12 testes de interface e TypeScript aprovados"
-  - "WhatsApp-first: criação de time por telefone confirmado coberta por 1 arquivo/6 pgTAP; banco completo 54 arquivos/1434 testes"
+  - "WhatsApp-first: criação de time por telefone confirmado ou perfil imutável verificado coberta por 1 arquivo/8 pgTAP; banco completo 54 arquivos/1436 testes"
   - "rollout: nenhum time ativado; CP4 concluído por decisão explícita e AC-R10-13 permanece aberto"
 blocker: null
-next_action: "Promover a correção forward-only de criação de time por WhatsApp verificado; criar a organização R10 sintética pela RPC autenticada e então executar pré-sonda, ativação, consentimento/revogação, smoke e rollback do CP5."
+next_action: "Promover a segunda correção forward-only de criação de time por perfil WhatsApp imutável; repetir a jornada autenticada e então executar pré-sonda, ativação, consentimento/revogação, smoke e rollback do CP5."
 ---
 
 # Trabalho atual
@@ -52,11 +52,17 @@ a interface aceita a sessão verificada por WhatsApp, mas a RPC histórica exigi
 exclusivamente e-mail confirmado. Uma migration forward-only passou a aceitar
 e-mail ou telefone confirmado, preservando identidade derivada da sessão,
 serialização, limite de abuso, owner atômico e negação para `anon` e contas não
-verificadas. Nenhuma organização foi criada antes da correção chegar à produção.
+verificadas. A repetição ainda falhou porque a conta conserva a prova imutável
+`player_profiles.phone_verified_at`, embora o identificador de telefone já não
+esteja presente no Auth. Uma segunda migration forward-only passou a reconhecer
+essa prova, que só nasce pelo cadastro guardado e não pode ser inserida por
+`authenticated`. O arquivo focado passou 8 testes e o banco completo passou
+1.436 testes. Nenhuma organização foi criada antes da segunda correção chegar à
+produção.
 
 ## Próxima ação
 
-Promover a correção, criar a organização demo pela mesma jornada autenticada e
+Promover a segunda correção, criar a organização demo pela mesma jornada autenticada e
 executar CP5 com dados sintéticos. Confirmar o estado desligado antes da
 ativação, observar projeção e consentimento, provar revogação, fallback e
 rollback e manter qualquer ampliação bloqueada até fechar `AC-R10-13`.
