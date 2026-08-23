@@ -1,14 +1,17 @@
 "use client";
 
 import {
+  prepareRecognitionPilotAthlete,
   setRecognitionPilotState,
   type RecognitionPilotActionState,
+  type RecognitionPilotSeedState,
 } from "@/app/app/[teamSlug]/settings/recognition-pilot-actions";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { HeartHandshake, Power, RotateCcw } from "lucide-react";
 import { useActionState } from "react";
 
 const initialState: RecognitionPilotActionState = {};
+const initialSeedState: RecognitionPilotSeedState = {};
 
 export function RecognitionPilotControl({
   teamName,
@@ -24,6 +27,10 @@ export function RecognitionPilotControl({
     initialState,
   );
   const nextEnabled = !enabled;
+  const [seedState, seedAction] = useActionState(
+    prepareRecognitionPilotAthlete,
+    initialSeedState,
+  );
 
   return (
     <section
@@ -93,6 +100,34 @@ export function RecognitionPilotControl({
           {enabled ? "Desligar e voltar ao fallback" : "Ativar somente esta coorte"}
         </AsyncSubmitButton>
       </form>
+
+      {enabled ? (
+        <form action={seedAction} className="mt-5 space-y-4 border-t border-amber-100 pt-5">
+          <input type="hidden" name="teamSlug" value={teamSlug} />
+          <label className="flex min-h-12 items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-950">
+            <input
+              type="checkbox"
+              name="confirmation"
+              value="confirmed"
+              required
+              className="mt-0.5 size-5 rounded border-amber-300"
+            />
+            <span>Confirmo a criação idempotente de uma identidade, atleta e perfil exclusivamente sintéticos.</span>
+          </label>
+          {seedState.message ? (
+            <p role={seedState.outcome === "error" ? "alert" : "status"} className={`rounded-xl p-3 text-sm font-semibold ${seedState.outcome === "error" ? "bg-red-50 text-red-800" : "bg-emerald-50 text-emerald-800"}`}>
+              {seedState.message}
+            </p>
+          ) : null}
+          <AsyncSubmitButton
+            pendingLabel="Preparando atleta sintético..."
+            variant="outline"
+            className="min-h-12 w-full sm:w-auto"
+          >
+            <HeartHandshake aria-hidden /> Preparar atleta sintético
+          </AsyncSubmitButton>
+        </form>
+      ) : null}
     </section>
   );
 }

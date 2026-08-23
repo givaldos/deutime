@@ -1,16 +1,28 @@
 "use server";
 
 import { requireUser } from "@/lib/auth/dal";
+import type { Database } from "@/lib/database.types";
+import { getPublicEnv } from "@/lib/env/public";
 import { recognitionPilotTeamSlug } from "@/lib/features/recognition/pilot-cohort";
 import { createPrivilegedClient } from "@/lib/supabase/privileged";
 import { createClient } from "@/lib/supabase/server";
-import { recognitionPilotActionSchema } from "@/lib/validation/recognition-pilot";
+import {
+  recognitionPilotActionSchema,
+  recognitionPilotSeedSchema,
+} from "@/lib/validation/recognition-pilot";
+import { createClient as createStatelessClient } from "@supabase/supabase-js";
+import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 
 export type RecognitionPilotActionState = {
   outcome?: "success" | "error";
   message?: string;
 };
+
+export type RecognitionPilotSeedState = RecognitionPilotActionState;
+
+const syntheticPhone = "+15550100010";
+const syntheticUserTag = "r10_recognition_pilot_v1";
 
 type RecognitionPilotHealth = {
   recognition_enabled: boolean;
@@ -147,5 +159,155 @@ export async function setRecognitionPilotState(
     message: parsed.data.enabled
       ? "Piloto ativado somente para esta coorte sintética."
       : "Rollback concluído; os fatos esportivos foram preservados.",
+  };
+}
+
+export async function prepareRecognitionPilotAthlete(
+  _previousState: RecognitionPilotSeedState,
+  formData: FormData,
+): Promise<RecognitionPilotSeedState> {
+  const user = await requireUser();
+  const parsed = recognitionPilotSeedSchema.safeParse({
+    teamSlug: formData.get("teamSlug"),
+    confirmation: formData.get("confirmation"),
+  });
+  if (!parsed.success || parsed.data.teamSlug !== recognitionPilotTeamSlug) {
+    return {
+      outcome: "error",
+      message: "Confirme a preparação da coorte sintética.",
+    };
+  }
+
+  const supabase = await createClient();
+  const { data: team, error: teamError } = await supabase
+    .from("teams")
+    .select("id, slug")
+    .eq("slug", parsed.data.teamSlug)
+    .maybeSingle();
+  if (teamError || !team || team.slug !== recognitionPilotTeamSlug) {
+    return { outcome: "error", message: "A coorte sintética não foi encontrada." };
+  }
+  const { data: membership, error: membershipError } = await supabase
+    .from("team_memberships")
+    .select("role, status")
+    .eq("team_id", team.id)
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .maybeSingle();
+  if (
+    membershipError ||
+    !membership ||
+    !["owner", "admin"].includes(membership.role)
+  ) {
+    return { outcome: "error", message: "Somente owner ou admin pode preparar o piloto." };
+  }
+
+  const before = await readPilotHealth(team.id);
+  if (!before?.recognition_enabled || before.reconstruction_mismatches !== 0) {
+    return { outcome: "error", message: "A sonda não autorizou os dados sintéticos." };
+  }
+
+  const privileged = createPrivilegedClient();
+  const password = `R10!${randomBytes(24).toString("base64url")}`;
+  const created = await privileged.auth.admin.createUser({
+    phone: syntheticPhone,
+    password,
+    phone_confirm: true,
+    user_metadata: { pilot_tag: syntheticUserTag },
+  });
+  let syntheticUser = created.data.user;
+  if (!syntheticUser) {
+    const listed = await privileged.auth.admin.listUsers({ page: 1, perPage: 1_000 });
+    syntheticUser = listed.data.users.find(
+      (candidate) =>
+        candidate.phone === syntheticPhone &&
+        candidate.user_metadata?.pilot_tag === syntheticUserTag,
+    ) ?? null;
+  }
+  if (!syntheticUser) {
+    return { outcome: "error", message: "Não foi possível preparar a identidade sintética." };
+  }
+  const updated = await privileged.auth.admin.updateUserById(syntheticUser.id, {
+    password,
+    phone_confirm: true,
+    user_metadata: { pilot_tag: syntheticUserTag },
+  });
+  if (updated.error) {
+    return { outcome: "error", message: "Não foi possível renovar a identidade sintética." };
+  }
+
+  const publicEnv = getPublicEnv();
+  const athleteClient = createStatelessClient<Database>(
+    publicEnv.NEXT_PUBLIC_SUPABASE_URL,
+    publicEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    { auth: { autoRefreshToken: false, persistSession: false } },
+  );
+  const signed = await athleteClient.auth.signInWithPassword({
+    phone: syntheticPhone,
+    password,
+  });
+  if (signed.error) {
+    return { outcome: "error", message: "A identidade sintética não pôde iniciar a jornada." };
+  }
+  const registration = await athleteClient.rpc(
+    "complete_verified_athlete_registration",
+    {
+      team_slug: recognitionPilotTeamSlug,
+      full_name: "Atleta Sintético R10",
+      preferred_name: "Sintético",
+      birth_date: "",
+      accepts_privacy_terms: true,
+      accepts_whatsapp: false,
+      position_codes: ["ST"],
+    },
+  );
+  if (registration.error || !registration.data) {
+    return { outcome: "error", message: "O cadastro sintético não foi concluído." };
+  }
+  const profile = await athleteClient.rpc("update_my_player_profile", {
+    requested_handle: "r10-sintetico",
+    requested_display_name: "Atleta Sintético R10",
+    requested_preferred_name: "Sintético",
+    requested_bio: "Perfil exclusivamente sintético do piloto R10.",
+    requested_is_public: true,
+    field_positions: [],
+    society_positions: ["ST"],
+    futsal_positions: [],
+  });
+  if (profile.error || profile.data !== "r10-sintetico") {
+    return { outcome: "error", message: "O perfil público sintético não foi preparado." };
+  }
+  const status = await athleteClient
+    .from("athletes")
+    .select("status")
+    .eq("id", registration.data)
+    .maybeSingle();
+  if (status.error || !status.data) {
+    return { outcome: "error", message: "O vínculo sintético não pôde ser confirmado." };
+  }
+  if (status.data.status === "pending") {
+    const reviewed = await supabase.rpc("review_athlete_registration", {
+      requested_athlete_id: registration.data,
+      decision: "approve",
+    });
+    if (reviewed.error || reviewed.data !== "active") {
+      return { outcome: "error", message: "O vínculo sintético não pôde ser aprovado." };
+    }
+  } else if (status.data.status !== "active") {
+    return { outcome: "error", message: "O vínculo sintético está indisponível." };
+  }
+
+  const after = await readPilotHealth(team.id);
+  if (!after?.recognition_enabled || after.reconstruction_mismatches !== 0) {
+    return { outcome: "error", message: "A pós-sonda não confirmou a coorte sintética." };
+  }
+
+  console.info("recognition_pilot.synthetic_athlete_ready", { ready: true });
+  revalidatePath(`/app/${team.slug}`);
+  revalidatePath(`/app/${team.slug}/settings`);
+  revalidatePath(`/app/${team.slug}/athletes`);
+  return {
+    outcome: "success",
+    message: "Atleta e perfil sintéticos prontos para os fatos esportivos.",
   };
 }
