@@ -133,7 +133,17 @@ describe("preparação do atleta sintético R10", () => {
       data: { status: "pending" },
       error: null,
     });
-    mocks.ownerRpc.mockResolvedValue({ data: "active", error: null });
+    mocks.ownerRpc.mockImplementation((name: string) =>
+      name === "set_team_feature_flag"
+        ? Promise.resolve({
+            data: {
+              team_id: teamId,
+              feature: "event_matches",
+              enabled: true,
+            },
+            error: null,
+          })
+        : Promise.resolve({ data: "active", error: null }));
     vi.spyOn(console, "info").mockImplementation(mocks.info);
   });
 
@@ -146,13 +156,18 @@ describe("preparação do atleta sintético R10", () => {
       "review_athlete_registration",
       { requested_athlete_id: athleteId, decision: "approve" },
     );
+    expect(mocks.ownerRpc).toHaveBeenCalledWith("set_team_feature_flag", {
+      requested_team_id: teamId,
+      requested_feature: "event_matches",
+      requested_enabled: true,
+    });
     expect(mocks.signInWithPassword).toHaveBeenCalledWith({
       email: "r10-pilot-athlete@example.test",
       password: expect.stringMatching(/^R10!/),
     });
     expect(mocks.info).toHaveBeenCalledWith(
       "recognition_pilot.synthetic_athlete_ready",
-      { ready: true },
+      { ready: true, event_matches_enabled: true },
     );
   });
 
