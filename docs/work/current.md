@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/r10-synthetic-auth-lookup"
+branch_or_commit: "codex/r10-synthetic-magic-link"
 checkpoint: idle
 status: ready
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12]
@@ -19,9 +19,10 @@ tests:
   - "WhatsApp-first: criação de time por telefone confirmado ou perfil imutável verificado coberta por 1 arquivo/8 pgTAP; banco completo 54 arquivos/1436 testes"
   - "controle R10: 2 arquivos/9 testes focados; aplicação completa 87 arquivos/475 testes, lint, TypeScript, contexto e build Webpack aprovados"
   - "provisionamento sintético: 3 arquivos/12 testes focados; aplicação completa 88 arquivos/478 testes, lint, TypeScript, contexto e build Webpack aprovados"
+  - "sessão sintética: fallback por link administrativo coberto; 2 arquivos/7 testes focados e aplicação completa 88 arquivos/480 testes, lint, TypeScript, contexto e build Webpack aprovados"
   - "rollout: coorte sintética criada e recognition ativa após pré/pós-sonda; ainda sem fatos, consentimentos ou resumo público"
 blocker: null
-next_action: "Promover a busca paginada da identidade sintética; preparar o atleta, criar fatos posteriores ao marco, testar consentimento/revogação, smoke e rollback do CP5."
+next_action: "Promover a sessão sintética por link administrativo; preparar o atleta, criar fatos posteriores ao marco, testar consentimento/revogação, smoke e rollback do CP5."
 ---
 
 # Trabalho atual
@@ -92,9 +93,17 @@ pagina a lista, seleciona exclusivamente a etiqueta do piloto e reaplica
 telefone e e-mail reservados na mesma conta. A coorte continua sem atleta e sem
 fatos.
 
+A busca paginada chegou à produção e recuperou a mesma identidade, porém o
+provedor recusou também o login por senha antes do cadastro esportivo. A ação
+agora tenta a senha e, se o provedor a indisponibilizar, gera server-side um
+link administrativo de uso único e o verifica diretamente no cliente sem
+enviar e-mail. A sessão continua pertencendo ao atleta sintético, portanto as
+RPCs e RLS permanecem idênticas às da jornada real; falhas em cada estágio são
+telemetradas somente por código e etapa, sem PII.
+
 ## Próxima ação
 
-Promover a busca idempotente corrigida, preparar o atleta e criar os
+Promover a sessão sintética corrigida, preparar o atleta e criar os
 fatos esportivos posteriores ao marco. Depois observar projeção e consentimento,
 provar revogação, smoke, fallback e rollback e manter qualquer ampliação
 bloqueada até fechar `AC-R10-13`.
