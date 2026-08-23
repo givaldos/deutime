@@ -7,3 +7,8 @@ export const recognitionPilotActionSchema = z.object({
   enabled: z.enum(["true", "false"]).transform((value) => value === "true"),
   confirmation: z.literal("confirmed"),
 });
+
+export const recognitionPilotSeedSchema = z.object({
+  teamSlug: z.string().trim().regex(teamSlugPattern),
+  confirmation: z.literal("confirmed"),
+});

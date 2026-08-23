@@ -512,3 +512,24 @@ cache público, abuso e experiência Android/iPhone.
   teste de contexto e build Webpack passaram;
 - a flag `recognition` permanece desligada. O controle será promovido antes da
   ativação e `AC-R10-13` continua aberto.
+
+### `WP-R10-04` — ativação auditada e identidade sintética server-only
+
+- o controle chegou à produção e mostrou `Desligado` com fallback privado. A
+  confirmação explícita executou pré-sonda, `set_team_feature_flag`, captura do
+  marco não retroativo e pós-sonda; a interface confirmou `Ativo` somente para
+  a coorte sintética;
+- uma tentativa de preparar o atleta pelas credenciais locais atingiu outro
+  projeto, falhou com `22023` antes de qualquer cadastro esportivo e não alterou
+  a coorte de produção. A conta Auth sintética órfã desse projeto externo ficou
+  fora do rollout e requer limpeza autorizada separadamente;
+- o provisionamento passou a rodar no próprio deploy com chave server-only. A
+  ação exige owner/admin ativo e confirmação, valida a sonda ativa, cria ou
+  recupera somente a identidade fictícia etiquetada, conclui o cadastro pela
+  RPC WhatsApp-first, publica o perfil sintético e aprova o vínculo pela RPC de
+  revisão. Senha e identificadores não saem do processo;
+- a operação é idempotente e faz pós-sonda sem PII. 12 testes focados, lint,
+  TypeScript, 88 arquivos/478 testes, teste de contexto e build Webpack passaram;
+- `recognition` está ativa, mas ainda sem fatos, consentimentos ou resumo
+  público. `AC-R10-13` continua aberto até a projeção, revogação, smoke e
+  rollback finais.
