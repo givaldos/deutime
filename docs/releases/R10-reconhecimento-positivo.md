@@ -474,3 +474,21 @@ cache público, abuso e experiência Android/iPhone.
 - lint, TypeScript, 85 arquivos/466 testes, teste de contexto e build Webpack
   passaram. A próxima ação é promover a correção e repetir a criação pela mesma
   jornada autenticada antes de qualquer ativação de `recognition`.
+
+### `WP-R10-04` — prova imutável de WhatsApp preservada na criação do piloto
+
+- a repetição da jornada em produção após `202608230001` também falhou fechada e
+  sem escrita. A conta do piloto conserva o registro imutável
+  `player_profiles.phone_verified_at`, criado pelo cadastro guardado após a
+  verificação do WhatsApp, mas já não possui o identificador confirmado no Auth;
+- a migration forward-only `202608230002` passa a aceitar também esse perfil
+  verificado para o mesmo `auth.uid()`. `authenticated` não possui permissão para
+  inserir essa prova; identidade da sessão, lock, limites, validações, owner
+  atômico e grants mínimos permanecem inalterados;
+- o teste focado foi ampliado para 8 casos, incluindo sucesso com perfil
+  imutável e owner ativo, enquanto `anon` e conta sem qualquer prova continuam
+  negados. O reset integral, tipos sem diff, lint do banco e 54 arquivos/1.436
+  testes passaram;
+- nenhum time ou flag foi criado/ativado nas tentativas anteriores. A criação
+  será repetida somente após a segunda correção chegar à produção, mantendo
+  `AC-R10-13` aberto.
