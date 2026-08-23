@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/r10-synthetic-owner-review"
+branch_or_commit: "codex/r10-match-incident-diagnostics"
 checkpoint: idle
 status: ready
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12]
@@ -21,9 +21,10 @@ tests:
   - "provisionamento sintético: 3 arquivos/12 testes focados; aplicação completa 88 arquivos/478 testes, lint, TypeScript, contexto e build Webpack aprovados"
   - "sessão sintética: fallback por link administrativo coberto; 2 arquivos/7 testes focados e aplicação completa 88 arquivos/480 testes, lint, TypeScript, contexto e build Webpack aprovados"
   - "aprovação sintética: leitura do vínculo pendente pela sessão owner coberta; 1 arquivo/5 testes focados e aplicação completa 88 arquivos/480 testes, lint e TypeScript aprovados"
+  - "diagnóstico da súmula: falha redigida por código e orientação para conflito com partida explícita; lint, TypeScript e 88 arquivos/480 testes aprovados"
   - "rollout: coorte sintética criada e recognition ativa após pré/pós-sonda; ainda sem fatos, consentimentos ou resumo público"
 blocker: null
-next_action: "Promover a confirmação owner do vínculo sintético; aprovar o atleta, criar fatos posteriores ao marco, testar consentimento/revogação, smoke e rollback do CP5."
+next_action: "Promover a telemetria redigida da súmula, identificar o código em produção e concluir os fatos, consentimento/revogação, smoke e rollback do CP5."
 ---
 
 # Trabalho atual
@@ -107,6 +108,13 @@ perfil, mas a leitura do vínculo pendente pelo próprio atleta foi corretamente
 ocultada por RLS. A correção transfere somente essa leitura para a sessão owner
 já validada no início da ação; a aprovação continua delegada à RPC de revisão e
 o cliente do atleta permanece responsável por cadastro e perfil.
+
+A confirmação owner chegou à produção e aprovou o atleta com pós-sonda ativa.
+Dois eventos e um segundo atleta estritamente sintético foram criados pela
+interface; ambos os atletas foram confirmados. O lançamento de gol falhou
+fechado tanto com quanto sem campos opcionais, antes de qualquer fato. A ação
+passa a registrar somente o código redigido e orienta explicitamente o conflito
+`40001` entre súmula legada e partida explícita.
 
 ## Próxima ação
 

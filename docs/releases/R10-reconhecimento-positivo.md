@@ -577,3 +577,14 @@ cache público, abuso e experiência Android/iPhone.
   na RPC de revisão autorizada e auditada;
 - 5 testes focados e a aplicação completa com 88 arquivos/480 testes, lint e
   TypeScript passaram. Ainda não há fato esportivo na coorte.
+
+### `WP-R10-04` — diagnóstico redigido da súmula sintética
+
+- a confirmação owner foi promovida, aprovou o atleta e a pós-sonda confirmou
+  identidade, perfil e vínculo ativos;
+- a interface criou dois eventos e um segundo atleta exclusivamente sintético,
+  com confirmações de presença. O lance mínimo e o lance com detalhes falharam
+  fechados antes de inserir qualquer fato;
+- a ação passa a emitir somente o código da falha e traduz o conflito `40001`
+  entre súmula legada e partida explícita, sem incluir atleta, evento, time ou
+  conteúdo do lance. Lint, TypeScript e 88 arquivos/480 testes passaram.
