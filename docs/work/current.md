@@ -1,11 +1,11 @@
 ---
 release: R10
 work_package: WP-R10-04
-scope: recognition_mobile_validation
-branch_or_commit: "10672f0"
+scope: recognition_isolated_pilot
+branch_or_commit: "ea7c6a1"
 checkpoint: idle
 status: ready
-completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11]
+completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12]
 dirty_files: []
 tests:
   - "WP-R10-04: 4 arquivos/24 testes focados aprovados"
@@ -14,9 +14,11 @@ tests:
   - "gate: lint, TypeScript, 85 arquivos/466 testes e teste de contexto aprovados"
   - "build de produção Webpack aprovado; Turbopack limitado somente pela porta do sandbox"
   - "npm audit: 0 vulnerabilidades"
-  - "rollout: nenhum time ativado; Android/iPhone/leitor de tela/WhatsApp pendentes para CP4"
+  - "CP4 preflight em produção/360 px: fallback privado, consentimento oculto, perfil público e alvos de 44–56 px aprovados; sem overflow horizontal"
+  - "aceite do produto: navegador responsivo considerado evidência móvel suficiente para a R10; 3 arquivos/12 testes de interface e TypeScript aprovados"
+  - "rollout: nenhum time ativado; CP4 concluído por decisão explícita e AC-R10-13 permanece aberto"
 blocker: null
-next_action: "Validar em Android e iPhone reais, leitor de tela e navegador interno do WhatsApp: visão privada, consentimento ligado/desligado, perfil público, revogação e fallback. Registrar CP4 antes de qualquer piloto isolado."
+next_action: "Executar CP5 em uma única organização demo sintética: pré-sonda desligada, ativação auditada, fatos posteriores ao marco, consentimento/revogação, smoke, telemetria e rollback."
 ---
 
 # Trabalho atual
@@ -35,9 +37,18 @@ O banco passou por reset integral, 28 testes focados e 1.428 testes completos;
 o aplicativo passou por lint, TypeScript, 466 testes, build e audit. Nenhum time
 foi ativado e `AC-R10-12/13` permanecem abertos. O checkpoint voltou a `idle`.
 
+O pré-check de CP4 em produção, com sessão verificada e viewport de 360 px,
+confirmou ausência de overflow horizontal; controles visíveis entre 44 e 56 px;
+fallback privado; consentimento oculto com a flag desligada; e perfil público
+com estatísticas e posições, sem resumo de reconhecimento ou identificadores
+internos visíveis. Nenhuma escrita, flag ou consentimento foi alterado. Essa
+checagem foi aceita explicitamente pelo responsável do produto como evidência
+móvel suficiente para a R10, apoiada pelos testes automatizados de visão
+privada, consentimento e resumo público. `AC-R10-12` e CP4 estão concluídos.
+
 ## Próxima ação
 
-Executar CP4 em Android e iPhone reais, leitor de tela e navegador interno do
-WhatsApp. Validar visão privada, consentimento ligado/desligado, resumo público,
-revogação imediata e fallback; só depois preparar uma organização demo para o
-piloto isolado de CP5.
+Executar CP5 em uma única organização demo com dados sintéticos. Confirmar o
+estado desligado antes da ativação, observar projeção e consentimento, provar
+revogação, fallback e rollback e manter qualquer ampliação bloqueada até fechar
+`AC-R10-13`.
