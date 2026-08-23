@@ -138,6 +138,20 @@ export function RecordEventForm({ teamSlug, matchId, sides, athletes }: { teamSl
         <div><Label>Atleta (opcional)</Label><select name="athleteId" defaultValue="" className="h-10 w-full rounded-xl border border-slate-200 px-3 text-sm"><option value="">—</option>{athletes.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}</select></div>
         <div><Label>Minuto</Label><Input name="minute" type="number" min={0} max={300} placeholder="Ex: 23" /></div>
       </div>
+      <div>
+        <Label htmlFor={`assist-${matchId}`}>Assistência (opcional)</Label>
+        <select
+          id={`assist-${matchId}`}
+          name="assistAthleteId"
+          defaultValue=""
+          className="h-10 w-full rounded-xl border border-slate-200 px-3 text-sm"
+        >
+          <option value="">Sem assistência</option>
+          {athletes.map((athlete) => (
+            <option key={athlete.id} value={athlete.id}>{athlete.name}</option>
+          ))}
+        </select>
+      </div>
       <div><Label>Notas</Label><Input name="notes" placeholder="Opcional" maxLength={500} /></div>
       {state.message && <p className={`text-sm ${state.outcome === "success" ? "text-emerald-700" : "text-red-600"}`}>{state.message}</p>}
       <Button type="submit" disabled={pending} className="w-full bg-emerald-700">{pending ? "Registrando..." : "Registrar lance"}</Button>
