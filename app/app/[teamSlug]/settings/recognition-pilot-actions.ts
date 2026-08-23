@@ -22,6 +22,7 @@ export type RecognitionPilotActionState = {
 export type RecognitionPilotSeedState = RecognitionPilotActionState;
 
 const syntheticPhone = "+15550100010";
+const syntheticEmail = "r10-pilot-athlete@deutime.invalid";
 const syntheticUserTag = "r10_recognition_pilot_v1";
 
 type RecognitionPilotHealth = {
@@ -211,8 +212,10 @@ export async function prepareRecognitionPilotAthlete(
   const password = `R10!${randomBytes(24).toString("base64url")}`;
   const created = await privileged.auth.admin.createUser({
     phone: syntheticPhone,
+    email: syntheticEmail,
     password,
     phone_confirm: true,
+    email_confirm: true,
     user_metadata: { pilot_tag: syntheticUserTag },
   });
   let syntheticUser = created.data.user;
@@ -228,8 +231,10 @@ export async function prepareRecognitionPilotAthlete(
     return { outcome: "error", message: "Não foi possível preparar a identidade sintética." };
   }
   const updated = await privileged.auth.admin.updateUserById(syntheticUser.id, {
+    email: syntheticEmail,
     password,
     phone_confirm: true,
+    email_confirm: true,
     user_metadata: { pilot_tag: syntheticUserTag },
   });
   if (updated.error) {
@@ -243,7 +248,7 @@ export async function prepareRecognitionPilotAthlete(
     { auth: { autoRefreshToken: false, persistSession: false } },
   );
   const signed = await athleteClient.auth.signInWithPassword({
-    phone: syntheticPhone,
+    email: syntheticEmail,
     password,
   });
   if (signed.error) {

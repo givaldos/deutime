@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/r10-synthetic-athlete"
+branch_or_commit: "codex/r10-synthetic-email-auth"
 checkpoint: idle
 status: ready
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12]
@@ -21,7 +21,7 @@ tests:
   - "provisionamento sintético: 3 arquivos/12 testes focados; aplicação completa 88 arquivos/478 testes, lint, TypeScript, contexto e build Webpack aprovados"
   - "rollout: coorte sintética criada e recognition ativa após pré/pós-sonda; ainda sem fatos, consentimentos ou resumo público"
 blocker: null
-next_action: "Promover o provisionamento server-only do atleta sintético; criar fatos esportivos posteriores ao marco, testar consentimento/revogação, smoke e rollback do CP5."
+next_action: "Promover a autenticação sintética por e-mail reservado; preparar o atleta, criar fatos posteriores ao marco, testar consentimento/revogação, smoke e rollback do CP5."
 ---
 
 # Trabalho atual
@@ -80,9 +80,15 @@ do próprio deploy: exige owner/admin e confirmação, usa identidade fictícia
 reservada, cadastro e aprovação pelas RPCs existentes, perfil público sintético
 e pós-sonda. A flag está ativa, mas a coorte ainda não contém fatos esportivos.
 
+O provisionamento chegou à produção e criou a identidade fictícia, mas o Auth
+recusou o login por telefone antes do cadastro esportivo. A correção mantém o
+telefone confirmado como prova WhatsApp-first e autentica a mesma conta também
+por e-mail reservado, confirmado server-side; senha e identificadores continuam
+restritos ao processo. Nenhum atleta ou fato foi criado nessa tentativa.
+
 ## Próxima ação
 
-Promover o provisionamento server-only, preparar o atleta sintético e criar os
+Promover a correção de autenticação sintética, preparar o atleta e criar os
 fatos esportivos posteriores ao marco. Depois observar projeção e consentimento,
 provar revogação, smoke, fallback e rollback e manter qualquer ampliação
 bloqueada até fechar `AC-R10-13`.

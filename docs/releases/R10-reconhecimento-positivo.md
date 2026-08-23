@@ -533,3 +533,14 @@ cache público, abuso e experiência Android/iPhone.
 - `recognition` está ativa, mas ainda sem fatos, consentimentos ou resumo
   público. `AC-R10-13` continua aberto até a projeção, revogação, smoke e
   rollback finais.
+
+### `WP-R10-04` — autenticação sintética corrigida sem SMS real
+
+- a primeira execução do provisionamento no ambiente correto criou a identidade
+  fictícia, mas o login por telefone foi recusado antes do cadastro esportivo;
+- a mesma conta conserva telefone confirmado e a RPC continua exigindo essa
+  prova WhatsApp-first. A autenticação operacional passa a usar também um e-mail
+  reservado e confirmado server-side, sem envio externo ou dado de pessoa real;
+- nenhum atleta, perfil esportivo ou fato foi criado na tentativa recusada. A
+  operação permanece idempotente e será repetida somente após a correção chegar
+  à produção.
