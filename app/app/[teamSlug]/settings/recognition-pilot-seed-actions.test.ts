@@ -10,7 +10,10 @@ const mocks = vi.hoisted(() => ({
   createUser: vi.fn(),
   listUsers: vi.fn(),
   updateUserById: vi.fn(),
+  generateLink: vi.fn(),
   signInWithPassword: vi.fn(),
+  verifyOtp: vi.fn(),
+  getSession: vi.fn(),
   athleteRpc: vi.fn(),
   revalidatePath: vi.fn(),
   info: vi.fn(),
@@ -50,13 +53,18 @@ vi.mock("@/lib/supabase/privileged", () => ({
         createUser: mocks.createUser,
         listUsers: mocks.listUsers,
         updateUserById: mocks.updateUserById,
+        generateLink: mocks.generateLink,
       },
     },
   })),
 }));
 vi.mock("@supabase/supabase-js", () => ({
   createClient: vi.fn(() => ({
-    auth: { signInWithPassword: mocks.signInWithPassword },
+    auth: {
+      signInWithPassword: mocks.signInWithPassword,
+      verifyOtp: mocks.verifyOtp,
+      getSession: mocks.getSession,
+    },
     rpc: mocks.athleteRpc,
     from: vi.fn(() => query(mocks.athleteSingle)),
   })),
@@ -110,6 +118,12 @@ describe("preparação do atleta sintético R10", () => {
     });
     mocks.updateUserById.mockResolvedValue({ error: null });
     mocks.signInWithPassword.mockResolvedValue({ error: null });
+    mocks.generateLink.mockResolvedValue({
+      data: { properties: { hashed_token: "hashed-magic-link" } },
+      error: null,
+    });
+    mocks.verifyOtp.mockResolvedValue({ error: null });
+    mocks.getSession.mockResolvedValue({ data: { session: { access_token: "token" } } });
     mocks.athleteRpc.mockImplementation((name: string) =>
       name === "complete_verified_athlete_registration"
         ? Promise.resolve({ data: athleteId, error: null })
@@ -175,6 +189,23 @@ describe("preparação do atleta sintético R10", () => {
       outcome: "success",
     });
     expect(mocks.listUsers).toHaveBeenNthCalledWith(2, { page: 2, perPage: 1_000 });
+  });
+
+  it("usa link administrativo quando o login por senha está indisponível", async () => {
+    mocks.signInWithPassword.mockResolvedValue({
+      error: { code: "email_provider_disabled" },
+    });
+    await expect(prepareRecognitionPilotAthlete({}, seedForm())).resolves.toMatchObject({
+      outcome: "success",
+    });
+    expect(mocks.generateLink).toHaveBeenCalledWith({
+      type: "magiclink",
+      email: "r10-pilot-athlete@example.test",
+    });
+    expect(mocks.verifyOtp).toHaveBeenCalledWith({
+      token_hash: "hashed-magic-link",
+      type: "magiclink",
+    });
   });
 
   it("exige confirmação explícita antes de qualquer consulta", async () => {
