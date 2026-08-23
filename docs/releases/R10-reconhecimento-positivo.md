@@ -456,3 +456,21 @@ cache público, abuso e experiência Android/iPhone.
 - `AC-R10-12` e CP4 foram concluídos. Nenhum time, consentimento ou fato real foi
   alterado; `AC-R10-13` permanece aberto e a próxima ação é um piloto isolado
   com organização e dados exclusivamente sintéticos.
+
+### `WP-R10-04` — bloqueio WhatsApp-first do CP5 corrigido forward-only
+
+- a primeira tentativa autenticada de criar a organização sintética do CP5
+  falhou sem escrita. A causa foi uma divergência histórica: a interface aceita
+  sessão confirmada por WhatsApp, enquanto `create_team_for_current_user()`
+  exigia somente e-mail confirmado;
+- a migration `202608230001` aceita e-mail ou telefone confirmado pela função
+  canônica privada. A RPC continua derivando identidade da sessão e preserva
+  lock transacional, limite por minuto, teto de ownership, validação do slug,
+  criação atômica do owner e grants mínimos;
+- 6 novos casos pgTAP aprovam telefone confirmado, owner ativo e identidade da
+  sessão, além de negar `anon` e conta sem e-mail/telefone confirmado. O reset
+  integral e 54 arquivos/1.434 testes do banco passaram; tipos foram regenerados
+  sem diff;
+- lint, TypeScript, 85 arquivos/466 testes, teste de contexto e build Webpack
+  passaram. A próxima ação é promover a correção e repetir a criação pela mesma
+  jornada autenticada antes de qualquer ativação de `recognition`.
