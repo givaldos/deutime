@@ -3927,6 +3927,31 @@ export type Database = {
           recognition_count: number
         }[]
       }
+      get_recognition_pilot_health: {
+        Args: { requested_team_id: string }
+        Returns: {
+          activated_at: string
+          activation_captured: boolean
+          active_claimed_athletes: number
+          consent_commands_24h: number
+          granted_consents: number
+          last_consent_command_at: string
+          last_flag_change_at: string
+          observed_at: string
+          projected_assist_cards: number
+          projected_cards: number
+          projected_crowd_star_cards: number
+          projected_goal_cards: number
+          public_cards: number
+          recognition_enabled: boolean
+          reconstruction_mismatches: number
+          revoked_consents: number
+          source_assist_cards: number
+          source_cards: number
+          source_crowd_star_cards: number
+          source_goal_cards: number
+        }[]
+      }
       get_team_invitation_preview: {
         Args: { raw_token: string }
         Returns: {

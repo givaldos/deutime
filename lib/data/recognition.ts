@@ -90,16 +90,53 @@ export async function loadRecognitionAvailability(): Promise<boolean> {
 export const getRecognitionAvailability = cache(loadRecognitionAvailability);
 
 export async function loadMyRecognitions(): Promise<Recognition[] | null> {
+  const startedAt = Date.now();
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.rpc("get_my_recognitions");
-    if (error) return null;
+    if (error) {
+      observePrivateRecognition(null, startedAt, "rpc_unavailable");
+      return null;
+    }
 
     const parsed = recognitionListSchema.safeParse(data ?? []);
-    return parsed.success ? parsed.data : null;
+    if (!parsed.success) {
+      observePrivateRecognition(null, startedAt, "invalid_payload");
+      return null;
+    }
+
+    observePrivateRecognition(parsed.data, startedAt, "none");
+    return parsed.data;
   } catch {
+    observePrivateRecognition(null, startedAt, "projection_unavailable");
     return null;
   }
 }
 
 export const getMyRecognitions = cache(loadMyRecognitions);
+
+function observePrivateRecognition(
+  items: Recognition[] | null,
+  startedAt: number,
+  error: "none" | "rpc_unavailable" | "invalid_payload" | "projection_unavailable",
+) {
+  const counts = {
+    goal: items?.filter((item) => item.kind === "goal_recorded").length ?? 0,
+    assist:
+      items?.filter((item) => item.kind === "assist_recorded").length ?? 0,
+    crowdStar: items?.filter((item) => item.kind === "crowd_star").length ?? 0,
+  };
+  const payload = {
+    total: counts.goal + counts.assist + counts.crowdStar,
+    ...counts,
+    fallback: items === null,
+    durationMs: Math.max(0, Date.now() - startedAt),
+    error,
+  };
+
+  if (items === null) {
+    console.error("private_recognition_projection.observed", payload);
+  } else {
+    console.info("private_recognition_projection.observed", payload);
+  }
+}

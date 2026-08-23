@@ -6,6 +6,8 @@ const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
   rpc: vi.fn(),
   from: vi.fn(),
+  info: vi.fn(),
+  error: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -40,6 +42,8 @@ describe("public player recognition summary", () => {
       from: mocks.from,
       rpc: mocks.rpc,
     });
+    vi.spyOn(console, "info").mockImplementation(mocks.info);
+    vi.spyOn(console, "error").mockImplementation(mocks.error);
   });
 
   it("aceita somente versão, categoria e contagem do catálogo público", async () => {
@@ -52,6 +56,16 @@ describe("public player recognition summary", () => {
       "get_public_recognition_summary",
       { requested_handle: "atleta-r10" },
     );
+    expect(mocks.info).toHaveBeenCalledWith(
+      "public_recognition_projection.observed",
+      expect.objectContaining({
+        categoryCount: 2,
+        recognitionCount: 4,
+        fallback: false,
+        error: "none",
+      }),
+    );
+    expect(JSON.stringify(mocks.info.mock.calls)).not.toContain("atleta-r10");
   });
 
   it("falha fechado para campo interno, categoria duplicada ou RPC indisponível", async () => {
@@ -75,6 +89,16 @@ describe("public player recognition summary", () => {
     await expect(getPublicRecognitionSummary("atleta-r10")).resolves.toEqual(
       [],
     );
+    expect(mocks.error).toHaveBeenLastCalledWith(
+      "public_recognition_projection.observed",
+      expect.objectContaining({
+        categoryCount: 0,
+        recognitionCount: 0,
+        fallback: true,
+        error: "projection_unavailable",
+      }),
+    );
+    expect(JSON.stringify(mocks.error.mock.calls)).not.toContain("atleta-r10");
   });
 
   it("preserva perfil e estatísticas quando o resumo não está disponível", async () => {

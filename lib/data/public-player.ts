@@ -35,18 +35,53 @@ export type PublicRecognitionSummary = z.infer<
 export async function getPublicRecognitionSummary(
   handle: string,
 ): Promise<PublicRecognitionSummary[]> {
+  const startedAt = Date.now();
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.rpc(
       "get_public_recognition_summary",
       { requested_handle: handle },
     );
-    if (error) return [];
+    if (error) {
+      observePublicRecognition([], startedAt, true, "rpc_unavailable");
+      return [];
+    }
 
     const parsed = publicRecognitionListSchema.safeParse(data ?? []);
-    return parsed.success ? parsed.data : [];
+    if (!parsed.success) {
+      observePublicRecognition([], startedAt, true, "invalid_payload");
+      return [];
+    }
+
+    observePublicRecognition(parsed.data, startedAt, false, "none");
+    return parsed.data;
   } catch {
+    observePublicRecognition([], startedAt, true, "projection_unavailable");
     return [];
+  }
+}
+
+function observePublicRecognition(
+  items: PublicRecognitionSummary[],
+  startedAt: number,
+  fallback: boolean,
+  error: "none" | "rpc_unavailable" | "invalid_payload" | "projection_unavailable",
+) {
+  const payload = {
+    categoryCount: items.length,
+    recognitionCount: items.reduce(
+      (total, item) => total + item.recognition_count,
+      0,
+    ),
+    fallback,
+    durationMs: Math.max(0, Date.now() - startedAt),
+    error,
+  };
+
+  if (fallback) {
+    console.error("public_recognition_projection.observed", payload);
+  } else {
+    console.info("public_recognition_projection.observed", payload);
   }
 }
 

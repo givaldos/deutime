@@ -8,6 +8,10 @@ on:
         description: "Exigir a página pública do campeonato ativa (use false apenas em rollback manual)."
         required: true
         default: "true"
+      expect_recognition_summary:
+        description: "Exigir o resumo público consentido no perfil sintético (use false no rollback)."
+        required: true
+        default: "false"
 
 permissions:
   contents: read
@@ -29,6 +33,8 @@ jobs:
       EXPECT_EVENT_SHARE_CARD_ENABLED: ${{ vars.EXPECT_EVENT_SHARE_CARD_ENABLED }}
       SMOKE_PUBLIC_CHAMPIONSHIP_ID: ${{ vars.SMOKE_PUBLIC_CHAMPIONSHIP_ID }}
       EXPECT_CHAMPIONSHIP_ENABLED: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.expect_championship_enabled || 'true' }}
+      SMOKE_PUBLIC_PLAYER_HANDLE: ${{ vars.SMOKE_PUBLIC_PLAYER_HANDLE }}
+      EXPECT_RECOGNITION_SUMMARY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.expect_recognition_summary || vars.EXPECT_RECOGNITION_SUMMARY }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
