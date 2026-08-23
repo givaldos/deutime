@@ -126,6 +126,25 @@ export function RecognitionPilotControl({
           >
             <HeartHandshake aria-hidden /> Preparar atleta sintético
           </AsyncSubmitButton>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <AsyncSubmitButton
+              name="publicConsent"
+              value="granted"
+              pendingLabel="Publicando resumo..."
+              className="min-h-12 w-full"
+            >
+              Publicar resumo sintético
+            </AsyncSubmitButton>
+            <AsyncSubmitButton
+              name="publicConsent"
+              value="revoked"
+              pendingLabel="Revogando resumo..."
+              variant="outline"
+              className="min-h-12 w-full"
+            >
+              Revogar resumo sintético
+            </AsyncSubmitButton>
+          </div>
         </form>
       ) : null}
     </section>
