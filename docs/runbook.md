@@ -404,8 +404,11 @@ sonda agregada e smoke anônimo de leitura.
 
 ### Piloto de reconhecimentos positivos — R10
 
-O piloto só pode começar depois de CP4 aprovado em Android, iPhone, leitor de
-tela e navegador interno do WhatsApp. Use uma única organização demo, um perfil
+O piloto só pode começar depois de CP4 aprovado. O padrão exige Android,
+iPhone, leitor de tela e navegador interno do WhatsApp; uma decisão explícita
+do responsável pelo produto pode aceitar o navegador responsivo como proxy,
+desde que a release registre a exceção e preserve testes automatizados dos
+estados ativos e de fallback. Use uma única organização demo, um perfil
 sintético público e fatos esportivos sintéticos; não copie dados de pessoa real.
 Guarde `RECOGNITION_PILOT_TEAM_ID` e `SUPABASE_SECRET_KEY` apenas no ambiente
 operacional protegido.

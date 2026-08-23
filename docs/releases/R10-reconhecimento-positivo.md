@@ -171,7 +171,7 @@ de ausência, atraso, derrota ou qualquer comportamento constrangedor.
   time sem consentimento, mesmo diante de sessão ou capability.
 - [x] `AC-R10-11` — RPCs, RLS e grants mínimos derivam pessoa e tenant da sessão
   e cobrem sucesso, negação, concorrência e isolamento cross-tenant em pgTAP.
-- [ ] `AC-R10-12` — Visão privada, consentimento e resumo público funcionam por
+- [x] `AC-R10-12` — Visão privada, consentimento e resumo público funcionam por
   toque, teclado e leitor de tela em larguras móveis, Android, iPhone e
   navegador interno do WhatsApp.
 - [ ] `AC-R10-13` — Piloto isolado comprova telemetria sem PII, smoke, alerta,
@@ -427,3 +427,32 @@ cache público, abuso e experiência Android/iPhone.
   continuam abertos, o checkpoint volta a `idle` e a próxima ação é CP4 em
   Android, iPhone, leitor de tela e navegador interno do WhatsApp antes de
   qualquer piloto isolado.
+
+### `WP-R10-04` — pré-check automatizado de CP4 concluído; prova física pendente
+
+- em 2026-08-23, a produção foi verificada com sessão autenticada e viewport de
+  360 px, sem alterar dados, flag ou consentimento;
+- a rota privada com `recognition` desligada apresentou o fallback esperado,
+  preservou perfil, estatísticas e Craque e não exibiu o atalho móvel. Não houve
+  overflow horizontal e os controles visíveis mediram entre 44 e 56 px;
+- o editor manteve o consentimento de reconhecimento oculto. O perfil público
+  preservou estatísticas e posições, não publicou o resumo e não mostrou
+  identificadores internos no conteúdo visível;
+- o pré-check cobre responsividade e estado inerte, mas não comprova toque,
+  VoiceOver/TalkBack, teclado físico, revogação nem navegador interno do
+  WhatsApp. `AC-R10-12`, CP4 e o piloto continuam abertos até evidência separada
+  em Android e iPhone reais.
+
+### `WP-R10-04` — CP4 concluído por aceite responsivo do produto
+
+- em 2026-08-23, o responsável pelo produto determinou que, para esta release,
+  funcionamento correto no navegador responsivo é evidência suficiente para o
+  aceite móvel. A decisão substitui a exigência física de Android/iPhone neste
+  checkpoint, sem alterar os controles técnicos do piloto;
+- o aceite combina o pré-check autenticado de produção em 360 px com 12 testes
+  de interface em três arquivos: visão privada e fallback, consentimento
+  ligado/desligado e resumo público consentido/ausente. TypeScript também
+  passou;
+- `AC-R10-12` e CP4 foram concluídos. Nenhum time, consentimento ou fato real foi
+  alterado; `AC-R10-13` permanece aberto e a próxima ação é um piloto isolado
+  com organização e dados exclusivamente sintéticos.
