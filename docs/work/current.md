@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/r10-match-incident-diagnostics"
+branch_or_commit: "codex/r10-consolidate-match-incident-rpc"
 checkpoint: idle
 status: ready
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12]
@@ -22,9 +22,10 @@ tests:
   - "sessão sintética: fallback por link administrativo coberto; 2 arquivos/7 testes focados e aplicação completa 88 arquivos/480 testes, lint, TypeScript, contexto e build Webpack aprovados"
   - "aprovação sintética: leitura do vínculo pendente pela sessão owner coberta; 1 arquivo/5 testes focados e aplicação completa 88 arquivos/480 testes, lint e TypeScript aprovados"
   - "diagnóstico da súmula: falha redigida por código e orientação para conflito com partida explícita; lint, TypeScript e 88 arquivos/480 testes aprovados"
+  - "catálogo da súmula: 1 migration forward-only e 1 arquivo/4 pgTAP; reset integral, 55 arquivos/1440 testes e lint sem novo alerta"
   - "rollout: coorte sintética criada e recognition ativa após pré/pós-sonda; ainda sem fatos, consentimentos ou resumo público"
 blocker: null
-next_action: "Promover a telemetria redigida da súmula, identificar o código em produção e concluir os fatos, consentimento/revogação, smoke e rollback do CP5."
+next_action: "Promover a consolidação da RPC da súmula; concluir os fatos posteriores ao marco, consentimento/revogação, smoke e rollback do CP5."
 ---
 
 # Trabalho atual
@@ -116,9 +117,17 @@ fechado tanto com quanto sem campos opcionais, antes de qualquer fato. A ação
 passa a registrar somente o código redigido e orienta explicitamente o conflito
 `40001` entre súmula legada e partida explícita.
 
+A telemetria chegou à produção e identificou `PGRST203`: o catálogo remoto
+conservava mais de uma assinatura histórica de `add_match_incident_as_staff`,
+de modo que o gateway não selecionava a RPC. Uma migration forward-only remove
+somente as variantes desse nome e recria a assinatura canônica, seus grants
+mínimos e comentário na mesma transação. O teste exige exatamente uma função,
+execução apenas por `authenticated` e negação para `anon`. O reset integral e
+55 arquivos/1.440 pgTAP passaram; o lint não acrescentou alerta.
+
 ## Próxima ação
 
-Promover a confirmação owner corrigida, aprovar o atleta e criar os
-fatos esportivos posteriores ao marco. Depois observar projeção e consentimento,
+Promover a consolidação da RPC e registrar e encerrar os fatos esportivos
+posteriores ao marco. Depois observar projeção e consentimento,
 provar revogação, smoke, fallback e rollback e manter qualquer ampliação
 bloqueada até fechar `AC-R10-13`.
