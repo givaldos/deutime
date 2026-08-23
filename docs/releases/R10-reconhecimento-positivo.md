@@ -393,3 +393,37 @@ cache público, abuso e experiência Android/iPhone.
 - próxima ação: `WP-R10-04`, endurecer abuso, observabilidade, fallback e
   rollback, verificar a experiência CP4 e só então avaliar piloto isolado em
   uma organização demo.
+
+### `WP-R10-04` — robustez técnica concluída em CP3; checkpoint em `idle`
+
+- a sonda `get_recognition_pilot_health(team_id)` é exclusiva do
+  `service_role` e devolve somente contagens e horários agregados de ativação,
+  fontes esportivas, projeção, divergência, consentimento e publicação. O
+  contrato não contém pessoa, vínculo, time, partida, evento, voto, motivo ou
+  erro bruto;
+- a reconstrução compara a projeção ativa com as fontes elegíveis desde o marco
+  imutável da primeira ativação. Flag desligada exige projeção e resumo público
+  zerados, preserva o marco histórico e oferece comprovação objetiva do
+  rollback sem reverter migration;
+- as leituras privada e pública registram somente duração, fallback, categoria
+  fechada de erro e contagens por tipo. Handle, IDs, nomes e conteúdo esportivo
+  não entram na telemetria;
+- o smoke somente leitura ganhou uma jornada opcional para perfil sintético. Ele
+  confirma os blocos públicos históricos, exige ou proíbe o resumo consentido
+  conforme o estado esperado e rejeita identificadores internos no HTML;
+- o runbook define pré-condições, ativação posterior a CP4, sonda pós-ativação,
+  consentimento/revogação, limites de parada, rollback pela flag e retorno ao
+  último deploy saudável. Produção admite somente a sonda agregada e o smoke
+  anonimizado; dados reais não são impressos;
+- 24 testes focados em quatro arquivos e 28 casos pgTAP cobrem contrato,
+  payload inválido, grants mínimos, isolamento cross-tenant, ativação,
+  consentimento, revogação e rollback. O reset integral e a suíte completa do
+  banco aprovaram 53 arquivos/1.428 testes;
+- lint, TypeScript, 85 arquivos/466 testes, teste de contexto, build de produção
+  Webpack e audit com zero vulnerabilidades passaram. O build Turbopack encontrou
+  somente a restrição de porta interna do sandbox; o compilador estável aprovou
+  o mesmo código;
+- nenhuma organização, flag ou consentimento real foi ativado. `AC-R10-12/13`
+  continuam abertos, o checkpoint volta a `idle` e a próxima ação é CP4 em
+  Android, iPhone, leitor de tela e navegador interno do WhatsApp antes de
+  qualquer piloto isolado.
