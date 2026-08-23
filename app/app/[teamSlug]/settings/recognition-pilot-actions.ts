@@ -255,6 +255,31 @@ export async function prepareRecognitionPilotAthlete(
     password,
   });
   if (signed.error) {
+    const generated = await privileged.auth.admin.generateLink({
+      type: "magiclink",
+      email: syntheticEmail,
+    });
+    const tokenHash = generated.data.properties?.hashed_token;
+    if (generated.error || !tokenHash) {
+      console.info("recognition_pilot.synthetic_auth_failed", {
+        stage: "generate_link",
+        code: generated.error?.code ?? signed.error.code,
+      });
+      return { outcome: "error", message: "A identidade sintética não pôde iniciar a jornada." };
+    }
+    const verified = await athleteClient.auth.verifyOtp({
+      token_hash: tokenHash,
+      type: "magiclink",
+    });
+    if (verified.error) {
+      console.info("recognition_pilot.synthetic_auth_failed", {
+        stage: "verify_link",
+        code: verified.error.code,
+      });
+      return { outcome: "error", message: "A identidade sintética não pôde iniciar a jornada." };
+    }
+  }
+  if (signed.error && !(await athleteClient.auth.getSession()).data.session) {
     return { outcome: "error", message: "A identidade sintética não pôde iniciar a jornada." };
   }
   const registration = await athleteClient.rpc(

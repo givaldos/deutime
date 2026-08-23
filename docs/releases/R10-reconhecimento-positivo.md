@@ -554,3 +554,15 @@ cache público, abuso e experiência Android/iPhone.
   autenticação, sem criar duplicatas ou expor identificadores;
 - a coorte segue ativa, porém sem atleta, perfil esportivo ou fatos. A operação
   será repetida após a correção chegar à produção.
+
+### `WP-R10-04` — sessão sintética sem dependência do provedor de senha
+
+- a busca paginada recuperou a identidade correta em produção, mas o provedor
+  recusou o login por senha antes do cadastro esportivo;
+- a operação tenta a senha e usa como fallback um link administrativo de uso
+  único, gerado e verificado inteiramente server-side, sem entrega de e-mail ou
+  exposição de credencial. A sessão resultante continua sendo a do atleta
+  sintético e atravessa as RPCs e RLS reais;
+- falhas registram apenas etapa e código. 7 testes focados e a aplicação
+  completa com 88 arquivos/480 testes, lint, TypeScript, contexto e build
+  Webpack passaram; a coorte permanece sem fatos até a promoção e repetição.
