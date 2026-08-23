@@ -544,3 +544,13 @@ cache público, abuso e experiência Android/iPhone.
 - nenhum atleta, perfil esportivo ou fato foi criado na tentativa recusada. A
   operação permanece idempotente e será repetida somente após a correção chegar
   à produção.
+
+### `WP-R10-04` — recuperação idempotente da identidade sintética
+
+- a repetição encontrou a identidade já criada, mas a busca limitada à primeira
+  página do Auth não a recuperou e encerrou antes do cadastro esportivo;
+- a busca passa a paginar o Auth e aceita somente a etiqueta exclusiva do
+  piloto. Telefone e e-mail reservados são reaplicados na mesma conta antes da
+  autenticação, sem criar duplicatas ou expor identificadores;
+- a coorte segue ativa, porém sem atleta, perfil esportivo ou fatos. A operação
+  será repetida após a correção chegar à produção.
