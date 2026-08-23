@@ -102,6 +102,7 @@ describe("preparação do atleta sintético R10", () => {
         user: {
           id: userId,
           phone: "+15550100010",
+          email: "r10-pilot-athlete@deutime.invalid",
           user_metadata: { pilot_tag: "r10_recognition_pilot_v1" },
         },
       },
@@ -130,6 +131,10 @@ describe("preparação do atleta sintético R10", () => {
       "review_athlete_registration",
       { requested_athlete_id: athleteId, decision: "approve" },
     );
+    expect(mocks.signInWithPassword).toHaveBeenCalledWith({
+      email: "r10-pilot-athlete@deutime.invalid",
+      password: expect.stringMatching(/^R10!/),
+    });
     expect(mocks.info).toHaveBeenCalledWith(
       "recognition_pilot.synthetic_athlete_ready",
       { ready: true },
