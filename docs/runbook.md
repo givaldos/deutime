@@ -402,6 +402,94 @@ Sem staging isolado, escrita, concorrência, alternância de flag e limpeza usam
 somente Supabase local com dados sintéticos. Produção recebe exclusivamente
 sonda agregada e smoke anônimo de leitura.
 
+### Piloto de reconhecimentos positivos — R10
+
+O piloto só pode começar depois de CP4 aprovado em Android, iPhone, leitor de
+tela e navegador interno do WhatsApp. Use uma única organização demo, um perfil
+sintético público e fatos esportivos sintéticos; não copie dados de pessoa real.
+Guarde `RECOGNITION_PILOT_TEAM_ID` e `SUPABASE_SECRET_KEY` apenas no ambiente
+operacional protegido.
+
+Antes de qualquer ativação, a sonda deve confirmar flag e projeções desligadas.
+O retorno contém exclusivamente booleanos, contagens e horários agregados:
+
+```bash
+RECOGNITION_PILOT_TEAM_ID='<TEAM_ID_DEMO>' \
+EXPECT_RECOGNITION_ENABLED=false \
+npm run pilot:recognition:health
+```
+
+Interrompa se a sonda não encontrar exatamente uma coorte, expuser qualquer
+identificador/conteúdo ou apresentar projeção pública/privada com a flag off.
+Depois de CP4, um owner/admin verificado pode ativar pela RPC auditada:
+
+```sql
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '<OPERATOR_ID>', true);
+select public.set_team_feature_flag(
+  '<TEAM_ID_DEMO>'::uuid,
+  'recognition',
+  true
+);
+commit;
+```
+
+A primeira ativação define o marco não retroativo. Não o edite nem apague. Em
+seguida, crie uma partida sintética posterior ao marco, finalize gol,
+assistência e Craque, e execute:
+
+```bash
+RECOGNITION_PILOT_TEAM_ID='<TEAM_ID_DEMO>' \
+EXPECT_RECOGNITION_ENABLED=true \
+EXPECT_RECOGNITION_PROJECTION=true \
+npm run pilot:recognition:health
+```
+
+Pelo perfil sintético, conceda `public_recognition_summary_v1`, configure
+`SMOKE_PUBLIC_PLAYER_HANDLE` sem URL e despache o workflow `Smoke` com
+`expect_recognition_summary=true`. Exija perfil, estatísticas, posições e o
+resumo agregado; o HTML não pode conter IDs internos, versão do catálogo,
+partida, data, voto, colocação, capability ou segredo. Depois execute a sonda
+com `EXPECT_RECOGNITION_PUBLIC_SUMMARY=true`.
+
+Observe somente:
+
+- `private_recognition_projection.observed`: totais por categoria, fallback,
+  duração e categoria fechada de erro;
+- `public_recognition_projection.observed`: quantidade de categorias, total,
+  fallback, duração e categoria fechada de erro;
+- a sonda: fontes, projeções, divergências, consentimentos, comandos recentes e
+  horários; nunca IDs, nomes, handles, títulos, votos, motivos ou erro bruto.
+
+Interrompa imediatamente se `reconstruction_mismatches>0`, cartões projetados
+diferirem das fontes com a flag ligada, surgir projeção com a flag desligada,
+houver vazamento no HTML ou três falhas em 15 minutos. Três durações acima de
+três segundos pausam a ampliação. O compartilhamento permanece manual e não
+aciona integração externa.
+
+Registre a verificação física sem nomes, URLs ou identificadores:
+
+| Plataforma | Contexto | Largura | Toque | Teclado/leitor | Revogação | Resultado |
+|---|---|---|---|---|---|---|
+| WhatsApp Android | conversa + navegador interno | `<px>` | `<ok/falha>` | `<ok/falha>` | `<ok/falha>` | `<ok/falha>` |
+| WhatsApp iPhone | conversa + navegador interno | `<px>` | `<ok/falha>` | `<ok/falha>` | `<ok/falha>` | `<ok/falha>` |
+
+Rollback imediato usa a mesma RPC com `false`. Depois:
+
+1. executar a sonda com `EXPECT_RECOGNITION_ENABLED=false` e exigir projeções
+   privada/pública zeradas, marco preservado e fontes esportivas intactas;
+2. despachar `Smoke` com `expect_recognition_summary=false` e confirmar que o
+   perfil, estatísticas e posições continuam disponíveis sem o resumo;
+3. abrir agenda, súmula, Craque e `/me/reconhecimentos`; as jornadas históricas
+   permanecem utilizáveis e o atalho de reconhecimento desaparece;
+4. manter a flag desligada e promover o último deployment bom se a regressão
+   estiver na aplicação. Banco recebe somente correção forward-only.
+
+Produção recebe apenas sonda agregada e smoke anônimo de leitura. Alternância de
+flag, consentimento, correção, concorrência e limpeza usam dados sintéticos da
+coorte isolada; antes de CP4 permanecem exclusivamente no Supabase local.
+
 ### Retenção diária — R05/R06
 
 A Vercel chama `GET /api/internal/craque/retention` uma vez por dia, às

@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
   rpc: vi.fn(),
+  info: vi.fn(),
+  error: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
@@ -34,6 +36,8 @@ describe("recognition data", () => {
     mocks.rpc.mockReset();
     mocks.createClient.mockReset();
     mocks.createClient.mockResolvedValue({ rpc: mocks.rpc });
+    vi.spyOn(console, "info").mockImplementation(mocks.info);
+    vi.spyOn(console, "error").mockImplementation(mocks.error);
   });
 
   it("libera a visão somente para vínculo ativo com a flag ligada", async () => {
@@ -99,6 +103,20 @@ describe("recognition data", () => {
     mocks.rpc.mockResolvedValue({ data: [recognition], error: null });
 
     await expect(loadMyRecognitions()).resolves.toEqual([recognition]);
+    expect(mocks.info).toHaveBeenCalledWith(
+      "private_recognition_projection.observed",
+      expect.objectContaining({
+        total: 1,
+        goal: 1,
+        assist: 0,
+        crowdStar: 0,
+        fallback: false,
+        error: "none",
+      }),
+    );
+    expect(JSON.stringify(mocks.info.mock.calls)).not.toContain(
+      recognition.team_id,
+    );
   });
 
   it("não entrega dados quando a RPC falha ou viola o catálogo", async () => {
@@ -110,5 +128,12 @@ describe("recognition data", () => {
       error: null,
     });
     await expect(loadMyRecognitions()).resolves.toBeNull();
+    expect(mocks.error).toHaveBeenLastCalledWith(
+      "private_recognition_projection.observed",
+      expect.objectContaining({ fallback: true, error: "invalid_payload" }),
+    );
+    expect(JSON.stringify(mocks.error.mock.calls)).not.toContain(
+      recognition.source_id,
+    );
   });
 });

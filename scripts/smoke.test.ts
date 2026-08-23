@@ -2,11 +2,13 @@ import {
   runProductionSmoke,
   validatePublicChampionshipId,
   validatePublicEventId,
+  validatePublicPlayerHandle,
 } from "./smoke.mjs";
 import { describe, expect, it, vi } from "vitest";
 
 const publicEventId = "fdf577af-5cc4-489f-81cb-65fac548167b";
 const publicChampionshipId = "c8f577af-5cc4-489f-81cb-65fac548167b";
+const publicPlayerHandle = "atleta-r10-smoke";
 
 function htmlResponse(
   status = 200,
@@ -50,6 +52,7 @@ describe("smoke de produção", () => {
     ).resolves.toEqual({
       publicEventChecked: false,
       publicChampionshipChecked: false,
+      publicPlayerChecked: false,
     });
 
     expect(fetchImpl).toHaveBeenCalledTimes(2);
@@ -89,6 +92,7 @@ describe("smoke de produção", () => {
     ).resolves.toEqual({
       publicEventChecked: true,
       publicChampionshipChecked: false,
+      publicPlayerChecked: false,
     });
 
     expect(fetchImpl).toHaveBeenCalledTimes(6);
@@ -144,6 +148,7 @@ describe("smoke de produção", () => {
     ).resolves.toEqual({
       publicEventChecked: true,
       publicChampionshipChecked: false,
+      publicPlayerChecked: false,
     });
   });
 
@@ -173,6 +178,7 @@ describe("smoke de produção", () => {
     })).resolves.toEqual({
       publicEventChecked: false,
       publicChampionshipChecked: true,
+      publicPlayerChecked: false,
     });
     expect(fetchImpl.mock.calls[2]?.[0]).toEqual(
       new URL(`https://deutime.app/c/${publicChampionshipId}`),
@@ -200,7 +206,63 @@ describe("smoke de produção", () => {
     })).resolves.toEqual({
       publicEventChecked: false,
       publicChampionshipChecked: true,
+      publicPlayerChecked: false,
     });
+  });
+
+  it("verifica o resumo consentido sem aceitar identificadores internos", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(
+        htmlResponse(
+          200,
+          {},
+          "Perfil público Estatísticas Posições preferenciais Conquistas reconhecidas Gols reconhecidos",
+        ),
+      );
+
+    await expect(
+      runProductionSmoke({
+        mode: "production-readonly",
+        appUrl: "https://deutime.app",
+        publicPlayerHandle,
+        expectRecognitionSummary: true,
+        fetchImpl,
+      }),
+    ).resolves.toEqual({
+      publicEventChecked: false,
+      publicChampionshipChecked: false,
+      publicPlayerChecked: true,
+    });
+    expect(fetchImpl.mock.calls[2]?.[0]).toEqual(
+      new URL(`https://deutime.app/p/${publicPlayerHandle}`),
+    );
+  });
+
+  it("confirma a retirada do resumo público após revogação ou rollback", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(htmlResponse())
+      .mockResolvedValueOnce(
+        htmlResponse(
+          200,
+          {},
+          "Perfil público Estatísticas Posições preferenciais",
+        ),
+      );
+
+    await expect(
+      runProductionSmoke({
+        mode: "production-readonly",
+        appUrl: "https://deutime.app",
+        publicPlayerHandle,
+        expectRecognitionSummary: false,
+        fetchImpl,
+      }),
+    ).resolves.toMatchObject({ publicPlayerChecked: true });
   });
 
   it("alerta se a página do campeonato expõe identificador interno", async () => {
@@ -326,6 +388,9 @@ describe("smoke de produção", () => {
     );
     expect(() => validatePublicChampionshipId("../app/segredo")).toThrow(
       "SMOKE_PUBLIC_CHAMPIONSHIP_ID deve ser um UUID canônico.",
+    );
+    expect(() => validatePublicPlayerHandle("../me/perfil")).toThrow(
+      "SMOKE_PUBLIC_PLAYER_HANDLE deve ser um handle público canônico.",
     );
   });
 });

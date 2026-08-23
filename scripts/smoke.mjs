@@ -3,6 +3,8 @@ import { pathToFileURL } from "node:url";
 const publicEventIdPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const publicChampionshipIdPattern = publicEventIdPattern;
+const publicPlayerHandlePattern =
+  /^[a-z0-9](?:[a-z0-9-]{1,30}[a-z0-9])$/;
 
 export async function runProductionSmoke({
   mode,
@@ -11,6 +13,8 @@ export async function runProductionSmoke({
   expectEventShareCardEnabled = false,
   publicChampionshipId,
   expectChampionshipEnabled = false,
+  publicPlayerHandle,
+  expectRecognitionSummary = false,
   fetchImpl = fetch,
 }) {
   if (mode !== "production-readonly") {
@@ -42,9 +46,20 @@ export async function runProductionSmoke({
     );
   }
 
+  if (publicPlayerHandle) {
+    validatePublicPlayerHandle(publicPlayerHandle);
+    await checkPublicPlayerJourney(
+      publicPlayerHandle,
+      canonicalAppUrl,
+      expectRecognitionSummary,
+      fetchImpl,
+    );
+  }
+
   return {
     publicEventChecked: Boolean(publicEventId),
     publicChampionshipChecked: Boolean(publicChampionshipId),
+    publicPlayerChecked: Boolean(publicPlayerHandle),
   };
 }
 
@@ -57,6 +72,14 @@ export function validatePublicEventId(publicEventId) {
 export function validatePublicChampionshipId(publicChampionshipId) {
   if (!publicChampionshipIdPattern.test(publicChampionshipId)) {
     throw new Error("SMOKE_PUBLIC_CHAMPIONSHIP_ID deve ser um UUID canônico.");
+  }
+}
+
+export function validatePublicPlayerHandle(handle) {
+  if (!publicPlayerHandlePattern.test(handle)) {
+    throw new Error(
+      "SMOKE_PUBLIC_PLAYER_HANDLE deve ser um handle público canônico.",
+    );
   }
 }
 
@@ -228,6 +251,48 @@ async function checkPublicChampionshipJourney(
   }
 }
 
+async function checkPublicPlayerJourney(
+  handle,
+  appUrl,
+  expectRecognitionSummary,
+  fetchImpl,
+) {
+  const pathname = `/p/${handle}`;
+  const response = await fetchImpl(new URL(pathname, appUrl), {
+    redirect: "follow",
+    signal: AbortSignal.timeout(10_000),
+  });
+
+  if (!response.ok) {
+    throw new Error(`${pathname} indisponível: HTTP ${response.status}.`);
+  }
+  requireHeader(response, pathname, "content-type", "text/html");
+
+  const html = await response.text();
+  if (
+    /athlete_id|user_id|team_id|source_id|match_id|event_id|catalog_version|capability=|token=|secret=/i.test(
+      html,
+    )
+  ) {
+    throw new Error(`${pathname} publicou dado privado ou identificador interno.`);
+  }
+  if (
+    !html.includes("Perfil público") ||
+    !html.includes("Estatísticas") ||
+    !html.includes("Posições preferenciais")
+  ) {
+    throw new Error(`${pathname} não publicou os blocos mínimos do perfil.`);
+  }
+
+  const hasRecognitionSummary = html.includes("Conquistas reconhecidas");
+  if (expectRecognitionSummary && !hasRecognitionSummary) {
+    throw new Error(`${pathname} não publicou o resumo consentido esperado.`);
+  }
+  if (!expectRecognitionSummary && hasRecognitionSummary) {
+    throw new Error(`${pathname} publicou resumo sem consentimento esperado.`);
+  }
+}
+
 function requirePublicEventImageHeaders(
   response,
   pathname,
@@ -275,11 +340,15 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
     publicChampionshipId: process.env.SMOKE_PUBLIC_CHAMPIONSHIP_ID?.trim(),
     expectChampionshipEnabled:
       process.env.EXPECT_CHAMPIONSHIP_ENABLED === "true",
+    publicPlayerHandle: process.env.SMOKE_PUBLIC_PLAYER_HANDLE?.trim(),
+    expectRecognitionSummary:
+      process.env.EXPECT_RECOGNITION_SUMMARY === "true",
   });
 
   const checked = [
     result.publicEventChecked ? "evento público" : null,
     result.publicChampionshipChecked ? "campeonato público" : null,
+    result.publicPlayerChecked ? "perfil público" : null,
   ].filter(Boolean);
   console.log(checked.length
     ? `Smoke de produção somente leitura concluído, incluindo ${checked.join(" e ")}.`
