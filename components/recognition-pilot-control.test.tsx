@@ -3,7 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock(
   "@/app/app/[teamSlug]/settings/recognition-pilot-actions",
-  () => ({ setRecognitionPilotState: vi.fn() }),
+  () => ({
+    setRecognitionPilotState: vi.fn(),
+    prepareRecognitionPilotAthlete: vi.fn(),
+  }),
 );
 
 import { RecognitionPilotControl } from "./recognition-pilot-control";
@@ -36,5 +39,7 @@ describe("controle visual do piloto de reconhecimentos", () => {
     expect(html).toContain("Desligar e voltar ao fallback");
     expect(html).toContain('value="false"');
     expect(html).toContain("preservação dos fatos");
+    expect(html).toContain("Preparar atleta sintético");
+    expect(html).toContain("exclusivamente sintéticos");
   });
 });

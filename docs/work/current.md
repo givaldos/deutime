@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/r10-pilot-control"
+branch_or_commit: "codex/r10-synthetic-athlete"
 checkpoint: idle
 status: ready
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12]
@@ -18,9 +18,10 @@ tests:
   - "aceite do produto: navegador responsivo considerado evidência móvel suficiente para a R10; 3 arquivos/12 testes de interface e TypeScript aprovados"
   - "WhatsApp-first: criação de time por telefone confirmado ou perfil imutável verificado coberta por 1 arquivo/8 pgTAP; banco completo 54 arquivos/1436 testes"
   - "controle R10: 2 arquivos/9 testes focados; aplicação completa 87 arquivos/475 testes, lint, TypeScript, contexto e build Webpack aprovados"
-  - "rollout: nenhum time ativado; CP4 concluído por decisão explícita e AC-R10-13 permanece aberto"
+  - "provisionamento sintético: 3 arquivos/12 testes focados; aplicação completa 88 arquivos/478 testes, lint, TypeScript, contexto e build Webpack aprovados"
+  - "rollout: coorte sintética criada e recognition ativa após pré/pós-sonda; ainda sem fatos, consentimentos ou resumo público"
 blocker: null
-next_action: "Promover o controle operacional R10; executar pré-sonda server-only, ativação auditada, fatos sintéticos, consentimento/revogação, smoke e rollback do CP5."
+next_action: "Promover o provisionamento server-only do atleta sintético; criar fatos esportivos posteriores ao marco, testar consentimento/revogação, smoke e rollback do CP5."
 ---
 
 # Trabalho atual
@@ -70,9 +71,18 @@ server-only e só então delega à RPC auditada. A pós-sonda confirma o estado;
 falha após ativação dispara rollback imediato pela mesma RPC. A flag continua
 desligada até esse controle chegar à produção.
 
+O controle foi promovido e confirmou em produção o estado desligado, a ativação
+pela RPC auditada, o marco não retroativo e a pós-sonda ativa. A tentativa de
+provisionar o atleta pela configuração local falhou antes do cadastro porque o
+ambiente local aponta para outro projeto; nenhum atleta ou fato foi criado na
+coorte de produção. O provisionamento foi então movido para uma Server Action
+do próprio deploy: exige owner/admin e confirmação, usa identidade fictícia
+reservada, cadastro e aprovação pelas RPCs existentes, perfil público sintético
+e pós-sonda. A flag está ativa, mas a coorte ainda não contém fatos esportivos.
+
 ## Próxima ação
 
-Promover o controle operacional e executar CP5 com dados sintéticos. Confirmar
-o estado desligado na pré-sonda server-only antes da ativação, observar projeção
-e consentimento, provar revogação, fallback e rollback e manter qualquer
-ampliação bloqueada até fechar `AC-R10-13`.
+Promover o provisionamento server-only, preparar o atleta sintético e criar os
+fatos esportivos posteriores ao marco. Depois observar projeção e consentimento,
+provar revogação, smoke, fallback e rollback e manter qualquer ampliação
+bloqueada até fechar `AC-R10-13`.
