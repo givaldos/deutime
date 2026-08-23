@@ -427,3 +427,18 @@ cache público, abuso e experiência Android/iPhone.
   continuam abertos, o checkpoint volta a `idle` e a próxima ação é CP4 em
   Android, iPhone, leitor de tela e navegador interno do WhatsApp antes de
   qualquer piloto isolado.
+
+### `WP-R10-04` — pré-check automatizado de CP4 concluído; prova física pendente
+
+- em 2026-08-23, a produção foi verificada com sessão autenticada e viewport de
+  360 px, sem alterar dados, flag ou consentimento;
+- a rota privada com `recognition` desligada apresentou o fallback esperado,
+  preservou perfil, estatísticas e Craque e não exibiu o atalho móvel. Não houve
+  overflow horizontal e os controles visíveis mediram entre 44 e 56 px;
+- o editor manteve o consentimento de reconhecimento oculto. O perfil público
+  preservou estatísticas e posições, não publicou o resumo e não mostrou
+  identificadores internos no conteúdo visível;
+- o pré-check cobre responsividade e estado inerte, mas não comprova toque,
+  VoiceOver/TalkBack, teclado físico, revogação nem navegador interno do
+  WhatsApp. `AC-R10-12`, CP4 e o piloto continuam abertos até evidência separada
+  em Android e iPhone reais.

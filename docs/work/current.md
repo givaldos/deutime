@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_mobile_validation
-branch_or_commit: "10672f0"
+branch_or_commit: "4f9413d"
 checkpoint: idle
 status: ready
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11]
@@ -14,9 +14,10 @@ tests:
   - "gate: lint, TypeScript, 85 arquivos/466 testes e teste de contexto aprovados"
   - "build de produção Webpack aprovado; Turbopack limitado somente pela porta do sandbox"
   - "npm audit: 0 vulnerabilidades"
+  - "CP4 preflight em produção/360 px: fallback privado, consentimento oculto, perfil público e alvos de 44–56 px aprovados; sem overflow horizontal"
   - "rollout: nenhum time ativado; Android/iPhone/leitor de tela/WhatsApp pendentes para CP4"
-blocker: null
-next_action: "Validar em Android e iPhone reais, leitor de tela e navegador interno do WhatsApp: visão privada, consentimento ligado/desligado, perfil público, revogação e fallback. Registrar CP4 antes de qualquer piloto isolado."
+blocker: "CP4 exige evidência humana em aparelhos físicos e tecnologias assistivas; o pré-check automatizado não substitui Android, iPhone, leitor de tela ou navegador interno do WhatsApp."
+next_action: "Obter o resultado físico, separado por WhatsApp Android e WhatsApp iPhone, para toque, teclado/leitor, revogação e resultado geral. Não ativar piloto antes dessa evidência."
 ---
 
 # Trabalho atual
@@ -35,9 +36,15 @@ O banco passou por reset integral, 28 testes focados e 1.428 testes completos;
 o aplicativo passou por lint, TypeScript, 466 testes, build e audit. Nenhum time
 foi ativado e `AC-R10-12/13` permanecem abertos. O checkpoint voltou a `idle`.
 
+O pré-check de CP4 em produção, com sessão verificada e viewport de 360 px,
+confirmou ausência de overflow horizontal; controles visíveis entre 44 e 56 px;
+fallback privado; consentimento oculto com a flag desligada; e perfil público
+com estatísticas e posições, sem resumo de reconhecimento ou identificadores
+internos visíveis. Nenhuma escrita, flag ou consentimento foi alterado. Essa
+checagem não substitui aparelho físico nem leitor de tela real.
+
 ## Próxima ação
 
-Executar CP4 em Android e iPhone reais, leitor de tela e navegador interno do
-WhatsApp. Validar visão privada, consentimento ligado/desligado, resumo público,
-revogação imediata e fallback; só depois preparar uma organização demo para o
-piloto isolado de CP5.
+Registrar, separadamente, WhatsApp Android e WhatsApp iPhone reais: largura,
+toque, teclado/leitor, revogação e resultado geral. Manter a flag desligada até
+essa evidência concluir CP4; só depois preparar uma organização demo para CP5.
