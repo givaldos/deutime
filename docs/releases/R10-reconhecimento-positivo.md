@@ -610,3 +610,12 @@ cache público, abuso e experiência Android/iPhone.
   ativar `event_matches` somente na coorte sintética pela RPC auditada;
 - a ativação é idempotente, validada pelo retorno tipado e coberta no mesmo
   arquivo de 5 testes focados. Outros times continuam com a feature desligada.
+
+### `WP-R10-04` — assistência disponível na súmula explícita
+
+- `event_matches` foi ativado somente na coorte; uma partida explícita foi
+  criada e os dois atletas sintéticos foram escalados no mesmo lado;
+- schema, Action e RPC aceitavam `assistAthleteId`, mas o formulário R04 não o
+  enviava. A interface passa a mostrar um seletor mobile de assistência
+  opcional, sem alterar a validação que proíbe autor e assistente iguais;
+- 1 teste de interface confirma rótulo, campo e candidatos da assistência.
