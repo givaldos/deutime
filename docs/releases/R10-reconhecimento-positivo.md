@@ -588,3 +588,15 @@ cache público, abuso e experiência Android/iPhone.
 - a ação passa a emitir somente o código da falha e traduz o conflito `40001`
   entre súmula legada e partida explícita, sem incluir atleta, evento, time ou
   conteúdo do lance. Lint, TypeScript e 88 arquivos/480 testes passaram.
+
+### `WP-R10-04` — catálogo canônico da súmula
+
+- a telemetria publicada confirmou `PGRST203`: o catálogo remoto possuía
+  assinaturas históricas concorrentes de `add_match_incident_as_staff`, e o
+  gateway recusava escolher uma antes de executar autorização ou escrita;
+- uma migration forward-only remove somente as variantes dessa RPC e recria a
+  assinatura canônica, grants mínimos e comentário na mesma transação. O app
+  antigo e o novo mantêm a mesma ordem segura de deploy;
+- 4 pgTAP exigem uma única candidata, execução por `authenticated` e negação a
+  `anon`. Reset integral, 55 arquivos/1.440 testes e lint sem novo alerta
+  passaram; os eventos continuam sem fatos até a promoção.
