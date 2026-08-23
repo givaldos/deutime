@@ -619,3 +619,19 @@ cache público, abuso e experiência Android/iPhone.
   enviava. A interface passa a mostrar um seletor mobile de assistência
   opcional, sem alterar a validação que proíbe autor e assistente iguais;
 - 1 teste de interface confirma rótulo, campo e candidatos da assistência.
+
+### `WP-R10-04` — consentimento sintético preparado para a prova final
+
+- o seletor chegou à produção e a partida explícita foi encerrada com dois
+  participantes, um gol de Sintético e um gol de Apoio assistido por Sintético;
+  a fonte canônica deve projetar dois cartões privados para o atleta vinculado;
+- Craque não foi simulado: a votação continua sujeita à janela real de 12 horas
+  e será validada somente em uma partida elegível;
+- a operação guardada da coorte passa a publicar ou revogar o resumo pela
+  sessão real do atleta sintético, usando a RPC pública de consentimento e
+  `request_id` único. A pós-sonda confirma apenas contagens agregadas de cartões
+  privados e públicos, sem PII;
+- 9 testes focados cobrem preparação, concessão, revogação e controles da
+  interface. Lint, TypeScript, 89 arquivos/483 testes, contexto e build de
+  produção Webpack passaram. `AC-R10-13` permanece aberto até a prova em
+  produção, smoke, fallback e rollback.

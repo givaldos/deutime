@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/r10-explicit-assist-control"
+branch_or_commit: "codex/r10-synthetic-consent-operations"
 checkpoint: idle
 status: ready
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12]
@@ -25,9 +25,11 @@ tests:
   - "catálogo da súmula: 1 migration forward-only e 1 arquivo/4 pgTAP; reset integral, 55 arquivos/1440 testes e lint sem novo alerta"
   - "pré-requisito R10: event_matches ativado somente pela operação guardada da coorte; 1 arquivo/5 testes focados"
   - "súmula explícita: seletor mobile de assistência envia assistAthleteId; 1 arquivo/1 teste de interface"
-  - "rollout: coorte sintética criada e recognition ativa após pré/pós-sonda; ainda sem fatos, consentimentos ou resumo público"
+  - "consentimento sintético: preparar, publicar e revogar pela sessão real do atleta; 2 arquivos/9 testes focados"
+  - "gate atual: lint, TypeScript, 89 arquivos/483 testes, contexto e build Webpack aprovados"
+  - "rollout: partida explícita finalizada com dois participantes, dois gols e uma assistência; recognition ativa após pré/pós-sonda"
 blocker: null
-next_action: "Promover o seletor de assistência; concluir lances e partida explícitos, consentimento/revogação, smoke e rollback do CP5."
+next_action: "Promover os controles sintéticos; comprovar projeção, consentimento/revogação, smoke e rollback do CP5."
 ---
 
 # Trabalho atual
@@ -141,9 +143,22 @@ R04, porém, não expunha o parâmetro `assistAthleteId` já suportado por schem
 Action e RPC. Um seletor mobile de assistência opcional passa a enviar esse
 campo, com teste de interface cobrindo o contrato.
 
+O seletor chegou à produção. A partida explícita foi encerrada com os dois
+atletas sintéticos escalados, um gol de Sintético e um gol de Apoio assistido
+por Sintético. Esses fatos pertencem à fonte canônica da R10 e devem projetar
+dois cartões privados para o atleta vinculado. O reconhecimento de Craque não
+foi fabricado: a votação exige a janela real de 12 horas e permanece fora desta
+prova até existir uma partida elegível.
+
+A operação guardada da coorte passa a aceitar publicar ou revogar o resumo
+sintético usando a sessão real do atleta, a mesma RPC de consentimento do
+produto e um `request_id` novo. A pós-sonda valida o estado devolvido e relata
+somente contagens agregadas de cartões privados e públicos, preservando a
+ausência de PII.
+
 ## Próxima ação
 
-Promover o seletor e registrar e encerrar os fatos esportivos explícitos
-posteriores ao marco. Depois observar projeção e consentimento,
-provar revogação, smoke, fallback e rollback e manter qualquer ampliação
-bloqueada até fechar `AC-R10-13`.
+Promover os controles sintéticos e confirmar dois cartões privados. Publicar o
+resumo, executar o smoke público, revogar, repetir o smoke sem resumo e desligar
+a flag para comprovar fallback e rollback. Manter qualquer ampliação bloqueada
+até fechar `AC-R10-13`.

@@ -11,7 +11,7 @@ import {
   recognitionPilotSeedSchema,
 } from "@/lib/validation/recognition-pilot";
 import { createClient as createStatelessClient } from "@supabase/supabase-js";
-import { randomBytes } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 
 export type RecognitionPilotActionState = {
@@ -168,6 +168,14 @@ export async function prepareRecognitionPilotAthlete(
   formData: FormData,
 ): Promise<RecognitionPilotSeedState> {
   const user = await requireUser();
+  const requestedConsent = formData.get("publicConsent");
+  if (
+    requestedConsent !== null &&
+    requestedConsent !== "granted" &&
+    requestedConsent !== "revoked"
+  ) {
+    return { outcome: "error", message: "A operação de consentimento é inválida." };
+  }
   const parsed = recognitionPilotSeedSchema.safeParse({
     teamSlug: formData.get("teamSlug"),
     confirmation: formData.get("confirmation"),
@@ -345,6 +353,22 @@ export async function prepareRecognitionPilotAthlete(
     return { outcome: "error", message: "A súmula por partida não pôde ser habilitada." };
   }
 
+  if (requestedConsent !== null) {
+    const consent = await athleteClient.rpc(
+      "set_public_recognition_summary_consent",
+      {
+        requested_athlete_id: registration.data,
+        requested_granted: requestedConsent === "granted",
+        requested_terms_version: "r10-v1",
+        request_id: randomUUID(),
+      },
+    );
+    const expectedStatus = requestedConsent === "granted" ? "granted" : "revoked";
+    if (consent.error || consent.data?.status !== expectedStatus) {
+      return { outcome: "error", message: "O consentimento sintético não pôde ser atualizado." };
+    }
+  }
+
   const after = await readPilotHealth(team.id);
   if (!after?.recognition_enabled || after.reconstruction_mismatches !== 0) {
     return { outcome: "error", message: "A pós-sonda não confirmou a coorte sintética." };
@@ -353,12 +377,18 @@ export async function prepareRecognitionPilotAthlete(
   console.info("recognition_pilot.synthetic_athlete_ready", {
     ready: true,
     event_matches_enabled: true,
+    projected_cards: after.projected_cards,
+    public_cards: after.public_cards,
   });
   revalidatePath(`/app/${team.slug}`);
   revalidatePath(`/app/${team.slug}/settings`);
   revalidatePath(`/app/${team.slug}/athletes`);
   return {
     outcome: "success",
-    message: "Atleta e perfil sintéticos prontos para os fatos esportivos.",
+    message: requestedConsent === "granted"
+      ? `Resumo público sintético consentido; ${after.public_cards} reconhecimentos públicos confirmados.`
+      : requestedConsent === "revoked"
+        ? "Resumo público sintético revogado; fallback privado confirmado."
+        : `Atleta e perfil sintéticos prontos; ${after.projected_cards} reconhecimentos privados confirmados.`,
   };
 }

@@ -78,10 +78,11 @@ const teamId = "c8100000-0000-4000-8000-000000000010";
 const athleteId = "a8100000-0000-4000-8000-000000000010";
 const userId = "u8100000-0000-4000-8000-000000000010";
 
-function seedForm(confirmed = true) {
+function seedForm(confirmed = true, publicConsent?: "granted" | "revoked") {
   const form = new FormData();
   form.set("teamSlug", "r10-demo-reconhecimentos");
   if (confirmed) form.set("confirmation", "confirmed");
+  if (publicConsent) form.set("publicConsent", publicConsent);
   return form;
 }
 
@@ -128,7 +129,9 @@ describe("preparação do atleta sintético R10", () => {
     mocks.athleteRpc.mockImplementation((name: string) =>
       name === "complete_verified_athlete_registration"
         ? Promise.resolve({ data: athleteId, error: null })
-        : Promise.resolve({ data: "r10-sintetico", error: null }));
+        : name === "update_my_player_profile"
+          ? Promise.resolve({ data: "r10-sintetico", error: null })
+          : Promise.resolve({ data: { status: "granted" }, error: null }));
     mocks.athleteSingle.mockResolvedValue({
       data: { status: "pending" },
       error: null,
@@ -150,7 +153,7 @@ describe("preparação do atleta sintético R10", () => {
   it("cria perfil, aprova o vínculo e confirma pela sonda", async () => {
     await expect(prepareRecognitionPilotAthlete({}, seedForm())).resolves.toEqual({
       outcome: "success",
-      message: "Atleta e perfil sintéticos prontos para os fatos esportivos.",
+      message: "Atleta e perfil sintéticos prontos; 0 reconhecimentos privados confirmados.",
     });
     expect(mocks.ownerRpc).toHaveBeenCalledWith(
       "review_athlete_registration",
@@ -167,7 +170,49 @@ describe("preparação do atleta sintético R10", () => {
     });
     expect(mocks.info).toHaveBeenCalledWith(
       "recognition_pilot.synthetic_athlete_ready",
-      { ready: true, event_matches_enabled: true },
+      {
+        ready: true,
+        event_matches_enabled: true,
+        projected_cards: 0,
+        public_cards: 0,
+      },
+    );
+  });
+
+  it("publica o resumo somente pela sessão do atleta sintético", async () => {
+    await expect(
+      prepareRecognitionPilotAthlete({}, seedForm(true, "granted")),
+    ).resolves.toEqual({
+      outcome: "success",
+      message: "Resumo público sintético consentido; 0 reconhecimentos públicos confirmados.",
+    });
+    expect(mocks.athleteRpc).toHaveBeenCalledWith(
+      "set_public_recognition_summary_consent",
+      expect.objectContaining({
+        requested_athlete_id: athleteId,
+        requested_granted: true,
+        requested_terms_version: "r10-v1",
+        request_id: expect.any(String),
+      }),
+    );
+  });
+
+  it("revoga o resumo pela mesma RPC consentida", async () => {
+    mocks.athleteRpc.mockImplementation((name: string) =>
+      name === "complete_verified_athlete_registration"
+        ? Promise.resolve({ data: athleteId, error: null })
+        : name === "update_my_player_profile"
+          ? Promise.resolve({ data: "r10-sintetico", error: null })
+          : Promise.resolve({ data: { status: "revoked" }, error: null }));
+    await expect(
+      prepareRecognitionPilotAthlete({}, seedForm(true, "revoked")),
+    ).resolves.toEqual({
+      outcome: "success",
+      message: "Resumo público sintético revogado; fallback privado confirmado.",
+    });
+    expect(mocks.athleteRpc).toHaveBeenCalledWith(
+      "set_public_recognition_summary_consent",
+      expect.objectContaining({ requested_granted: false }),
     );
   });
 
