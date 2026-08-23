@@ -330,12 +330,30 @@ export async function prepareRecognitionPilotAthlete(
     return { outcome: "error", message: "O vínculo sintético está indisponível." };
   }
 
+  const matchCapability = await supabase.rpc("set_team_feature_flag", {
+    requested_team_id: team.id,
+    requested_feature: "event_matches",
+    requested_enabled: true,
+  });
+  if (
+    matchCapability.error ||
+    !matchCapability.data ||
+    matchCapability.data.team_id !== team.id ||
+    matchCapability.data.feature !== "event_matches" ||
+    matchCapability.data.enabled !== true
+  ) {
+    return { outcome: "error", message: "A súmula por partida não pôde ser habilitada." };
+  }
+
   const after = await readPilotHealth(team.id);
   if (!after?.recognition_enabled || after.reconstruction_mismatches !== 0) {
     return { outcome: "error", message: "A pós-sonda não confirmou a coorte sintética." };
   }
 
-  console.info("recognition_pilot.synthetic_athlete_ready", { ready: true });
+  console.info("recognition_pilot.synthetic_athlete_ready", {
+    ready: true,
+    event_matches_enabled: true,
+  });
   revalidatePath(`/app/${team.slug}`);
   revalidatePath(`/app/${team.slug}/settings`);
   revalidatePath(`/app/${team.slug}/athletes`);

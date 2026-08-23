@@ -600,3 +600,13 @@ cache público, abuso e experiência Android/iPhone.
 - 4 pgTAP exigem uma única candidata, execução por `authenticated` e negação a
   `anon`. Reset integral, 55 arquivos/1.440 testes e lint sem novo alerta
   passaram; os eventos continuam sem fatos até a promoção.
+
+### `WP-R10-04` — fonte canônica da projeção habilitada na coorte
+
+- a migration foi aplicada em produção e a súmula legada registrou dois gols,
+  incluindo um gol e uma assistência do atleta vinculado, e encerrou o jogo;
+- a R10 não consome fatos legados: por contrato, a projeção lê partida,
+  participação e lance explícitos da R04. A preparação operacional passa a
+  ativar `event_matches` somente na coorte sintética pela RPC auditada;
+- a ativação é idempotente, validada pelo retorno tipado e coberta no mesmo
+  arquivo de 5 testes focados. Outros times continuam com a feature desligada.
