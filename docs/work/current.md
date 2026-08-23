@@ -2,10 +2,10 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/r10-synthetic-consent-operations"
+branch_or_commit: "codex/r10-pilot-final-evidence"
 checkpoint: idle
 status: ready
-completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12]
+completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12, AC-R10-13]
 dirty_files: []
 tests:
   - "WP-R10-04: 4 arquivos/24 testes focados aprovados"
@@ -28,8 +28,11 @@ tests:
   - "consentimento sintético: preparar, publicar e revogar pela sessão real do atleta; 2 arquivos/9 testes focados"
   - "gate atual: lint, TypeScript, 89 arquivos/483 testes, contexto e build Webpack aprovados"
   - "rollout: partida explícita finalizada com dois participantes, dois gols e uma assistência; recognition ativa após pré/pós-sonda"
+  - "produção: 2 cartões privados e 2 públicos confirmados; perfil público sem origem sensível"
+  - "smoke consentido: workflow 32654607347 aprovado; smoke revogado: workflow 32654662792 aprovado"
+  - "rollback: recognition desligada, resumo público ausente, fallback privado e fatos esportivos preservados"
 blocker: null
-next_action: "Promover os controles sintéticos; comprovar projeção, consentimento/revogação, smoke e rollback do CP5."
+next_action: "R10 concluída; manter a feature desligada e validar Craque somente em futura partida com janela real elegível."
 ---
 
 # Trabalho atual
@@ -158,7 +161,8 @@ ausência de PII.
 
 ## Próxima ação
 
-Promover os controles sintéticos e confirmar dois cartões privados. Publicar o
-resumo, executar o smoke público, revogar, repetir o smoke sem resumo e desligar
-a flag para comprovar fallback e rollback. Manter qualquer ampliação bloqueada
-até fechar `AC-R10-13`.
+A R10 está concluída e voltou ao estado desligado. Manter a feature nesse estado
+até uma decisão explícita de ampliação. O reconhecimento de Craque será validado
+somente em futura partida elegível, respeitando a janela real de votação de 12
+horas; isso não bloqueia o aceite, já coberto por catálogo, projeção, RLS e
+testes de reconstrução.

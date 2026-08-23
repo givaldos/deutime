@@ -174,7 +174,7 @@ de ausência, atraso, derrota ou qualquer comportamento constrangedor.
 - [x] `AC-R10-12` — Visão privada, consentimento e resumo público funcionam por
   toque, teclado e leitor de tela em larguras móveis, Android, iPhone e
   navegador interno do WhatsApp.
-- [ ] `AC-R10-13` — Piloto isolado comprova telemetria sem PII, smoke, alerta,
+- [x] `AC-R10-13` — Piloto isolado comprova telemetria sem PII, smoke, alerta,
   correção, revogação, fallback e rollback pela flag.
 
 ## Riscos e controles
@@ -633,5 +633,26 @@ cache público, abuso e experiência Android/iPhone.
   privados e públicos, sem PII;
 - 9 testes focados cobrem preparação, concessão, revogação e controles da
   interface. Lint, TypeScript, 89 arquivos/483 testes, contexto e build de
-  produção Webpack passaram. `AC-R10-13` permanece aberto até a prova em
-  produção, smoke, fallback e rollback.
+  produção Webpack passaram. Nesse checkpoint, `AC-R10-13` permaneceu aberto
+  até a prova em produção, smoke, fallback e rollback.
+
+### `WP-R10-04` — piloto isolado concluído e revertido com segurança
+
+- a operação em produção confirmou dois cartões privados derivados da partida
+  explícita finalizada. Após consentimento pela sessão do atleta, a sonda
+  confirmou dois cartões públicos e o perfil exibiu somente um gol e uma
+  assistência agregados, sem partida, data, voto, colocação, identificador ou
+  time;
+- o smoke somente leitura com resumo esperado passou no workflow `32654607347`.
+  A revogação removeu imediatamente o bloco de conquistas e preservou as
+  estatísticas públicas existentes; o smoke sem resumo passou no workflow
+  `32654662792`;
+- o rollback desligou `recognition`, confirmou a pós-sonda, preservou os fatos
+  esportivos e devolveu a coorte ao fallback. O perfil continuou sem resumo
+  público;
+- a janela de Craque não foi contornada: a prova ao vivo fica condicionada a
+  futura partida elegível e às 12 horas reais de votação. Catálogo, projeção,
+  agregação fechada, concorrência, RLS e reconstrução dessa categoria já estão
+  cobertos pelos testes da release;
+- `AC-R10-13` está concluído. A R10 termina com a feature desligada e nenhuma
+  ampliação automática da coorte.
