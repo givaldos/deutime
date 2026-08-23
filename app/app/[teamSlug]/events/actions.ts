@@ -670,6 +670,7 @@ export async function addMatchIncident(
   });
 
   if (error) {
+    console.info("match_incident.write_failed", { code: error.code });
     return {
       outcome: "error",
       message:
@@ -677,6 +678,8 @@ export async function addMatchIncident(
           ? "Somente atletas confirmados podem receber lances nesta partida."
           : error.code === "42501"
             ? "Você não tem permissão para registrar lances nesta partida."
+            : error.code === "40001"
+              ? "Este evento exige o lançamento na súmula da partida."
             : "Não foi possível registrar o lance.",
     };
   }
