@@ -1,10 +1,10 @@
 ---
-release: R10
-work_package: WP-R10-04
-scope: recognition_isolated_pilot
-branch_or_commit: "codex/twilio-production-closeout"
-checkpoint: idle
-status: done
+release: R00
+work_package: WP-R00-03
+scope: password_recovery_email_delivery
+branch_or_commit: "codex/password-recovery-template"
+checkpoint: CP5
+status: active
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12, AC-R10-13]
 dirty_files: []
 tests:
@@ -41,8 +41,9 @@ tests:
   - "módulos: package declarado ESM explicitamente; build sem alertas, 1 teste focado, 93 arquivos/489 testes, lint, TypeScript, contexto e audit sem vulnerabilidades aprovados"
   - "Twilio: SDK usado somente na validação removido; assinatura local compatível com vetores oficiais, 3 arquivos/16 testes focados, 93 arquivos/490 testes, lint, TypeScript, contexto, audit e build Webpack aprovados; scmp ausente da árvore limpa"
   - "implantação Twilio: migração para Meta opcional; timeout do gate alinhado ao contrato de 3 s; ciclo natural 32772669622 aprovado com HTTP 200, modo live, templates prontos e zero falha, ambiguidade ou revisão"
+  - "recuperação de senha: causa isolada no deploy que aplicava migrations, mas ignorava templates de Auth; 1 arquivo/2 testes focados, lint, TypeScript, 94 arquivos/492 testes e build Webpack aprovados"
 blocker: null
-next_action: "Continuar a coleta de problemas reais sem PII; nenhuma release de produto entra em CP0 sem evidência suficiente."
+next_action: "Promover o publicador idempotente, confirmar o template remoto e testar um novo link de recuperação."
 ---
 
 # Trabalho atual
@@ -194,6 +195,8 @@ e kill switches permanece disponível.
 
 ## Próxima ação
 
-A R10 permanece concluída e desligada. A implantação Twilio está operacional,
-com a migração para Meta opcional e fora do caminho crítico. A coleta de
-problemas reais continua sem abrir uma nova release de produto.
+A R10 permanece concluída e desligada. O hotfix de fundação corrige a lacuna
+entre os templates de autenticação versionados e o Supabase: o workflow passa a
+validar, publicar somente os campos de e-mail alterados e reler a configuração
+remota para confirmar a escrita. Depois da promoção, um link novo de recuperação
+deve ser validado; links antigos continuam inválidos por desenho.

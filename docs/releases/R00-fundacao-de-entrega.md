@@ -161,6 +161,21 @@ Implementação e validação concluídas:
 - Terraform permanece apenas em `fmt/validate`; plan/apply foram retirados do
   fluxo do MVP porque produção foi provisionada sem state importado.
 
+Hotfix de recuperação de senha, em 24 de agosto de 2026:
+
+- causa: `supabase/config.toml` e os templates HTML estavam versionados, mas o
+  workflow produtivo executava somente `db push`; por isso o formato de link
+  independente do navegador não tinha publicação automatizada;
+- correção: o workflow publica somente os campos dos três e-mails de Auth pela
+  Management API, compara antes da escrita e relê depois para confirmar, sem
+  alterar URL, provedores, SMTP, segurança de senha ou demais opções;
+- contrato: recuperação usa `TokenHash`, passa pela confirmação humana da
+  aplicação e continua com uso único e expiração no provedor;
+- gates locais: validação do template, 2 testes focados, lint, TypeScript, 94
+  arquivos/492 testes e build de produção com Webpack aprovados. O build padrão
+  Turbopack ficou limitado pela proibição local de abrir porta, sem erro de
+  aplicação.
+
 CP6 concluído para o escopo local + produção do MVP. `AC-R00-06`, `12` e `13`,
 staging, E2E móvel, observabilidade ampliada, restauração e atualização das
 Actions Node.js 20 estão registrados no backlog técnico, sem bloquear R01.
