@@ -2,10 +2,10 @@
 release: R00
 work_package: WP-R00-03
 scope: password_recovery_email_delivery
-branch_or_commit: "codex/password-recovery-template"
-checkpoint: CP5
-status: active
-completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12, AC-R10-13]
+branch_or_commit: "fb263a64a6da41d602bf2b1f2b45791b7f2958ed"
+checkpoint: idle
+status: done
+completed_ac: [AC-R00-09]
 dirty_files: []
 tests:
   - "WP-R10-04: 4 arquivos/24 testes focados aprovados"
@@ -42,8 +42,9 @@ tests:
   - "Twilio: SDK usado somente na validação removido; assinatura local compatível com vetores oficiais, 3 arquivos/16 testes focados, 93 arquivos/490 testes, lint, TypeScript, contexto, audit e build Webpack aprovados; scmp ausente da árvore limpa"
   - "implantação Twilio: migração para Meta opcional; timeout do gate alinhado ao contrato de 3 s; ciclo natural 32772669622 aprovado com HTTP 200, modo live, templates prontos e zero falha, ambiguidade ou revisão"
   - "recuperação de senha: causa isolada no deploy que aplicava migrations, mas ignorava templates de Auth; 1 arquivo/2 testes focados, lint, TypeScript, 94 arquivos/492 testes e build Webpack aprovados"
+  - "produção: Deploy Supabase 32775754544 atualizou e releu 7 campos de template; Smoke 32775800801 aprovado; dev e main sincronizadas em fb263a6"
 blocker: null
-next_action: "Promover o publicador idempotente, confirmar o template remoto e testar um novo link de recuperação."
+next_action: "Solicitar e validar um novo link de recuperação; o link antigo não deve ser reutilizado."
 ---
 
 # Trabalho atual
