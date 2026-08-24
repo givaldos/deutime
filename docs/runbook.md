@@ -38,8 +38,10 @@ O cadastro público real fica indisponível em produção se Turnstile ou a chav
 ## Provisionamento remoto
 
 Produção foi provisionada diretamente no Supabase e na Vercel. O deploy da
-aplicação ocorre pela integração Vercel com `main`; migrations são aplicadas
-pelo workflow `Deploy database`.
+aplicação ocorre pela integração Vercel com `main`; migrations e templates de
+e-mail de autenticação são aplicados pelo workflow `Deploy Supabase`. O workflow
+atualiza somente os campos de template, preserva as demais configurações de Auth
+e confirma o conteúdo remoto depois da escrita.
 
 `infra/terraform` permanece apenas como referência validada por `fmt` e
 `validate`. Não execute `init`, `plan`, `apply` ou `import` contra produção
@@ -69,7 +71,8 @@ não recebe tokens, segredos ou permissão de apply durante o MVP.
 5. Aguardar `quality`, `database`, `dependency-review`, CodeQL e `terraform-check`.
 6. Fazer merge somente após revisão e com a feature desligada por padrão.
 7. A Vercel publica a aplicação automaticamente.
-8. O workflow `Deploy database` aplica migrations em produção de forma serializada.
+8. O workflow `Deploy Supabase` aplica migrations e templates de autenticação em
+   produção de forma serializada.
 9. Executar smoke test e ativar somente a coorte piloto prevista no pacote.
 
 Migrações destrutivas usam expand/contract: primeiro adicionar estrutura compatível, depois migrar dados e código, só então remover a estrutura antiga em outro deploy. Nunca editar uma migration já aplicada.
