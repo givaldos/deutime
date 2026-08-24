@@ -90,6 +90,17 @@ O uso existe, mas está concentrado em menos de três times ativos e repetentes.
 Isso não comprova densidade de oferta e procura nem justifica marketplace,
 pagamentos ou outra vertical. A decisão deste checkpoint é `sem promoção`.
 
+## Problemas observados
+
+| Categoria | Problema | Frequência | Impacto | Fallback | Evidência |
+|---|---|---:|---|---|---|
+| dívida técnica | Dependabot atualiza `codeql-action/init` e `analyze` em PRs separados, criando versões incompatíveis | 4 falhas em duas semanas | bloqueia as próprias atualizações de segurança | atualizar ambos manualmente no mesmo commit | execuções `32728093948`, `32728198188`, `32030785069` e `32030890655` |
+
+O problema supera o mínimo de três ocorrências e autoriza uma correção técnica
+estreita, não uma nova release de produto. O controle adotado agrupa todas as
+actions do CodeQL no Dependabot, atualiza `init` e `analyze` juntas e testa que
+SHA e versão permaneçam iguais.
+
 Durante a execução, o editor anexou inicialmente um snippet histórico que pode
 ter reativado a flag `team_division` de uma antiga coorte de piloto. A operação
 foi imediatamente revertida pela mesma RPC auditada, e a pós-sonda confirmou a
