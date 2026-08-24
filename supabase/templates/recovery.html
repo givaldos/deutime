@@ -1,31 +1,36 @@
 <!doctype html>
 <html lang="pt-BR">
-  <body style="margin: 0; background: #f4f4f5; color: #18181b; font-family: Arial, sans-serif;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding: 32px 16px;">
-      <tr>
-        <td align="center">
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 520px; background: #ffffff; border-radius: 16px; padding: 32px;">
-            <tr>
-              <td>
-                <p style="margin: 0 0 8px; color: #0D2B22; font-size: 14px; font-weight: 700;">DeuTime</p>
-                <h1 style="margin: 0 0 16px; font-size: 24px; line-height: 1.25;">Redefina sua senha</h1>
-                <p style="margin: 0 0 24px; color: #52525b; font-size: 16px; line-height: 1.5;">
-                  Recebemos uma solicitação para recuperar sua conta administrativa.
-                </p>
-                <p style="margin: 0 0 24px;">
-                  <a
-                    href="{{ .SiteURL }}/auth/recovery?token_hash={{ .TokenHash }}&amp;type=recovery"
-                    style="display: inline-block; border-radius: 10px; background: #0D2B22; color: #BDF63C; padding: 12px 20px; font-size: 16px; font-weight: 700; text-decoration: none;"
-                  >Escolher nova senha</a>
-                </p>
-                <p style="margin: 0; color: #71717a; font-size: 13px; line-height: 1.5;">
-                  Este link é pessoal, só pode ser usado uma vez e expira em poucos minutos. Se você não solicitou a recuperação, ignore esta mensagem.
-                </p>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="x-apple-disable-message-reformatting">
+    <title>Redefina sua senha — DeuTime</title>
+  </head>
+  <body style="margin: 0; padding: 0; background: #F7FAF5; color: #16211C; font-family: Inter, Arial, Helvetica, sans-serif;">
+    <div style="display: none; max-height: 0; overflow: hidden; opacity: 0; color: transparent;">Use o acesso seguro do DeuTime para escolher uma nova senha.</div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#F7FAF5" style="width: 100%; background: #F7FAF5;">
+      <tr><td align="center" style="padding: 24px 12px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width: 100%; max-width: 560px; border-collapse: separate;">
+          <tr><td align="center" bgcolor="#0D2B22" style="padding: 28px 32px; background: #0D2B22; border-radius: 18px 18px 0 0;">
+            <img src="{{ .SiteURL }}/brand/logo-deutime-email-640-fundo-escuro.png" width="224" alt="DeuTime" style="display: block; width: 224px; max-width: 100%; height: auto; border: 0;">
+          </td></tr>
+          <tr><td bgcolor="#FFFFFF" style="padding: 36px 32px 32px; background: #FFFFFF; border-right: 1px solid #E3EAE4; border-left: 1px solid #E3EAE4;">
+            <p style="margin: 0 0 10px; color: #0D2B22; font-size: 12px; font-weight: 700; line-height: 18px; letter-spacing: 1.4px; text-transform: uppercase;">Acesso seguro</p>
+            <h1 style="margin: 0 0 16px; color: #16211C; font-family: 'Space Grotesk', Inter, Arial, Helvetica, sans-serif; font-size: 28px; font-weight: 700; line-height: 34px; letter-spacing: -0.4px;">Redefina sua senha</h1>
+            <p style="margin: 0 0 26px; color: #5B6B62; font-size: 16px; line-height: 25px;">Recebemos uma solicitação para recuperar sua conta administrativa. Continue para escolher uma nova senha.</p>
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 0 28px;"><tr><td bgcolor="#BDF63C" style="background: #BDF63C; border-radius: 10px;">
+              <a href="{{ .SiteURL }}/auth/recovery?token_hash={{ .TokenHash }}&amp;type=recovery" style="display: inline-block; padding: 14px 22px; color: #0D2B22; font-size: 16px; font-weight: 700; line-height: 20px; text-decoration: none;">Escolher nova senha</a>
+            </td></tr></table>
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#EFF7E8" style="width: 100%; background: #EFF7E8; border-left: 4px solid #0D2B22; border-radius: 8px;"><tr><td style="padding: 14px 16px; color: #5B6B62; font-size: 13px; line-height: 20px;">
+              Este link é pessoal, só pode ser usado uma vez e expira em poucos minutos. Se você não solicitou a recuperação, ignore esta mensagem.
+            </td></tr></table>
+          </td></tr>
+          <tr><td align="center" bgcolor="#EDF2EC" style="padding: 20px 24px; background: #EDF2EC; border: 1px solid #E3EAE4; border-top: 0; border-radius: 0 0 18px 18px;">
+            <p style="margin: 0 0 4px; color: #0D2B22; font-size: 13px; font-weight: 700; line-height: 19px;">Deu time, deu jogo.</p>
+            <p style="margin: 0; color: #8CA096; font-size: 12px; line-height: 18px;"><a href="{{ .SiteURL }}" style="color: #5B6B62; text-decoration: none;">deutime.app</a></p>
+          </td></tr>
+        </table>
+      </td></tr>
     </table>
   </body>
 </html>

@@ -1,10 +1,10 @@
 ---
 release: R00
 work_package: WP-R00-03
-scope: password_recovery_email_delivery
-branch_or_commit: "fb263a64a6da41d602bf2b1f2b45791b7f2958ed"
-checkpoint: idle
-status: done
+scope: auth_email_branding
+branch_or_commit: "codex/email-branding"
+checkpoint: CP3
+status: active
 completed_ac: [AC-R00-09]
 dirty_files: []
 tests:
@@ -43,8 +43,9 @@ tests:
   - "implantação Twilio: migração para Meta opcional; timeout do gate alinhado ao contrato de 3 s; ciclo natural 32772669622 aprovado com HTTP 200, modo live, templates prontos e zero falha, ambiguidade ou revisão"
   - "recuperação de senha: causa isolada no deploy que aplicava migrations, mas ignorava templates de Auth; 1 arquivo/2 testes focados, lint, TypeScript, 94 arquivos/492 testes e build Webpack aprovados"
   - "produção: Deploy Supabase 32775754544 atualizou e releu 7 campos de template; Smoke 32775800801 aprovado; dev e main sincronizadas em fb263a6"
+  - "branding de e-mail: confirmação, recuperação e senha alterada compartilham logo, paleta e rodapé oficiais; 1 arquivo/4 testes focados, HTML estrutural e Terraform válidos"
 blocker: null
-next_action: "Solicitar e validar um novo link de recuperação; o link antigo não deve ser reutilizado."
+next_action: "Executar gate completo, promover os três templates e confirmar a releitura remota."
 ---
 
 # Trabalho atual
@@ -196,8 +197,8 @@ e kill switches permanece disponível.
 
 ## Próxima ação
 
-A R10 permanece concluída e desligada. O hotfix de fundação corrige a lacuna
-entre os templates de autenticação versionados e o Supabase: o workflow passa a
-validar, publicar somente os campos de e-mail alterados e reler a configuração
-remota para confirmar a escrita. Depois da promoção, um link novo de recuperação
-deve ser validado; links antigos continuam inválidos por desenho.
+A R10 permanece concluída e desligada. Os três e-mails ativos de autenticação
+recebem a identidade visual oficial com logo público, Verde Gramado, Volt, Gelo,
+Grafite e rodapé de marca. O publicador continua restrito aos campos de template
+e relê a configuração remota depois da escrita. A promoção e a evidência remota
+são a próxima ação.

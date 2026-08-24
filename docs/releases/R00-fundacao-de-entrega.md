@@ -179,6 +179,18 @@ Hotfix de recuperação de senha, em 24 de agosto de 2026:
   campos de template; o smoke somente leitura `32775800801` foi aprovado e
   `dev`/`main` ficaram sincronizadas no commit `fb263a6`.
 
+Branding dos e-mails de autenticação:
+
+- os três fluxos que enviam e-mail — confirmação, recuperação e aviso de senha
+  alterada — usam o logo horizontal oficial, paleta Verde Gramado/Volt/Gelo,
+  tipografia com fallback seguro e rodapé “Deu time, deu jogo.”;
+- o aviso de senha alterada oferece recuperação imediata, enquanto confirmação
+  e recuperação preservam exatamente `TokenHash`, uso único, expiração e a
+  confirmação humana antes da troca de sessão;
+- a referência Terraform lê os mesmos arquivos publicados pelo workflow, sem
+  manter uma segunda cópia divergente; o publicador exige por teste logo,
+  paleta, rodapé, viewport e links de segurança em todos os templates.
+
 CP6 concluído para o escopo local + produção do MVP. `AC-R00-06`, `12` e `13`,
 staging, E2E móvel, observabilidade ampliada, restauração e atualização das
 Actions Node.js 20 estão registrados no backlog técnico, sem bloquear R01.
