@@ -99,7 +99,9 @@ pagamentos ou outra vertical. A decisão deste checkpoint é `sem promoção`.
 O problema supera o mínimo de três ocorrências e autoriza uma correção técnica
 estreita, não uma nova release de produto. O controle adotado agrupa todas as
 actions do CodeQL no Dependabot, atualiza `init` e `analyze` juntas e testa que
-SHA e versão permaneçam iguais.
+SHA e versão permaneçam iguais. A correção passou por `dev` e `main` nos PRs
+`#278` e `#279`; os PRs fragmentados `#274` e `#275` foram encerrados após a
+promoção, com as branches sincronizadas no commit `32b17d2`.
 
 Durante a execução, o editor anexou inicialmente um snippet histórico que pode
 ter reativado a flag `team_division` de uma antiga coorte de piloto. A operação
