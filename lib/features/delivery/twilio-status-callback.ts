@@ -135,7 +135,8 @@ function expectedTwilioSignature(
       url,
     );
 
-  // A Twilio define HMAC-SHA1 para a assinatura X-Twilio-Signature.
+  // Exceção protocolar: isto não deriva senha. A Twilio exige HMAC-SHA1 no
+  // cabeçalho X-Twilio-Signature; trocar o algoritmo rejeitaria callbacks reais.
   return createHmac("sha1", authToken).update(payload, "utf8").digest("base64");
 }
 

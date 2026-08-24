@@ -665,7 +665,8 @@ cache público, abuso e experiência Android/iPhone.
 - a validação local preserva o contrato oficial: HMAC-SHA1 sobre URL e campos
   ordenados, valores repetidos únicos e ordenados, compatibilidade com porta
   padrão e query string legada e comparação em tempo constante. Os testes usam
-  vetores capturados do SDK oficial antes da remoção;
+  vetores capturados do SDK oficial antes da remoção. HMAC-SHA1 é uma exigência
+  do protocolo de assinatura, não derivação ou armazenamento de senha;
 - `npm ci` concluiu sem o aviso, `npm ls scmp twilio --all` ficou vazio e o gate
   passou com 3 arquivos/16 testes focados, 93 arquivos/490 testes completos,
   lint, TypeScript, teste de contexto, audit sem vulnerabilidades e build de
