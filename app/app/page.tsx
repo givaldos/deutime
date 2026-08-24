@@ -3,6 +3,7 @@ import {
   declineTeamInvitation,
 } from "@/app/app/invitation-actions";
 import { BrandMark } from "@/components/brand-mark";
+import { AccountProfileLink } from "@/components/account-profile-link";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/logout-button";
@@ -71,7 +72,10 @@ export default async function AppIndexPage({
       <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-xl">
         <div className="mx-auto flex h-[4.5rem] max-w-3xl items-center justify-between px-4 sm:px-6">
           <BrandMark href="/app" />
-          <LogoutButton />
+          <div className="flex items-center gap-2">
+            <AccountProfileLink />
+            <LogoutButton />
+          </div>
         </div>
       </header>
 
