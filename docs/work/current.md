@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/codeql-closeout"
+branch_or_commit: "codex/actions-node24"
 checkpoint: idle
 status: done
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12, AC-R10-13]
@@ -36,6 +36,7 @@ tests:
   - "problema real: 4 falhas em duas semanas por atualização separada de init/analyze do CodeQL"
   - "correção operacional: PRs #278 e #279 aprovados; CodeQL, banco, qualidade, dependências, infraestrutura e deploy de prévia verdes"
   - "limpeza: PRs fragmentados #274 e #275 encerrados; dev e main sincronizadas no commit 32b17d2"
+  - "infraestrutura: setup-node v7 e setup-cli v3 removem runtimes legados; 1 arquivo/2 testes focados, 91 arquivos/487 testes, lint, TypeScript, contexto, audit sem vulnerabilidades e build Next 16.3.2 aprovados"
 blocker: null
 next_action: "Continuar a coleta de problemas reais sem PII; nenhuma release de produto entra em CP0 sem evidência suficiente."
 ---
