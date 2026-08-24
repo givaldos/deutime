@@ -2,9 +2,9 @@
 release: R00
 work_package: WP-R00-03
 scope: auth_email_branding
-branch_or_commit: "codex/email-branding"
-checkpoint: CP3
-status: active
+branch_or_commit: "780b49d71280ac716e72ee2550c7e8b7ddbbc32c"
+checkpoint: idle
+status: done
 completed_ac: [AC-R00-09]
 dirty_files: []
 tests:
@@ -44,8 +44,10 @@ tests:
   - "recuperação de senha: causa isolada no deploy que aplicava migrations, mas ignorava templates de Auth; 1 arquivo/2 testes focados, lint, TypeScript, 94 arquivos/492 testes e build Webpack aprovados"
   - "produção: Deploy Supabase 32775754544 atualizou e releu 7 campos de template; Smoke 32775800801 aprovado; dev e main sincronizadas em fb263a6"
   - "branding de e-mail: confirmação, recuperação e senha alterada compartilham logo, paleta e rodapé oficiais; 1 arquivo/4 testes focados, HTML estrutural e Terraform válidos"
+  - "gate do branding: lint, TypeScript, 94 arquivos/494 testes, contexto e build Webpack aprovados; Turbopack limitado somente pela porta do sandbox"
+  - "produção: Deploy Supabase 32777913647 atualizou e releu 3 conteúdos de e-mail; Smoke 32777958392 aprovado"
 blocker: null
-next_action: "Executar gate completo, promover os três templates e confirmar a releitura remota."
+next_action: "Observar a próxima mensagem real em um cliente de e-mail; nenhuma alteração produtiva permanece pendente."
 ---
 
 # Trabalho atual
@@ -198,7 +200,6 @@ e kill switches permanece disponível.
 ## Próxima ação
 
 A R10 permanece concluída e desligada. Os três e-mails ativos de autenticação
-recebem a identidade visual oficial com logo público, Verde Gramado, Volt, Gelo,
-Grafite e rodapé de marca. O publicador continua restrito aos campos de template
-e relê a configuração remota depois da escrita. A promoção e a evidência remota
-são a próxima ação.
+receberam em produção a identidade visual oficial com logo público, Verde
+Gramado, Volt, Gelo, Grafite e rodapé de marca. O deploy atualizou e releu os
+três conteúdos de e-mail; o smoke passou e não há alteração produtiva pendente.
