@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/remove-deprecated-scmp"
+branch_or_commit: "codex/activate-twilio-production"
 checkpoint: idle
 status: done
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12, AC-R10-13]
@@ -40,8 +40,9 @@ tests:
   - "Open Graph: runtime Edge removido conforme Next 16.3.2; imagem estática pré-renderizada, 1 teste focado, 92 arquivos/488 testes, lint, TypeScript, contexto, audit sem vulnerabilidades e build aprovados"
   - "módulos: package declarado ESM explicitamente; build sem alertas, 1 teste focado, 93 arquivos/489 testes, lint, TypeScript, contexto e audit sem vulnerabilidades aprovados"
   - "Twilio: SDK usado somente na validação removido; assinatura local compatível com vetores oficiais, 3 arquivos/16 testes focados, 93 arquivos/490 testes, lint, TypeScript, contexto, audit e build Webpack aprovados; scmp ausente da árvore limpa"
+  - "implantação Twilio: migração para Meta tornada opcional; timeout do gate do worker alinhado ao contrato de 3 s após 5 ciclos HTTP 409 com controles ativos; 2 arquivos/11 testes focados, 93 arquivos/490 testes, lint, TypeScript, contexto, audit e build Webpack aprovados"
 blocker: null
-next_action: "Continuar a coleta de problemas reais sem PII; nenhuma release de produto entra em CP0 sem evidência suficiente."
+next_action: "Promover o timeout contratual do worker Twilio e exigir HTTP 200 em modo live com templates prontos antes do fechamento operacional."
 ---
 
 # Trabalho atual
@@ -176,9 +177,17 @@ compatibilidade de porta e query string e comparação em tempo constante. Os
 vetores foram capturados do SDK antes da remoção; uma instalação limpa confirmou
 que `twilio` e `scmp` não permanecem na árvore.
 
+A Twilio permanece como provedora da implantação. A API direta da Meta saiu do
+caminho crítico e ficou condicionada a custo, escala ou necessidade operacional
+comprovados. Cinco ciclos consecutivos do worker falharam fechados com HTTP 409,
+embora a leitura agregada de produção mostrasse `integration_produce` e
+`integration_consume` ativos e três times demo habilitados. A rota usava 750 ms
+para a consulta que o contrato R03 permite executar por até 3 s; a correção
+alinha esse limite sem transformar erro ou timeout em autorização.
+
 ## Próxima ação
 
-A R10 permanece concluída e desligada. As falhas recorrentes do CodeQL, os
-runtimes legados das Actions, os alertas do build e a dependência obsoleta do
-SDK Twilio foram corrigidos e validados. A coleta de problemas reais continua
-sem abrir uma nova release de produto.
+A R10 permanece concluída e desligada. A próxima ação operacional é promover o
+timeout contratual do worker, exigir HTTP 200 em modo `live` com templates
+prontos e preservar o rollback pelos kill switches. Depois dessa prova, a
+coleta de problemas reais continua sem abrir uma nova release de produto.

@@ -336,3 +336,20 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
   contadores zerados, inclusive `recoveredForReview` e `ambiguous`. Nenhuma
   mensagem foi enviada porque não havia cota vencida.
 - O estado operacional e a próxima ação ficam em [`docs/work/current.md`](../work/current.md).
+
+### Correção operacional de implantação Twilio — 24/08/2026
+
+- a Twilio permanece como provedora de produção; a migração direta para a Meta
+  foi retirada do caminho crítico e mantida apenas como tarefa opcional,
+  condicionada a custo, escala ou requisito operacional comprovados;
+- `WHATSAPP_AUTOMATION_ENABLED=true`, o segredo do worker existe, os dois kill
+  switches estavam ativos no banco e três times demo conservavam
+  `whatsapp_reminders`; mesmo assim, cinco ciclos consecutivos retornaram HTTP
+  409 antes de analisar a configuração Twilio;
+- a rota aplicava o timeout geral de 750 ms, enquanto o contrato R03 admite até
+  3 s para a consulta do kill switch. A correção passa explicitamente 3 s e
+  mantém falha fechada em erro ou expiração;
+- 2 arquivos/11 testes focados, lint, TypeScript, 93 arquivos/490 testes,
+  contexto, audit sem vulnerabilidades e build de produção Webpack passaram. A
+  promoção deve exigir HTTP 200, modo `live` e templates prontos antes do
+  fechamento operacional.

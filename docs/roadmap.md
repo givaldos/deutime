@@ -51,7 +51,7 @@ autorizar marketplace, pagamentos ou outra vertical.
 | 7. Descoberta pós-MVP | 🟡 atividade atual, sem implementação | Reunir recomendações, evidências, métricas, dependências e critérios de aceite; eliminar duplicidades e separar requisito de ideia. |
 | 8. Evoluções de produto | ✅ R09 e R10 em CP6 | Campeonatos e reconhecimento positivo concluídos com pilotos, smokes, fallbacks e rollback. |
 | 9. Consolidação e escala | ⬜ decisão pendente | Medir densidade e priorizar somente melhorias com risco, uso real ou retorno mensurável; nenhuma implementação nova está autorizada pelo roadmap. |
-| 10. Última evolução técnica | ⚪ por último | Revalidar os requisitos e somente então migrar a mensageria da Twilio para a WhatsApp Cloud API direta da Meta. |
+| Opcional — troca de provedor | ⚪ sem posição no cronograma | Avaliar a WhatsApp Cloud API direta da Meta somente se custo, escala ou requisito operacional justificarem; a Twilio permanece como provedora de produção. |
 
 ## Entregas do MVP concluídas
 
@@ -126,7 +126,7 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 | 9 | Escolher entre produto, operação ou dívida técnica | problema comprovado, resultado demonstrável, fallback e critérios suficientes para CP0 |
 | 10 | Descobrir marketplace e pagamentos | densidade real de oferta e demanda, modelo de confiança e viabilidade transacional |
 | 11 | Implementar melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
-| 12 | Migrar da Twilio para a Meta | última entrega; requisitos e preços revalidados imediatamente antes do CP0 |
+| Opcional | Avaliar migração da Twilio para a Meta | fora do caminho crítico; somente com ponto de equilíbrio ou necessidade operacional comprovados e requisitos revalidados antes do CP0 |
 
 Levantar requisitos agora não autoriza implementação. Exceções à sequência existem somente para segurança, indisponibilidade, obrigação legal, perda de dados ou custo operacional que ameace a continuidade do produto.
 
@@ -138,7 +138,7 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
 - [x] executar o primeiro snapshot agregado pós-R10, sem PII, com decisão `sem promoção` por densidade insuficiente;
 - [ ] coletar problemas reais do uso pós-R10 sem identidade ou conteúdo esportivo;
 - [ ] selecionar e preparar uma única próxima release somente após a descoberta;
-- [ ] manter marketplace como horizonte condicionado à densidade e a migração para a Meta como última entrega.
+- [ ] manter marketplace condicionado à densidade e a migração para a Meta como tarefa opcional, sem bloquear a implantação pela Twilio.
 
 A R09 foi escolhida antes da R10 porque fechava a lacuna observável entre
 partidas isoladas e uma competição, reutilizando os contratos estabilizados de
@@ -229,9 +229,12 @@ Depois que o ciclo principal estiver validado e houver densidade de times, atlet
 
 Este horizonte não recebe release, prazo ou implementação agora. Sua promoção exige validar oferta, demanda, confiança, reputação, moderação, suporte, pagamentos, antifraude, identidade, tributação e LGPD.
 
-## Última evolução planejada — WhatsApp Cloud API direta da Meta
+## Tarefa opcional — WhatsApp Cloud API direta da Meta
 
-Esta é deliberadamente a **última entrega do cronograma**. Ela só entra em descoberta formal e CP0 depois do MVP concluído e das evoluções de produto priorizadas, inclusive campeonatos, reconhecimento e marketplace. Até lá, o fluxo comprovado permanece na Twilio com compartilhamento manual como fallback.
+Esta tarefa fica deliberadamente **fora do cronograma e do caminho crítico**.
+Ela só entra em descoberta formal e CP0 se volume, custo, escala ou requisito
+operacional comprovarem vantagem suficiente. Até lá, o fluxo de produção
+permanece na Twilio com compartilhamento manual como fallback.
 
 O levantamento inicial pode acontecer agora, sem desenho definitivo nem implementação. Ele deve manter um registro curto de:
 
@@ -281,7 +284,7 @@ flowchart LR
     R09 --> MARKET["Marketplace e pagamentos"]
     R10 --> MARKET
     MARKET --> SCALE["Melhorias comprovadas de escala"]
-    SCALE --> META["Por último: API direta da Meta"]
+    SCALE -. "opcional se custo/escala justificarem" .-> META["API direta da Meta"]
 ```
 
 ## Regras de promoção
