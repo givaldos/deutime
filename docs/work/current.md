@@ -2,9 +2,9 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/r10-pilot-final-evidence"
+branch_or_commit: "codex/post-r10-roadmap-sync"
 checkpoint: idle
-status: ready
+status: done
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12, AC-R10-13]
 dirty_files: []
 tests:
@@ -32,7 +32,7 @@ tests:
   - "smoke consentido: workflow 32654607347 aprovado; smoke revogado: workflow 32654662792 aprovado"
   - "rollback: recognition desligada, resumo público ausente, fallback privado e fatos esportivos preservados"
 blocker: null
-next_action: "R10 concluída; manter a feature desligada e validar Craque somente em futura partida com janela real elegível."
+next_action: "R10 concluída; manter a feature desligada e iniciar somente descoberta pós-R10 baseada em densidade e métricas agregadas."
 ---
 
 # Trabalho atual

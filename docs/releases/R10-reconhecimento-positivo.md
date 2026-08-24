@@ -1,7 +1,7 @@
 ---
 id: R10
 type: vertical
-status: ready
+status: done
 outcome: "Permitir que a pessoa atleta acompanhe reconhecimentos positivos derivados de fatos esportivos confiáveis e escolha, por consentimento, quais agregados aparecem no próprio perfil, sem ranking constrangedor."
 depends_on: [R04, R05, R07]
 baseline:

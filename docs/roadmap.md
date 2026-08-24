@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 16 de agosto de 2026.
+> Atualizado em 23 de agosto de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -14,7 +14,11 @@ O **MVP funcional completo** permite que um time real execute pelo celular e pel
 
 O MVP é considerado completo para **piloto controlado**, não para disponibilidade geral em escala. Nenhuma etapa pode depender de intervenção no banco, expor dados sem consentimento ou perder a operação quando WhatsApp, tempo real, vídeo, votação ou conversa estiverem desligados.
 
-**Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na R08M e a R09 encerrou CP6. A R10 concluiu a descoberta e a expansão inerte em CP1: catálogo factual, projeções, consentimento, RLS e compatibilidade foram comprovados sem interface, consumidor, efeito externo ou time ativado. A próxima entrega é a visão privada móvel.
+**Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na
+R08M, e R09 e R10 encerraram CP6. A R10 comprovou visão privada, resumo público
+consentido, revogação, smokes e rollback em coorte sintética; a feature terminou
+desligada. A próxima frente é somente descoberta pós-R10 baseada em densidade e
+métricas agregadas, sem autorizar marketplace ou pagamentos.
 
 ## Estado executivo
 
@@ -31,7 +35,7 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | **R07 — Times reutilizáveis e divisão compartilhável** | ✅ `completed` | Equipes reutilizáveis, sugestão, publicação, primeiros nomes, formação visual e jornada por toque validadas em produção. | [Abrir](releases/R07-times-manuais-compartilhaveis.md) |
 | **R08M — Fechamento do MVP compartilhável** | ✅ `completed` | Open Graph por fase, piloto compartilhável, ciclo integrado, falhas e fallbacks comprovados. | [Abrir](releases/R08M-fechamento-mvp-compartilhavel.md) |
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Três formatos, classificação, chave, página anônima, robustez, piloto e sonda protegida concluídos. | [Abrir](releases/R09-campeonatos-e-tabela.md) |
-| **R10 — Reconhecimento positivo** | 🟡 `ready / CP1` | Modelo factual aceito e expansão inerte concluída; visão privada móvel é o próximo pacote, ainda sem ativação. | [Abrir](releases/R10-reconhecimento-positivo.md) |
+| **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Modelo factual, visão privada, resumo consentido, revogação, piloto isolado, smokes e rollback comprovados. | [Abrir](releases/R10-reconhecimento-positivo.md) |
 
 ## Cronograma consolidado
 
@@ -44,8 +48,8 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 | 5. Divisão compartilhável | ✅ concluído | R07 comprovou equipes internas, sugestão, publicação, formação visual, jornada por toque e rollback em Android/iPhone. |
 | 6. Fechamento do MVP | ✅ concluído | R08M concluiu Open Graph por fase, previews físicos, piloto, rollback e o gate integrado do ciclo completo. |
 | 7. Descoberta pós-MVP | 🟡 contínua, sem implementação | Reunir recomendações, evidências, métricas, dependências e critérios de aceite; eliminar duplicidades e separar requisito de ideia. |
-| 8. Evoluções de produto | 🟡 R10 em CP1 | Entregar a visão privada móvel, depois o resumo público consentido e por fim robustez, piloto e CP6, mantendo a flag desligada até a coorte. |
-| 9. Consolidação e escala | ⬜ depois das verticais | Executar somente as melhorias transversais priorizadas por risco, uso real ou retorno mensurável. |
+| 8. Evoluções de produto | ✅ R09 e R10 em CP6 | Campeonatos e reconhecimento positivo concluídos com pilotos, smokes, fallbacks e rollback. |
+| 9. Consolidação e escala | 🟡 descoberta baseada em evidência | Medir densidade e priorizar somente melhorias com risco, uso real ou retorno mensurável; nenhuma implementação nova está autorizada pelo roadmap. |
 | 10. Última evolução técnica | ⚪ por último | Revalidar os requisitos e somente então migrar a mensageria da Twilio para a WhatsApp Cloud API direta da Meta. |
 
 ## Entregas do MVP concluídas
@@ -114,9 +118,9 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 | 2 | ~~Concluir a R09~~ | ✅ CP6, sonda protegida e documentação concluídos |
 | 3 | ~~Reavaliar a vertical restante e melhorias transversais~~ | ✅ R10 preparada em CP0 após contrato aceito e sinal de uso `3/3` |
 | 4 | ~~Expandir a R10 de forma inerte~~ | ✅ CP1 concluído sem interface, consumidor, time ativado ou efeito externo |
-| 5 | Entregar a visão privada móvel da R10 | `WP-R10-02`, somente para a própria sessão, atrás da flag e com perfil atual como fallback |
-| 6 | Entregar o resumo público consentido | `WP-R10-03`, consentimento exclusivo do titular e nenhuma cédula, partida ou ranking público |
-| 7 | Concluir robustez e piloto da R10 | `WP-R10-04`, correção, revogação, mobile, telemetria, fallback, rollback e CP6 |
+| 5 | ~~Entregar a visão privada móvel da R10~~ | ✅ `WP-R10-02` concluído |
+| 6 | ~~Entregar o resumo público consentido~~ | ✅ `WP-R10-03` concluído |
+| 7 | ~~Concluir robustez e piloto da R10~~ | ✅ `WP-R10-04` e CP6 concluídos; feature desligada após rollback |
 | 8 | Descobrir marketplace e pagamentos | densidade real de oferta e demanda, modelo de confiança e viabilidade transacional |
 | 9 | Implementar melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
 | 10 | Migrar da Twilio para a Meta | última entrega; requisitos e preços revalidados imediatamente antes do CP0 |
@@ -148,7 +152,7 @@ reavaliar reconhecimento sem autorizar pontos ou ranking.
 |---|---|---|---|---|---|
 | **R08 — Divisão automática** | ↪️ `incorporado à R07` | Sugestão reproduzível, ajustável e explicável foi incorporada à jornada de divisão para não entregar uma experiência fragmentada. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Ajuste manual |
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento, página compartilhável e piloto com rollback. | R04, R07, R08M | concluída | Histórico por partida |
-| **R10 — Reconhecimento positivo** | 🟡 `ready / CP1` | Catálogo factual, projeções privadas e resumo consentido expandidos de forma inerte, sem ranking constrangedor. | R04, R05, R07 | entregar interface, piloto e CP6 | Estatísticas básicas |
+| **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Catálogo factual, visão privada, resumo consentido, revogação e piloto isolado concluídos sem ranking constrangedor. | R04, R05, R07 | concluída | Estatísticas básicas |
 
 ### R09 — campeonatos configuráveis
 
@@ -171,10 +175,10 @@ por uma tabela de pontos: `DEC-RECOGNITION-MODEL` adotou cartões factuais de go
 assistência e Craque agregado, privados por padrão e sem ranking. Três de três
 pessoas compreenderam os quatro limites e demonstraram intenção de uso. O pacote
 [`R10-reconhecimento-positivo`](releases/R10-reconhecimento-positivo.md) concluiu
-CP1 com expansão forward-only, flag desligada, marco não retroativo, projeção
-privada, resumo público mínimo, consentimento próprio, RLS, grants e concorrência
-comprovados. A próxima ação é `WP-R10-02`: criar `/me/reconhecimentos` sem ativar
-time e preservando perfil e estatísticas atuais como fallback.
+CP6 com expansão forward-only, marco não retroativo, visão privada, resumo
+público mínimo, consentimento próprio, RLS, grants, concorrência, telemetria,
+smokes e rollback comprovados. A coorte sintética terminou com a flag desligada
+e os fatos esportivos preservados.
 
 ### Entregas da R10
 
@@ -184,10 +188,10 @@ time e preservando perfil e estatísticas atuais como fallback.
 - [x] criar projeção privada reconstruível, correção, reversão, replay e concorrência sem ledger ou contador paralelo;
 - [x] criar consentimento próprio `public_recognition_summary_v1` e projeção pública mínima, sem partida, data, voto, colocação, time ou ID interno;
 - [x] comprovar identidade derivada da sessão, RLS, grants mínimos, negação, cross-tenant e compatibilidade app/banco N/N−1;
-- [ ] entregar `/me/reconhecimentos` mobile-first, privado por padrão e com explicação factual sem comparação;
-- [ ] permitir que somente o titular conceda ou revogue o resumo público por vínculo, com retirada imediata da projeção;
-- [ ] validar visão privada, consentimento e perfil por toque, teclado e leitor de tela em Android, iPhone e navegador interno do WhatsApp;
-- [ ] concluir telemetria redigida, smoke, correção, revogação, piloto isolado, fallback, rollback e CP6.
+- [x] entregar `/me/reconhecimentos` mobile-first, privado por padrão e com explicação factual sem comparação;
+- [x] permitir que somente o titular conceda ou revogue o resumo público por vínculo, com retirada imediata da projeção;
+- [x] validar visão privada, consentimento e perfil por toque, teclado e leitor de tela em Android, iPhone e navegador interno do WhatsApp;
+- [x] concluir telemetria redigida, smoke, correção, revogação, piloto isolado, fallback, rollback e CP6.
 
 ## Fora do MVP entregue
 
