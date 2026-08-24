@@ -40,68 +40,12 @@ resource "supabase_settings" "production" {
     mailer_otp_exp                                         = 600
     mailer_otp_length                                      = 6
     mailer_subjects_confirmation                           = "Confirme seu e-mail — DeuTime"
-    mailer_templates_confirmation_content                  = <<-HTML
-      <!doctype html>
-      <html lang="pt-BR">
-        <body style="margin:0;background:#f4f4f5;color:#18181b;font-family:Arial,sans-serif">
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:32px 16px">
-            <tr><td align="center">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background:#fff;border-radius:16px;padding:32px">
-                <tr><td>
-                  <p style="margin:0 0 8px;color:#0D2B22;font-size:14px;font-weight:700">DeuTime</p>
-                  <h1 style="margin:0 0 16px;font-size:24px;line-height:1.25">Confirme seu e-mail</h1>
-                  <p style="margin:0 0 24px;color:#52525b;font-size:16px;line-height:1.5">Confirme este endereço para concluir a criação da sua conta de administrador.</p>
-                  <p style="margin:0 0 24px"><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=email&amp;next=/app" style="display:inline-block;border-radius:10px;background:#0D2B22;color:#BDF63C;padding:12px 20px;font-size:16px;font-weight:700;text-decoration:none">Confirmar e-mail</a></p>
-                  <p style="margin:0;color:#71717a;font-size:13px;line-height:1.5">Este link é pessoal e expira em poucos minutos. Se você não criou esta conta, ignore esta mensagem.</p>
-                </td></tr>
-              </table>
-            </td></tr>
-          </table>
-        </body>
-      </html>
-    HTML
+    mailer_templates_confirmation_content                  = file("${path.module}/../../supabase/templates/confirmation.html")
     mailer_subjects_recovery                               = "Redefina sua senha — DeuTime"
-    mailer_templates_recovery_content                      = <<-HTML
-      <!doctype html>
-      <html lang="pt-BR">
-        <body style="margin:0;background:#f4f4f5;color:#18181b;font-family:Arial,sans-serif">
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:32px 16px">
-            <tr><td align="center">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background:#fff;border-radius:16px;padding:32px">
-                <tr><td>
-                  <p style="margin:0 0 8px;color:#0D2B22;font-size:14px;font-weight:700">DeuTime</p>
-                  <h1 style="margin:0 0 16px;font-size:24px;line-height:1.25">Redefina sua senha</h1>
-                  <p style="margin:0 0 24px;color:#52525b;font-size:16px;line-height:1.5">Recebemos uma solicitação para recuperar sua conta administrativa.</p>
-                  <p style="margin:0 0 24px"><a href="{{ .SiteURL }}/auth/recovery?token_hash={{ .TokenHash }}&amp;type=recovery" style="display:inline-block;border-radius:10px;background:#0D2B22;color:#BDF63C;padding:12px 20px;font-size:16px;font-weight:700;text-decoration:none">Escolher nova senha</a></p>
-                  <p style="margin:0;color:#71717a;font-size:13px;line-height:1.5">Este link é pessoal, só pode ser usado uma vez e expira em poucos minutos. Se você não solicitou a recuperação, ignore esta mensagem.</p>
-                </td></tr>
-              </table>
-            </td></tr>
-          </table>
-        </body>
-      </html>
-    HTML
+    mailer_templates_recovery_content                      = file("${path.module}/../../supabase/templates/recovery.html")
     mailer_notifications_password_changed_enabled          = true
     mailer_subjects_password_changed_notification          = "Sua senha foi alterada — DeuTime"
-    mailer_templates_password_changed_notification_content = <<-HTML
-      <!doctype html>
-      <html lang="pt-BR">
-        <body style="margin:0;background:#f4f4f5;color:#18181b;font-family:Arial,sans-serif">
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:32px 16px">
-            <tr><td align="center">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background:#fff;border-radius:16px;padding:32px">
-                <tr><td>
-                  <p style="margin:0 0 8px;color:#0D2B22;font-size:14px;font-weight:700">DeuTime</p>
-                  <h1 style="margin:0 0 16px;font-size:24px;line-height:1.25">Sua senha foi alterada</h1>
-                  <p style="margin:0 0 16px;color:#52525b;font-size:16px;line-height:1.5">A senha da sua conta administrativa foi atualizada e as sessões anteriores foram encerradas.</p>
-                  <p style="margin:0;color:#71717a;font-size:13px;line-height:1.5">Se você não fez esta alteração, solicite uma nova recuperação imediatamente e avise o responsável pela plataforma.</p>
-                </td></tr>
-              </table>
-            </td></tr>
-          </table>
-        </body>
-      </html>
-    HTML
+    mailer_templates_password_changed_notification_content = file("${path.module}/../../supabase/templates/password-changed.html")
     smtp_admin_email                                       = var.smtp_admin_email
     smtp_host                                              = var.smtp_host
     smtp_port                                              = var.smtp_port
