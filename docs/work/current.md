@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/post-r10-roadmap-sync"
+branch_or_commit: "codex/post-r10-discovery"
 checkpoint: idle
 status: done
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12, AC-R10-13]
@@ -31,8 +31,10 @@ tests:
   - "produção: 2 cartões privados e 2 públicos confirmados; perfil público sem origem sensível"
   - "smoke consentido: workflow 32654607347 aprovado; smoke revogado: workflow 32654662792 aprovado"
   - "rollback: recognition desligada, resumo público ausente, fallback privado e fatos esportivos preservados"
+  - "descoberta pós-R10: snapshot de produção somente leitura, uma linha agregada e supressão de grupos menores que 3"
+  - "recuperação operacional: snippet histórico revertido; pós-sonda confirmou team_division desligada e fatos preservados"
 blocker: null
-next_action: "R10 concluída; manter a feature desligada e iniciar somente descoberta pós-R10 baseada em densidade e métricas agregadas."
+next_action: "Coletar problemas reais sem PII e repetir a janela agregada; nenhuma frente cumpre o gate de CP0 neste snapshot."
 ---
 
 # Trabalho atual
@@ -161,8 +163,8 @@ ausência de PII.
 
 ## Próxima ação
 
-A R10 está concluída e voltou ao estado desligado. Manter a feature nesse estado
-até uma decisão explícita de ampliação. O reconhecimento de Craque será validado
-somente em futura partida elegível, respeitando a janela real de votação de 12
-horas; isso não bloqueia o aceite, já coberto por catálogo, projeção, RLS e
-testes de reconstrução.
+A R10 permanece concluída e desligada. O primeiro snapshot pós-R10 registrou
+uso concentrado em menos de três times ativos e repetentes, portanto nenhuma
+frente entra em CP0. Coletar problemas reais sem PII e repetir a janela
+agregada; promover uma única release apenas quando o gate de evidência for
+cumprido.
