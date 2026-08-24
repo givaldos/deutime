@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 23 de agosto de 2026.
+> Atualizado em 24 de agosto de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -15,10 +15,11 @@ O **MVP funcional completo** permite que um time real execute pelo celular e pel
 O MVP é considerado completo para **piloto controlado**, não para disponibilidade geral em escala. Nenhuma etapa pode depender de intervenção no banco, expor dados sem consentimento ou perder a operação quando WhatsApp, tempo real, vídeo, votação ou conversa estiverem desligados.
 
 **Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na
-R08M, e R09 e R10 encerraram CP6. A R10 comprovou visão privada, resumo público
-consentido, revogação, smokes e rollback em coorte sintética; a feature terminou
-desligada. A próxima frente é somente descoberta pós-R10 baseada em densidade e
-métricas agregadas, sem autorizar marketplace ou pagamentos.
+R08M, e R09 e R10 encerraram CP6. Não há release ou implementação ativa. A R10
+comprovou visão privada, resumo público consentido, revogação, smokes e rollback
+em coorte sintética; a feature terminou desligada. A próxima atividade permitida
+é somente descoberta pós-R10 baseada em densidade e métricas agregadas, sem
+autorizar marketplace, pagamentos ou outra vertical.
 
 ## Estado executivo
 
@@ -47,9 +48,9 @@ métricas agregadas, sem autorizar marketplace ou pagamentos.
 | 4. Lembretes econômicos | ✅ concluído | R03R entregou duas cotas automáticas ou manuais somente para quem ainda não confirmou, sem duplicidade. |
 | 5. Divisão compartilhável | ✅ concluído | R07 comprovou equipes internas, sugestão, publicação, formação visual, jornada por toque e rollback em Android/iPhone. |
 | 6. Fechamento do MVP | ✅ concluído | R08M concluiu Open Graph por fase, previews físicos, piloto, rollback e o gate integrado do ciclo completo. |
-| 7. Descoberta pós-MVP | 🟡 contínua, sem implementação | Reunir recomendações, evidências, métricas, dependências e critérios de aceite; eliminar duplicidades e separar requisito de ideia. |
+| 7. Descoberta pós-MVP | 🟡 atividade atual, sem implementação | Reunir recomendações, evidências, métricas, dependências e critérios de aceite; eliminar duplicidades e separar requisito de ideia. |
 | 8. Evoluções de produto | ✅ R09 e R10 em CP6 | Campeonatos e reconhecimento positivo concluídos com pilotos, smokes, fallbacks e rollback. |
-| 9. Consolidação e escala | 🟡 descoberta baseada em evidência | Medir densidade e priorizar somente melhorias com risco, uso real ou retorno mensurável; nenhuma implementação nova está autorizada pelo roadmap. |
+| 9. Consolidação e escala | ⬜ decisão pendente | Medir densidade e priorizar somente melhorias com risco, uso real ou retorno mensurável; nenhuma implementação nova está autorizada pelo roadmap. |
 | 10. Última evolução técnica | ⚪ por último | Revalidar os requisitos e somente então migrar a mensageria da Twilio para a WhatsApp Cloud API direta da Meta. |
 
 ## Entregas do MVP concluídas
@@ -121,11 +122,23 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 | 5 | ~~Entregar a visão privada móvel da R10~~ | ✅ `WP-R10-02` concluído |
 | 6 | ~~Entregar o resumo público consentido~~ | ✅ `WP-R10-03` concluído |
 | 7 | ~~Concluir robustez e piloto da R10~~ | ✅ `WP-R10-04` e CP6 concluídos; feature desligada após rollback |
-| 8 | Descobrir marketplace e pagamentos | densidade real de oferta e demanda, modelo de confiança e viabilidade transacional |
-| 9 | Implementar melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
-| 10 | Migrar da Twilio para a Meta | última entrega; requisitos e preços revalidados imediatamente antes do CP0 |
+| 8 | [Levantar a próxima decisão pós-R10](discovery/post-r10-next-decision.md) | medir uso real, densidade, atritos e custo; não promover release durante o levantamento |
+| 9 | Escolher entre produto, operação ou dívida técnica | problema comprovado, resultado demonstrável, fallback e critérios suficientes para CP0 |
+| 10 | Descobrir marketplace e pagamentos | densidade real de oferta e demanda, modelo de confiança e viabilidade transacional |
+| 11 | Implementar melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
+| 12 | Migrar da Twilio para a Meta | última entrega; requisitos e preços revalidados imediatamente antes do CP0 |
 
 Levantar requisitos agora não autoriza implementação. Exceções à sequência existem somente para segurança, indisponibilidade, obrigação legal, perda de dados ou custo operacional que ameace a continuidade do produto.
+
+### Situação das entregas em 24 de agosto de 2026
+
+- [x] MVP compartilhável encerrado em R08M;
+- [x] campeonatos encerrados em R09/CP6, com a capacidade preservada atrás de flag;
+- [x] reconhecimento positivo encerrado em R10/CP6, privado por padrão e desligado após o piloto;
+- [x] executar o primeiro snapshot agregado pós-R10, sem PII, com decisão `sem promoção` por densidade insuficiente;
+- [ ] coletar problemas reais do uso pós-R10 sem identidade ou conteúdo esportivo;
+- [ ] selecionar e preparar uma única próxima release somente após a descoberta;
+- [ ] manter marketplace como horizonte condicionado à densidade e a migração para a Meta como última entrega.
 
 A R09 foi escolhida antes da R10 porque fechava a lacuna observável entre
 partidas isoladas e uma competição, reutilizando os contratos estabilizados de
