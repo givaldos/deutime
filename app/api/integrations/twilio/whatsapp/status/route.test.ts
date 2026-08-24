@@ -1,4 +1,3 @@
-import twilio from "twilio";
 import { NextRequest } from "next/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -35,13 +34,7 @@ function request(options: {
   });
 }
 
-function signature(body = rawBody, callbackUrl = url) {
-  return twilio.getExpectedTwilioSignature(
-    authToken,
-    callbackUrl,
-    Object.fromEntries(new URLSearchParams(body)),
-  );
-}
+const validSignature = "c5mIkMaVKTxMf93dyvCu7QYjiEk=";
 
 describe("webhook de status da Twilio", () => {
   afterEach(() => {
@@ -70,7 +63,7 @@ describe("webhook de status da Twilio", () => {
     mocks.record.mockResolvedValue(true);
     const response = await POST(
       request({
-        signature: signature(),
+        signature: validSignature,
         requestUrl: url.replace("deutime.app", "host-nao-confiavel.test"),
       }),
     );
@@ -89,7 +82,7 @@ describe("webhook de status da Twilio", () => {
     process.env.TWILIO_AUTH_TOKEN = authToken;
     process.env.APP_URL = "https://deutime.app";
     mocks.record.mockResolvedValue(false);
-    expect((await POST(request({ signature: signature() }))).status).toBe(204);
+    expect((await POST(request({ signature: validSignature }))).status).toBe(204);
   });
 
   it("rejeita mídia e corpo acima do limite", async () => {

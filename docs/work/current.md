@@ -2,7 +2,7 @@
 release: R10
 work_package: WP-R10-04
 scope: recognition_isolated_pilot
-branch_or_commit: "codex/explicit-esm-package"
+branch_or_commit: "codex/remove-deprecated-scmp"
 checkpoint: idle
 status: done
 completed_ac: [AC-R10-01, AC-R10-02, AC-R10-03, AC-R10-04, AC-R10-05, AC-R10-06, AC-R10-07, AC-R10-08, AC-R10-09, AC-R10-10, AC-R10-11, AC-R10-12, AC-R10-13]
@@ -39,6 +39,7 @@ tests:
   - "infraestrutura: setup-node v7 e setup-cli v3 removem runtimes legados; 1 arquivo/2 testes focados, 91 arquivos/487 testes, lint, TypeScript, contexto, audit sem vulnerabilidades e build Next 16.3.2 aprovados"
   - "Open Graph: runtime Edge removido conforme Next 16.3.2; imagem estática pré-renderizada, 1 teste focado, 92 arquivos/488 testes, lint, TypeScript, contexto, audit sem vulnerabilidades e build aprovados"
   - "módulos: package declarado ESM explicitamente; build sem alertas, 1 teste focado, 93 arquivos/489 testes, lint, TypeScript, contexto e audit sem vulnerabilidades aprovados"
+  - "Twilio: SDK usado somente na validação removido; assinatura local compatível com vetores oficiais, 3 arquivos/16 testes focados, 93 arquivos/490 testes, lint, TypeScript, contexto, audit e build Webpack aprovados; scmp ausente da árvore limpa"
 blocker: null
 next_action: "Continuar a coleta de problemas reais sem PII; nenhuma release de produto entra em CP0 sem evidência suficiente."
 ---
@@ -167,10 +168,17 @@ produto e um `request_id` novo. A pós-sonda valida o estado devolvido e relata
 somente contagens agregadas de cartões privados e públicos, preservando a
 ausência de PII.
 
+A coleta operacional também identificou o aviso de pacote obsoleto `scmp`,
+trazido exclusivamente pelo SDK `twilio@6.1.0`. O envio já usa o adaptador HTTP
+do produto e somente a validação de callback dependia do SDK. Essa validação foi
+internalizada com o contrato oficial HMAC-SHA1, ordenação determinística,
+compatibilidade de porta e query string e comparação em tempo constante. Os
+vetores foram capturados do SDK antes da remoção; uma instalação limpa confirmou
+que `twilio` e `scmp` não permanecem na árvore.
+
 ## Próxima ação
 
-A R10 permanece concluída e desligada. O primeiro problema real recorrente é
-operacional: quatro falhas em duas semanas porque o Dependabot separa as duas
-actions do CodeQL. A correção conjunta foi promovida, validada em `dev` e
-`main`, e os PRs fragmentados foram encerrados. A coleta de problemas reais
-continua sem abrir uma nova release de produto.
+A R10 permanece concluída e desligada. As falhas recorrentes do CodeQL, os
+runtimes legados das Actions, os alertas do build e a dependência obsoleta do
+SDK Twilio foram corrigidos e validados. A coleta de problemas reais continua
+sem abrir uma nova release de produto.
