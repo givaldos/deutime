@@ -3,6 +3,14 @@ import { fileURLToPath } from "node:url";
 
 const PROJECT_ROOT = fileURLToPath(new URL("../", import.meta.url));
 
+export const REQUIRED_EMAIL_BRAND_FRAGMENTS = [
+  "/brand/logo-deutime-email-640-fundo-escuro.png",
+  "#0D2B22",
+  "#BDF63C",
+  "#F7FAF5",
+  "Deu time, deu jogo.",
+];
+
 export const AUTH_EMAIL_TEMPLATES = [
   {
     contentField: "mailer_templates_confirmation_content",
@@ -25,7 +33,7 @@ export const AUTH_EMAIL_TEMPLATES = [
   {
     contentField: "mailer_templates_password_changed_notification_content",
     path: "supabase/templates/password-changed.html",
-    requiredFragments: [],
+    requiredFragments: ["/auth/forgot-password"],
     subject: "Sua senha foi alterada — DeuTime",
     subjectField: "mailer_subjects_password_changed_notification",
   },
@@ -39,7 +47,10 @@ export async function buildAuthEmailConfig(root = PROJECT_ROOT) {
   for (const template of AUTH_EMAIL_TEMPLATES) {
     const content = await readFile(new URL(template.path, `file://${root}/`), "utf8");
 
-    for (const fragment of template.requiredFragments) {
+    for (const fragment of [
+      ...REQUIRED_EMAIL_BRAND_FRAGMENTS,
+      ...template.requiredFragments,
+    ]) {
       if (!content.includes(fragment)) {
         throw new Error(`${template.path} não contém o contrato obrigatório: ${fragment}`);
       }
