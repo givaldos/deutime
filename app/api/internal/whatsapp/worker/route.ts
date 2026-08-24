@@ -14,6 +14,7 @@ const reminderTemplateIds = [
   "event_reminder:first_card_v2",
   "event_reminder:last_card_v2",
 ] as const;
+const workerControlTimeoutMs = 3_000;
 
 export async function POST(request: NextRequest) {
   if (
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     return response({ status: "não autorizado" }, 401);
   }
 
-  if (!(await isExternalCommandConsumptionEnabled())) {
+  if (!(await isExternalCommandConsumptionEnabled(workerControlTimeoutMs))) {
     return response({ status: "consumo desligado" }, 409);
   }
 
