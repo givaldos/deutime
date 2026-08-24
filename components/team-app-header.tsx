@@ -1,4 +1,5 @@
 import { BrandMark } from "@/components/brand-mark";
+import { AccountProfileLink } from "@/components/account-profile-link";
 import { LogoutButton } from "@/components/logout-button";
 import { TeamPrimaryNavigation } from "@/components/team-primary-navigation";
 import { TeamSwitcher } from "@/components/team-switcher";
@@ -21,6 +22,7 @@ export function TeamAppHeader({
         </div>
         <div className="flex items-center gap-2">
           <TeamPrimaryNavigation teamSlug={currentSlug} />
+          <AccountProfileLink />
           <LogoutButton />
         </div>
       </div>

@@ -4595,6 +4595,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      update_my_account_profile: {
+        Args: { requested_display_name: string }
+        Returns: string
+      }
       update_my_player_profile: {
         Args: {
           field_positions: string[]
