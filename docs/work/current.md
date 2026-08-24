@@ -2,7 +2,7 @@
 release: R00
 work_package: WP-R00-03
 scope: post_login_account_profile
-branch_or_commit: "66cbcc4"
+branch_or_commit: "81a8251"
 checkpoint: idle
 status: done
 completed_ac: [AC-R00-09]
@@ -12,8 +12,10 @@ tests:
   - "aplicação: lint, TypeScript, contexto e 97 arquivos/499 testes aprovados"
   - "build de produção Webpack aprovado; Turbopack limitado somente pela porta do sandbox"
   - "banco no CI: schema reconstruído, lint, 56 arquivos/1449 pgTAP e tipos gerados aprovados"
+  - "produção: Deploy Supabase 32780300760 e smoke 32780362802 aprovados"
+  - "produção/360 px: perfil autenticado sem overflow, acesso no cabeçalho e alvos de 48 px aprovados"
 blocker: null
-next_action: "Promover o PR #300 para dev e main; depois validar a jornada autenticada em produção."
+next_action: "Nenhuma alteração pendente; seguir para a próxima tarefa de produto."
 ---
 
 # Trabalho atual
@@ -31,5 +33,7 @@ também preserva o perfil de outra pessoa.
 
 O gate da aplicação está verde com 499 testes e build Webpack. O pipeline
 reconstruiu o banco, aprovou lint, 1.449 testes pgTAP e confirmou os tipos
-gerados. O servidor local redirecionou corretamente a rota protegida para
-login; a revisão visual autenticada será feita após a promoção para produção.
+gerados. A migration e a aplicação chegaram à produção no commit `81a8251`; o
+smoke passou. A revisão autenticada a 360 px confirmou acesso no cabeçalho,
+ausência de overflow horizontal e alvos de 48 px, sem alterar o nome real da
+sessão usada na prova. O checkpoint voltou a `idle` e não há pendência.
