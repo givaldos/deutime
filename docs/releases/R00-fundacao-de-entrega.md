@@ -174,7 +174,10 @@ Hotfix de recuperação de senha, em 24 de agosto de 2026:
 - gates locais: validação do template, 2 testes focados, lint, TypeScript, 94
   arquivos/492 testes e build de produção com Webpack aprovados. O build padrão
   Turbopack ficou limitado pela proibição local de abrir porta, sem erro de
-  aplicação.
+  aplicação;
+- produção: o workflow `32775754544` atualizou e releu com sucesso os sete
+  campos de template; o smoke somente leitura `32775800801` foi aprovado e
+  `dev`/`main` ficaram sincronizadas no commit `fb263a6`.
 
 CP6 concluído para o escopo local + produção do MVP. `AC-R00-06`, `12` e `13`,
 staging, E2E móvel, observabilidade ampliada, restauração e atualização das
