@@ -196,6 +196,24 @@ Branding dos e-mails de autenticação:
   e-mail, e o smoke somente leitura `32777958392` foi aprovado no commit
   `780b49d`.
 
+Edição do perfil pós-login, em 24 de agosto de 2026:
+
+- a área administrativa ganhou acesso persistente a “Editar perfil” no
+  cabeçalho autenticado, com alvo móvel de 44 px e tela própria alinhada ao
+  padrão visual do aplicativo;
+- a tela permite alterar o nome da conta, mantém o e-mail verificado somente
+  para leitura e separa explicitamente foto, nome esportivo, posições e
+  consentimentos na jornada do atleta;
+- a escrita usa uma RPC `security definer`, deriva a identidade de `auth.uid()`,
+  normaliza o nome e sincroniza de forma atômica `profiles`, o perfil global do
+  atleta e seus vínculos esportivos, sem receber identificador de usuário do
+  navegador;
+- um pgTAP forward-only cobre execução autenticada, negação anônima, entrada
+  inválida, ausência de sessão e isolamento entre pessoas. A aplicação passou
+  3 arquivos/5 testes focados, lint, TypeScript, contexto, 97 arquivos/499
+  testes e build de produção Webpack; o teste local do banco aguarda o pipeline
+  porque o Docker Desktop não estava disponível nesta estação.
+
 CP6 concluído para o escopo local + produção do MVP. `AC-R00-06`, `12` e `13`,
 staging, E2E móvel, observabilidade ampliada, restauração e atualização das
 Actions Node.js 20 estão registrados no backlog técnico, sem bloquear R01.
