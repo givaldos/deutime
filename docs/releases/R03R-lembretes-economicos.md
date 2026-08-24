@@ -351,5 +351,7 @@ redigido e jornada física Android/iPhone pelo WhatsApp.
   mantém falha fechada em erro ou expiração;
 - 2 arquivos/11 testes focados, lint, TypeScript, 93 arquivos/490 testes,
   contexto, audit sem vulnerabilidades e build de produção Webpack passaram. A
-  promoção deve exigir HTTP 200, modo `live` e templates prontos antes do
-  fechamento operacional.
+  correção chegou à produção no commit `070d7fa`; o primeiro ciclo natural,
+  workflow `32772669622`, respondeu HTTP 200 em modo `live`, confirmou os dois
+  templates prontos e registrou zero falha, rejeição, ambiguidade ou revisão.
+  Não havia cota vencida, então a prova não gerou mensagem nem custo adicional.
