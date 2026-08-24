@@ -62,6 +62,7 @@ describe("executor interno do WhatsApp", () => {
     const response = await POST(request());
 
     expect(response.status).toBe(409);
+    expect(mocks.consumptionEnabled).toHaveBeenCalledWith(3_000);
     expect(mocks.runWorker).not.toHaveBeenCalled();
   });
 
