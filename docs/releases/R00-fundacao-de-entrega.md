@@ -189,7 +189,12 @@ Branding dos e-mails de autenticação:
   confirmação humana antes da troca de sessão;
 - a referência Terraform lê os mesmos arquivos publicados pelo workflow, sem
   manter uma segunda cópia divergente; o publicador exige por teste logo,
-  paleta, rodapé, viewport e links de segurança em todos os templates.
+  paleta, rodapé, viewport e links de segurança em todos os templates;
+- gates: lint, TypeScript, 94 arquivos/494 testes, contexto, HTML estrutural,
+  Terraform e build Webpack aprovados; o logo público respondeu HTTP 200;
+- produção: o workflow `32777913647` atualizou e releu os três conteúdos de
+  e-mail, e o smoke somente leitura `32777958392` foi aprovado no commit
+  `780b49d`.
 
 CP6 concluído para o escopo local + produção do MVP. `AC-R00-06`, `12` e `13`,
 staging, E2E móvel, observabilidade ampliada, restauração e atualização das
