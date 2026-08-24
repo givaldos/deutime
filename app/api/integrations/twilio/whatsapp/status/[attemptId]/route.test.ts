@@ -1,4 +1,3 @@
-import twilio from "twilio";
 import { NextRequest } from "next/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -29,13 +28,7 @@ function request(signature?: string, requestUrl = url) {
   });
 }
 
-function signature() {
-  return twilio.getExpectedTwilioSignature(
-    authToken,
-    url,
-    Object.fromEntries(new URLSearchParams(rawBody)),
-  );
-}
+const validSignature = "Hzeik/+4eIfTIFi7KZfG/pM8PBY=";
 
 function context(id = attemptId) {
   return { params: Promise.resolve({ attemptId: id }) };
@@ -60,7 +53,7 @@ describe("webhook Twilio correlacionado pela tentativa", () => {
     mocks.recordByAttemptId.mockResolvedValue(true);
 
     const response = await POST(
-      request(signature(), url.replace("deutime.app", "host-nao-confiavel.test")),
+      request(validSignature, url.replace("deutime.app", "host-nao-confiavel.test")),
       context(),
     );
 

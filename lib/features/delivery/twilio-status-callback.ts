@@ -1,4 +1,8 @@
-import twilio from "twilio";
+import { createHmac, timingSafeEqual } from "node:crypto";
+import {
+  parse as parseQueryString,
+  stringify as stringifyQueryString,
+} from "node:querystring";
 import { z } from "zod";
 
 export const TWILIO_STATUS_BODY_LIMIT = 16 * 1024;
@@ -62,12 +66,19 @@ export function validateTwilioSignature(input: {
   params: TwilioFormParams;
 }) {
   if (input.authToken.length < 16 || !input.signature) return false;
-  return twilio.validateRequest(
-    input.authToken,
-    input.signature,
-    input.callbackUrl,
-    input.params,
-  );
+  const signature = input.signature;
+  const url = new URL(input.callbackUrl);
+  const candidates = [removePort(url), addPort(url)];
+  candidates.push(...candidates.map(withLegacyQueryString));
+
+  return candidates.some((candidate) => {
+    const expected = expectedTwilioSignature(
+      input.authToken,
+      candidate,
+      input.params,
+    );
+    return constantTimeEqual(signature, expected);
+  });
 }
 
 export function parseCallbackToken(searchParams: URLSearchParams) {
@@ -110,4 +121,65 @@ export function normalizeTwilioStatusCallback(
 
 function single(value: string | string[] | undefined) {
   return typeof value === "string" ? value : undefined;
+}
+
+function expectedTwilioSignature(
+  authToken: string,
+  url: string,
+  params: TwilioFormParams,
+) {
+  const payload = Object.keys(params)
+    .sort()
+    .reduce(
+      (current, key) => current + formSignatureValue(key, params[key]),
+      url,
+    );
+
+  // Exceção protocolar: isto não deriva senha. A Twilio exige HMAC-SHA1 no
+  // cabeçalho X-Twilio-Signature; trocar o algoritmo rejeitaria callbacks reais.
+  return createHmac("sha1", authToken).update(payload, "utf8").digest("base64");
+}
+
+function formSignatureValue(name: string, value: string | string[] | undefined) {
+  if (Array.isArray(value)) {
+    return [...new Set(value)]
+      .sort()
+      .map((entry) => `${name}${entry}`)
+      .join("");
+  }
+  return `${name}${value ?? ""}`;
+}
+
+function constantTimeEqual(received: string, expected: string) {
+  const receivedBuffer = Buffer.from(received);
+  const expectedBuffer = Buffer.from(expected);
+  const lengthsMatch = receivedBuffer.length === expectedBuffer.length;
+
+  return lengthsMatch
+    ? timingSafeEqual(receivedBuffer, expectedBuffer)
+    : !timingSafeEqual(receivedBuffer, receivedBuffer);
+}
+
+function removePort(url: URL) {
+  const withoutPort = new URL(url);
+  withoutPort.port = "";
+  return withoutPort.toString();
+}
+
+function addPort(url: URL) {
+  if (url.port) return url.toString();
+
+  const port = url.protocol === "https:" ? ":443" : ":80";
+  const credentials = `${url.username}${url.password ? `:${url.password}` : ""}`;
+  const authority = credentials ? `${credentials}@` : "";
+  return `${url.protocol}//${authority}${url.host}${port}${url.pathname}${url.search}${url.hash}`;
+}
+
+function withLegacyQueryString(url: string) {
+  const parsed = new URL(url);
+  if (!parsed.search) return url;
+
+  const query = stringifyQueryString(parseQueryString(parsed.search.slice(1)));
+  parsed.search = "";
+  return `${parsed.toString()}?${query}`;
 }
