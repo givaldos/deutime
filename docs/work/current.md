@@ -2,27 +2,18 @@
 release: R00
 work_package: WP-R00-03
 scope: post_login_account_profile
-branch_or_commit: "codex/post-login-profile"
-checkpoint: CP3
-status: in_progress
+branch_or_commit: "66cbcc4"
+checkpoint: idle
+status: done
 completed_ac: [AC-R00-09]
-dirty_files:
-  - "app/app/profile/"
-  - "app/app/page.tsx"
-  - "components/account-profile-form.tsx"
-  - "components/account-profile-link.tsx"
-  - "components/team-app-header.tsx"
-  - "lib/database.types.ts"
-  - "supabase/migrations/202608240001_account_profile_update.sql"
-  - "supabase/tests/056_account_profile_update.test.sql"
-  - "docs/releases/R00-fundacao-de-entrega.md"
+dirty_files: []
 tests:
   - "interface e Action: 3 arquivos/5 testes focados aprovados"
   - "aplicação: lint, TypeScript, contexto e 97 arquivos/499 testes aprovados"
   - "build de produção Webpack aprovado; Turbopack limitado somente pela porta do sandbox"
-  - "pgTAP 056 preparado; execução local indisponível porque Docker Desktop não estava ativo"
+  - "banco no CI: schema reconstruído, lint, 56 arquivos/1449 pgTAP e tipos gerados aprovados"
 blocker: null
-next_action: "Publicar a branch, aguardar o pipeline executar pgTAP e os gates; depois promover dev e main e validar a jornada autenticada em produção."
+next_action: "Promover o PR #300 para dev e main; depois validar a jornada autenticada em produção."
 ---
 
 # Trabalho atual
@@ -38,8 +29,7 @@ o nome e sincroniza `profiles`, `player_profiles` e vínculos em `athletes`.
 Entrada inválida, sessão ausente e execução anônima falham fechadas; o pgTAP
 também preserva o perfil de outra pessoa.
 
-O gate da aplicação está verde com 499 testes e build Webpack. O servidor local
-redirecionou corretamente a rota protegida para login, mas a validação visual
-autenticada e o pgTAP dependem do Supabase local; o Docker Desktop não estava
-ativo. O próximo passo é usar o pipeline como gate de banco e, após aprovação,
-promover e revisar a tela autenticada em produção.
+O gate da aplicação está verde com 499 testes e build Webpack. O pipeline
+reconstruiu o banco, aprovou lint, 1.449 testes pgTAP e confirmou os tipos
+gerados. O servidor local redirecionou corretamente a rota protegida para
+login; a revisão visual autenticada será feita após a promoção para produção.

@@ -211,8 +211,9 @@ Edição do perfil pós-login, em 24 de agosto de 2026:
 - um pgTAP forward-only cobre execução autenticada, negação anônima, entrada
   inválida, ausência de sessão e isolamento entre pessoas. A aplicação passou
   3 arquivos/5 testes focados, lint, TypeScript, contexto, 97 arquivos/499
-  testes e build de produção Webpack; o teste local do banco aguarda o pipeline
-  porque o Docker Desktop não estava disponível nesta estação.
+  testes e build de produção Webpack. O pipeline reconstruiu o schema, aprovou
+  lint, 56 arquivos/1.449 testes pgTAP e confirmou os tipos gerados; o Docker
+  Desktop indisponível nesta estação deixou de ser limitação do gate.
 
 CP6 concluído para o escopo local + produção do MVP. `AC-R00-06`, `12` e `13`,
 staging, E2E móvel, observabilidade ampliada, restauração e atualização das
