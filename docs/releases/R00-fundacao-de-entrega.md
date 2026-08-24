@@ -214,6 +214,12 @@ Edição do perfil pós-login, em 24 de agosto de 2026:
   testes e build de produção Webpack. O pipeline reconstruiu o schema, aprovou
   lint, 56 arquivos/1.449 testes pgTAP e confirmou os tipos gerados; o Docker
   Desktop indisponível nesta estação deixou de ser limitação do gate.
+- os PRs `#300` e `#301` promoveram a entrega até `main` no commit `81a8251`;
+  o deploy Supabase `32780300760` aplicou e releu a migration e o smoke
+  produtivo `32780362802` aprovou as jornadas públicas essenciais;
+- a revisão autenticada em produção, a 360 px, confirmou o atalho no cabeçalho,
+  ausência de overflow horizontal e campo/botão com 48 px. A prova foi somente
+  leitura: o nome real da sessão não foi alterado.
 
 CP6 concluído para o escopo local + produção do MVP. `AC-R00-06`, `12` e `13`,
 staging, E2E móvel, observabilidade ampliada, restauração e atualização das
