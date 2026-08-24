@@ -1,4 +1,4 @@
-name: Deploy database
+name: Deploy Supabase
 
 on:
   push:
@@ -6,6 +6,9 @@ on:
     paths:
       - "supabase/migrations/**"
       - "supabase/config.toml"
+      - "supabase/templates/**"
+      - "scripts/supabase-auth-email-templates.mjs"
+      - ".github/workflows/deploy-database.yml"
   workflow_dispatch:
 
 concurrency:
@@ -17,7 +20,7 @@ permissions:
 
 jobs:
   deploy:
-    name: deploy-database
+    name: deploy-supabase
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: production
@@ -34,6 +37,10 @@ jobs:
           version: 2.109.1
       - name: Link production project
         run: supabase link --project-ref "$SUPABASE_PROJECT_ID"
+      - name: Validate authentication email templates
+        run: node scripts/supabase-auth-email-templates.mjs --check
+      - name: Publish and verify authentication email templates
+        run: node scripts/supabase-auth-email-templates.mjs
       - name: Validate remote migration history
         run: |
           supabase migration list --linked
