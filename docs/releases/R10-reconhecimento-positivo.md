@@ -656,3 +656,17 @@ cache público, abuso e experiência Android/iPhone.
   cobertos pelos testes da release;
 - `AC-R10-13` está concluído. A R10 termina com a feature desligada e nenhuma
   ampliação automática da coorte.
+
+### Manutenção pós-release — dependência obsoleta da Twilio removida
+
+- uma instalação limpa mostrou que `scmp@2.1.0` vinha exclusivamente de
+  `twilio@6.1.0`. O envio de WhatsApp já usa o adapter HTTP do produto; somente a
+  validação de assinatura dos callbacks importava o SDK;
+- a validação local preserva o contrato oficial: HMAC-SHA1 sobre URL e campos
+  ordenados, valores repetidos únicos e ordenados, compatibilidade com porta
+  padrão e query string legada e comparação em tempo constante. Os testes usam
+  vetores capturados do SDK oficial antes da remoção;
+- `npm ci` concluiu sem o aviso, `npm ls scmp twilio --all` ficou vazio e o gate
+  passou com 3 arquivos/16 testes focados, 93 arquivos/490 testes completos,
+  lint, TypeScript, teste de contexto, audit sem vulnerabilidades e build de
+  produção Webpack. A feature `recognition` e o estado dos times não mudaram.

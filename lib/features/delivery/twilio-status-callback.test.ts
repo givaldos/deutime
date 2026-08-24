@@ -1,4 +1,3 @@
-import twilio from "twilio";
 import { describe, expect, it } from "vitest";
 import {
   normalizeTwilioStatusCallback,
@@ -17,11 +16,8 @@ describe("callback de status da Twilio", () => {
     const params = parseTwilioForm(
       "MessageSid=SM0123456789abcdef0123456789abcdef&MessageStatus=delivered&FutureField=novo",
     );
-    const signature = twilio.getExpectedTwilioSignature(
-      authToken,
-      callbackUrl,
-      params,
-    );
+    // Vetor capturado do SDK oficial twilio@6.1.0 antes da remoção.
+    const signature = "Nbj6CHuveGQo5iMqE+UO5eb7QUI=";
 
     expect(
       validateTwilioSignature({ authToken, signature, callbackUrl, params }),
@@ -36,10 +32,35 @@ describe("callback de status da Twilio", () => {
     ).toBe(false);
   });
 
+  it("mantém a compatibilidade oficial com porta HTTPS implícita", () => {
+    const params = parseTwilioForm(
+      "MessageSid=SM0123456789abcdef0123456789abcdef&MessageStatus=delivered&FutureField=novo",
+    );
+
+    expect(
+      validateTwilioSignature({
+        authToken,
+        // Assinada pelo SDK com https://deutime.app:443/...
+        signature: "USJORq5B7+diBm+WHvavKjQk0XA=",
+        callbackUrl,
+        params,
+      }),
+    ).toBe(true);
+  });
+
   it("preserva campos repetidos para a validação da assinatura", () => {
-    expect(parseTwilioForm("Campo=b&Campo=a&Campo=a")).toEqual({
+    const params = parseTwilioForm("Campo=b&Campo=a&Campo=a");
+    expect(params).toEqual({
       Campo: ["b", "a", "a"],
     });
+    expect(
+      validateTwilioSignature({
+        authToken,
+        signature: "LI6yuFZUD2pyan6RigSNaPPDjHI=",
+        callbackUrl,
+        params,
+      }),
+    ).toBe(true);
   });
 
   it("aceita somente o token opaco como query string", () => {
