@@ -4339,6 +4339,14 @@ export type Database = {
         }
         Returns: string
       }
+      set_all_product_features: {
+        Args: { requested_enabled: boolean }
+        Returns: {
+          controls_changed: number
+          flags_changed: number
+          teams_seen: number
+        }[]
+      }
       set_athlete_availability: {
         Args: {
           next_status: Database["public"]["Enums"]["athlete_status"]
