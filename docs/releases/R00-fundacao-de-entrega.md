@@ -221,6 +221,30 @@ Edição do perfil pós-login, em 24 de agosto de 2026:
   ausência de overflow horizontal e campo/botão com 48 px. A prova foi somente
   leitura: o nome real da sessão não foi alterado.
 
+Lançamento do catálogo completo do produto, em 25 de agosto de 2026:
+
+- a migration `202608250001_enable_all_product_features.sql` instalou um
+  rollout transacional exclusivo de `service_role`, com catálogo congelado nas
+  15 capacidades já validadas; capacidades futuras continuam desligadas até
+  uma promoção própria;
+- ambientes novos permanecem fail-closed. Depois da ativação explícita, novos
+  times herdam o estado aberto; o mesmo comando com `false` fecha flags,
+  controles globais e essa herança em uma única transação auditada;
+- os gates locais aprovaram lint, TypeScript, 98 arquivos/505 testes Vitest,
+  build Webpack, auditoria npm sem vulnerabilidades, reset/lint do banco e 57
+  arquivos/1.470 testes pgTAP. O CI repetiu os gates nos PRs `#305` e `#306`;
+- `main` recebeu o commit `d01c9c6`; o deploy Supabase `32907988370` aplicou e
+  releu a migration antes de qualquer ativação;
+- o rollout observou 5 times, alterou 63 flags e preservou os 3 controles já
+  ativos. A leitura posterior confirmou 75/75 flags, 3/3 controles e 63 linhas
+  novas de auditoria; uma repetição alterou zero linhas;
+- o worker WhatsApp `32908222235` e o smoke público `32908304920` passaram sem
+  falha nova. A fila manteve somente uma falha permanente de `event_call`, de
+  10 de agosto, sem revisão pendente; 2 chamadas e 6 lembretes constavam como
+  enviados;
+- privacidade continua independente da flag: o smoke exigiu campeonato ativo e
+  preservou o resumo público de reconhecimento ausente sem consentimento.
+
 CP6 concluído para o escopo local + produção do MVP. `AC-R00-06`, `12` e `13`,
 staging, E2E móvel, observabilidade ampliada, restauração e atualização das
 Actions Node.js 20 estão registrados no backlog técnico, sem bloquear R01.
