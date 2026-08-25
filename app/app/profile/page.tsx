@@ -10,12 +10,16 @@ import {
   Surface,
 } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
+import { getTurnstileConfig } from "@/lib/env/server";
 import { createClient } from "@/lib/supabase/server";
 import { ArrowLeft, ShieldCheck, UserRound } from "lucide-react";
+import { headers } from "next/headers";
 import Link from "next/link";
 
 export default async function AccountProfilePage() {
   const user = await requireUser();
+  const turnstile = getTurnstileConfig();
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const supabase = await createClient();
   const [{ data: profile, error: profileError }, { data: playerProfile }] =
     await Promise.all([
@@ -68,7 +72,11 @@ export default async function AccountProfilePage() {
             description="Altere seu e-mail de entrada ou proteja a conta com uma nova senha."
           />
           {user.email ? (
-            <AccountAccessForm currentEmail={user.email} />
+            <AccountAccessForm
+              currentEmail={user.email}
+              siteKey={turnstile?.siteKey}
+              nonce={nonce}
+            />
           ) : (
             <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">
               Sua conta usa um acesso verificado sem e-mail cadastrado.

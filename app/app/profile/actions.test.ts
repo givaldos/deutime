@@ -118,6 +118,7 @@ describe("updateMyAccountProfile", () => {
     expect(mocks.signInWithPassword).toHaveBeenCalledWith({
       email: "atual@example.com",
       password: "Atual@2026!segura",
+      options: { captchaToken: "captcha-token" },
     });
     expect(mocks.updateUser).toHaveBeenCalledWith({
       current_password: "Atual@2026!segura",
@@ -146,6 +147,24 @@ describe("updateMyAccountProfile", () => {
       message: "A senha atual está incorreta.",
     });
   });
+
+  it("orienta repetir a verificação quando o captcha expira", async () => {
+    mocks.signInWithPassword.mockResolvedValue({
+      data: { user: null, session: null },
+      error: { code: "captcha_failed" },
+    });
+
+    const result = await updateMyAccountPassword(
+      {},
+      passwordForm("Atual@2026!segura", "Nova@2026!segura"),
+    );
+
+    expect(mocks.updateUser).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      outcome: "error",
+      message: "A verificação de segurança expirou. Faça a verificação novamente.",
+    });
+  });
 });
 
 function profileForm(displayName: string) {
@@ -165,6 +184,7 @@ function passwordForm(currentPassword: string, password: string) {
   formData.set("currentPassword", currentPassword);
   formData.set("password", password);
   formData.set("repeatPassword", password);
+  formData.set("cf-turnstile-response", "captcha-token");
   return formData;
 }
 

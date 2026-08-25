@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  resetTurnstile,
+  TurnstileWidget,
+} from "@/components/turnstile-widget";
+import {
   CheckCircle2,
   KeyRound,
   LoaderCircle,
@@ -17,6 +21,17 @@ import {
 import { useActionState } from "react";
 
 const initialState: AccountAccessState = {};
+
+async function updatePasswordAndResetCaptcha(
+  previousState: AccountAccessState,
+  formData: FormData,
+) {
+  try {
+    return await updateMyAccountPassword(previousState, formData);
+  } finally {
+    resetTurnstile();
+  }
+}
 
 function Feedback({ state }: { state: AccountAccessState }) {
   if (!state.message) return null;
@@ -38,13 +53,21 @@ function Feedback({ state }: { state: AccountAccessState }) {
   );
 }
 
-export function AccountAccessForm({ currentEmail }: { currentEmail: string }) {
+export function AccountAccessForm({
+  currentEmail,
+  siteKey,
+  nonce,
+}: {
+  currentEmail: string;
+  siteKey?: string;
+  nonce?: string;
+}) {
   const [emailState, emailAction, emailPending] = useActionState(
     updateMyAccountEmail,
     initialState,
   );
   const [passwordState, passwordAction, passwordPending] = useActionState(
-    updateMyAccountPassword,
+    updatePasswordAndResetCaptcha,
     initialState,
   );
 
@@ -139,11 +162,19 @@ export function AccountAccessForm({ currentEmail }: { currentEmail: string }) {
           Use pelo menos 12 caracteres, incluindo maiúscula, minúscula, número e símbolo.
         </p>
 
+        <TurnstileWidget
+          siteKey={siteKey}
+          nonce={nonce}
+          action="account_password_update"
+        />
         <Feedback state={passwordState} />
         <Button
           type="submit"
           className="w-full sm:w-auto"
-          disabled={passwordPending}
+          disabled={
+            passwordPending ||
+            (!siteKey && process.env.NODE_ENV === "production")
+          }
           aria-busy={passwordPending}
         >
           {passwordPending ? <LoaderCircle className="animate-spin" aria-hidden /> : null}
