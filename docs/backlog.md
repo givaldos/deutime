@@ -526,6 +526,36 @@ Este é um trabalho contínuo e não espera os Marcos 1 a 6 terminarem.
 
 ---
 
+## Marco 8 — Assinatura do DeuTime
+
+> **Objetivo:** cobrar uma assinatura mensal por time para financiar os recursos
+> pagos do DeuTime, sem cobrar atletas e sem acoplar o produto ao Asaas.
+>
+> **Pronto quando:** uma pessoa administradora contrata pelo celular, o pagamento
+> confirmado ativa benefícios pela projeção local e falhas preservam a operação
+> manual, o time e seu histórico.
+
+- [ ] Validar no sandbox do Asaas oferta, checkout, alteração de preço,
+  assinatura existente, webhook, cancelamento e reativação.
+- [ ] Fechar carência, benefícios e limites de `racha`, grandfathering,
+  cancelamento e responsabilidade de suporte financeiro.
+- [ ] Criar adapter substituível, estados internos e projeção local sem consultar
+  o Asaas em cada acesso.
+- [ ] Entregar checkout hospedado mobile-first com retorno em `Aguardando
+  confirmação`; redirecionamento nunca libera acesso.
+- [ ] Processar webhooks com autenticidade, idempotência, ordem, retry,
+  reconciliação e telemetria redigida.
+- [ ] Conectar entitlement à automação paga de WhatsApp, preservando
+  consentimento, opt-out, fair use, kill switch e fallback manual.
+- [ ] Comprovar RLS, grants, RPCs, cross-tenant, N/N−1, recuperação, piloto e
+  rollback antes do rollout.
+
+O pacote executável permanece em
+[`R11 — Assinatura pelo Asaas`](releases/R11-assinatura-asaas.md). Cobrança de
+atletas, split, repasse, subcontas e marketplace não fazem parte deste marco.
+
+---
+
 ## Próximos candidatos
 
 - **Lista de espera automática:** quando o evento lotar, novas confirmações entram na fila e sobem sozinhas após uma desistência, com aviso pelo WhatsApp.
