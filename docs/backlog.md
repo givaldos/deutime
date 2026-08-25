@@ -99,12 +99,12 @@ Para liberar os envios automáticos do Marco 2, precisam estar prontos os fluxos
 Os e-mails devem usar o brasão e o visual do **deutime.app**, em português e com o mesmo tom do produto.
 
 - [x] Aplicar assuntos, textos em português e cores DeuTime aos e-mails de confirmação de cadastro, recuperação de senha e aviso de senha alterada.
-- [ ] Completar esses três modelos com brasão, layout e rodapé da marca.
+- [x] Completar esses três modelos com brasão, layout e rodapé da marca.
 - [ ] Cobrir também convite, link de acesso, troca de e-mail e reautenticação.
 - [ ] Padronizar assunto e texto, incluindo o nome do time quando fizer sentido.
 - [ ] Adotar um rodapé único com links para o site e o suporte.
 - [ ] Conferir Gmail, Apple Mail e Outlook no celular e no computador.
-- [ ] Manter os modelos em uma única fonte, sem duplicação entre configuração local e infraestrutura.
+- [x] Manter os modelos em uma única fonte, sem duplicação entre configuração local e infraestrutura.
 
 ### 1.2 Minha conta
 
@@ -112,7 +112,8 @@ A conta pertence à pessoa, não ao time. Ela deve ser acessível independenteme
 
 - [x] Permitir ao atleta editar nome de exibição, foto, apresentação, posições e visibilidade do perfil.
 - [x] Oferecer recuperação e redefinição de senha por e-mail.
-- [ ] Criar a área “Minha conta”, separada das configurações do time e acessível de qualquer área autenticada.
+- [x] Criar a área inicial de conta em `/app/profile`, separada das configurações do time e acessível pelo cabeçalho autenticado.
+- [x] Permitir editar o nome da conta e consultar o e-mail verificado sem misturar foto, nome esportivo, posições ou consentimentos.
 - [ ] Trocar a senha informando a senha atual.
 - [ ] Definir uma senha para quem entrou apenas pelo WhatsApp e nunca teve uma.
 - [ ] Trocar o e-mail com confirmação no endereço novo e aviso no antigo.
