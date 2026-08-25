@@ -15,11 +15,11 @@ O **MVP funcional completo** permite que um time real execute pelo celular e pel
 O MVP é considerado completo para **piloto controlado**, não para disponibilidade geral em escala. Nenhuma etapa pode depender de intervenção no banco, expor dados sem consentimento ou perder a operação quando WhatsApp, tempo real, vídeo, votação ou conversa estiverem desligados.
 
 **Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na
-R08M, e R09 e R10 encerraram CP6. Não há release ou implementação ativa. A R10
-comprovou visão privada, resumo público consentido, revogação, smokes e rollback
-em coorte sintética; a feature terminou desligada. A próxima atividade permitida
-é somente descoberta pós-R10 baseada em densidade e métricas agregadas, sem
-autorizar marketplace, pagamentos ou outra vertical.
+R08M, e R09 e R10 encerraram CP6. Não há implementação ativa. A R11 foi
+registrada como proposta de assinatura mensal por time via Asaas, com CP0
+pendente; seu próximo passo é somente validar o modelo comercial no sandbox e
+fechar as decisões bloqueadoras. Marketplace, cobrança de atletas, split e
+repasse continuam fora dessa proposta.
 
 ## Estado executivo
 
@@ -37,6 +37,7 @@ autorizar marketplace, pagamentos ou outra vertical.
 | **R08M — Fechamento do MVP compartilhável** | ✅ `completed` | Open Graph por fase, piloto compartilhável, ciclo integrado, falhas e fallbacks comprovados. | [Abrir](releases/R08M-fechamento-mvp-compartilhavel.md) |
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Três formatos, classificação, chave, página anônima, robustez, piloto e sonda protegida concluídos. | [Abrir](releases/R09-campeonatos-e-tabela.md) |
 | **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Modelo factual, visão privada, resumo consentido, revogação, piloto isolado, smokes e rollback comprovados. | [Abrir](releases/R10-reconhecimento-positivo.md) |
+| **R11 — Assinatura pelo Asaas** | ⬜ `draft / CP0 pendente` | Assinatura mensal por time, entitlement local e liberação dos benefícios pagos por evento verificado, com Asaas atrás de adapter substituível. | [Abrir](releases/R11-assinatura-asaas.md) |
 
 ## Cronograma consolidado
 
@@ -50,7 +51,8 @@ autorizar marketplace, pagamentos ou outra vertical.
 | 6. Fechamento do MVP | ✅ concluído | R08M concluiu Open Graph por fase, previews físicos, piloto, rollback e o gate integrado do ciclo completo. |
 | 7. Descoberta pós-MVP | 🟡 atividade atual, sem implementação | Reunir recomendações, evidências, métricas, dependências e critérios de aceite; eliminar duplicidades e separar requisito de ideia. |
 | 8. Evoluções de produto | ✅ R09 e R10 em CP6 | Campeonatos e reconhecimento positivo concluídos com pilotos, smokes, fallbacks e rollback. |
-| 9. Consolidação e escala | ⬜ decisão pendente | Medir densidade e priorizar somente melhorias com risco, uso real ou retorno mensurável; nenhuma implementação nova está autorizada pelo roadmap. |
+| 9. Monetização do DeuTime | ⬜ R11 proposta | Validar no sandbox assinatura mensal por time via Asaas; implementação depende do CP0 e mantém cobrança separada do marketplace. |
+| 10. Consolidação e escala | ⬜ decisão pendente | Priorizar somente melhorias com risco, uso real ou retorno mensurável. |
 | Opcional — troca de provedor | ⚪ sem posição no cronograma | Avaliar a WhatsApp Cloud API direta da Meta somente se custo, escala ou requisito operacional justificarem; a Twilio permanece como provedora de produção. |
 
 ## Entregas do MVP concluídas
@@ -122,10 +124,11 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 | 5 | ~~Entregar a visão privada móvel da R10~~ | ✅ `WP-R10-02` concluído |
 | 6 | ~~Entregar o resumo público consentido~~ | ✅ `WP-R10-03` concluído |
 | 7 | ~~Concluir robustez e piloto da R10~~ | ✅ `WP-R10-04` e CP6 concluídos; feature desligada após rollback |
-| 8 | [Levantar a próxima decisão pós-R10](discovery/post-r10-next-decision.md) | medir uso real, densidade, atritos e custo; não promover release durante o levantamento |
-| 9 | Escolher entre produto, operação ou dívida técnica | problema comprovado, resultado demonstrável, fallback e critérios suficientes para CP0 |
-| 10 | Descobrir marketplace e pagamentos | densidade real de oferta e demanda, modelo de confiança e viabilidade transacional |
-| 11 | Implementar melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
+| 8 | ~~[Levantar a próxima decisão pós-R10](discovery/post-r10-next-decision.md)~~ | ✅ primeiro snapshot terminou sem promoção por densidade insuficiente |
+| 9 | Validar a proposta R11 no sandbox do Asaas | oferta, checkout, preço, assinatura existente, webhook, cancelamento e reativação comprovados; decisões de carência e benefícios aceitas |
+| 10 | Promover e executar R11 | somente depois do CP0, como única release ativa, com adapter, piloto e fallback manual |
+| 11 | Descobrir marketplace e cobrança dos atletas | densidade real de oferta e demanda, regulação, contabilidade, confiança e viabilidade transacional |
+| 12 | Implementar melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
 | Opcional | Avaliar migração da Twilio para a Meta | fora do caminho crítico; somente com ponto de equilíbrio ou necessidade operacional comprovados e requisitos revalidados antes do CP0 |
 
 Levantar requisitos agora não autoriza implementação. Exceções à sequência existem somente para segurança, indisponibilidade, obrigação legal, perda de dados ou custo operacional que ameace a continuidade do produto.
@@ -136,8 +139,9 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
 - [x] campeonatos encerrados em R09/CP6, com a capacidade preservada atrás de flag;
 - [x] reconhecimento positivo encerrado em R10/CP6, privado por padrão e desligado após o piloto;
 - [x] executar o primeiro snapshot agregado pós-R10, sem PII, com decisão `sem promoção` por densidade insuficiente;
-- [ ] coletar problemas reais do uso pós-R10 sem identidade ou conteúdo esportivo;
-- [ ] selecionar e preparar uma única próxima release somente após a descoberta;
+- [x] registrar R11 como proposta de assinatura do DeuTime pelo Asaas, sem iniciar implementação;
+- [ ] executar o CP0 da R11 no sandbox e fechar decisões comerciais e operacionais;
+- [ ] promover R11 como única release ativa somente se a Definition of Ready for satisfeita;
 - [ ] manter marketplace condicionado à densidade e a migração para a Meta como tarefa opcional, sem bloquear a implantação pela Twilio.
 
 A R09 foi escolhida antes da R10 porque fechava a lacuna observável entre
@@ -166,6 +170,7 @@ reavaliar reconhecimento sem autorizar pontos ou ranking.
 | **R08 — Divisão automática** | ↪️ `incorporado à R07` | Sugestão reproduzível, ajustável e explicável foi incorporada à jornada de divisão para não entregar uma experiência fragmentada. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Ajuste manual |
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento, página compartilhável e piloto com rollback. | R04, R07, R08M | concluída | Histórico por partida |
 | **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Catálogo factual, visão privada, resumo consentido, revogação e piloto isolado concluídos sem ranking constrangedor. | R04, R05, R07 | concluída | Estatísticas básicas |
+| **R11 — Assinatura pelo Asaas** | ⬜ `draft / CP0 pendente` | Administrador contrata assinatura mensal por time e benefícios pagos são liberados pela projeção local após confirmação verificável. | R00, R03, R03R, R08M | validar sandbox, carência, benefícios, cancelamento e suporte | Operação e compartilhamento manual |
 
 ### R09 — campeonatos configuráveis
 
@@ -205,6 +210,26 @@ e os fatos esportivos preservados.
 - [x] permitir que somente o titular conceda ou revogue o resumo público por vínculo, com retirada imediata da projeção;
 - [x] validar visão privada, consentimento e perfil por toque, teclado e leitor de tela em Android, iPhone e navegador interno do WhatsApp;
 - [x] concluir telemetria redigida, smoke, correção, revogação, piloto isolado, fallback, rollback e CP6.
+
+### R11 — assinatura do DeuTime pelo Asaas
+
+A R11 monetiza a administração do time, não os atletas. A oferta inicial é uma
+assinatura mensal por time, com referência comercial `racha`; preço e ciclo são
+observados no Asaas e não ficam hard-coded no produto. O checkout retorna para
+`Aguardando confirmação`, e somente webhook verificado ou reconciliação
+autorizada altera a projeção local e os benefícios pagos.
+
+Asaas será a fonte comercial de valor, ciclo, cliente, assinatura e cobranças.
+O DeuTime continuará como fonte operacional de time beneficiado, autorização,
+carência, entitlement, automação, auditoria e fallback. Um adapter neutro deve
+permitir trocar o provedor sem reescrever onboarding, regras de assinatura ou
+WhatsApp.
+
+O pacote [R11 — Assinatura pelo Asaas](releases/R11-assinatura-asaas.md) está em
+rascunho. CP0 deve validar no sandbox mudanças de preço, novas e antigas
+assinaturas, checkout, autenticidade dos webhooks, cancelamento e reativação, e
+fechar política de carência, benefícios, grandfathering e suporte. Nenhuma
+implementação, credencial, tabela, webhook, cobrança ou time piloto foi ativado.
 
 ## Fora do MVP entregue
 

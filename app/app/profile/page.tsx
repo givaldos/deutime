@@ -1,3 +1,4 @@
+import { AccountAccessForm } from "@/components/account-access-form";
 import { AccountProfileForm } from "@/components/account-profile-form";
 import { BrandMark } from "@/components/brand-mark";
 import { LogoutButton } from "@/components/logout-button";
@@ -8,11 +9,9 @@ import {
   SectionHeader,
   Surface,
 } from "@/components/ui/app-shell";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
-import { ArrowLeft, Mail, ShieldCheck, UserRound } from "lucide-react";
+import { ArrowLeft, ShieldCheck, UserRound } from "lucide-react";
 import Link from "next/link";
 
 export default async function AccountProfilePage() {
@@ -66,28 +65,10 @@ export default async function AccountProfilePage() {
           <SectionHeader
             icon={ShieldCheck}
             title="Acesso à conta"
-            description="O identificador de acesso não muda junto com o nome do perfil."
+            description="Altere seu e-mail de entrada ou proteja a conta com uma nova senha."
           />
           {user.email ? (
-            <div className="space-y-2">
-              <Label htmlFor="accountEmail">E-mail verificado</Label>
-              <div className="relative">
-                <Mail
-                  className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-                  aria-hidden
-                />
-                <Input
-                  id="accountEmail"
-                  value={user.email}
-                  className="bg-slate-50 pl-10 text-slate-600"
-                  readOnly
-                  aria-readonly="true"
-                />
-              </div>
-              <p className="text-xs leading-5 text-slate-500">
-                A troca do e-mail exige uma nova confirmação de segurança.
-              </p>
-            </div>
+            <AccountAccessForm currentEmail={user.email} />
           ) : (
             <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">
               Sua conta usa um acesso verificado sem e-mail cadastrado.
