@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 24 de agosto de 2026.
+> Atualizado em 25 de agosto de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -15,17 +15,17 @@ O **MVP funcional completo** permite que um time real execute pelo celular e pel
 O MVP é considerado completo para **piloto controlado**, não para disponibilidade geral em escala. Nenhuma etapa pode depender de intervenção no banco, expor dados sem consentimento ou perder a operação quando WhatsApp, tempo real, vídeo, votação ou conversa estiverem desligados.
 
 **Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na
-R08M, e R09 e R10 encerraram CP6. Não há implementação ativa. A R11 foi
-registrada como proposta de assinatura mensal por time via Asaas, com CP0
-pendente; seu próximo passo é somente validar o modelo comercial no sandbox e
-fechar as decisões bloqueadoras. Marketplace, cobrança de atletas, split e
-repasse continuam fora dessa proposta.
+R08M, e R09 e R10 encerraram CP6. A fundação recebeu três melhorias concluídas
+em produção: recuperação de senha corrigida, branding dos e-mails de autenticação
+e edição segura do perfil pós-login. Não há implementação ativa. A R11 continua
+como proposta de assinatura mensal por time via Asaas, com CP0 pendente;
+marketplace, cobrança de atletas, split e repasse permanecem fora da proposta.
 
 ## Estado executivo
 
 | Release | Estado | Resultado comprovado | Pacote |
 |---|---|---|---|
-| **R00 — Fundação de entrega** | ✅ `done` | Flags por time, kill switches, deploy compatível, smoke e rollback do fluxo local + produção. | [Abrir](releases/R00-fundacao-de-entrega.md) |
+| **R00 — Fundação de entrega** | ✅ `done` — ampliada | Flags, kill switches, deploy, recuperação, e-mails com a marca e perfil pós-login seguro, com produção validada. | [Abrir](releases/R00-fundacao-de-entrega.md) |
 | **R01 — Evento sob controle** | ✅ `completed` | Fuso autoritativo, edição, remarcação e cancelamento sem apagar histórico. | [Abrir](releases/R01-evento-sob-controle.md) |
 | **R02 — Confirmação pelo link** | ✅ `completed` | URL estável, acesso duradouro e revogável, SIM/NÃO/TALVEZ e validação móvel. | [Abrir](releases/R02-confirmacao-pelo-link.md) |
 | **R03 — WhatsApp ponta a ponta** | ✅ `completed` | Sender oficial, template, envio, retry seguro, callback, observabilidade e fallback manual. | [Abrir](releases/R03-whatsapp-ponta-a-ponta.md) |
@@ -51,8 +51,9 @@ repasse continuam fora dessa proposta.
 | 6. Fechamento do MVP | ✅ concluído | R08M concluiu Open Graph por fase, previews físicos, piloto, rollback e o gate integrado do ciclo completo. |
 | 7. Descoberta pós-MVP | 🟡 atividade atual, sem implementação | Reunir recomendações, evidências, métricas, dependências e critérios de aceite; eliminar duplicidades e separar requisito de ideia. |
 | 8. Evoluções de produto | ✅ R09 e R10 em CP6 | Campeonatos e reconhecimento positivo concluídos com pilotos, smokes, fallbacks e rollback. |
-| 9. Monetização do DeuTime | ⬜ R11 proposta | Validar no sandbox assinatura mensal por time via Asaas; implementação depende do CP0 e mantém cobrança separada do marketplace. |
-| 10. Consolidação e escala | ⬜ decisão pendente | Priorizar somente melhorias com risco, uso real ou retorno mensurável. |
+| 9. Conta e autenticação | ✅ melhoria concluída | Recuperação publicada, três e-mails com branding e edição do perfil em `/app/profile`, com produção e mobile validados. |
+| 10. Monetização do DeuTime | ⬜ R11 proposta | Validar no sandbox assinatura mensal por time via Asaas; implementação depende do CP0 e mantém cobrança separada do marketplace. |
+| 11. Consolidação e escala | ⬜ decisão pendente | Priorizar somente melhorias com risco, uso real ou retorno mensurável. |
 | Opcional — troca de provedor | ⚪ sem posição no cronograma | Avaliar a WhatsApp Cloud API direta da Meta somente se custo, escala ou requisito operacional justificarem; a Twilio permanece como provedora de produção. |
 
 ## Entregas do MVP concluídas
@@ -133,7 +134,7 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 
 Levantar requisitos agora não autoriza implementação. Exceções à sequência existem somente para segurança, indisponibilidade, obrigação legal, perda de dados ou custo operacional que ameace a continuidade do produto.
 
-### Situação das entregas em 24 de agosto de 2026
+### Situação das entregas em 25 de agosto de 2026
 
 - [x] MVP compartilhável encerrado em R08M;
 - [x] campeonatos encerrados em R09/CP6, com a capacidade preservada atrás de flag;
@@ -143,6 +144,24 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
 - [ ] executar o CP0 da R11 no sandbox e fechar decisões comerciais e operacionais;
 - [ ] promover R11 como única release ativa somente se a Definition of Ready for satisfeita;
 - [ ] manter marketplace condicionado à densidade e a migração para a Meta como tarefa opcional, sem bloquear a implantação pela Twilio.
+
+### Entregas incrementais em 24–25 de agosto de 2026
+
+- [x] corrigir e publicar os templates do fluxo de recuperação, preservando
+  `TokenHash`, uso único, expiração e confirmação humana antes da nova sessão;
+- [x] aplicar logo, paleta, layout responsivo e rodapé DeuTime aos e-mails de
+  confirmação, recuperação e aviso de senha alterada, com uma única fonte para
+  publicação e referência de infraestrutura;
+- [x] adicionar acesso persistente a **Editar perfil** no cabeçalho autenticado
+  e tela `/app/profile` mobile-first;
+- [x] permitir alterar o nome da conta, mantendo o e-mail verificado somente
+  para leitura e a identidade esportiva na jornada própria do atleta;
+- [x] derivar a pessoa de `auth.uid()` e sincronizar perfil e vínculos por RPC
+  transacional, com negação anônima, entrada inválida e isolamento comprovados;
+- [x] aprovar aplicação, banco, deploy Supabase, smoke e revisão produtiva em
+  360 px; o checkpoint voltou a `idle` sem pendência;
+- [ ] manter troca de senha, troca de e-mail/telefone, sessões abertas,
+  preferências de notificação, saída do time e encerramento da conta no backlog.
 
 A R09 foi escolhida antes da R10 porque fechava a lacuna observável entre
 partidas isoladas e uma competição, reutilizando os contratos estabilizados de

@@ -164,6 +164,8 @@ export async function updateMyAccountPassword(
     password: formData.get("password"),
     repeatPassword: formData.get("repeatPassword"),
   });
+  const captchaToken =
+    formData.get("cf-turnstile-response")?.toString() || undefined;
 
   if (!currentPassword.success || !nextPassword.success) {
     return {
@@ -191,6 +193,7 @@ export async function updateMyAccountPassword(
   const { error: verificationError } = await supabase.auth.signInWithPassword({
     email: user.email,
     password: currentPassword.data,
+    options: { captchaToken },
   });
   if (verificationError) {
     console.error(JSON.stringify({
@@ -201,7 +204,9 @@ export async function updateMyAccountPassword(
     return {
       outcome: "error",
       message:
-        verificationError.code === "invalid_credentials"
+        verificationError.code === "captcha_failed"
+          ? "A verificação de segurança expirou. Faça a verificação novamente."
+          : verificationError.code === "invalid_credentials"
           ? "A senha atual está incorreta."
           : "Não foi possível confirmar sua senha atual.",
     };
