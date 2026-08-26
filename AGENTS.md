@@ -30,6 +30,16 @@ Esses limites são o ponto de partida, não licença para ignorar dependências 
 - Feature nova nasce desligada e mantém fallback até o piloto provar estabilidade.
 - Não declare pronto sem interface, autorização, testes, telemetria e recuperação operacional aplicáveis.
 
+## Fluxo obrigatório de branches
+
+- `dev` é a branch permanente de integração e `main` é a branch permanente de produção; nenhuma das duas é apagada, recriada ou usada para desenvolvimento direto.
+- Toda branch temporária nasce da `dev` local sincronizada por fast-forward com `origin/dev` e usa nome curto com o prefixo `codex/`, salvo convenção explícita diferente.
+- O único caminho de promoção é **branch temporária → `dev` → checks → `main`**. É proibido abrir PR ou promover uma branch temporária diretamente para `main`.
+- O merge da branch temporária em `dev` acontece por PR revisado. Depois do merge, os gates completos são executados sobre a `dev` consolidada antes de abrir ou atualizar a promoção `dev → main`.
+- `main` recebe somente o estado consolidado de `dev`. Se a estratégia de merge criar em `main` um commit que não exista em `dev`, sincronize `main` de volta em `dev` sem reescrever histórico antes de iniciar outra branch.
+- A branch temporária permanece disponível até `dev → main` concluir e o smoke de produção passar. Depois disso, remova seu worktree e apague a branch local e remota; preserve somente `dev` e `main` como branches permanentes.
+- Falha de check, conflito, rollback ou smoke interrompe a promoção e preserva a branch temporária para correção. Nunca force push em `dev` ou `main` nem contorne proteção de branch.
+
 ## Execução e retomada
 
 Respeite as fronteiras de `docs/architecture.md`, abrindo apenas a seção relacionada; evite ampliar Actions que misturam domínios.
