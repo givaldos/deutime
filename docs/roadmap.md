@@ -24,8 +24,9 @@ como proposta de assinatura mensal por time via Asaas, com CP0 pendente;
 marketplace, cobrança de atletas, split e repasse permanecem fora da proposta.
 O rollout pré-lançamento foi concluído em 25 de agosto: os 5 times possuem as
 15 capacidades validadas ativas, com 75/75 flags, 3/3 controles globais,
-worker e smoke aprovados. A próxima frente única é promover a R12 e fechar seu
-CP0 antes da implementação.
+worker e smoke aprovados. A R12 foi promovida e fechou seu contrato de confiança,
+privacidade e autonomia no CP0; a próxima frente única é executar suas correções
+públicas e de interface.
 
 ## Estado executivo
 
@@ -44,7 +45,7 @@ CP0 antes da implementação.
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Três formatos, classificação, chave, página anônima, robustez, piloto e sonda protegida concluídos. | [Abrir](releases/R09-campeonatos-e-tabela.md) |
 | **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Modelo factual, visão privada, resumo consentido, revogação, piloto isolado, smokes e rollback comprovados. | [Abrir](releases/R10-reconhecimento-positivo.md) |
 | **Rollout pré-lançamento** | ✅ `done / produção` | 15 capacidades ativas nos 5 times, com 75/75 flags, 3/3 controles, auditoria, worker, smoke e rollback disponíveis. | [Evidência](releases/R00-fundacao-de-entrega.md#evidências-e-checkpoint) |
-| **R12 — Confiança e autonomia** | 🟡 `next / CP0 pendente` | Corrige inconsistências públicas, remove consentimento indevido do staff, entrega saída e encerramento da conta e recupera a gestão de novos cadastros. | pacote a promover no CP0 |
+| **R12 — Confiança e autonomia** | 🟡 `ready / CP0 concluído` | Corrige inconsistências públicas, remove consentimento indevido do staff, entrega saída e encerramento da conta e recupera a gestão de novos cadastros. | [Abrir](releases/R12-confianca-e-autonomia.md) |
 | **R13 — Agenda e competições profissionais** | ⬜ `planned / CP0 pendente` | Separa jogo, recorrência e campeonato; exige equipes reutilizáveis; torna desempates configuráveis e conflitos acionáveis. | pacote somente após R12 estabilizar |
 | **R11 — Assinatura pelo Asaas** | ⬜ `draft / CP0 pendente` | Assinatura mensal por time, entitlement local e liberação dos benefícios pagos por evento verificado, com Asaas atrás de adapter substituível. | [Abrir](releases/R11-assinatura-asaas.md) |
 
@@ -109,7 +110,7 @@ real antes do lançamento público sem manter uma passagem paralela por staging.
 | 8. Evoluções de produto | ✅ R09 e R10 em CP6 | Campeonatos e reconhecimento positivo concluídos com pilotos, smokes, fallbacks e rollback. |
 | 9. Conta e autenticação | ✅ melhoria concluída | Recuperação publicada, três e-mails com branding e edição do perfil em `/app/profile`, com produção e mobile validados. |
 | 10. Rollout pré-lançamento | ✅ concluído | Catálogo validado ativo globalmente, com 75/75 flags, controles, auditoria, worker, smoke e rollback disponíveis. |
-| 11. Confiança e autonomia | 🟡 R12 próxima / CP0 | Corrigir os bugs observados, fechar consentimento do atleta, saída de vínculos, encerramento da conta, aviso de cadastro e opções do evento. |
+| 11. Confiança e autonomia | 🟡 R12 pronta / CP0 | Contratos fechados; executar correções públicas, consentimento, saída de vínculos, encerramento da conta, aviso de cadastro e opções do evento. |
 | 12. Agenda profissional | ⬜ R13 planejada | Entregar criação clara de jogo ou campeonato, missão com duas equipes, regulamento configurável e gestão manual de conflitos. |
 | 13. Monetização do DeuTime | ⬜ R11 proposta | Validar no sandbox assinatura mensal por time via Asaas somente depois de R12 e R13; manter cobrança separada do marketplace. |
 | 14. Consolidação e escala | ⬜ decisão pendente | Priorizar somente melhorias com risco, uso real ou retorno mensurável. |
@@ -164,7 +165,7 @@ real antes do lançamento público sem manter uma passagem paralela por staging.
 
 ## Ordem recomendada para uma única frente
 
-1. promover a R12 e corrigir primeiro rotas, endereço público, textos de compartilhamento e ação duplicada do dashboard;
+1. executar a R12 e corrigir primeiro rotas, endereço público, textos de compartilhamento e ação duplicada do dashboard;
 2. ainda na R12, fechar consentimento, saída de vínculos, encerramento da conta, e-mail de novo cadastro e opções do evento;
 3. estabilizar e ativar globalmente a R12 em produção, com regressão dos links existentes e privacidade comprovada;
 4. promover a R13 e entregar a nova entrada **Novo jogo** ou **Novo campeonato**;
@@ -211,7 +212,8 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
 - [x] consolidar os bugs e as melhorias operacionais nas propostas R12 e R13, sem alterar o estado das releases concluídas;
 - [x] definir produção como único ambiente integrado até nova autorização explícita para usar staging;
 - [x] inventariar e ativar globalmente em produção todas as capacidades concluídas ainda limitadas por flag, coorte ou piloto;
-- [ ] promover R12 após o rollout integral e executá-la em uma única frente;
+- [x] promover R12 após o rollout integral e fechar seu CP0;
+- [ ] executar os pacotes da R12 em uma única frente;
 - [ ] promover R13 somente depois da estabilização da R12;
 - [ ] executar o CP0 da R11 no sandbox e fechar decisões comerciais e operacionais depois de R12 e R13;
 - [ ] promover R11 como única release ativa somente se a Definition of Ready for satisfeita;
@@ -259,9 +261,9 @@ reavaliar reconhecimento sem autorizar pontos ou ranking.
 
 As novas pendências não alteram o que foi comprovado nas releases encerradas.
 Elas formam duas evoluções sequenciais. R12 recupera confiança, privacidade e
-autonomia; R13 dá à agenda e às competições uma experiência profissional. Os
-pacotes detalhados só serão criados quando cada release for promovida, evitando
-manter especificações concorrentes ou carregar contexto sem consumidor.
+autonomia; R13 dá à agenda e às competições uma experiência profissional. O
+pacote detalhado da R12 já foi promovido; o da R13 só será criado depois da
+estabilização anterior, evitando especificações concorrentes sem consumidor.
 
 ### R12 — confiança, privacidade e autonomia
 
@@ -315,7 +317,7 @@ novos pedidos de entrada.
 - [ ] Oferecer **Encerrar minha conta** com reautenticação e confirmação humana;
   revogar sessões e credenciais, retirar imediatamente a exposição pública,
   remover dados privados e anonimizar referências que não precisem ser mantidas.
-- [ ] Fechar no CP0 a base legal, prazos de auditoria e expiração em backups,
+- [x] Fechar no CP0 a base legal, prazos de auditoria e expiração em backups,
   comunicação de conclusão e tratamento do último owner; não prometer remoção
   física imediata de cópias protegidas por retenção obrigatória.
 - [ ] Provar que sair de um time ou encerrar a conta não remove nem altera dados
@@ -326,7 +328,7 @@ novos pedidos de entrada.
 - [ ] Enviar e-mail quando um novo cadastro público entrar como `pending`, com
   link direto para a fila de aprovação do time e sem dados pessoais além do
   mínimo necessário para a decisão.
-- [ ] Definir em CP0 os destinatários iniciais — owner e admins autorizados — e
+- [x] Definir em CP0 os destinatários iniciais — owner e admins autorizados — e
   permitir desativação individual nas preferências do time sem silenciar alertas
   obrigatórios de segurança.
 - [ ] Tornar o aviso idempotente por cadastro e transição de estado, com adapter,
@@ -462,7 +464,7 @@ sem perder histórico nem alterar o calendário automaticamente.
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento, página compartilhável e piloto com rollback. | R04, R07, R08M | concluída | Histórico por partida |
 | **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Catálogo factual, visão privada, resumo consentido, revogação e piloto isolado concluídos sem ranking constrangedor. | R04, R05, R07 | concluída | Estatísticas básicas |
 | **R11 — Assinatura pelo Asaas** | ⬜ `draft / CP0 pendente` | Administrador contrata assinatura mensal por time e benefícios pagos são liberados pela projeção local após confirmação verificável. | R00, R03, R03R, R08M | validar sandbox, carência, benefícios, cancelamento e suporte | Operação e compartilhamento manual |
-| **R12 — Confiança e autonomia** | 🟡 `next / CP0 pendente` | Corrige inconsistências, reforça consentimento, entrega saída e encerramento da conta, aviso de cadastro e opções ampliadas do evento. | R00, R01, R02, R10 | retenção, rota canônica, destinatários e último owner | rotas antigas, dashboard e suporte manual |
+| **R12 — Confiança e autonomia** | 🟡 [`ready / CP0 concluído`](releases/R12-confianca-e-autonomia.md) | Corrige inconsistências, reforça consentimento, entrega saída e encerramento da conta, aviso de cadastro e opções ampliadas do evento. | R00, R01, R02, R10 | decisões fechadas em `DEC-ACCOUNT-LIFECYCLE` e no pacote | rotas antigas, dashboard e suporte manual |
 | **R13 — Agenda e competições profissionais** | ⬜ `planned / CP0 pendente` | Criação clara, equipes padrão, regulamento configurável e resolução manual de conflitos sem perda de histórico. | R01, R07, R09, R12 | vocabulário, matriz de conflitos e congelamento do regulamento | criação e remarcação atuais |
 
 ### R09 — campeonatos configuráveis
