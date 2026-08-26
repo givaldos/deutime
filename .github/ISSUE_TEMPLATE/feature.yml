@@ -25,6 +25,7 @@ body:
         - R08M — Fechamento do MVP compartilhável
         - R09 — Campeonatos e tabela
         - R10 — Reconhecimento positivo
+        - R12 — Confiança e autonomia
     validations:
       required: true
   - type: input
