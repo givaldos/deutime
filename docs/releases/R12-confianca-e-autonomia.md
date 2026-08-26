@@ -246,5 +246,8 @@ acessibilidade e smoke anônimo das rotas antigas e novas.
   foram fechados no pacote;
 - `DEC-ACCOUNT-LIFECYCLE` resolveu último owner, encerramento de time/conta,
   finalidades, retenção, backups e recuperação com fontes oficiais;
+- sobre a `dev` consolidada, lint, TypeScript, 98 arquivos/505 testes, 4 testes
+  de contexto, build de produção Webpack e auditoria sem vulnerabilidades
+  passaram; Turbopack ficou limitado somente pela abertura de porta no sandbox;
 - nenhuma migration, tabela, flag, integração, e-mail ou interface foi alterada;
 - próximo pacote: `WP-R12-01`, começando por teste de regressão do slug e da rota.

@@ -9,6 +9,9 @@ completed_ac: []
 dirty_files: []
 tests:
   - "CP0 documental: contrato, entrypoints, riscos e 17 critérios registrados"
+  - "dev consolidada: lint, TypeScript, 98 arquivos/505 testes e 4 testes de contexto aprovados"
+  - "build de produção Webpack aprovado; Turbopack limitado somente pela porta do sandbox"
+  - "npm audit sem vulnerabilidades"
 blocker: null
 next_action: "Iniciar WP-R12-01 por testes de regressão do slug e da rota /t/{slug}/register."
 ---
