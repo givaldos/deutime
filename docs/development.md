@@ -129,6 +129,46 @@ Não fechar uma feature porque uma camada ficou pronta. Se a jornada ainda depen
 - Não misturar refatoração ampla sem relação com o resultado da feature.
 - Preferir PR pequeno e completo a uma branch longa com várias jornadas.
 
+## Fluxo Git canônico
+
+O DeuTime mantém duas branches permanentes: `dev`, que integra o trabalho dos
+desenvolvedores, e `main`, que representa o estado promovido para produção. Todo
+trabalho acontece em branch temporária; nunca diretamente nessas branches.
+
+```text
+dev atualizada → branch temporária → PR para dev → checks em dev
+              → promoção dev para main → smoke de produção
+              → sincronizar dev, se necessário → apagar branch temporária
+```
+
+### Regras
+
+1. Antes de começar, atualizar `dev` a partir de `origin/dev` somente por
+   fast-forward e criar a branch temporária a partir desse commit.
+2. Usar `codex/<escopo-curto>` para trabalho do Codex e a convenção equivalente
+   acordada para outros desenvolvedores.
+3. Abrir o primeiro PR exclusivamente da branch temporária para `dev`. PR
+   temporária → `main`, commit direto ou cherry-pick para contornar `dev` são
+   proibidos.
+4. Executar na branch temporária os testes proporcionais ao risco. Após o merge,
+   executar sobre `dev` os gates completos aplicáveis e registrar as evidências.
+5. Promover somente `dev → main`, sem incluir trabalho parcial, flag sem plano de
+   ativação ou checkpoint aberto. A produção recebe exatamente o conjunto
+   consolidado e aprovado em `dev`.
+6. Se o mecanismo de merge adicionar a `main` um commit que não esteja em `dev`,
+   sincronizar `main` de volta para `dev` sem force push ou reescrita. A próxima
+   branch só nasce depois de `dev` estar atualizada.
+7. Manter a branch temporária até a promoção para `main` e o smoke produtivo
+   concluírem. Com o resultado consolidado, remover o worktree associado e
+   apagar a branch temporária local e em `origin`.
+8. Em caso de falha, interromper a promoção e corrigir pela mesma branch
+   temporária ou por uma nova branch criada da `dev` atualizada. `dev` e `main`
+   nunca são apagadas.
+
+Esse fluxo é requisito de entrega. Uma feature não alcança CP6 enquanto existir
+somente na branch temporária ou em `dev`, e a limpeza da branch não acontece
+antes da comprovação em produção.
+
 ## Checkpoints
 
 | Checkpoint | Evidência necessária |

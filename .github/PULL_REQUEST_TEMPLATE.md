@@ -2,6 +2,14 @@
 
 <!-- Release/WP, resultado demonstrável e issue. Não descreva somente arquivos ou camadas. -->
 
+## Fluxo de branch
+
+- [ ] esta branch temporária nasceu da `dev` atualizada
+- [ ] este PR aponta para `dev`; branch temporária nunca aponta diretamente para `main`
+- [ ] a promoção posterior será exclusivamente `dev → main`, após os checks da `dev`
+- [ ] a branch temporária será mantida até o merge em `main` e o smoke produtivo, depois removida local e remotamente
+- [ ] `dev` será sincronizada novamente se o merge em `main` criar um commit exclusivo
+
 ## Passado preservado e escopo
 
 <!-- Contratos reaproveitados, compatibilidade mantida e o que ficou explicitamente fora. -->
