@@ -75,7 +75,7 @@ describe("controle operacional do piloto de reconhecimentos", () => {
   it("deriva o time pela coorte fechada e ativa pela RPC auditada", async () => {
     await expect(setRecognitionPilotState({}, pilotForm())).resolves.toEqual({
       outcome: "success",
-      message: "Piloto ativado somente para esta coorte sintética.",
+      message: "Piloto ativado somente neste time de teste.",
     });
     expect(mocks.rpc).toHaveBeenCalledWith("set_team_feature_flag", {
       requested_team_id: teamId,
@@ -125,7 +125,7 @@ describe("controle operacional do piloto de reconhecimentos", () => {
       pilotForm({ slug: "outro-time" }),
     )).resolves.toEqual({
       outcome: "error",
-      message: "Este time não pertence à coorte autorizada.",
+      message: "Este time não está autorizado para o teste.",
     });
     expect(mocks.maybeSingle).not.toHaveBeenCalled();
     expect(mocks.rpc).not.toHaveBeenCalled();
@@ -144,7 +144,7 @@ describe("controle operacional do piloto de reconhecimentos", () => {
     mocks.privilegedRpc.mockResolvedValue({ data: health(true), error: null });
     await expect(setRecognitionPilotState({}, pilotForm())).resolves.toEqual({
       outcome: "error",
-      message: "A pré-sonda não autorizou a alteração do piloto.",
+      message: "A verificação inicial não autorizou a alteração do piloto.",
     });
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
@@ -156,7 +156,7 @@ describe("controle operacional do piloto de reconhecimentos", () => {
       .mockResolvedValueOnce({ data: null, error: { code: "unexpected" } });
     await expect(setRecognitionPilotState({}, pilotForm())).resolves.toEqual({
       outcome: "error",
-      message: "A pós-sonda falhou e a ativação foi revertida.",
+      message: "A verificação final falhou e a ativação foi revertida.",
     });
     expect(mocks.rpc).toHaveBeenLastCalledWith("set_team_feature_flag", {
       requested_team_id: teamId,

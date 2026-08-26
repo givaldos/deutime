@@ -40,7 +40,7 @@ export function ChampionshipPilotControl({
             Piloto de campeonatos
           </h2>
           <p className="mt-1 text-sm leading-6 text-slate-500">
-            Coorte isolada para {teamName}. O rollback oculta campeonatos sem
+            Teste isolado para {teamName}. A desativação oculta campeonatos sem
             apagar confrontos, partidas ou súmulas.
           </p>
         </div>
@@ -50,7 +50,7 @@ export function ChampionshipPilotControl({
         <div>
           <p className="text-sm font-bold text-slate-800">Estado do piloto</p>
           <p className="text-xs text-slate-500">
-            {enabled ? "Campeonatos ativos na coorte" : "Agenda e partidas no fallback"}
+            {enabled ? "Campeonatos ativos neste time" : "Agenda e partidas continuam disponíveis"}
           </p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide ${enabled ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-700"}`}>
@@ -70,8 +70,8 @@ export function ChampionshipPilotControl({
             className="mt-0.5 size-5 rounded border-slate-300"
           />
           <span>{enabled
-            ? "Confirmo o rollback e a sonda posterior com a flag desligada."
-            : "Confirmo a sonda pré-ativação, o fallback manual e a observação imediata."}</span>
+            ? "Confirmo a desativação e a verificação posterior com o recurso desligado."
+            : "Confirmo a verificação antes da ativação e a observação imediata."}</span>
         </label>
 
         {state.message ? (
@@ -81,12 +81,12 @@ export function ChampionshipPilotControl({
         ) : null}
 
         <AsyncSubmitButton
-          pendingLabel={nextEnabled ? "Ativando piloto..." : "Executando rollback..."}
+          pendingLabel={nextEnabled ? "Ativando piloto..." : "Desativando piloto..."}
           variant={enabled ? "destructive" : "default"}
           className="min-h-12 w-full sm:w-auto"
         >
           {enabled ? <RotateCcw aria-hidden /> : <Power aria-hidden />}
-          {enabled ? "Desligar e voltar ao fallback" : "Ativar somente esta coorte"}
+          {enabled ? "Desligar campeonatos" : "Ativar somente neste time"}
         </AsyncSubmitButton>
       </form>
     </section>

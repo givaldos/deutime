@@ -43,8 +43,8 @@ export function EventSharePilotControl({
             Piloto do cartão compartilhável
           </h2>
           <p className="mt-1 text-sm leading-6 text-slate-500">
-            Controle isolado para {teamName}. A URL pública não muda e o
-            rollback preserva o cartão anterior.
+            Controle isolado para {teamName}. A URL pública não muda e a
+            desativação preserva o cartão anterior.
           </p>
         </div>
       </div>
@@ -53,7 +53,7 @@ export function EventSharePilotControl({
         <div>
           <p className="text-sm font-bold text-slate-800">Estado do piloto</p>
           <p className="text-xs text-slate-500">
-            {enabled ? "Cartão evolutivo ativo" : "Fallback anterior ativo"}
+            {enabled ? "Cartão atualizado ativo" : "Cartão atual preservado"}
           </p>
         </div>
         <span
@@ -80,8 +80,8 @@ export function EventSharePilotControl({
           />
           <span>
             {enabled
-              ? "Confirmo o rollback e a validação posterior com a flag desligada."
-              : "Confirmo a sonda pré-ativação e a observação imediata desta coorte."}
+              ? "Confirmo a desativação e a verificação posterior com o recurso desligado."
+              : "Confirmo a verificação antes da ativação e a observação imediata deste time."}
           </span>
         </label>
 
@@ -99,12 +99,12 @@ export function EventSharePilotControl({
         ) : null}
 
         <AsyncSubmitButton
-          pendingLabel={nextEnabled ? "Ativando piloto..." : "Executando rollback..."}
+          pendingLabel={nextEnabled ? "Ativando piloto..." : "Desativando piloto..."}
           variant={enabled ? "destructive" : "default"}
           className="w-full sm:w-auto"
         >
           {enabled ? <RotateCcw aria-hidden /> : <Power aria-hidden />}
-          {enabled ? "Desligar e voltar ao fallback" : "Ativar somente esta coorte"}
+          {enabled ? "Desligar compartilhamento" : "Ativar somente neste time"}
         </AsyncSubmitButton>
       </form>
     </section>

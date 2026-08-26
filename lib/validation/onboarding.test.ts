@@ -25,22 +25,24 @@ describe("onboarding validation", () => {
 
   it("accepts supported team formats", () => {
     expect(
-      createTeamSchema.safeParse({
+      createTeamSchema.parse({
         name: "Racha do Bairro",
-        slug: "racha-do-bairro",
+        slug: " RACHA-DO-BAIRRO ",
         sportFormat: "society",
-      }).success,
-    ).toBe(true);
+      }).slug,
+    ).toBe("racha-do-bairro");
   });
 
   it("rejects unsafe or malformed public slugs", () => {
-    expect(
-      createTeamSchema.safeParse({
-        name: "Racha do Bairro",
-        slug: "../admin",
-        sportFormat: "society",
-      }).success,
-    ).toBe(false);
+    for (const slug of ["../admin", "-racha", "racha-", "racha--do-bairro"]) {
+      expect(
+        createTeamSchema.safeParse({
+          name: "Racha do Bairro",
+          slug,
+          sportFormat: "society",
+        }).success,
+      ).toBe(false);
+    }
   });
 
   it("limits administrative invitations to supported roles", () => {

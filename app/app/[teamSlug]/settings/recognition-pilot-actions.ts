@@ -70,7 +70,7 @@ export async function setRecognitionPilotState(
   if (parsed.data.teamSlug !== recognitionPilotTeamSlug) {
     return {
       outcome: "error",
-      message: "Este time não pertence à coorte autorizada.",
+      message: "Este time não está autorizado para o teste.",
     };
   }
 
@@ -83,7 +83,7 @@ export async function setRecognitionPilotState(
   if (teamError || !team || team.slug !== recognitionPilotTeamSlug) {
     return {
       outcome: "error",
-      message: "Não foi possível confirmar a coorte sintética.",
+      message: "Não foi possível confirmar o time de teste.",
     };
   }
 
@@ -99,7 +99,7 @@ export async function setRecognitionPilotState(
   ) {
     return {
       outcome: "error",
-      message: "A pré-sonda não autorizou a alteração do piloto.",
+      message: "A verificação inicial não autorizou a alteração do piloto.",
     };
   }
 
@@ -143,8 +143,8 @@ export async function setRecognitionPilotState(
     return {
       outcome: "error",
       message: parsed.data.enabled
-        ? "A pós-sonda falhou e a ativação foi revertida."
-        : "A pós-sonda não confirmou o rollback.",
+        ? "A verificação final falhou e a ativação foi revertida."
+        : "A verificação final não confirmou a desativação.",
     };
   }
 
@@ -158,8 +158,8 @@ export async function setRecognitionPilotState(
   return {
     outcome: "success",
     message: parsed.data.enabled
-      ? "Piloto ativado somente para esta coorte sintética."
-      : "Rollback concluído; os fatos esportivos foram preservados.",
+      ? "Piloto ativado somente neste time de teste."
+      : "Desativação concluída; os fatos esportivos foram preservados.",
   };
 }
 
@@ -183,7 +183,7 @@ export async function prepareRecognitionPilotAthlete(
   if (!parsed.success || parsed.data.teamSlug !== recognitionPilotTeamSlug) {
     return {
       outcome: "error",
-      message: "Confirme a preparação da coorte sintética.",
+      message: "Confirme a preparação dos dados sintéticos.",
     };
   }
 
@@ -194,7 +194,7 @@ export async function prepareRecognitionPilotAthlete(
     .eq("slug", parsed.data.teamSlug)
     .maybeSingle();
   if (teamError || !team || team.slug !== recognitionPilotTeamSlug) {
-    return { outcome: "error", message: "A coorte sintética não foi encontrada." };
+    return { outcome: "error", message: "O time de teste não foi encontrado." };
   }
   const { data: membership, error: membershipError } = await supabase
     .from("team_memberships")
@@ -213,7 +213,7 @@ export async function prepareRecognitionPilotAthlete(
 
   const before = await readPilotHealth(team.id);
   if (!before?.recognition_enabled || before.reconstruction_mismatches !== 0) {
-    return { outcome: "error", message: "A sonda não autorizou os dados sintéticos." };
+    return { outcome: "error", message: "A verificação não autorizou os dados sintéticos." };
   }
 
   const privileged = createPrivilegedClient();
@@ -371,7 +371,7 @@ export async function prepareRecognitionPilotAthlete(
 
   const after = await readPilotHealth(team.id);
   if (!after?.recognition_enabled || after.reconstruction_mismatches !== 0) {
-    return { outcome: "error", message: "A pós-sonda não confirmou a coorte sintética." };
+    return { outcome: "error", message: "A verificação final não confirmou o time de teste." };
   }
 
   console.info("recognition_pilot.synthetic_athlete_ready", {
@@ -388,7 +388,7 @@ export async function prepareRecognitionPilotAthlete(
     message: requestedConsent === "granted"
       ? `Resumo público sintético consentido; ${after.public_cards} reconhecimentos públicos confirmados.`
       : requestedConsent === "revoked"
-        ? "Resumo público sintético revogado; fallback privado confirmado."
+        ? "Resumo público sintético revogado; visão privada confirmada."
         : `Atleta e perfil sintéticos prontos; ${after.projected_cards} reconhecimentos privados confirmados.`,
   };
 }

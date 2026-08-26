@@ -20,8 +20,8 @@ describe("controle visual do piloto de reconhecimentos", () => {
         enabled={false}
       />,
     );
-    expect(html).toContain("Fallback privado preservado");
-    expect(html).toContain("Ativar somente esta coorte");
+    expect(html).toContain("Visão privada preservada");
+    expect(html).toContain("Ativar somente neste time");
     expect(html).toContain('name="confirmation"');
     expect(html).toContain("required");
     expect(html).toContain("não geram pontos ou ranking");
@@ -35,8 +35,8 @@ describe("controle visual do piloto de reconhecimentos", () => {
         enabled
       />,
     );
-    expect(html).toContain("Reconhecimentos privados ativos na coorte");
-    expect(html).toContain("Desligar e voltar ao fallback");
+    expect(html).toContain("Reconhecimentos privados ativos neste time");
+    expect(html).toContain("Desligar reconhecimentos");
     expect(html).toContain('value="false"');
     expect(html).toContain("preservação dos fatos");
     expect(html).toContain("Preparar atleta sintético");

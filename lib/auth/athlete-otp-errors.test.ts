@@ -22,11 +22,19 @@ describe("erros do login de atleta por OTP", () => {
 
   it("só oferece retorno quando o login nasceu no cadastro público do time", () => {
     expect(
-      athleteRegistrationReturnPath("/t/demo-campo/cadastro"),
-    ).toBe("/t/demo-campo/cadastro");
+      athleteRegistrationReturnPath("/t/demo-campo/register"),
+    ).toBe("/t/demo-campo/register");
     expect(
       athleteRegistrationReturnPath("/t/demo-campo/cadastro?novo=1"),
-    ).toBe("/t/demo-campo/cadastro?novo=1");
+    ).toBe("/t/demo-campo/register?novo=1");
+    expect(
+      athleteRegistrationReturnPath(
+        "/t/demo-campo/cadastro?novo=1&next=https://evil.example",
+      ),
+    ).toBe("/t/demo-campo/register?novo=1");
+    expect(
+      athleteRegistrationReturnPath("/t/demo--campo/register"),
+    ).toBeNull();
     expect(athleteRegistrationReturnPath("/me")).toBeNull();
   });
 });
