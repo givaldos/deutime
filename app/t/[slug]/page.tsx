@@ -11,7 +11,9 @@ import {
   getPublicUpcomingEvents,
 } from "@/lib/data/public-team";
 import type { Json } from "@/lib/database.types";
+import { teamRegistrationPath } from "@/lib/public/team-registration";
 import { createClient } from "@/lib/supabase/server";
+import { TEAM_SLUG_PATTERN } from "@/lib/validation/onboarding";
 import {
   ArrowRight,
   BadgeCheck,
@@ -67,7 +69,7 @@ export default async function PublicTeamPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  if (!/^[a-z0-9](?:[a-z0-9-]{1,46}[a-z0-9])$/.test(slug)) {
+  if (!TEAM_SLUG_PATTERN.test(slug)) {
     notFound();
   }
 
@@ -130,7 +132,7 @@ export default async function PublicTeamPage({
           <div className="flex items-center justify-between gap-4">
             <BrandMark inverted />
             <Link
-              href={teamLink?.athlete_status === "active" ? "/me" : `/t/${slug}/cadastro`}
+              href={teamLink?.athlete_status === "active" ? "/me" : teamRegistrationPath(slug)}
               className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/20 bg-grass/35 px-4 text-xs font-bold text-white shadow-lg backdrop-blur-md transition hover:bg-grass/60"
             >
               {teamLink?.athlete_status === "active" ? <ShieldCheck className="size-4" aria-hidden /> : <UserPlus className="size-4" aria-hidden />}
@@ -418,7 +420,7 @@ export default async function PublicTeamPage({
               <p className="mt-3 max-w-xl text-sm leading-6 text-emerald-100/80">Um único perfil para acompanhar jogos, confirmar presença e construir sua história em vários times.</p>
             </div>
             <Button asChild size="lg" className="h-12 rounded-xl bg-emerald-400 font-black text-emerald-950 hover:bg-emerald-300">
-              <Link href={teamLink?.athlete_status === "active" ? "/me" : `/t/${slug}/cadastro`}>
+              <Link href={teamLink?.athlete_status === "active" ? "/me" : teamRegistrationPath(slug)}>
                 {teamLink?.athlete_status === "active" ? "Ir para minha área" : "Quero jogar"} <ArrowRight aria-hidden />
               </Link>
             </Button>

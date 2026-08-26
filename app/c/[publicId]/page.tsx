@@ -206,7 +206,7 @@ export default async function PublicChampionshipPage({
         </section>
 
         <section className="app-surface p-5 sm:p-6" aria-labelledby="share-title">
-          <p className="app-kicker">WhatsApp-first</p><h2 id="share-title" className="mt-1 text-xl font-black">Leve a tabela para a galera</h2><p className="mt-1 text-sm leading-6 text-slate-500">Compartilhe a mesma URL. Ela acompanha as próximas súmulas sem expor atletas ou endereço.</p>
+          <p className="app-kicker">Compartilhamento</p><h2 id="share-title" className="mt-1 text-xl font-black">Leve a tabela para a galera</h2><p className="mt-1 text-sm leading-6 text-slate-500">Compartilhe a mesma URL. Ela acompanha as próximas súmulas sem expor atletas ou endereço.</p>
           <div className="mt-4"><ChampionshipShareButton publicUrl={publicUrl} championshipName={championship.name} /></div>
         </section>
 

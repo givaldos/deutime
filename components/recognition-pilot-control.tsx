@@ -47,7 +47,7 @@ export function RecognitionPilotControl({
             Piloto de reconhecimentos
           </h2>
           <p className="mt-1 text-sm leading-6 text-slate-500">
-            Coorte sintética para {teamName}. Os reconhecimentos são privados,
+            Teste com dados sintéticos para {teamName}. Os reconhecimentos são privados,
             factuais e não geram pontos ou ranking.
           </p>
         </div>
@@ -58,8 +58,8 @@ export function RecognitionPilotControl({
           <p className="text-sm font-bold text-slate-800">Estado do piloto</p>
           <p className="text-xs text-slate-500">
             {enabled
-              ? "Reconhecimentos privados ativos na coorte"
-              : "Fallback privado preservado"}
+              ? "Reconhecimentos privados ativos neste time"
+              : "Visão privada preservada"}
           </p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide ${enabled ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-700"}`}>
@@ -80,8 +80,8 @@ export function RecognitionPilotControl({
           />
           <span>
             {enabled
-              ? "Confirmo o rollback, a preservação dos fatos e a sonda posterior."
-              : "Confirmo a pré-sonda desligada, os dados sintéticos e a observação imediata."}
+              ? "Confirmo a desativação, a preservação dos fatos e a verificação posterior."
+              : "Confirmo a verificação inicial, os dados sintéticos e a observação imediata."}
           </span>
         </label>
 
@@ -92,12 +92,12 @@ export function RecognitionPilotControl({
         ) : null}
 
         <AsyncSubmitButton
-          pendingLabel={nextEnabled ? "Ativando piloto..." : "Executando rollback..."}
+          pendingLabel={nextEnabled ? "Ativando piloto..." : "Desativando piloto..."}
           variant={enabled ? "destructive" : "default"}
           className="min-h-12 w-full sm:w-auto"
         >
           {enabled ? <RotateCcw aria-hidden /> : <Power aria-hidden />}
-          {enabled ? "Desligar e voltar ao fallback" : "Ativar somente esta coorte"}
+          {enabled ? "Desligar reconhecimentos" : "Ativar somente neste time"}
         </AsyncSubmitButton>
       </form>
 

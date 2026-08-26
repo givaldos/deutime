@@ -20,8 +20,8 @@ describe("controle visual do piloto do cartão público", () => {
       />,
     );
 
-    expect(html).toContain("Fallback anterior ativo");
-    expect(html).toContain("Ativar somente esta coorte");
+    expect(html).toContain("Cartão atual preservado");
+    expect(html).toContain("Ativar somente neste time");
     expect(html).toContain('name="confirmation"');
     expect(html).toContain("required");
     expect(html).not.toContain("EVENT_SHARE_PILOT_TEAM_ID");
@@ -36,8 +36,8 @@ describe("controle visual do piloto do cartão público", () => {
       />,
     );
 
-    expect(html).toContain("Cartão evolutivo ativo");
-    expect(html).toContain("Desligar e voltar ao fallback");
+    expect(html).toContain("Cartão atualizado ativo");
+    expect(html).toContain("Desligar compartilhamento");
     expect(html).toContain('value="false"');
   });
 });

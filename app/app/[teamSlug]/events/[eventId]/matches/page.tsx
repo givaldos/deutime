@@ -457,7 +457,7 @@ export default async function MatchReportPage({
                 ))}
               </div>
             )}
-            <p className="mt-3 text-xs text-slate-400">Recurso atrás de flag <code>event_matches</code> desligada por padrão; fallback mantém súmula legada.</p>
+            <p className="mt-3 text-xs text-slate-400">As partidas avançadas estão desligadas; a súmula atual continua disponível.</p>
           </section>
         )}
 
