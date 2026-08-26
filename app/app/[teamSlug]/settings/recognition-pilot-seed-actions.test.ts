@@ -208,7 +208,7 @@ describe("preparação do atleta sintético R10", () => {
       prepareRecognitionPilotAthlete({}, seedForm(true, "revoked")),
     ).resolves.toEqual({
       outcome: "success",
-      message: "Resumo público sintético revogado; fallback privado confirmado.",
+      message: "Resumo público sintético revogado; visão privada confirmada.",
     });
     expect(mocks.athleteRpc).toHaveBeenCalledWith(
       "set_public_recognition_summary_consent",

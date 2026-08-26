@@ -2,7 +2,7 @@
 
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
-import { createTeamSchema, sanitizeTeamSlug } from "@/lib/validation/onboarding";
+import { createTeamSchema } from "@/lib/validation/onboarding";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -16,10 +16,9 @@ export async function createTeam(
   formData: FormData,
 ): Promise<CreateTeamState> {
   await requireUser();
-  const candidateSlug = sanitizeTeamSlug(String(formData.get("slug") ?? ""));
   const parsed = createTeamSchema.safeParse({
     name: formData.get("name"),
-    slug: candidateSlug,
+    slug: formData.get("slug"),
     sportFormat: formData.get("sportFormat"),
   });
 

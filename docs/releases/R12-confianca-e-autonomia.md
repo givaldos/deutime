@@ -1,7 +1,7 @@
 ---
 id: R12
 type: vertical
-status: ready
+status: active
 outcome: "Dar à pessoa e à diretoria uma jornada coerente e segura para cadastro, privacidade, vínculos, encerramento da conta, avisos e opções de evento."
 depends_on:
   - R00
@@ -14,7 +14,7 @@ baseline:
   - BASE-PUBLIC
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "0896933"
+verified_at: "7cd58b7"
 decisions:
   - DEC-PUBLIC-PRIVACY
   - DEC-ACCOUNT-LIFECYCLE
@@ -175,9 +175,9 @@ de eventos oferecem os mesmos limites e opções. Nenhum staff publica atleta.
 
 ## Critérios de aceite
 
-- [ ] `AC-R12-01` — Nome, prévia, Action e banco produzem o mesmo slug válido, inclusive com hífen interno, e rejeitam hífen inicial, final ou repetido.
-- [ ] `AC-R12-02` — Links novos usam `/register`; `/cadastro` preserva links existentes e parâmetros seguros; `/cadaster` não existe.
-- [ ] `AC-R12-03` — Compartilhamento e interfaces públicas não exibem emoji quebrado, `�`, jargão interno ou ação duplicada de edição.
+- [x] `AC-R12-01` — Nome, prévia, Action e banco produzem o mesmo slug válido, inclusive com hífen interno, e rejeitam hífen inicial, final ou repetido.
+- [x] `AC-R12-02` — Links novos usam `/register`; `/cadastro` preserva links existentes e parâmetros seguros; `/cadaster` não existe.
+- [x] `AC-R12-03` — Compartilhamento e interfaces públicas não exibem emoji quebrado, `�`, jargão interno ou ação duplicada de edição.
 - [ ] `AC-R12-04` — Staff não vê nem consegue enviar controle de publicação do atleta, inclusive por requisição manipulada ou versão antiga.
 - [ ] `AC-R12-05` — Somente atleta reivindicado, autenticado e consentido aparece nas projeções ampliadas; ausência/revogação remove identidade sem alterar fato interno.
 - [ ] `AC-R12-06` — `/me` lista vínculos, pedidos e convites da própria pessoa com estado e ação corretos, sem leitura cross-tenant.
@@ -251,3 +251,26 @@ acessibilidade e smoke anônimo das rotas antigas e novas.
   passaram; Turbopack ficou limitado somente pela abertura de porta no sandbox;
 - nenhuma migration, tabela, flag, integração, e-mail ou interface foi alterada;
 - próximo pacote: `WP-R12-01`, começando por teste de regressão do slug e da rota.
+
+### WP-R12-01 — concluído em 2026-08-26
+
+- o contrato compartilhado, a Action e a RPC transacional normalizam letras e
+  espaços, preservam hífen interno e rejeitam slug curto, longo ou com hífen em
+  extremidade ou repetido;
+- a migration forward-only `202608260001_r12_public_slug_contract.sql` validou
+  os dados existentes antes de tornar a constraint canônica efetiva;
+- `/t/{slug}/register` passou a ser a rota canônica; `/cadastro` responde com
+  redirect permanente, preserva somente `novo=1` e descarta parâmetros não
+  reconhecidos; nenhum link novo usa `/cadaster`;
+- os textos preparados para WhatsApp não contêm emoji ou caractere substituído,
+  os controles expostos usam linguagem comum e **Ajustes** é o único acesso de
+  edição no dashboard;
+- lint, TypeScript, 101 arquivos/511 testes, 4 testes de contexto e build de
+  produção Webpack passaram; a auditoria encontrou zero vulnerabilidades. O
+  build Turbopack ficou limitado somente pela abertura de porta no sandbox;
+- banco local aprovado com reset, lint sem alerta novo, tipos atualizados e 58
+  arquivos/1.475 testes pgTAP; integridade das migrations preservada;
+- smoke local: rota canônica `200`, rota antiga `308`, query segura preservada,
+  nenhum erro de console e layout em 360 px sem rolagem horizontal;
+- próximo pacote: `WP-R12-02`, começando pela falha fechada do cadastro privado
+  feito pela diretoria e pela remoção do controle de publicação da interface.

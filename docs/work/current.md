@@ -2,27 +2,31 @@
 release: R12
 work_package: WP-R12-01
 scope: public_interface_corrections
-branch_or_commit: "codex/r12-cp0@0896933"
+branch_or_commit: "codex/r12-public-fixes@7cd58b7"
 checkpoint: idle
-status: ready
-completed_ac: []
+status: done
+completed_ac:
+  - AC-R12-01
+  - AC-R12-02
+  - AC-R12-03
 dirty_files: []
 tests:
-  - "CP0 documental: contrato, entrypoints, riscos e 17 critérios registrados"
-  - "dev consolidada: lint, TypeScript, 98 arquivos/505 testes e 4 testes de contexto aprovados"
+  - "lint, TypeScript, 101 arquivos/511 testes e 4 testes de contexto aprovados"
   - "build de produção Webpack aprovado; Turbopack limitado somente pela porta do sandbox"
+  - "58 arquivos/1.475 testes pgTAP, reset, lint, tipos e integridade de migrations aprovados"
+  - "smoke local: register 200, cadastro 308, query allowlisted, console limpo e 360 px sem overflow"
   - "npm audit sem vulnerabilidades"
 blocker: null
-next_action: "Iniciar WP-R12-01 por testes de regressão do slug e da rota /t/{slug}/register."
+next_action: "Iniciar WP-R12-02 por testes que provem cadastro administrativo privado e rejeição do controle legado de publicação."
 ---
 
 # Trabalho atual
 
-A R12 está promovida e pronta para implementação. `DEC-ACCOUNT-LIFECYCLE`
-fecha saída de vínculos, último owner, encerramento de time/conta, retenção e
-recuperação. O pacote também fecha `/t/{slug}/register` como rota canônica e
-owner/admin ativo como destinatário do aviso mínimo de novo cadastro.
+A R12 está ativa. O `WP-R12-01` unificou o contrato de slug entre nome, prévia,
+Action e banco; adotou `/t/{slug}/register` como rota canônica; preservou
+`/cadastro` por redirect permanente; removeu emoji e jargão dos pontos alterados
+e deixou **Ajustes** como único acesso de edição no dashboard.
 
-Nenhum código, banco, flag, integração ou interface foi alterado no CP0. A
-próxima mudança deve iniciar `WP-R12-01` com testes focados de slug, redirect e
-links novos, preservando `/cadastro` como compatibilidade.
+App, banco e navegador foram validados, inclusive em 360 px. O próximo pacote é
+`WP-R12-02`: a diretoria não poderá publicar atleta e o banco deverá ignorar ou
+rejeitar qualquer controle legado que tente tornar o cadastro público.

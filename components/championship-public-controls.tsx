@@ -130,7 +130,7 @@ export function ChampionshipPublicControls({
     <section className="app-surface p-5 sm:p-7" aria-labelledby="public-page-title">
       <div className="flex items-start gap-3">
         <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-700"><Link2 className="size-5" aria-hidden /></span>
-        <div><p className="app-kicker">WhatsApp-first</p><h2 id="public-page-title" className="mt-1 text-xl font-black text-graphite">Página compartilhável</h2><p className="mt-1 text-sm text-slate-500">Mostra somente regulamento, equipes, tabela, chave e placares já autorizados.</p></div>
+        <div><p className="app-kicker">Compartilhamento</p><h2 id="public-page-title" className="mt-1 text-xl font-black text-graphite">Página compartilhável</h2><p className="mt-1 text-sm text-slate-500">Mostra somente regulamento, equipes, tabela, chave e placares já autorizados.</p></div>
       </div>
 
       {publicMode === "private" ? (

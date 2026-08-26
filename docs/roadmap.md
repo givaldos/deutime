@@ -45,7 +45,7 @@ públicas e de interface.
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Três formatos, classificação, chave, página anônima, robustez, piloto e sonda protegida concluídos. | [Abrir](releases/R09-campeonatos-e-tabela.md) |
 | **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Modelo factual, visão privada, resumo consentido, revogação, piloto isolado, smokes e rollback comprovados. | [Abrir](releases/R10-reconhecimento-positivo.md) |
 | **Rollout pré-lançamento** | ✅ `done / produção` | 15 capacidades ativas nos 5 times, com 75/75 flags, 3/3 controles, auditoria, worker, smoke e rollback disponíveis. | [Evidência](releases/R00-fundacao-de-entrega.md#evidências-e-checkpoint) |
-| **R12 — Confiança e autonomia** | 🟡 `ready / CP0 concluído` | Corrige inconsistências públicas, remove consentimento indevido do staff, entrega saída e encerramento da conta e recupera a gestão de novos cadastros. | [Abrir](releases/R12-confianca-e-autonomia.md) |
+| **R12 — Confiança e autonomia** | 🟡 `active / WP-R12-01 concluído` | Corrige inconsistências públicas, remove consentimento indevido do staff, entrega saída e encerramento da conta e recupera a gestão de novos cadastros. | [Abrir](releases/R12-confianca-e-autonomia.md) |
 | **R13 — Agenda e competições profissionais** | ⬜ `planned / CP0 pendente` | Separa jogo, recorrência e campeonato; exige equipes reutilizáveis; torna desempates configuráveis e conflitos acionáveis. | pacote somente após R12 estabilizar |
 | **R11 — Assinatura pelo Asaas** | ⬜ `draft / CP0 pendente` | Assinatura mensal por time, entitlement local e liberação dos benefícios pagos por evento verificado, com Asaas atrás de adapter substituível. | [Abrir](releases/R11-assinatura-asaas.md) |
 
@@ -110,7 +110,7 @@ real antes do lançamento público sem manter uma passagem paralela por staging.
 | 8. Evoluções de produto | ✅ R09 e R10 em CP6 | Campeonatos e reconhecimento positivo concluídos com pilotos, smokes, fallbacks e rollback. |
 | 9. Conta e autenticação | ✅ melhoria concluída | Recuperação publicada, três e-mails com branding e edição do perfil em `/app/profile`, com produção e mobile validados. |
 | 10. Rollout pré-lançamento | ✅ concluído | Catálogo validado ativo globalmente, com 75/75 flags, controles, auditoria, worker, smoke e rollback disponíveis. |
-| 11. Confiança e autonomia | 🟡 R12 pronta / CP0 | Contratos fechados; executar correções públicas, consentimento, saída de vínculos, encerramento da conta, aviso de cadastro e opções do evento. |
+| 11. Confiança e autonomia | 🟡 R12 ativa / WP-R12-01 concluído | Rotas e textos corrigidos; executar consentimento, saída de vínculos, encerramento da conta, aviso de cadastro e opções do evento. |
 | 12. Agenda profissional | ⬜ R13 planejada | Entregar criação clara de jogo ou campeonato, missão com duas equipes, regulamento configurável e gestão manual de conflitos. |
 | 13. Monetização do DeuTime | ⬜ R11 proposta | Validar no sandbox assinatura mensal por time via Asaas somente depois de R12 e R13; manter cobrança separada do marketplace. |
 | 14. Consolidação e escala | ⬜ decisão pendente | Priorizar somente melhorias com risco, uso real ou retorno mensurável. |
@@ -273,20 +273,20 @@ novos pedidos de entrada.
 
 #### WP-R12-01 — correções públicas e de interface
 
-- [ ] Corrigir `/app/new-team` para aceitar hífen interno no endereço público,
+- [x] Corrigir `/app/new-team` para aceitar hífen interno no endereço público,
   normalizar letras minúsculas e impedir hífen inicial, final ou repetido; nome
   digitado, prévia e validação do servidor devem produzir o mesmo slug.
-- [ ] Adotar `/t/{slug}/register` como rota canônica em inglês para entrada do
+- [x] Adotar `/t/{slug}/register` como rota canônica em inglês para entrada do
   atleta; `/t/{slug}/cadastro` permanece como redirecionamento compatível,
   preservando query string, destino seguro e links antigos já enviados.
-- [ ] Fazer todos os links novos, retorno de autenticação, testes e documentação
+- [x] Fazer todos os links novos, retorno de autenticação, testes e documentação
   apontarem para a rota canônica; não usar `/cadaster`.
-- [ ] Remover emojis dos textos preparados para compartilhamento pelo WhatsApp
+- [x] Remover emojis dos textos preparados para compartilhamento pelo WhatsApp
   e testar que nenhum caractere seja substituído por `�`.
-- [ ] Retirar de toda interface voltada ao usuário termos internos como
+- [x] Retirar de toda interface voltada ao usuário termos internos como
   `WhatsApp-first`, `Open Graph`, `fallback`, `provider` e `token`; o texto deve
   explicar a ação e o benefício em linguagem comum.
-- [ ] Remover o lápis redundante de `/app/{slug}` e manter **Ajustes** como ponto
+- [x] Remover o lápis redundante de `/app/{slug}` e manter **Ajustes** como ponto
   único para editar o time.
 
 #### WP-R12-02 — cadastro privado por padrão
@@ -464,7 +464,7 @@ sem perder histórico nem alterar o calendário automaticamente.
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento, página compartilhável e piloto com rollback. | R04, R07, R08M | concluída | Histórico por partida |
 | **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Catálogo factual, visão privada, resumo consentido, revogação e piloto isolado concluídos sem ranking constrangedor. | R04, R05, R07 | concluída | Estatísticas básicas |
 | **R11 — Assinatura pelo Asaas** | ⬜ `draft / CP0 pendente` | Administrador contrata assinatura mensal por time e benefícios pagos são liberados pela projeção local após confirmação verificável. | R00, R03, R03R, R08M | validar sandbox, carência, benefícios, cancelamento e suporte | Operação e compartilhamento manual |
-| **R12 — Confiança e autonomia** | 🟡 [`ready / CP0 concluído`](releases/R12-confianca-e-autonomia.md) | Corrige inconsistências, reforça consentimento, entrega saída e encerramento da conta, aviso de cadastro e opções ampliadas do evento. | R00, R01, R02, R10 | decisões fechadas em `DEC-ACCOUNT-LIFECYCLE` e no pacote | rotas antigas, dashboard e suporte manual |
+| **R12 — Confiança e autonomia** | 🟡 [`active / WP-R12-01 concluído`](releases/R12-confianca-e-autonomia.md) | Corrige inconsistências, reforça consentimento, entrega saída e encerramento da conta, aviso de cadastro e opções ampliadas do evento. | R00, R01, R02, R10 | decisões fechadas em `DEC-ACCOUNT-LIFECYCLE` e no pacote | rotas antigas, dashboard e suporte manual |
 | **R13 — Agenda e competições profissionais** | ⬜ `planned / CP0 pendente` | Criação clara, equipes padrão, regulamento configurável e resolução manual de conflitos sem perda de histórico. | R01, R07, R09, R12 | vocabulário, matriz de conflitos e congelamento do regulamento | criação e remarcação atuais |
 
 ### R09 — campeonatos configuráveis

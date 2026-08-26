@@ -17,8 +17,8 @@ describe("controle visual do piloto de campeonatos", () => {
         enabled={false}
       />,
     );
-    expect(html).toContain("Agenda e partidas no fallback");
-    expect(html).toContain("Ativar somente esta coorte");
+    expect(html).toContain("Agenda e partidas continuam disponíveis");
+    expect(html).toContain("Ativar somente neste time");
     expect(html).toContain('name="confirmation"');
     expect(html).toContain("required");
     expect(html).not.toContain("CHAMPIONSHIP_PILOT_TEAM_ID");
@@ -32,8 +32,8 @@ describe("controle visual do piloto de campeonatos", () => {
         enabled
       />,
     );
-    expect(html).toContain("Campeonatos ativos na coorte");
-    expect(html).toContain("Desligar e voltar ao fallback");
+    expect(html).toContain("Campeonatos ativos neste time");
+    expect(html).toContain("Desligar campeonatos");
     expect(html).toContain('value="false"');
     expect(html).toContain("sem apagar confrontos, partidas ou súmulas");
   });

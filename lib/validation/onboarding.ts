@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const TEAM_SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]{1,46}[a-z0-9])$/;
+export const TEAM_SLUG_PATTERN = /^(?=.{3,48}$)[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export function sanitizeTeamSlug(value: string) {
   return value

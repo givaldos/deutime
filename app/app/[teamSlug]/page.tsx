@@ -6,6 +6,10 @@ import { Progress } from "@/components/ui/progress";
 import { requireUser } from "@/lib/auth/dal";
 import { getAppUrl } from "@/lib/env/server";
 import { isChampionshipsEnabled } from "@/lib/features/championships/server";
+import {
+  buildTeamRegistrationWhatsAppUrl,
+  teamRegistrationPath,
+} from "@/lib/public/team-registration";
 import { createClient } from "@/lib/supabase/server";
 import {
   ArrowRight,
@@ -16,7 +20,6 @@ import {
   Circle,
   Clock3,
   MessageCircle,
-  Pencil,
   Plus,
   Sparkles,
   Trophy,
@@ -182,12 +185,13 @@ export default async function TeamDashboardPage({
 
   const publicTeamUrl = new URL(`/t/${currentTeam.slug}`, getAppUrl()).toString();
   const registrationUrl = new URL(
-    `/t/${currentTeam.slug}/cadastro`,
+    teamRegistrationPath(currentTeam.slug),
     getAppUrl(),
   ).toString();
-  const whatsappRegistrationUrl = `https://wa.me/?text=${encodeURIComponent(
-    `⚽ Vem jogar com o ${currentTeam.name}! Entre com seu WhatsApp ou crie seu perfil: ${registrationUrl}`,
-  )}`;
+  const whatsappRegistrationUrl = buildTeamRegistrationWhatsAppUrl(
+    currentTeam.name,
+    registrationUrl,
+  );
 
   const activationSteps = [
     {
@@ -218,7 +222,6 @@ export default async function TeamDashboardPage({
     events: recentEvents ?? [],
     teamSlug: currentTeam.slug,
   }).slice(0, 8);
-  const canEditTeam = membership.role === "owner" || membership.role === "admin";
   const championshipsEnabled = await isChampionshipsEnabled(currentTeam.id);
 
   return (
@@ -264,13 +267,6 @@ export default async function TeamDashboardPage({
               <Button asChild variant="outline" size="icon" className="size-11 rounded-xl" title="Campeonatos">
                 <Link href={`/app/${currentTeam.slug}/championships`} aria-label="Campeonatos">
                   <Trophy aria-hidden />
-                </Link>
-              </Button>
-            ) : null}
-            {canEditTeam ? (
-              <Button asChild variant="outline" size="icon" className="size-11 rounded-xl" title="Editar time">
-                <Link href={`/app/${currentTeam.slug}/settings`} aria-label="Editar time">
-                  <Pencil aria-hidden />
                 </Link>
               </Button>
             ) : null}
@@ -460,7 +456,7 @@ export default async function TeamDashboardPage({
               </span>
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-emerald-300">
-                  WhatsApp-first
+                  Convite do time
                 </p>
                 <h2 className="mt-1 text-lg font-black">Chame a galera para o time</h2>
                 <p className="mt-1 text-sm leading-6 text-emerald-100/80">
