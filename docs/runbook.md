@@ -568,6 +568,61 @@ Para interromper a rotina, desabilite o cron na Vercel ou remova
 remove imediatamente leitura, escrita e painel, mas preserva o histórico até a
 retenção. Correção de banco continua forward-only.
 
+### Reconciliação de contas e times — R12
+
+A Vercel chama `GET /api/internal/account-lifecycle` diariamente às `05:37 UTC`
+com o mesmo `CRON_SECRET` server-only. A Action tenta remover arquivos e excluir
+logicamente o usuário no Auth imediatamente; o cron recupera falhas parciais e
+nunca reabre uma conta já incluída na lista de exclusão.
+
+O retorno contém somente contagens: `claimed`, `completed`, `pending`,
+`teamStorageClaimed`, `teamStorageCompleted`, `teamStoragePending` e o resumo de
+retenção. Não copie `user_id`, `request_id`, caminho de arquivo, e-mail, telefone
+ou erro bruto para logs e evidências.
+
+Antes de expor as ações, confirme que a expansão nasceu inerte:
+
+```sql
+select control, enabled
+from public.runtime_controls
+where control = 'account_autonomy';
+
+select count(*) as contas_pendentes
+from public.account_closure_requests
+where status = 'auth_pending';
+```
+
+Habilite explicitamente apenas depois dos gates e do smoke autenticado:
+
+```sql
+select public.set_runtime_control('account_autonomy', true);
+```
+
+Para reconciliar manualmente uma falha:
+
+```bash
+curl --fail-with-body \
+  'https://deutime.app/api/internal/account-lifecycle' \
+  -H 'Authorization: Bearer <CRON_SECRET>'
+```
+
+Uma conta `auth_pending` continua bloqueada. Corrija Storage/Auth e repita o
+endpoint; o retry é idempotente e `user_not_found` confirma que o Auth já foi
+eliminado. Após restaurar backup, antes de tráfego ou leitura, reaplique todos os
+`user_id` presentes em `private.account_exclusion_registry`, execute a
+reconciliação e confirme que `is_my_account_blocked()` permanece verdadeiro para
+uma sessão sintética correspondente.
+
+Rollback seguro desliga somente novos comandos:
+
+```sql
+select public.set_runtime_control('account_autonomy', false);
+```
+
+Não remova o cron enquanto existir `auth_pending` ou job privado `pending`;
+promover o deployment anterior pode ocultar a interface, mas o worker atual deve
+terminar os pedidos confirmados. Correções de schema são sempre forward-only.
+
 ### Preparação do piloto WhatsApp — R03
 
 O Sandbox da Twilio é somente para teste e não aceita template personalizado.

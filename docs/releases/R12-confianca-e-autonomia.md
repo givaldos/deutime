@@ -180,11 +180,11 @@ de eventos oferecem os mesmos limites e opções. Nenhum staff publica atleta.
 - [x] `AC-R12-03` — Compartilhamento e interfaces públicas não exibem emoji quebrado, `�`, jargão interno ou ação duplicada de edição.
 - [x] `AC-R12-04` — Staff não vê nem consegue enviar controle de publicação do atleta, inclusive por requisição manipulada ou versão antiga.
 - [x] `AC-R12-05` — Somente atleta reivindicado, autenticado e consentido aparece nas projeções ampliadas; ausência/revogação remove identidade sem alterar fato interno.
-- [ ] `AC-R12-06` — `/me` lista vínculos, pedidos e convites da própria pessoa com estado e ação corretos, sem leitura cross-tenant.
-- [ ] `AC-R12-07` — Retirar ou recusar artefato pendente invalida acesso imediatamente e não afeta outro time.
-- [ ] `AC-R12-08` — Sair revoga permissões e notificações; o último owner precisa transferir ou encerrar o time, inclusive sob concorrência.
-- [ ] `AC-R12-09` — Encerramento reautenticado bloqueia a conta, revoga sessões/publicação e conclui minimização idempotente sem quebrar histórico.
-- [ ] `AC-R12-10` — PII, auditoria, notificações e backups cumprem os prazos e a recuperação definidos em `DEC-ACCOUNT-LIFECYCLE`.
+- [x] `AC-R12-06` — `/me` lista vínculos, pedidos e convites da própria pessoa com estado e ação corretos, sem leitura cross-tenant.
+- [x] `AC-R12-07` — Retirar ou recusar artefato pendente invalida acesso imediatamente e não afeta outro time.
+- [x] `AC-R12-08` — Sair revoga permissões e notificações; o último owner precisa transferir ou encerrar o time, inclusive sob concorrência.
+- [x] `AC-R12-09` — Encerramento reautenticado bloqueia a conta, revoga sessões/publicação e conclui minimização idempotente sem quebrar histórico.
+- [x] `AC-R12-10` — PII, auditoria, notificações e backups cumprem os prazos e a recuperação definidos em `DEC-ACCOUNT-LIFECYCLE`.
 - [ ] `AC-R12-11` — Novo `pending` gera no máximo um aviso por destinatário elegível e nunca inclui PII do atleta no e-mail.
 - [ ] `AC-R12-12` — Preferência individual silencia o aviso opcional sem silenciar segurança; destinatários são recalculados no envio.
 - [ ] `AC-R12-13` — Falha, retry ou kill switch de e-mail preserva a fila autenticada, gera telemetria redigida e não duplica efeito.
@@ -298,3 +298,37 @@ acessibilidade e smoke anônimo das rotas antigas e novas.
   republicar consentimento;
 - próximo pacote: `WP-R12-03`, começando pela listagem isolada dos vínculos e
   artefatos pendentes da própria pessoa em `/me`.
+
+### WP-R12-03 — concluído em 2026-08-27
+
+- `/me` passou a reunir vínculos ativos, pedidos e convites da própria sessão,
+  com retirada, recusa, saída, transferência de propriedade e encerramento do
+  time protegidos por RPCs transacionais e RLS;
+- a migration expand-only `202608270002_r12_account_lifecycle_contract.sql`
+  entrega bloqueio imediato, reautenticação de uso único, minimização
+  idempotente, registro de exclusões para restore e filas redigidas de limpeza
+  do Auth e Storage;
+- o último proprietário não consegue sair sem transferir ou encerrar o time;
+  uma prova concorrente com duas sessões e `dblink` confirmou que somente uma
+  saída vence e que sempre resta exatamente um proprietário;
+- fatos esportivos encerrados permanecem anônimos, dados sem necessidade de
+  retenção são removidos e o contrato informa na própria sessão verificada o
+  início/conclusão, o bloqueio imediato e a expiração dos backups em até 30 dias;
+- o worker diário protegido por `CRON_SECRET` reconcilia Auth, Storage e
+  retenção com retry, erro redigido e processamento idempotente; o runbook cobre
+  rollout, desativação, reconciliação e reaplicação da lista de exclusões após
+  restore;
+- 106 arquivos/527 testes de aplicação, 4 testes de contexto, build de produção
+  Webpack, lint, TypeScript, integridade das migrations e auditoria com zero
+  vulnerabilidades passaram;
+- banco local aprovado com reset, tipos, lint sem alerta novo e 61
+  arquivos/1.543 testes pgTAP, incluindo 50 provas focadas positivas,
+  negativas, cross-tenant e concorrentes;
+- smoke local em 360 px validou estados desligado e ligado, confirmações de
+  encerramento sem submissão, console limpo e largura de conteúdo exatamente
+  igual à viewport, sem rolagem horizontal;
+- fallback: a leitura dos vínculos permanece disponível quando a flag está
+  desligada e versões N−1 toleram o contrato ausente. O rollback desativa
+  `account_autonomy`, mas nunca reabre uma conta ou republica identidade;
+- próximo pacote: `WP-R12-04`, começando pelo outbox idempotente e sem PII para
+  avisar owner e administradores elegíveis sobre novo cadastro pendente.

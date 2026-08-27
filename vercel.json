@@ -5,6 +5,10 @@
     {
       "path": "/api/internal/craque/retention",
       "schedule": "17 5 * * *"
+    },
+    {
+      "path": "/api/internal/account-lifecycle",
+      "schedule": "37 5 * * *"
     }
   ]
 }

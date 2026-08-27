@@ -80,6 +80,36 @@ e link de perfil exigem também consentimento de perfil.
 - revogação invalida a projeção e suas URLs assinadas sem reescrever a súmula
   interna; cache privado usa `no-store` e Open Graph nunca varia por pessoa.
 
+### Saída de vínculos e encerramento
+
+O `WP-R12-03` implementa `DEC-ACCOUNT-LIFECYCLE` com bloqueio em duas fases.
+Pedidos, convites e vínculos são lidos por RPC derivada de `auth.uid()` e do
+e-mail confirmado; IDs enviados pelo formulário nunca definem o titular. Sair
+de um time bloqueia a linha do time, revoga membership, consentimentos,
+presenças futuras e outbox ainda sem efeito, sem alcançar outro tenant.
+
+- o último `owner` é protegido pelo trigger e pela RPC sob row lock; uma prova
+  concorrente com duas conexões mantém exatamente um owner ativo;
+- transferir exige destinatário com membership ativo no mesmo time;
+- encerrar time ou conta exige senha atual, ou sessão OTP emitida há no máximo
+  cinco minutos, seguida de autorização de uso único emitida somente por
+  `service_role` e válida por cinco minutos;
+- o bloqueio da conta entra em `private.account_exclusion_registry` antes da
+  chamada ao Auth. A DAL recusa toda sessão bloqueada mesmo se o provedor falhar;
+- `deleteUser(..., true)` faz a exclusão lógica irreversível no Auth sem quebrar
+  referências históricas. Perfil, contato, consentimentos, publicações e
+  vínculos são removidos; fatos encerrados preservam apenas atleta anônimo;
+- arquivos ficam em filas idempotentes com retry exponencial. Logs e auditoria
+  guardam somente UUID opaco, etapa, resultado, contagem e código sanitizado;
+- recibos e exclusões duram 180 dias. Arquivos e PII operacional devem ser
+  minimizados em até 30 dias; restauração de backup reaplica a lista de exclusão
+  antes de liberar tráfego.
+
+`account_autonomy` nasce desligado e não pertence ao catálogo do rollout global
+anterior. Desligá-lo impede novos comandos e oculta ações, mas a reconciliação
+continua concluindo pedidos já bloqueados; rollback nunca republica identidade
+ou recria vínculo.
+
 ## Credencial reutilizável e sessão duradoura
 
 O acesso WhatsApp-first planejado segue [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md): credencial pessoal reutilizável, capability persistente limitada ao evento e sessão de identidade persistente no aparelho. A R00 aprovou o transporte por fragmento + `POST` same-origin e o threat model; antes da R02, a implementação deve demonstrar:

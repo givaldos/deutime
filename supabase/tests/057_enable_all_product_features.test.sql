@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
-select plan(21);
+select plan(22);
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -55,9 +55,10 @@ select is((select controls_changed from activation_result), 3,
 select ok(not exists (
   select 1 from public.team_feature_flags where not enabled
 ), 'todas as flags ficam ativas');
-select ok(not exists (
-  select 1 from public.runtime_controls where not enabled
-), 'todos os controles globais ficam ativos');
+select is((select count(*) from public.runtime_controls where enabled),3::bigint,
+  'somente os três controles globais validados ficam ativos');
+select is((select enabled from public.runtime_controls where control='account_autonomy'),false,
+  'capacidade futura não herda o rollout global anterior');
 select is((select enabled from private.product_rollout_state where singleton), true,
   'estado do produto acompanha a ativação');
 select is((select count(*) from public.audit_logs

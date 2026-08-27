@@ -28,7 +28,7 @@ Cada arquivo desta pasta é o contexto operacional autossuficiente de uma releas
 | [R08M — Fechamento do MVP compartilhável](R08M-fechamento-mvp-compartilhavel.md) | `completed` | Open Graph por fase e gate integrado do MVP concluídos |
 | [R09 — Campeonatos e tabela](R09-campeonatos-e-tabela.md) | `completed` | Três formatos, página pública, piloto, sonda agregada e CP6 concluídos |
 | [R10 — Reconhecimento positivo](R10-reconhecimento-positivo.md) | `done` | Visão privada, resumo consentido, piloto, smokes e rollback concluídos em CP6 |
-| [R12 — Confiança e autonomia](R12-confianca-e-autonomia.md) | `active` | WP-R12-01 concluído; próxima execução fecha cadastro privado por padrão |
+| [R12 — Confiança e autonomia](R12-confianca-e-autonomia.md) | `active` | WP-R12-03 concluído; próxima execução entrega o aviso idempotente de novo cadastro |
 
 Uma release só recebe arquivo próprio quando a anterior estabilizar seus contratos. Ao promovê-la, adicione-a também ao dropdown do template de issue. Isso evita abrir trabalho sem pacote, reduz especificação prematura e limita o contexto mantido.
 
