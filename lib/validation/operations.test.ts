@@ -31,6 +31,7 @@ describe("operational validation", () => {
     expect(parsed.phone).toBe("+5511999999999");
     expect(parsed.email).toBe("maria@example.test");
     expect(parsed.shirtNumber).toBe(10);
+    expect("publicProfile" in parsed).toBe(false);
   });
 
   it("rejects more than three or duplicated position preferences", () => {
@@ -54,7 +55,7 @@ describe("operational validation", () => {
     };
 
     expect(
-      updateAthleteSchema.safeParse({
+      updateAthleteSchema.parse({
         ...identity,
         profileOwner: "team",
         fullName: "Maria da Silva",
@@ -64,8 +65,8 @@ describe("operational validation", () => {
         email: "MARIA@EXAMPLE.TEST",
         publicProfile: true,
         positionCodes: ["MID", "ST"],
-      }).success,
-    ).toBe(true);
+      }),
+    ).not.toHaveProperty("publicProfile");
 
     const playerOwned = updateAthleteSchema.safeParse({
       ...identity,

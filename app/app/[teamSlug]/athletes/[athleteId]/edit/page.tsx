@@ -37,7 +37,7 @@ export default async function EditAthletePage({
       supabase
         .from("athletes")
         .select(
-          "id, user_id, full_name, preferred_name, shirt_number, public_profile, removed_at",
+          "id, user_id, full_name, preferred_name, shirt_number, removed_at",
         )
         .eq("id", athleteId)
         .eq("team_id", team.id)
@@ -115,7 +115,6 @@ export default async function EditAthletePage({
               birthDate: privateData?.birth_date ?? "",
               phone: privateData?.phone_e164 ?? "",
               email: privateData?.email ?? "",
-              publicProfile: athlete.public_profile,
               notes: privateData?.notes ?? "",
               positionCodes: (preferences ?? []).map(
                 (preference) => preference.position_code,
