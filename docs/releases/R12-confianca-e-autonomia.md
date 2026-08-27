@@ -178,8 +178,8 @@ de eventos oferecem os mesmos limites e opções. Nenhum staff publica atleta.
 - [x] `AC-R12-01` — Nome, prévia, Action e banco produzem o mesmo slug válido, inclusive com hífen interno, e rejeitam hífen inicial, final ou repetido.
 - [x] `AC-R12-02` — Links novos usam `/register`; `/cadastro` preserva links existentes e parâmetros seguros; `/cadaster` não existe.
 - [x] `AC-R12-03` — Compartilhamento e interfaces públicas não exibem emoji quebrado, `�`, jargão interno ou ação duplicada de edição.
-- [ ] `AC-R12-04` — Staff não vê nem consegue enviar controle de publicação do atleta, inclusive por requisição manipulada ou versão antiga.
-- [ ] `AC-R12-05` — Somente atleta reivindicado, autenticado e consentido aparece nas projeções ampliadas; ausência/revogação remove identidade sem alterar fato interno.
+- [x] `AC-R12-04` — Staff não vê nem consegue enviar controle de publicação do atleta, inclusive por requisição manipulada ou versão antiga.
+- [x] `AC-R12-05` — Somente atleta reivindicado, autenticado e consentido aparece nas projeções ampliadas; ausência/revogação remove identidade sem alterar fato interno.
 - [ ] `AC-R12-06` — `/me` lista vínculos, pedidos e convites da própria pessoa com estado e ação corretos, sem leitura cross-tenant.
 - [ ] `AC-R12-07` — Retirar ou recusar artefato pendente invalida acesso imediatamente e não afeta outro time.
 - [ ] `AC-R12-08` — Sair revoga permissões e notificações; o último owner precisa transferir ou encerrar o time, inclusive sob concorrência.
@@ -274,3 +274,27 @@ acessibilidade e smoke anônimo das rotas antigas e novas.
   nenhum erro de console e layout em 360 px sem rolagem horizontal;
 - próximo pacote: `WP-R12-02`, começando pela falha fechada do cadastro privado
   feito pela diretoria e pela remoção do controle de publicação da interface.
+
+### WP-R12-02 — concluído em 2026-08-27
+
+- criação e edição administrativas não exibem nem aceitam o controle de perfil
+  público; requisições manipuladas são descartadas e clientes antigos continuam
+  compatíveis, mas toda identidade não reivindicada é gravada como privada;
+- a migration forward-only `202608260002_r12_private_athletes.sql` adiciona
+  trigger e constraint de falha fechada, limpa o legado indevido e exige
+  consentimento próprio, versionado e vigente nas projeções públicas;
+- a escolha do perfil pelo atleta sincroniza concessão e revogação em
+  `athlete_public_consents`; estatísticas e reconhecimentos preservam seus
+  consentimentos específicos e fatos esportivos internos;
+- 103 arquivos/515 testes de aplicação, 4 testes de contexto, build de produção
+  Webpack, reset, lint, tipos, integridade de migrations e auditoria sem
+  vulnerabilidades passaram;
+- 59 arquivos/1.492 testes pgTAP passaram, incluindo 17 provas novas de
+  compatibilidade N/N−1, bypass direto, revogação e isolamento cross-tenant;
+- smoke público local sem erro de console confirmou 0 identidades expostas para
+  os 44 cadastros administrativos do fixture; o fluxo protegido exigiu sessão;
+- fallback: o cadastro e a gestão interna continuam disponíveis. Rollback seguro
+  preserva a restrição de privacidade e pode retirar as projeções públicas sem
+  republicar consentimento;
+- próximo pacote: `WP-R12-03`, começando pela listagem isolada dos vínculos e
+  artefatos pendentes da própria pessoa em `/me`.
