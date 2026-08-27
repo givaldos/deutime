@@ -15,6 +15,9 @@ vi.mock("@/lib/auth/dal", () => ({ requireUser: mocks.requireUser }));
 vi.mock("@/lib/supabase/server", () => ({
   createClient: mocks.createClient,
 }));
+vi.mock("@/lib/supabase/privileged", () => ({
+  createPrivilegedClient: vi.fn(),
+}));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 

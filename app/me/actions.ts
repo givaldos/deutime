@@ -1,6 +1,7 @@
 "use server";
 
 import { requireUser } from "@/lib/auth/dal";
+import { createPrivilegedClient } from "@/lib/supabase/privileged";
 import { createClient } from "@/lib/supabase/server";
 import {
   playerAttendanceSchema,
@@ -275,4 +276,237 @@ export async function updateMyRecognitionSummaryConsent(formData: FormData) {
   redirect(
     `/me/perfil/editar?recognitionConsent=${parsed.data.granted ? "granted" : "revoked"}`,
   );
+}
+
+const lifecycleCommandSchema = z.object({
+  relationshipId: z.string().uuid().optional(),
+  teamId: z.string().uuid().optional(),
+  nextOwnerId: z.string().uuid().optional(),
+  requestId: z.string().uuid(),
+});
+
+const destructiveLifecycleSchema = lifecycleCommandSchema.extend({
+  password: z.string().max(128),
+  confirmation: z.string().trim().min(1).max(100),
+});
+
+function lifecycleRedirect(result: string): never {
+  redirect(`/me?relationship=${result}#vinculos`);
+}
+
+export async function withdrawMyTeamRequest(formData: FormData) {
+  await requireUser();
+  const parsed = lifecycleCommandSchema.safeParse({
+    relationshipId: formData.get("relationshipId"),
+    requestId: formData.get("requestId"),
+  });
+  if (!parsed.success || !parsed.data.relationshipId) {
+    lifecycleRedirect("unavailable");
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("withdraw_my_team_request", {
+    requested_athlete_id: parsed.data.relationshipId,
+    request_id: parsed.data.requestId,
+  });
+  if (error) lifecycleRedirect("unavailable");
+  revalidatePath("/me");
+  lifecycleRedirect("withdrawn");
+}
+
+export async function declineMyTeamInvitation(formData: FormData) {
+  await requireUser();
+  const parsed = lifecycleCommandSchema.safeParse({
+    relationshipId: formData.get("relationshipId"),
+    requestId: formData.get("requestId"),
+  });
+  if (!parsed.success || !parsed.data.relationshipId) {
+    lifecycleRedirect("unavailable");
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("decline_my_team_invitation", {
+    requested_invitation_id: parsed.data.relationshipId,
+    request_id: parsed.data.requestId,
+  });
+  if (error) lifecycleRedirect("unavailable");
+  revalidatePath("/me");
+  revalidatePath("/app");
+  lifecycleRedirect("declined");
+}
+
+export async function leaveMyTeam(formData: FormData) {
+  await requireUser();
+  const parsed = lifecycleCommandSchema.safeParse({
+    teamId: formData.get("teamId"),
+    requestId: formData.get("requestId"),
+  });
+  if (!parsed.success || !parsed.data.teamId) lifecycleRedirect("unavailable");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("leave_my_team", {
+    requested_team_id: parsed.data.teamId,
+    request_id: parsed.data.requestId,
+  });
+  if (error) {
+    lifecycleRedirect(error.code === "23514" ? "last-owner" : "unavailable");
+  }
+  revalidatePath("/me");
+  revalidatePath("/app");
+  lifecycleRedirect("left");
+}
+
+export async function transferMyTeamOwnership(formData: FormData) {
+  await requireUser();
+  const parsed = lifecycleCommandSchema.safeParse({
+    teamId: formData.get("teamId"),
+    nextOwnerId: formData.get("nextOwnerId"),
+    requestId: formData.get("requestId"),
+  });
+  if (!parsed.success || !parsed.data.teamId || !parsed.data.nextOwnerId) {
+    lifecycleRedirect("unavailable");
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("transfer_my_team_ownership", {
+    requested_team_id: parsed.data.teamId,
+    requested_next_owner_id: parsed.data.nextOwnerId,
+    request_id: parsed.data.requestId,
+  });
+  if (error) lifecycleRedirect("unavailable");
+  revalidatePath("/me");
+  revalidatePath("/app");
+  lifecycleRedirect("transferred");
+}
+
+async function issueLifecycleAuthorization(input: {
+  userId: string;
+  requestId: string;
+  purpose: "close_team" | "close_account";
+  teamId?: string;
+  password: string;
+  captchaToken?: string;
+}) {
+  const supabase = await createClient();
+  const { data: authUser, error: userError } = await supabase.auth.getUser();
+  if (userError || authUser.user?.id !== input.userId) return false;
+
+  if (authUser.user.email) {
+    if (!input.password) return false;
+    const { error } = await supabase.auth.signInWithPassword({
+      email: authUser.user.email,
+      password: input.password,
+      options: { captchaToken: input.captchaToken },
+    });
+    if (error) return false;
+  } else {
+    const { data } = await supabase.auth.getClaims();
+    const issuedAt = Number(data?.claims?.iat ?? 0);
+    if (!issuedAt || Date.now() / 1000 - issuedAt > 5 * 60) return false;
+  }
+
+  const privileged = createPrivilegedClient();
+  const { error } = await privileged.rpc("issue_lifecycle_authorization", {
+    requested_user_id: input.userId,
+    request_id: input.requestId,
+    requested_purpose: input.purpose,
+    requested_team_id: input.teamId,
+  });
+  return !error;
+}
+
+export async function closeMyTeam(formData: FormData) {
+  const user = await requireUser();
+  const parsed = destructiveLifecycleSchema.safeParse({
+    teamId: formData.get("teamId"),
+    requestId: formData.get("requestId"),
+    password: formData.get("password") ?? "",
+    confirmation: formData.get("confirmation"),
+  });
+  if (!parsed.success || !parsed.data.teamId) lifecycleRedirect("unavailable");
+  const authorized = await issueLifecycleAuthorization({
+    userId: user.id,
+    requestId: parsed.data.requestId,
+    purpose: "close_team",
+    teamId: parsed.data.teamId,
+    password: parsed.data.password,
+    captchaToken:
+      formData.get("cf-turnstile-response")?.toString() || undefined,
+  });
+  if (!authorized) lifecycleRedirect("reauthentication");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("close_my_team", {
+    requested_team_id: parsed.data.teamId,
+    requested_team_name: parsed.data.confirmation,
+    request_id: parsed.data.requestId,
+  });
+  if (error) {
+    lifecycleRedirect(error.code === "22023" ? "name-mismatch" : "unavailable");
+  }
+  revalidatePath("/me");
+  revalidatePath("/app");
+  lifecycleRedirect("team-closed");
+}
+
+export async function closeMyAccount(formData: FormData) {
+  const user = await requireUser();
+  const parsed = destructiveLifecycleSchema.safeParse({
+    requestId: formData.get("requestId"),
+    password: formData.get("password") ?? "",
+    confirmation: formData.get("confirmation"),
+  });
+  if (!parsed.success || parsed.data.confirmation !== "ENCERRAR") {
+    lifecycleRedirect("account-confirmation");
+  }
+  const authorized = await issueLifecycleAuthorization({
+    userId: user.id,
+    requestId: parsed.data.requestId,
+    purpose: "close_account",
+    password: parsed.data.password,
+    captchaToken:
+      formData.get("cf-turnstile-response")?.toString() || undefined,
+  });
+  if (!authorized) lifecycleRedirect("reauthentication");
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("begin_my_account_closure", {
+    request_id: parsed.data.requestId,
+  });
+  if (error) {
+    lifecycleRedirect(error.code === "23514" ? "last-owner" : "unavailable");
+  }
+
+  const payload =
+    data && typeof data === "object" && !Array.isArray(data)
+      ? (data as { paths?: unknown })
+      : {};
+  const paths = Array.isArray(payload.paths)
+    ? payload.paths.filter((path): path is string => typeof path === "string")
+    : [];
+  const privileged = createPrivilegedClient();
+  let storageErrorCode: string | undefined;
+  if (paths.length) {
+    const { error: storageError } = await privileged.storage
+      .from("athlete_avatars")
+      .remove(paths);
+    storageErrorCode = storageError
+      ? normalizedAuthError(storageError.name || "storage_remove_failed")
+      : undefined;
+  }
+  const { error: authError } = await privileged.auth.admin.deleteUser(
+    user.id,
+    true,
+  );
+  await privileged.rpc("complete_account_closure", {
+    requested_request_id: parsed.data.requestId,
+    requested_error_code: storageErrorCode ??
+      (authError ? normalizedAuthError(authError.code) : undefined),
+  });
+  await supabase.auth.signOut({ scope: "global" });
+  redirect(`/auth/login?account=${authError || storageErrorCode ? "closing" : "closed"}`);
+}
+
+function normalizedAuthError(code?: string) {
+  const normalized = (code ?? "auth_provider_failed")
+    .toLowerCase()
+    .replace(/[^a-z0-9_.-]+/g, "_")
+    .slice(0, 80);
+  return normalized.length >= 2 ? normalized : "auth_provider_failed";
 }

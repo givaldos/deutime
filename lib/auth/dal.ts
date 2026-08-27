@@ -11,6 +11,7 @@ export const getSessionDestination = cache(async () => {
   const userId = data?.claims?.sub;
 
   if (error || typeof userId !== "string") return null;
+  if (await accountIsBlocked(supabase)) return null;
 
   return resolveDashboardDestinationFromLookups({
     lookupActiveTeamMembership: async () => {
@@ -56,9 +57,21 @@ export const requireUser = cache(async () => {
   if (error || !data?.claims?.sub) {
     redirect("/auth/login");
   }
+  if (await accountIsBlocked(supabase)) {
+    redirect("/auth/login?account=closing");
+  }
 
   return {
     id: data.claims.sub,
     email: typeof data.claims.email === "string" ? data.claims.email : null,
   };
 });
+
+async function accountIsBlocked(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+) {
+  const { data, error } = await supabase.rpc("is_my_account_blocked");
+  if (!error) return data === true;
+  if (error.code === "PGRST202" || error.code === "42883") return false;
+  throw new Error("Não foi possível validar o estado da conta.");
+}
