@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { AccountRelationships } from "@/components/account-relationships";
 import { AppContainer, Metric } from "@/components/ui/app-shell";
 import { Progress } from "@/components/ui/progress";
 import { requireUser } from "@/lib/auth/dal";
+import { getTurnstileConfig } from "@/lib/env/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   ArrowRight,
@@ -15,6 +17,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import Link from "next/link";
+import { headers } from "next/headers";
 
 const statusLabels = {
   pending: "Aguardando aprovação",
@@ -26,14 +29,18 @@ const statusLabels = {
 export default async function PlayerPortalPage({
   searchParams,
 }: {
-  searchParams: Promise<{ registered?: string }>;
+  searchParams: Promise<{ registered?: string; relationship?: string }>;
 }) {
   const user = await requireUser();
   const supabase = await createClient();
+  const turnstile = getTurnstileConfig();
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const [
     { data: profile },
     { data: preferences },
     { data: links, error: linksError },
+    { data: relationships, error: relationshipsError },
+    { data: accountAutonomy },
   ] = await Promise.all([
     supabase
       .from("player_profiles")
@@ -47,8 +54,30 @@ export default async function PlayerPortalPage({
       .select("position_code")
       .eq("user_id", user.id),
     supabase.rpc("list_my_player_team_links"),
+    supabase.rpc("list_my_account_relationships"),
+    supabase.rpc("is_account_autonomy_enabled"),
   ]);
   if (linksError) throw new Error("Não foi possível carregar seus times.");
+  const relationshipContractPending =
+    relationshipsError?.code === "PGRST202" || relationshipsError?.code === "42883";
+  if (relationshipsError && !relationshipContractPending) {
+    throw new Error("Não foi possível carregar seus vínculos.");
+  }
+
+  const lastOwnerTeamIds = (relationships ?? [])
+    .filter((relationship) => relationship.is_last_owner)
+    .map((relationship) => relationship.team_id);
+  const candidateResults = await Promise.all(
+    lastOwnerTeamIds.map(async (teamId) => ({
+      teamId,
+      result: await supabase.rpc("list_my_owner_transfer_candidates", {
+        requested_team_id: teamId,
+      }),
+    })),
+  );
+  const candidatesByTeam = Object.fromEntries(
+    candidateResults.map(({ teamId, result }) => [teamId, result.data ?? []]),
+  );
 
   const activeLinks = (links ?? []).filter(
     (link) => link.athlete_status === "active",
@@ -348,6 +377,16 @@ export default async function PlayerPortalPage({
           )}
         </article>
       </section>
+
+      <AccountRelationships
+        relationships={relationships ?? []}
+        candidatesByTeam={candidatesByTeam}
+        enabled={accountAutonomy === true}
+        feedback={query.relationship}
+        hasPassword={Boolean(user.email)}
+        siteKey={turnstile?.siteKey}
+        nonce={nonce}
+      />
     </AppContainer>
   );
 }

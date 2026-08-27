@@ -34,6 +34,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_closure_requests: {
+        Row: {
+          completed_at: string | null
+          expires_at: string
+          last_error_code: string | null
+          next_retry_at: string
+          pending_storage_paths: string[]
+          request_id: string
+          retry_count: number
+          started_at: string
+          status: Database["public"]["Enums"]["account_closure_status"]
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          expires_at?: string
+          last_error_code?: string | null
+          next_retry_at?: string
+          pending_storage_paths?: string[]
+          request_id: string
+          retry_count?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["account_closure_status"]
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          expires_at?: string
+          last_error_code?: string | null
+          next_retry_at?: string
+          pending_storage_paths?: string[]
+          request_id?: string
+          retry_count?: number
+          started_at?: string
+          status?: Database["public"]["Enums"]["account_closure_status"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       athlete_position_preferences: {
         Row: {
           athlete_id: string
@@ -3100,6 +3139,8 @@ export type Database = {
       }
       teams: {
         Row: {
+          closed_at: string | null
+          closure_request_id: string | null
           created_at: string
           created_by: string
           default_sport_format: Database["public"]["Enums"]["sport_format"]
@@ -3112,6 +3153,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          closed_at?: string | null
+          closure_request_id?: string | null
           created_at?: string
           created_by: string
           default_sport_format?: Database["public"]["Enums"]["sport_format"]
@@ -3124,6 +3167,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          closed_at?: string | null
+          closure_request_id?: string | null
           created_at?: string
           created_by?: string
           default_sport_format?: Database["public"]["Enums"]["sport_format"]
@@ -3373,6 +3418,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      begin_my_account_closure: { Args: { request_id: string }; Returns: Json }
       cancel_event_as_staff: {
         Args: {
           cancel_scope: string
@@ -3409,6 +3455,14 @@ export type Database = {
             }
             Returns: string
           }
+      claim_account_closures: {
+        Args: { requested_limit?: number }
+        Returns: {
+          pending_storage_paths: string[]
+          request_id: string
+          user_id: string
+        }[]
+      }
       claim_notification_batch: {
         Args: { requested_lease_seconds?: number; requested_limit?: number }
         Returns: {
@@ -3430,6 +3484,18 @@ export type Database = {
           outbox_id: string
         }[]
       }
+      claim_team_closure_storage: {
+        Args: { requested_limit?: number }
+        Returns: {
+          pending_storage_paths: string[]
+          request_id: string
+          team_id: string
+        }[]
+      }
+      cleanup_account_lifecycle_retention: {
+        Args: { requested_limit?: number }
+        Returns: Json
+      }
       cleanup_craque_voting_retention: {
         Args: { requested_limit?: number }
         Returns: Json
@@ -3437,6 +3503,22 @@ export type Database = {
       cleanup_match_conversation_retention: {
         Args: { requested_limit?: number }
         Returns: Json
+      }
+      close_my_team: {
+        Args: {
+          request_id: string
+          requested_team_id: string
+          requested_team_name: string
+        }
+        Returns: boolean
+      }
+      complete_account_closure: {
+        Args: { requested_error_code?: string; requested_request_id: string }
+        Returns: boolean
+      }
+      complete_team_closure_storage: {
+        Args: { requested_error_code?: string; requested_request_id: string }
+        Returns: boolean
       }
       complete_verified_athlete_registration: {
         Args: {
@@ -3581,6 +3663,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      decline_my_team_invitation: {
+        Args: { request_id: string; requested_invitation_id: string }
+        Returns: boolean
       }
       delete_match_incident_as_staff: {
         Args: { requested_incident_id: string }
@@ -3961,6 +4047,8 @@ export type Database = {
           team_slug: string
         }[]
       }
+      is_account_autonomy_enabled: { Args: never; Returns: boolean }
+      is_my_account_blocked: { Args: never; Returns: boolean }
       is_runtime_control_enabled: {
         Args: {
           requested_control: Database["public"]["Enums"]["runtime_control_key"]
@@ -3982,6 +4070,19 @@ export type Database = {
           expires_at: string
           public_id: string
         }[]
+      }
+      issue_lifecycle_authorization: {
+        Args: {
+          request_id: string
+          requested_purpose: Database["public"]["Enums"]["lifecycle_authorization_purpose"]
+          requested_team_id?: string
+          requested_user_id: string
+        }
+        Returns: boolean
+      }
+      leave_my_team: {
+        Args: { request_id: string; requested_team_id: string }
+        Returns: Json
       }
       link_championship_fixture_match: {
         Args: {
@@ -4011,6 +4112,27 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      list_my_account_relationships: {
+        Args: never
+        Returns: {
+          is_last_owner: boolean
+          relationship_id: string
+          relationship_kind: string
+          relationship_role: string
+          relationship_status: string
+          team_id: string
+          team_name: string
+          team_slug: string
+        }[]
+      }
+      list_my_owner_transfer_candidates: {
+        Args: { requested_team_id: string }
+        Returns: {
+          display_name: string
+          membership_role: Database["public"]["Enums"]["team_role"]
+          user_id: string
+        }[]
       }
       list_my_player_team_links: {
         Args: never
@@ -4545,6 +4667,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      transfer_my_team_ownership: {
+        Args: {
+          request_id: string
+          requested_next_owner_id: string
+          requested_team_id: string
+        }
+        Returns: boolean
+      }
       update_athlete_as_admin: {
         Args: {
           athlete_birth_date?: string
@@ -4669,8 +4799,13 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      withdraw_my_team_request: {
+        Args: { request_id: string; requested_athlete_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
+      account_closure_status: "auth_pending" | "completed"
       athlete_public_consent_purpose:
         | "public_player_profile"
         | "public_sports_activity"
@@ -4771,6 +4906,7 @@ export type Database = {
         | "quarters"
         | "circle"
         | "diamond"
+      lifecycle_authorization_purpose: "close_team" | "close_account"
       lineup_slot_kind: "starter" | "substitute"
       match_comment_report_status: "open" | "resolved" | "dismissed"
       match_comment_status: "active" | "author_deleted" | "moderated"
@@ -4795,6 +4931,7 @@ export type Database = {
         | "integration_produce"
         | "integration_consume"
         | "event_capability_exchange"
+        | "account_autonomy"
       sport_format: "field" | "society" | "futsal"
       team_invitation_status:
         | "pending"
@@ -4968,6 +5105,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      account_closure_status: ["auth_pending", "completed"],
       athlete_public_consent_purpose: [
         "public_player_profile",
         "public_sports_activity",
@@ -5080,6 +5218,7 @@ export const Constants = {
         "circle",
         "diamond",
       ],
+      lifecycle_authorization_purpose: ["close_team", "close_account"],
       lineup_slot_kind: ["starter", "substitute"],
       match_comment_report_status: ["open", "resolved", "dismissed"],
       match_comment_status: ["active", "author_deleted", "moderated"],
@@ -5105,6 +5244,7 @@ export const Constants = {
         "integration_produce",
         "integration_consume",
         "event_capability_exchange",
+        "account_autonomy",
       ],
       sport_format: ["field", "society", "futsal"],
       team_invitation_status: [

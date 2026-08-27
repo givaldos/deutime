@@ -14,6 +14,7 @@ export default async function Page({
     next?: string;
     password?: string;
     confirmed?: string;
+    account?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -44,6 +45,16 @@ export default async function Page({
         {params.password === "updated" ? (
           <p role="status" className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
             Senha atualizada. Entre novamente; as sessões anteriores foram encerradas.
+          </p>
+        ) : null}
+        {params.account === "closed" || params.account === "closing" ? (
+          <p
+            role="status"
+            className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700"
+          >
+            {params.account === "closed"
+              ? "Conta encerrada. O acesso e as publicações foram removidos; cópias de segurança expiram no ciclo informado de até 30 dias."
+              : "Encerramento iniciado. A conta permanece bloqueada enquanto a limpeza do provedor é concluída automaticamente."}
           </p>
         ) : null}
         <AthleteOtpLoginForm siteKey={turnstile?.siteKey} nonce={nonce} nextPath={athleteNextPath} />
