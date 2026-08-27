@@ -30,7 +30,6 @@ export function AdminAthleteForm({
     phone: "",
     email: "",
     birthDate: "",
-    publicProfile: false,
   });
 
   const errorFor = (field: string) => state.errors?.[field]?.[0];
@@ -121,13 +120,10 @@ export function AdminAthleteForm({
         <Input id="birth-date" name="birthDate" className="h-12 bg-white" type="date" min="1900-01-01" max={new Date().toISOString().slice(0, 10)} value={fields.birthDate} onChange={(event) => setFields((current) => ({ ...current, birthDate: event.target.value }))} />
       </div>
 
-      <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
-        <input type="checkbox" name="publicProfile" checked={fields.publicProfile} onChange={(event) => setFields((current) => ({ ...current, publicProfile: event.target.checked }))} className="mt-0.5 size-4 accent-emerald-700" />
-        <span>
-          <strong className="block text-slate-900">Perfil público</strong>
-          Permitir que nome esportivo, número e posições apareçam na página pública do time.
-        </span>
-      </label>
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950">
+        Este cadastro fica privado até o próprio atleta confirmar a identidade e
+        escolher publicar o perfil na área pessoal.
+      </div>
 
       {state.message && (
         <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">

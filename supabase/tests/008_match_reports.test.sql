@@ -91,6 +91,21 @@ values (
   now()
 );
 
+insert into public.athlete_public_consents (
+  athlete_id, team_id, purpose, status, terms_version, evidence,
+  granted_at, updated_by
+)
+values (
+  '83000000-0000-4000-8000-000000000001',
+  '82000000-0000-4000-8000-000000000001',
+  'public_sports_activity',
+  'granted',
+  'public-sports-activity-test-v1',
+  'match_reports_fixture',
+  now(),
+  '81000000-0000-4000-8000-000000000002'
+);
+
 insert into public.events (
   id, team_id, title, kind, organization_mode, sport_format,
   starts_at, ends_at, attendance_deadline, status, created_by

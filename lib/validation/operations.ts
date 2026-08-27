@@ -66,7 +66,6 @@ export const createAthleteSchema = z.object({
     (value) => (value === "" ? undefined : value),
     z.string().trim().toLowerCase().email().max(254).optional(),
   ),
-  publicProfile: z.boolean(),
   positionCodes: z.array(z.string().regex(/^[A-Z_]{1,16}$/)).max(3).refine(
     (values) => new Set(values).size === values.length,
     "As posições não podem se repetir.",
@@ -108,7 +107,6 @@ export const updateAthleteSchema = z.discriminatedUnion("profileOwner", [
       (value) => (value === "" ? undefined : value),
       z.string().trim().toLowerCase().email().max(254).optional(),
     ),
-    publicProfile: z.boolean(),
     positionCodes: z
       .array(z.string().regex(/^[A-Z_]{1,16}$/))
       .max(3)

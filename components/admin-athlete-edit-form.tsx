@@ -21,7 +21,6 @@ type AthleteValues = {
   birthDate: string;
   phone: string;
   email: string;
-  publicProfile: boolean;
   notes: string;
   positionCodes: string[];
   playerOwned: boolean;
@@ -50,7 +49,6 @@ export function AdminAthleteEditForm({
     birthDate: athlete.birthDate,
     phone: athlete.phone,
     email: athlete.email,
-    publicProfile: athlete.publicProfile,
     notes: athlete.notes,
   });
 
@@ -250,24 +248,10 @@ export function AdminAthleteEditForm({
               />
             </div>
 
-            <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
-              <input
-                type="checkbox"
-                name="publicProfile"
-                checked={fields.publicProfile}
-                onChange={(event) =>
-                  setFields((current) => ({
-                    ...current,
-                    publicProfile: event.target.checked,
-                  }))
-                }
-                className="mt-0.5 size-4 accent-emerald-700"
-              />
-              <span>
-                <strong className="block text-slate-900">Perfil público</strong>
-                Mostrar os dados esportivos na página pública do time.
-              </span>
-            </label>
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950">
+              A identidade provisória permanece privada; somente o atleta pode
+              publicar o perfil depois de confirmar a própria identidade.
+            </div>
           </section>
         </>
       )}

@@ -33,7 +33,6 @@ export async function createAthlete(
     birthDate: formData.get("birthDate"),
     phone: formData.get("phone"),
     email: formData.get("email"),
-    publicProfile: formData.get("publicProfile") === "on",
     positionCodes: formData.getAll("positionCodes"),
   });
 
@@ -53,7 +52,6 @@ export async function createAthlete(
     athlete_birth_date: parsed.data.birthDate,
     athlete_phone_e164: parsed.data.phone,
     athlete_email: parsed.data.email,
-    athlete_public_profile: parsed.data.publicProfile,
     position_codes: parsed.data.positionCodes,
   });
 
@@ -148,7 +146,6 @@ export async function updateAthlete(
           birthDate: formData.get("birthDate"),
           phone: formData.get("phone"),
           email: formData.get("email"),
-          publicProfile: formData.get("publicProfile") === "on",
           positionCodes: formData.getAll("positionCodes"),
         }
       : base,
@@ -169,7 +166,7 @@ export async function updateAthlete(
           athlete_birth_date: parsed.data.birthDate,
           athlete_phone_e164: parsed.data.phone,
           athlete_email: parsed.data.email,
-          athlete_public_profile: parsed.data.publicProfile,
+          athlete_public_profile: false,
           position_codes: parsed.data.positionCodes,
         }
       : {};

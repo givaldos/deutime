@@ -312,8 +312,8 @@ select is(
 );
 select is(
   (select count(*) from public.public_athlete_directory where team_slug = 'time-alpha'),
-  1::bigint,
-  'public roster exposes only active opt-in athletes'
+  0::bigint,
+  'public roster omits unclaimed athletes even when a legacy row opted in'
 );
 select is((select count(*) from public.positions), 18::bigint, 'position catalog is public');
 
