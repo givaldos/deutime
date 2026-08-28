@@ -9,10 +9,6 @@
     {
       "path": "/api/internal/account-lifecycle",
       "schedule": "37 5 * * *"
-    },
-    {
-      "path": "/api/internal/registration-email",
-      "schedule": "*/10 * * * *"
     }
   ]
 }

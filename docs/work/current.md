@@ -16,7 +16,7 @@ tests:
   - "62 arquivos/1.587 testes pgTAP, reset, tipos, lint sem alerta novo e integridade de migrations aprovados"
   - "42 provas focadas de privilégio, idempotência, opt-out, retry, ambiguidade e isolamento cross-tenant"
   - "smoke local em 360 px: preferência habilitada, sem overflow e console limpo"
-  - "Terraform formatado e válido; adapter SMTP exige TLS 1.2 e os controles nascem desligados"
+  - "Terraform formatado e válido; adapter SMTP exige TLS 1.2 e o agendamento usa o GitHub Actions compatível com o plano Hobby"
   - "npm audit sem vulnerabilidades"
 blocker: null
 next_action: "Iniciar WP-R12-05 pelo contrato compartilhado de duração e fechamento de confirmação dos eventos."

@@ -625,8 +625,9 @@ terminar os pedidos confirmados. Correções de schema são sempre forward-only.
 
 ### Avisos de novo cadastro — R12
 
-A Vercel chama `GET /api/internal/registration-email` a cada dez minutos com
-`CRON_SECRET`. O worker reutiliza o SMTP transacional configurado para o Auth
+O GitHub Actions chama `GET /api/internal/registration-email` a cada quinze
+minutos com o segredo operacional `WHATSAPP_WORKER_SECRET`, já compartilhado
+pelos workers internos. O worker reutiliza o SMTP transacional do Auth
 por meio de `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`,
 `SMTP_FROM_EMAIL` e `SMTP_SENDER_NAME`; valores parciais falham fechado.
 
@@ -655,7 +656,7 @@ O endpoint manual exige o bearer server-only e retorna somente contagens:
 ```bash
 curl --fail-with-body \
   'https://deutime.app/api/internal/registration-email' \
-  -H 'Authorization: Bearer <CRON_SECRET>'
+  -H 'Authorization: Bearer <WHATSAPP_WORKER_SECRET>'
 ```
 
 Nunca copie destinatário, endereço, credencial, UUID do cadastro ou erro bruto
@@ -675,7 +676,7 @@ select public.set_runtime_control('registration_email_alerts', false);
 Isso preserva eventos/outbox e não interfere nos e-mails obrigatórios do Auth.
 Correções de schema são forward-only. Para retomar, corrija SMTP, confirme que
 `review_count` foi tratado, habilite consumo e execute o endpoint uma vez antes
-de aguardar o próximo cron.
+de aguardar a próxima execução do workflow **Avisos de novo cadastro**.
 
 ### Preparação do piloto WhatsApp — R03
 

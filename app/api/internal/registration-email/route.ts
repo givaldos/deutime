@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   if (
     !isAuthorizedWorkerRequest(
       request.headers.get("authorization"),
-      process.env.CRON_SECRET,
+      process.env.WHATSAPP_WORKER_SECRET,
     )
   ) {
     return response({ status: "não autorizado" }, 401);

@@ -350,8 +350,9 @@ acessibilidade e smoke anônimo das rotas antigas e novas.
   Retry conhecido usa backoff; resultado incerto ou lease após início do efeito
   vai para revisão manual, nunca para reenvio automático;
 - produção e consumo nascem desligados em controles separados; o worker
-  protegido por `CRON_SECRET` roda a cada dez minutos, retorna somente contagens
-  e pode ser interrompido sem perder a fila do dashboard;
+  protegido pelo segredo operacional já existente roda no GitHub Actions a cada
+  quinze minutos, retorna somente contagens e pode ser interrompido sem perder a
+  fila do dashboard;
 - 112 arquivos/546 testes de aplicação, 4 testes de contexto, lint, TypeScript,
   build de produção Webpack, Terraform, integridade das migrations e auditoria
   com zero vulnerabilidades passaram. O build Turbopack ficou limitado somente

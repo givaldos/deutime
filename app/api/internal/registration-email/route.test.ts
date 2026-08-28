@@ -36,18 +36,18 @@ function request(token = secret) {
 describe("rota interna de avisos de cadastro", () => {
   afterEach(() => {
     vi.clearAllMocks();
-    delete process.env.CRON_SECRET;
+    delete process.env.WHATSAPP_WORKER_SECRET;
   });
 
   it("nega acesso antes de consultar controles", async () => {
-    process.env.CRON_SECRET = secret;
+    process.env.WHATSAPP_WORKER_SECRET = secret;
     const result = await GET(request("incorreto"));
     expect(result.status).toBe(401);
     expect(mocks.enabled).not.toHaveBeenCalled();
   });
 
   it("respeita kill switch de consumo", async () => {
-    process.env.CRON_SECRET = secret;
+    process.env.WHATSAPP_WORKER_SECRET = secret;
     mocks.enabled.mockResolvedValue(false);
     const result = await GET(request());
     expect(result.status).toBe(409);
@@ -55,7 +55,7 @@ describe("rota interna de avisos de cadastro", () => {
   });
 
   it("falha fechado sem SMTP completo", async () => {
-    process.env.CRON_SECRET = secret;
+    process.env.WHATSAPP_WORKER_SECRET = secret;
     mocks.enabled.mockResolvedValue(true);
     mocks.parseConfig.mockReturnValue(null);
     const result = await GET(request());
@@ -63,7 +63,7 @@ describe("rota interna de avisos de cadastro", () => {
   });
 
   it("executa worker e retorna apenas contagens redigidas", async () => {
-    process.env.CRON_SECRET = secret;
+    process.env.WHATSAPP_WORKER_SECRET = secret;
     mocks.enabled.mockResolvedValue(true);
     mocks.parseConfig.mockReturnValue({ host: "smtp" });
     mocks.createAdapter.mockReturnValue({ send: vi.fn() });
