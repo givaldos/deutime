@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
-select plan(22);
+select plan(24);
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -59,6 +59,10 @@ select is((select count(*) from public.runtime_controls where enabled),3::bigint
   'somente os três controles globais validados ficam ativos');
 select is((select enabled from public.runtime_controls where control='account_autonomy'),false,
   'capacidade futura não herda o rollout global anterior');
+select is((select enabled from public.runtime_controls where control='registration_email_alerts'),false,
+  'produção do aviso de cadastro não herda o rollout global anterior');
+select is((select enabled from public.runtime_controls where control='registration_email_delivery'),false,
+  'consumo do aviso de cadastro não herda o rollout global anterior');
 select is((select enabled from private.product_rollout_state where singleton), true,
   'estado do produto acompanha a ativação');
 select is((select count(*) from public.audit_logs
