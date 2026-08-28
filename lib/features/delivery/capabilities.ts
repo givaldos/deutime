@@ -20,6 +20,8 @@ export type FeatureKey = (typeof featureKeys)[number];
 export const runtimeControlKeys = [
   "integration_produce",
   "integration_consume",
+  "registration_email_alerts",
+  "registration_email_delivery",
 ] as const;
 
 export type RuntimeControlKey = (typeof runtimeControlKeys)[number];
@@ -57,4 +59,11 @@ export function canConsumeExternalCommands(
   timeoutMs?: number,
 ) {
   return failClosedLookup("integration_consume", lookup, timeoutMs);
+}
+
+export function canDeliverRegistrationEmails(
+  lookup: BooleanLookup<RuntimeControlKey>,
+  timeoutMs?: number,
+) {
+  return failClosedLookup("registration_email_delivery", lookup, timeoutMs);
 }

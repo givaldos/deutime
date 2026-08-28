@@ -185,9 +185,9 @@ de eventos oferecem os mesmos limites e opções. Nenhum staff publica atleta.
 - [x] `AC-R12-08` — Sair revoga permissões e notificações; o último owner precisa transferir ou encerrar o time, inclusive sob concorrência.
 - [x] `AC-R12-09` — Encerramento reautenticado bloqueia a conta, revoga sessões/publicação e conclui minimização idempotente sem quebrar histórico.
 - [x] `AC-R12-10` — PII, auditoria, notificações e backups cumprem os prazos e a recuperação definidos em `DEC-ACCOUNT-LIFECYCLE`.
-- [ ] `AC-R12-11` — Novo `pending` gera no máximo um aviso por destinatário elegível e nunca inclui PII do atleta no e-mail.
-- [ ] `AC-R12-12` — Preferência individual silencia o aviso opcional sem silenciar segurança; destinatários são recalculados no envio.
-- [ ] `AC-R12-13` — Falha, retry ou kill switch de e-mail preserva a fila autenticada, gera telemetria redigida e não duplica efeito.
+- [x] `AC-R12-11` — Novo `pending` gera no máximo um aviso por destinatário elegível e nunca inclui PII do atleta no e-mail.
+- [x] `AC-R12-12` — Preferência individual silencia o aviso opcional sem silenciar segurança; destinatários são recalculados no envio.
+- [x] `AC-R12-13` — Falha, retry ou kill switch de e-mail preserva a fila autenticada, gera telemetria redigida e não duplica efeito.
 - [ ] `AC-R12-14` — Criação e edição oferecem durações comuns até 480 min e valor personalizado entre 15 e 480 min.
 - [ ] `AC-R12-15` — Confirmação aceita até o início, 1 h, 2 h, 3 h, 6 h, 12 h ou 1 dia; servidor valida fuso, início, fim, prazo e recorrência.
 - [ ] `AC-R12-16` — App/schema N/N−1 funcionam nas duas ordens, links antigos passam na regressão e flags novas não herdam o rollout global anterior.
@@ -332,3 +332,37 @@ acessibilidade e smoke anônimo das rotas antigas e novas.
   `account_autonomy`, mas nunca reabre uma conta ou republica identidade;
 - próximo pacote: `WP-R12-04`, começando pelo outbox idempotente e sem PII para
   avisar owner e administradores elegíveis sobre novo cadastro pendente.
+
+### WP-R12-04 — concluído em 2026-08-28
+
+- a transição real de um cadastro público para `pending` cria um evento privado
+  sem PII somente quando `registration_email_alerts` está ativo; atualização de
+  página, repetição do mesmo estado e cadastro administrativo não criam efeito;
+- o outbox privado é único por evento e destinatário. Owner e administradores
+  ativos com e-mail confirmado são selecionados, e papel, time aberto, endereço
+  confirmado e preferência individual são recalculados sob lock imediatamente
+  antes do envio;
+- a preferência pessoal foi adicionada em **Ajustes** sem alterar alertas de
+  segurança. A fila autenticada em `/app/{slug}/athletes` permanece a fonte
+  autoritativa e o e-mail contém apenas time, chamada neutra e link protegido;
+- o adapter SMTP reutiliza o provedor transacional do Auth, exige TLS 1.2,
+  aplica timeouts e separa falha transitória, permanente e resultado ambíguo.
+  Retry conhecido usa backoff; resultado incerto ou lease após início do efeito
+  vai para revisão manual, nunca para reenvio automático;
+- produção e consumo nascem desligados em controles separados; o worker
+  protegido por `CRON_SECRET` roda a cada dez minutos, retorna somente contagens
+  e pode ser interrompido sem perder a fila do dashboard;
+- 112 arquivos/546 testes de aplicação, 4 testes de contexto, lint, TypeScript,
+  build de produção Webpack, Terraform, integridade das migrations e auditoria
+  com zero vulnerabilidades passaram. O build Turbopack ficou limitado somente
+  pela abertura de porta no sandbox local;
+- banco local aprovado com reset, tipos, lint sem alerta novo e 62
+  arquivos/1.587 testes pgTAP, incluindo 42 provas focadas de privilégio,
+  idempotência, opt-out, retry, ambiguidade, telemetria e isolamento cross-tenant;
+- smoke local em 360 px confirmou preferência habilitada, largura de conteúdo
+  igual à viewport, ausência de rolagem horizontal e console limpo;
+- rollback: desligar primeiro `registration_email_delivery` interrompe consumo;
+  desligar `registration_email_alerts` impede novos eventos. Itens ambíguos
+  permanecem em revisão e nenhum controle republica PII;
+- próximo pacote: `WP-R12-05`, unificando duração e fechamento de confirmação
+  entre criação, edição e recorrência de eventos.

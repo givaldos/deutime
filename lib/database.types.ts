@@ -2782,6 +2782,38 @@ export type Database = {
         }
         Relationships: []
       }
+      registration_email_preferences: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          team_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          team_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          team_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_email_preferences_team_id_user_id_fkey"
+            columns: ["team_id", "user_id"]
+            isOneToOne: true
+            referencedRelation: "team_memberships"
+            referencedColumns: ["team_id", "user_id"]
+          },
+        ]
+      }
       runtime_controls: {
         Row: {
           control: Database["public"]["Enums"]["runtime_control_key"]
@@ -3369,6 +3401,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      ack_registration_email_sent: {
+        Args: {
+          requested_attempt_id: string
+          requested_lease_token: string
+          requested_outbox_id: string
+          requested_provider_message_id: string
+        }
+        Returns: boolean
+      }
       add_championship_participant: {
         Args: {
           request_id: string
@@ -3478,6 +3519,14 @@ export type Database = {
           requested_recipient: string
           requested_team_id: string
         }
+        Returns: {
+          attempt_number: number
+          lease_token: string
+          outbox_id: string
+        }[]
+      }
+      claim_registration_email_batch: {
+        Args: { requested_lease_seconds?: number; requested_limit?: number }
         Returns: {
           attempt_number: number
           lease_token: string
@@ -3983,6 +4032,10 @@ export type Database = {
           team_name: string
         }[]
       }
+      get_my_registration_email_preference: {
+        Args: { requested_team_id: string }
+        Returns: boolean
+      }
       get_public_championship: {
         Args: { requested_public_id: string }
         Returns: Json
@@ -4036,6 +4089,14 @@ export type Database = {
           source_cards: number
           source_crowd_star_cards: number
           source_goal_cards: number
+        }[]
+      }
+      get_registration_email_health: {
+        Args: never
+        Returns: {
+          failed_count: number
+          pending_count: number
+          review_count: number
         }[]
       }
       get_team_invitation_preview: {
@@ -4189,6 +4250,26 @@ export type Database = {
         }
         Returns: boolean
       }
+      nack_registration_email: {
+        Args: {
+          requested_attempt_id: string
+          requested_error_code: string
+          requested_failure_class: string
+          requested_lease_token: string
+          requested_outbox_id: string
+        }
+        Returns: string
+      }
+      prepare_registration_email_dispatch: {
+        Args: { requested_lease_token: string; requested_outbox_id: string }
+        Returns: {
+          attempt_id: string
+          recipient_email: string
+          team_name: string
+          team_slug: string
+          template_key: string
+        }[]
+      }
       prepare_whatsapp_dispatch: {
         Args: { requested_lease_token: string; requested_outbox_id: string }
         Returns: {
@@ -4274,6 +4355,13 @@ export type Database = {
         Returns: boolean
       }
       recover_expired_notification_leases: {
+        Args: never
+        Returns: {
+          review_count: number
+          safe_retry_count: number
+        }[]
+      }
+      recover_expired_registration_email_leases: {
         Args: never
         Returns: {
           review_count: number
@@ -4536,6 +4624,10 @@ export type Database = {
           requested_mode: Database["public"]["Enums"]["match_public_mode"]
         }
         Returns: undefined
+      }
+      set_my_registration_email_preference: {
+        Args: { requested_enabled: boolean; requested_team_id: string }
+        Returns: boolean
       }
       set_public_recognition_summary_consent: {
         Args: {
@@ -4932,6 +5024,8 @@ export type Database = {
         | "integration_consume"
         | "event_capability_exchange"
         | "account_autonomy"
+        | "registration_email_alerts"
+        | "registration_email_delivery"
       sport_format: "field" | "society" | "futsal"
       team_invitation_status:
         | "pending"
@@ -5245,6 +5339,8 @@ export const Constants = {
         "integration_consume",
         "event_capability_exchange",
         "account_autonomy",
+        "registration_email_alerts",
+        "registration_email_delivery",
       ],
       sport_format: ["field", "society", "futsal"],
       team_invitation_status: [

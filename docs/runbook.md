@@ -623,6 +623,60 @@ Não remova o cron enquanto existir `auth_pending` ou job privado `pending`;
 promover o deployment anterior pode ocultar a interface, mas o worker atual deve
 terminar os pedidos confirmados. Correções de schema são sempre forward-only.
 
+### Avisos de novo cadastro — R12
+
+A Vercel chama `GET /api/internal/registration-email` a cada dez minutos com
+`CRON_SECRET`. O worker reutiliza o SMTP transacional configurado para o Auth
+por meio de `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`,
+`SMTP_FROM_EMAIL` e `SMTP_SENDER_NAME`; valores parciais falham fechado.
+
+Antes do rollout, confirme que a expansão está inerte e saudável:
+
+```sql
+select control, enabled
+from public.runtime_controls
+where control in ('registration_email_alerts', 'registration_email_delivery')
+order by control;
+
+select * from public.get_registration_email_health();
+```
+
+O resultado inicial deve mostrar os dois controles desligados e contagens zero.
+Depois do deploy do banco, aplicação e variáveis SMTP, habilite primeiro a
+produção, confirme a fila do dashboard e habilite o consumo:
+
+```sql
+select public.set_runtime_control('registration_email_alerts', true);
+select public.set_runtime_control('registration_email_delivery', true);
+```
+
+O endpoint manual exige o bearer server-only e retorna somente contagens:
+
+```bash
+curl --fail-with-body \
+  'https://deutime.app/api/internal/registration-email' \
+  -H 'Authorization: Bearer <CRON_SECRET>'
+```
+
+Nunca copie destinatário, endereço, credencial, UUID do cadastro ou erro bruto
+para logs e evidências. `failed_count` representa rejeição transitória com
+backoff; `review_count` exige inspeção manual porque o SMTP pode ter aceitado a
+mensagem. Não altere `review` para `failed` nem reenvie sem confirmar no provedor
+que não houve entrega. Uma rejeição permanente é cancelada e a fila autenticada
+continua disponível para operação.
+
+Rollback interrompe primeiro o consumo e depois a produção:
+
+```sql
+select public.set_runtime_control('registration_email_delivery', false);
+select public.set_runtime_control('registration_email_alerts', false);
+```
+
+Isso preserva eventos/outbox e não interfere nos e-mails obrigatórios do Auth.
+Correções de schema são forward-only. Para retomar, corrija SMTP, confirme que
+`review_count` foi tratado, habilite consumo e execute o endpoint uma vez antes
+de aguardar o próximo cron.
+
 ### Preparação do piloto WhatsApp — R03
 
 O Sandbox da Twilio é somente para teste e não aceita template personalizado.
