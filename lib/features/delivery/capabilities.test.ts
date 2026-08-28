@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   canConsumeExternalCommands,
+  canDeliverRegistrationEmails,
   canProduceExternalCommands,
   failClosedLookup,
   featureKeys,
@@ -35,6 +36,12 @@ describe("controles de entrega", () => {
   it("mantém produção e consumo independentes", async () => {
     const lookup = async (key: string) => key === "integration_produce";
     await expect(canProduceExternalCommands(lookup)).resolves.toBe(true);
+    await expect(canConsumeExternalCommands(lookup)).resolves.toBe(false);
+  });
+
+  it("mantém o consumo de avisos de cadastro independente e fail-closed", async () => {
+    const lookup = async (key: string) => key === "registration_email_delivery";
+    await expect(canDeliverRegistrationEmails(lookup)).resolves.toBe(true);
     await expect(canConsumeExternalCommands(lookup)).resolves.toBe(false);
   });
 

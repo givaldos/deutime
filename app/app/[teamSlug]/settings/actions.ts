@@ -36,6 +36,50 @@ export type ReminderSettingsActionState = {
   message?: string;
 };
 
+export type RegistrationEmailPreferenceState = {
+  outcome?: "success" | "error";
+  message?: string;
+};
+
+const registrationEmailPreferenceSchema = z.object({
+  teamId: z.string().uuid(),
+  teamSlug: z.string().trim().min(3).max(48),
+  enabled: z.boolean(),
+});
+
+export async function updateRegistrationEmailPreference(
+  _previousState: RegistrationEmailPreferenceState,
+  formData: FormData,
+): Promise<RegistrationEmailPreferenceState> {
+  await requireUser();
+  const parsed = registrationEmailPreferenceSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    enabled: formData.get("enabled") === "on",
+  });
+  if (!parsed.success) {
+    return { outcome: "error", message: "Não foi possível salvar esta escolha." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_my_registration_email_preference", {
+    requested_team_id: parsed.data.teamId,
+    requested_enabled: parsed.data.enabled,
+  });
+  if (error) {
+    return {
+      outcome: "error",
+      message:
+        error.code === "42501"
+          ? "Você não tem permissão para alterar este aviso."
+          : "Não foi possível salvar esta escolha.",
+    };
+  }
+
+  revalidatePath(`/app/${parsed.data.teamSlug}/settings`);
+  return { outcome: "success", message: "Preferência de aviso salva." };
+}
+
 export async function updateTeamWhatsAppReminderSettings(
   _previousState: ReminderSettingsActionState,
   formData: FormData,

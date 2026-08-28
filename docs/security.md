@@ -110,6 +110,31 @@ anterior. Desligá-lo impede novos comandos e oculta ações, mas a reconciliaç
 continua concluindo pedidos já bloqueados; rollback nunca republica identidade
 ou recria vínculo.
 
+### Avisos de novo cadastro
+
+O `WP-R12-04` separa o fato esportivo, o destinatário e o endereço de entrega.
+A transição pública real para `pending` grava em schema privado somente UUIDs
+opacos de time e cadastro; nome, telefone, e-mail e demais dados do atleta não
+entram no evento, outbox, auditoria, telemetria nem mensagem.
+
+- `registration_email_alerts` controla a produção e
+  `registration_email_delivery` controla o consumo; ambos nascem desligados e
+  não herdam o rollout global anterior;
+- o outbox é único por evento e usuário. Owner/admin, time aberto, preferência
+  individual e e-mail confirmado são recalculados imediatamente antes do envio;
+- somente a RPC pessoal permite ler ou alterar a própria preferência no time
+  ativo. Tabelas privadas e RPCs do worker não têm grant para cliente;
+- o e-mail não identifica o atleta e aponta somente para a fila autenticada do
+  mesmo time; a fila protegida continua autoritativa quando o transporte falha;
+- SMTP exige TLS 1.2, usa credencial server-only e registra apenas código
+  sanitizado e identificador opaco do provedor. Resposta incerta nunca é
+  reenviada automaticamente: segue para revisão manual;
+- lease vencido antes do início do efeito pode ser retomado; depois do início
+  vai para revisão. Rejeição conhecida usa backoff limitado e cinco tentativas;
+- desligar consumo preserva eventos e outbox. Desligar produção impede somente
+  novos eventos, sem remover pedidos existentes nem alterar alertas obrigatórios
+  de segurança.
+
 ## Credencial reutilizável e sessão duradoura
 
 O acesso WhatsApp-first planejado segue [`DEC-PERSISTENT-ACCESS`](decisions/DEC-PERSISTENT-ACCESS.md): credencial pessoal reutilizável, capability persistente limitada ao evento e sessão de identidade persistente no aparelho. A R00 aprovou o transporte por fragmento + `POST` same-origin e o threat model; antes da R02, a implementação deve demonstrar:

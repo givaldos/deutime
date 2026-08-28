@@ -9,6 +9,7 @@ import { ChampionshipPilotControl } from "@/components/championship-pilot-contro
 import { RecognitionPilotControl } from "@/components/recognition-pilot-control";
 import { InternalSquadManager } from "@/components/internal-squad-manager";
 import { WhatsAppReminderSettingsForm } from "@/components/whatsapp-reminder-settings-form";
+import { RegistrationEmailPreferenceForm } from "@/components/registration-email-preference-form";
 import { AppContainer } from "@/components/ui/app-shell";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Button } from "@/components/ui/button";
@@ -144,6 +145,17 @@ export default async function TeamSettingsPage({
     throw new Error("Não foi possível carregar os lembretes do time.");
   }
 
+  const { data: registrationEmailPreference, error: registrationEmailPreferenceError } =
+    await supabase.rpc("get_my_registration_email_preference", {
+      requested_team_id: team.id,
+    });
+  const registrationEmailContractMissing =
+    registrationEmailPreferenceError?.code === "PGRST202" ||
+    registrationEmailPreferenceError?.code === "42883";
+  if (registrationEmailPreferenceError && !registrationEmailContractMissing) {
+    throw new Error("Não foi possível carregar sua preferência de avisos.");
+  }
+
   const mediaPaths = (media ?? []).map((item) => item.storage_path);
   const { data: signedMedia, error: signedMediaError } = mediaPaths.length
     ? await supabase.storage.from("team_media").createSignedUrls(mediaPaths, 3600)
@@ -245,6 +257,14 @@ export default async function TeamSettingsPage({
             teamSlug={team.slug}
             firstHours={reminderSettings.first_offset_minutes / 60}
             secondHours={reminderSettings.second_offset_minutes / 60}
+          />
+        ) : null}
+
+        {!registrationEmailContractMissing ? (
+          <RegistrationEmailPreferenceForm
+            teamId={team.id}
+            teamSlug={team.slug}
+            enabled={registrationEmailPreference ?? true}
           />
         ) : null}
 

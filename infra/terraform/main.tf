@@ -155,6 +155,60 @@ resource "vercel_project_environment_variable" "turnstile_secret_key" {
   comment    = "Turnstile server verification key."
 }
 
+resource "vercel_project_environment_variable" "smtp_host" {
+  project_id = vercel_project.production.id
+  key        = "SMTP_HOST"
+  value_wo   = var.smtp_host
+  target     = ["production"]
+  sensitive  = true
+  comment    = "Transactional SMTP host shared with Supabase Auth."
+}
+
+resource "vercel_project_environment_variable" "smtp_port" {
+  project_id = vercel_project.production.id
+  key        = "SMTP_PORT"
+  value_wo   = tostring(var.smtp_port)
+  target     = ["production"]
+  sensitive  = true
+  comment    = "Transactional SMTP port."
+}
+
+resource "vercel_project_environment_variable" "smtp_user" {
+  project_id = vercel_project.production.id
+  key        = "SMTP_USER"
+  value_wo   = var.smtp_user
+  target     = ["production"]
+  sensitive  = true
+  comment    = "Transactional SMTP username."
+}
+
+resource "vercel_project_environment_variable" "smtp_password" {
+  project_id = vercel_project.production.id
+  key        = "SMTP_PASSWORD"
+  value_wo   = var.smtp_password
+  target     = ["production"]
+  sensitive  = true
+  comment    = "Transactional SMTP password. Never expose or log."
+}
+
+resource "vercel_project_environment_variable" "smtp_from_email" {
+  project_id = vercel_project.production.id
+  key        = "SMTP_FROM_EMAIL"
+  value_wo   = var.smtp_admin_email
+  target     = ["production"]
+  sensitive  = true
+  comment    = "Verified From address for transactional notices."
+}
+
+resource "vercel_project_environment_variable" "smtp_sender_name" {
+  project_id = vercel_project.production.id
+  key        = "SMTP_SENDER_NAME"
+  value_wo   = var.smtp_sender_name
+  target     = ["production"]
+  sensitive  = true
+  comment    = "Sender name for transactional notices."
+}
+
 resource "github_repository_ruleset" "main" {
   count       = var.enable_github_ruleset ? 1 : 0
   name        = "main-protection"

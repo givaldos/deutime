@@ -2,6 +2,7 @@ import "server-only";
 
 import {
   canConsumeExternalCommands,
+  canDeliverRegistrationEmails,
   canProduceExternalCommands,
   failClosedLookup,
   type FeatureKey,
@@ -43,4 +44,8 @@ export function isExternalCommandProductionEnabled() {
 
 export function isExternalCommandConsumptionEnabled(timeoutMs?: number) {
   return canConsumeExternalCommands(lookupRuntimeControl, timeoutMs);
+}
+
+export function isRegistrationEmailDeliveryEnabled(timeoutMs?: number) {
+  return canDeliverRegistrationEmails(lookupRuntimeControl, timeoutMs);
 }
