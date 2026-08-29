@@ -2,9 +2,9 @@
 release: R12
 work_package: WP-R12-04
 scope: registration_email_alerts
-branch_or_commit: "codex/r12-registration-email-ses"
-checkpoint: CP4
-status: in_progress
+branch_or_commit: "codex/r12-ses-activation"
+checkpoint: CP5
+status: blocked
 completed_ac:
   - AC-R12-11
   - AC-R12-12
@@ -18,9 +18,10 @@ tests:
   - "smoke local em 360 px: preferência habilitada, sem overflow e console limpo"
   - "Terraform formatado e válido; adapter AWS SES v2 usa IAM mínimo e o agendamento usa o GitHub Actions compatível com o plano Hobby"
   - "SES us-east-1 fora do sandbox, identidade deutime.app e MAIL FROM verificados; configuration set deutime-transactional com métricas CloudWatch"
+  - "canário sem destinatários retornou HTTP 503; consumo foi desligado imediatamente e novos alertas permaneceram desligados"
   - "npm audit sem vulnerabilidades"
-blocker: null
-next_action: "Promover codex/r12-registration-email-ses para dev, executar gates consolidados e promover dev para main."
+blocker: "As variáveis SES foram aplicadas a um preview da branch de ativação; deutime.app ainda aponta para o deployment anterior de main."
+next_action: "Promover o checkpoint pelo fluxo branch -> dev -> main para gerar um deployment Production com as variáveis e repetir o canário com a fila zerada."
 ---
 
 # Trabalho atual
