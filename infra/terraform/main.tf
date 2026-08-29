@@ -155,58 +155,68 @@ resource "vercel_project_environment_variable" "turnstile_secret_key" {
   comment    = "Turnstile server verification key."
 }
 
-resource "vercel_project_environment_variable" "smtp_host" {
+resource "vercel_project_environment_variable" "aws_region" {
   project_id = vercel_project.production.id
-  key        = "SMTP_HOST"
-  value_wo   = var.smtp_host
+  key        = "AWS_REGION"
+  value_wo   = var.aws_ses_region
   target     = ["production"]
   sensitive  = true
-  comment    = "Transactional SMTP host shared with Supabase Auth."
+  comment    = "AWS region for the SES v2 registration-email worker."
 }
 
-resource "vercel_project_environment_variable" "smtp_port" {
+resource "vercel_project_environment_variable" "aws_access_key_id" {
   project_id = vercel_project.production.id
-  key        = "SMTP_PORT"
-  value_wo   = tostring(var.smtp_port)
+  key        = "AWS_ACCESS_KEY_ID"
+  value_wo   = var.aws_ses_access_key_id
   target     = ["production"]
   sensitive  = true
-  comment    = "Transactional SMTP port."
+  comment    = "Least-privilege IAM key for ses:SendEmail."
 }
 
-resource "vercel_project_environment_variable" "smtp_user" {
+resource "vercel_project_environment_variable" "aws_secret_access_key" {
   project_id = vercel_project.production.id
-  key        = "SMTP_USER"
-  value_wo   = var.smtp_user
+  key        = "AWS_SECRET_ACCESS_KEY"
+  value_wo   = var.aws_ses_secret_access_key
   target     = ["production"]
   sensitive  = true
-  comment    = "Transactional SMTP username."
+  comment    = "Secret for the least-privilege SES IAM key. Never expose or log."
 }
 
-resource "vercel_project_environment_variable" "smtp_password" {
+resource "vercel_project_environment_variable" "aws_session_token" {
+  count      = var.aws_ses_session_token == null ? 0 : 1
   project_id = vercel_project.production.id
-  key        = "SMTP_PASSWORD"
-  value_wo   = var.smtp_password
+  key        = "AWS_SESSION_TOKEN"
+  value_wo   = var.aws_ses_session_token
   target     = ["production"]
   sensitive  = true
-  comment    = "Transactional SMTP password. Never expose or log."
+  comment    = "Optional token for temporary AWS credentials."
 }
 
-resource "vercel_project_environment_variable" "smtp_from_email" {
+resource "vercel_project_environment_variable" "ses_from_email" {
   project_id = vercel_project.production.id
-  key        = "SMTP_FROM_EMAIL"
+  key        = "SES_FROM_EMAIL"
   value_wo   = var.smtp_admin_email
   target     = ["production"]
   sensitive  = true
-  comment    = "Verified From address for transactional notices."
+  comment    = "From address verified in AWS SES."
 }
 
-resource "vercel_project_environment_variable" "smtp_sender_name" {
+resource "vercel_project_environment_variable" "ses_sender_name" {
   project_id = vercel_project.production.id
-  key        = "SMTP_SENDER_NAME"
+  key        = "SES_SENDER_NAME"
   value_wo   = var.smtp_sender_name
   target     = ["production"]
   sensitive  = true
-  comment    = "Sender name for transactional notices."
+  comment    = "Sender name for AWS SES transactional notices."
+}
+
+resource "vercel_project_environment_variable" "ses_configuration_set" {
+  project_id = vercel_project.production.id
+  key        = "SES_CONFIGURATION_SET"
+  value_wo   = var.aws_ses_configuration_set
+  target     = ["production"]
+  sensitive  = true
+  comment    = "SES configuration set for delivery, bounce and complaint observability."
 }
 
 resource "github_repository_ruleset" "main" {

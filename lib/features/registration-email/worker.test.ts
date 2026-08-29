@@ -31,7 +31,7 @@ function repository(
 }
 
 describe("worker de aviso de cadastro", () => {
-  it("confirma uma aceitação SMTP usando somente o id do provedor", async () => {
+  it("confirma uma aceitação do SES usando somente o id do provedor", async () => {
     const repo = repository();
     const adapter: RegistrationEmailAdapter = {
       send: vi.fn(async () => ({ kind: "accepted" as const, providerMessageId: "msg-1" })),

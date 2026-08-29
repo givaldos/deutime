@@ -627,9 +627,34 @@ terminar os pedidos confirmados. Correções de schema são sempre forward-only.
 
 O GitHub Actions chama `GET /api/internal/registration-email` a cada quinze
 minutos com o segredo operacional `WHATSAPP_WORKER_SECRET`, já compartilhado
-pelos workers internos. O worker reutiliza o SMTP transacional do Auth
-por meio de `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`,
-`SMTP_FROM_EMAIL` e `SMTP_SENDER_NAME`; valores parciais falham fechado.
+pelos workers internos. O worker envia pela API AWS SES v2 usando
+`AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`,
+`SES_FROM_EMAIL`, `SES_SENDER_NAME` e `SES_CONFIGURATION_SET`;
+`AWS_SESSION_TOKEN` é opcional. Valores parciais falham fechado.
+
+Na mesma região de `AWS_REGION`, verifique a identidade do domínio remetente,
+publique DKIM/SPF/DMARC e retire a conta SES do sandbox antes de enviar a
+destinatários reais. A chave IAM deve ser exclusiva do worker, sem acesso ao
+console e com política equivalente a:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": "ses:SendEmail",
+    "Resource": "arn:aws:ses:us-east-1:<account-id>:identity/deutime.app",
+    "Condition": {
+      "StringEquals": { "ses:FromAddress": "no-reply@deutime.app" }
+    }
+  }]
+}
+```
+
+Associe ao configuration set destinos de evento para entrega, bounce e
+complaint na AWS antes de ativar consumo. Nunca grave o destinatário ou o
+conteúdo nos nomes/tags; o worker envia somente
+`message_type=registration_pending`.
 
 Antes do rollout, confirme que a expansão está inerte e saudável:
 
@@ -643,7 +668,7 @@ select * from public.get_registration_email_health();
 ```
 
 O resultado inicial deve mostrar os dois controles desligados e contagens zero.
-Depois do deploy do banco, aplicação e variáveis SMTP, habilite primeiro a
+Depois do deploy da aplicação e das variáveis AWS SES, habilite primeiro a
 produção, confirme a fila do dashboard e habilite o consumo:
 
 ```sql
@@ -661,7 +686,7 @@ curl --fail-with-body \
 
 Nunca copie destinatário, endereço, credencial, UUID do cadastro ou erro bruto
 para logs e evidências. `failed_count` representa rejeição transitória com
-backoff; `review_count` exige inspeção manual porque o SMTP pode ter aceitado a
+backoff; `review_count` exige inspeção manual porque o SES pode ter aceitado a
 mensagem. Não altere `review` para `failed` nem reenvie sem confirmar no provedor
 que não houve entrega. Uma rejeição permanente é cancelada e a fila autenticada
 continua disponível para operação.
@@ -674,7 +699,7 @@ select public.set_runtime_control('registration_email_alerts', false);
 ```
 
 Isso preserva eventos/outbox e não interfere nos e-mails obrigatórios do Auth.
-Correções de schema são forward-only. Para retomar, corrija SMTP, confirme que
+Correções de schema são forward-only. Para retomar, corrija AWS SES, confirme que
 `review_count` foi tratado, habilite consumo e execute o endpoint uma vez antes
 de aguardar a próxima execução do workflow **Avisos de novo cadastro**.
 
