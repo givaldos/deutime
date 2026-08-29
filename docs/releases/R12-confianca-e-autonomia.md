@@ -14,7 +14,7 @@ baseline:
   - BASE-PUBLIC
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "7cd58b7"
+verified_at: "5b375d2"
 decisions:
   - DEC-PUBLIC-PRIVACY
   - DEC-ACCOUNT-LIFECYCLE
@@ -398,3 +398,10 @@ não mudaram; a produção permaneceu inerte durante a migração.
   v3 são expansões inertes para versões antigas, e v2 permanece operacional;
 - próximo pacote: `WP-R12-06`, consolidando compatibilidade, regressão, jornada
   física em 360 px, piloto, observabilidade e recuperação da R12.
+
+Promoção concluída pelas PRs `#340` (branch temporária → `dev`) e `#341`
+(`dev` → `main`). O commit de produção `5b375d2` recebeu deploy Vercel e a
+migration v3 no Supabase com histórico remoto verificado. CI, Database, CodeQL,
+Terraform e smoke público read-only passaram; uma execução paralela do smoke
+teve timeout de rede e passou em 16 s na repetição isolada. A PR `#342`
+sincronizou o merge commit de `main` de volta em `dev` sem reescrever histórico.
