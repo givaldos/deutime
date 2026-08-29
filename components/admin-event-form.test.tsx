@@ -1,0 +1,58 @@
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/app/app/[teamSlug]/events/actions", () => ({
+  createEvent: vi.fn(),
+  updateEvent: vi.fn(),
+}));
+
+import { AdminEventForm } from "./admin-event-form";
+
+const baseProps = {
+  teamId: "11111111-1111-4111-8111-111111111111",
+  teamSlug: "racha-do-bairro",
+  teamTimezone: "America/Sao_Paulo",
+  defaultSportFormat: "society" as const,
+  eventControlEnabled: true,
+  initialRequestId: "33333333-3333-4333-8333-333333333333",
+};
+
+describe("opções administrativas de evento", () => {
+  it("oferece durações comuns, valor personalizado e todos os prazos", () => {
+    const html = renderToStaticMarkup(<AdminEventForm {...baseProps} />);
+
+    expect(html).toContain("Personalizada");
+    expect(html).toContain('<option value="480">8 h</option>');
+    expect(html).toContain('<option value="180">3 h antes</option>');
+    expect(html).toContain('<option value="360">6 h antes</option>');
+    expect(html).toContain('<option value="720">12 h antes</option>');
+    expect(html).toContain('<option value="1440">1 dia antes</option>');
+  });
+
+  it("preserva e limita uma duração personalizada na edição", () => {
+    const html = renderToStaticMarkup(
+      <AdminEventForm
+        {...baseProps}
+        event={{
+          id: "22222222-2222-4222-8222-222222222222",
+          seriesId: "44444444-4444-4444-8444-444444444444",
+          title: "Racha personalizado",
+          kind: "weekly_match",
+          organizationMode: "split_teams",
+          sportFormat: "society",
+          startsAtLocal: "2030-08-15T20:30",
+          durationMinutes: "150",
+          deadlineMinutes: "120",
+          opponentName: "",
+          venueName: "Arena Central",
+          venueAddress: "Rua do Campo, 100",
+        }}
+      />,
+    );
+
+    expect(html).toContain('id="custom-duration"');
+    expect(html).toContain('min="15"');
+    expect(html).toContain('max="480"');
+    expect(html).toContain('name="durationMinutes" value="150"');
+  });
+});

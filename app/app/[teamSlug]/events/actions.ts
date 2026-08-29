@@ -55,6 +55,20 @@ export type EventReminderActionState = {
   nextRequestId?: string;
 };
 
+function isMissingEventOptionsContract(error: {
+  code?: string;
+  message?: string;
+} | null) {
+  if (!error) return false;
+  if (error.code === "42883" || error.code === "PGRST202") return true;
+
+  const message = error.message?.toLowerCase() ?? "";
+  return (
+    message.includes("schema cache") ||
+    (message.includes("could not find") && message.includes("_v3"))
+  );
+}
+
 export async function updateEventWhatsAppReminderSettings(
   previousState: EventReminderActionState,
   formData: FormData,
@@ -229,36 +243,47 @@ export async function createEvent(
   }
 
   const supabase = await createClient();
-  const { data, error } = "startsAtIso" in parsed.data
-    ? await supabase.rpc("create_event_as_staff", {
-        requested_team_id: parsed.data.teamId,
-        event_title: parsed.data.title,
-        event_kind: parsed.data.kind,
-        event_organization_mode: parsed.data.organizationMode,
-        event_sport_format: parsed.data.sportFormat,
-        event_starts_at: parsed.data.startsAtIso,
-        event_duration_minutes: parsed.data.durationMinutes,
-        attendance_deadline_minutes: parsed.data.deadlineMinutes,
-        repeat_weeks: parsed.data.repeatWeeks,
-        event_opponent_name: parsed.data.opponentName,
-        event_venue_name: parsed.data.venueName,
-        event_venue_address: parsed.data.venueAddress,
-      })
-    : await supabase.rpc("create_event_as_staff_v2", {
-        requested_team_id: parsed.data.teamId,
-        request_id: parsed.data.requestId,
-        starts_at_local: parsed.data.startsAtLocal,
-        event_title: parsed.data.title,
-        event_kind: parsed.data.kind,
-        event_organization_mode: parsed.data.organizationMode,
-        event_sport_format: parsed.data.sportFormat,
-        event_duration_minutes: parsed.data.durationMinutes,
-        attendance_deadline_minutes: parsed.data.deadlineMinutes,
-        repeat_weeks: parsed.data.repeatWeeks,
-        event_opponent_name: parsed.data.opponentName,
-        event_venue_name: parsed.data.venueName,
-        event_venue_address: parsed.data.venueAddress,
-      });
+  let result;
+
+  if ("startsAtIso" in parsed.data) {
+    result = await supabase.rpc("create_event_as_staff", {
+      requested_team_id: parsed.data.teamId,
+      event_title: parsed.data.title,
+      event_kind: parsed.data.kind,
+      event_organization_mode: parsed.data.organizationMode,
+      event_sport_format: parsed.data.sportFormat,
+      event_starts_at: parsed.data.startsAtIso,
+      event_duration_minutes: parsed.data.durationMinutes,
+      attendance_deadline_minutes: parsed.data.deadlineMinutes,
+      repeat_weeks: parsed.data.repeatWeeks,
+      event_opponent_name: parsed.data.opponentName,
+      event_venue_name: parsed.data.venueName,
+      event_venue_address: parsed.data.venueAddress,
+    });
+  } else {
+    const rpcArguments = {
+      requested_team_id: parsed.data.teamId,
+      request_id: parsed.data.requestId,
+      starts_at_local: parsed.data.startsAtLocal,
+      event_title: parsed.data.title,
+      event_kind: parsed.data.kind,
+      event_organization_mode: parsed.data.organizationMode,
+      event_sport_format: parsed.data.sportFormat,
+      event_duration_minutes: parsed.data.durationMinutes,
+      attendance_deadline_minutes: parsed.data.deadlineMinutes,
+      repeat_weeks: parsed.data.repeatWeeks,
+      event_opponent_name: parsed.data.opponentName,
+      event_venue_name: parsed.data.venueName,
+      event_venue_address: parsed.data.venueAddress,
+    };
+    result = await supabase.rpc("create_event_as_staff_v3", rpcArguments);
+
+    if (isMissingEventOptionsContract(result.error)) {
+      result = await supabase.rpc("create_event_as_staff_v2", rpcArguments);
+    }
+  }
+
+  const { data, error } = result;
   const eventId =
     data && typeof data === "object" && "event_id" in data
       ? data.event_id
@@ -330,38 +355,49 @@ export async function updateEvent(
   }
 
   const supabase = await createClient();
-  const { data, error } = "startsAtIso" in parsed.data
-    ? await supabase.rpc("update_event_as_staff", {
-        requested_team_id: parsed.data.teamId,
-        requested_event_id: parsed.data.eventId,
-        edit_scope: parsed.data.editScope,
-        event_title: parsed.data.title,
-        event_kind: parsed.data.kind,
-        event_organization_mode: parsed.data.organizationMode,
-        event_sport_format: parsed.data.sportFormat,
-        event_starts_at: parsed.data.startsAtIso,
-        event_duration_minutes: parsed.data.durationMinutes,
-        attendance_deadline_minutes: parsed.data.deadlineMinutes,
-        event_opponent_name: parsed.data.opponentName,
-        event_venue_name: parsed.data.venueName,
-        event_venue_address: parsed.data.venueAddress,
-      })
-    : await supabase.rpc("update_event_as_staff_v2", {
-        requested_team_id: parsed.data.teamId,
-        requested_event_id: parsed.data.eventId,
-        request_id: parsed.data.requestId,
-        edit_scope: parsed.data.editScope,
-        starts_at_local: parsed.data.startsAtLocal,
-        event_title: parsed.data.title,
-        event_kind: parsed.data.kind,
-        event_organization_mode: parsed.data.organizationMode,
-        event_sport_format: parsed.data.sportFormat,
-        event_duration_minutes: parsed.data.durationMinutes,
-        attendance_deadline_minutes: parsed.data.deadlineMinutes,
-        event_opponent_name: parsed.data.opponentName,
-        event_venue_name: parsed.data.venueName,
-        event_venue_address: parsed.data.venueAddress,
-      });
+  let result;
+
+  if ("startsAtIso" in parsed.data) {
+    result = await supabase.rpc("update_event_as_staff", {
+      requested_team_id: parsed.data.teamId,
+      requested_event_id: parsed.data.eventId,
+      edit_scope: parsed.data.editScope,
+      event_title: parsed.data.title,
+      event_kind: parsed.data.kind,
+      event_organization_mode: parsed.data.organizationMode,
+      event_sport_format: parsed.data.sportFormat,
+      event_starts_at: parsed.data.startsAtIso,
+      event_duration_minutes: parsed.data.durationMinutes,
+      attendance_deadline_minutes: parsed.data.deadlineMinutes,
+      event_opponent_name: parsed.data.opponentName,
+      event_venue_name: parsed.data.venueName,
+      event_venue_address: parsed.data.venueAddress,
+    });
+  } else {
+    const rpcArguments = {
+      requested_team_id: parsed.data.teamId,
+      requested_event_id: parsed.data.eventId,
+      request_id: parsed.data.requestId,
+      edit_scope: parsed.data.editScope,
+      starts_at_local: parsed.data.startsAtLocal,
+      event_title: parsed.data.title,
+      event_kind: parsed.data.kind,
+      event_organization_mode: parsed.data.organizationMode,
+      event_sport_format: parsed.data.sportFormat,
+      event_duration_minutes: parsed.data.durationMinutes,
+      attendance_deadline_minutes: parsed.data.deadlineMinutes,
+      event_opponent_name: parsed.data.opponentName,
+      event_venue_name: parsed.data.venueName,
+      event_venue_address: parsed.data.venueAddress,
+    };
+    result = await supabase.rpc("update_event_as_staff_v3", rpcArguments);
+
+    if (isMissingEventOptionsContract(result.error)) {
+      result = await supabase.rpc("update_event_as_staff_v2", rpcArguments);
+    }
+  }
+
+  const { data, error } = result;
   const updatedCount =
     data && typeof data === "object" && "affected_count" in data
       ? data.affected_count

@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(19);
+select plan(28);
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password,
@@ -84,6 +84,22 @@ select ok(
     'EXECUTE'
   ),
   'authenticated users can reach the guarded v2 workflow'
+);
+select ok(
+  has_function_privilege(
+    'authenticated',
+    'public.create_event_as_staff_v3(uuid,uuid,timestamp without time zone,text,public.event_kind,public.organization_mode,public.sport_format,integer,integer,integer,text,text,text)',
+    'EXECUTE'
+  ),
+  'authenticated users can reach the guarded v3 create workflow'
+);
+select ok(
+  has_function_privilege(
+    'authenticated',
+    'public.update_event_as_staff_v3(uuid,uuid,uuid,text,timestamp without time zone,text,public.event_kind,public.organization_mode,public.sport_format,integer,integer,text,text,text)',
+    'EXECUTE'
+  ),
+  'authenticated users can reach the guarded v3 update workflow'
 );
 
 set local role authenticated;
@@ -343,6 +359,129 @@ select is(
   ),
   0::bigint,
   'RLS hides another tenant change stream'
+);
+
+reset role;
+set local role authenticated;
+select set_config(
+  'request.jwt.claim.sub',
+  '81000000-0000-4000-8000-000000000001',
+  true
+);
+
+select lives_ok(
+  $$
+    select public.create_event_as_staff_v3(
+      '82000000-0000-4000-8000-000000000001',
+      '83000000-0000-4000-8000-000000000006',
+      '2027-11-01 20:00',
+      'Série com limites compartilhados',
+      'weekly_match',
+      'split_teams',
+      'society',
+      480,
+      720,
+      2
+    )
+  $$,
+  'v3 creates a recurring event at the upper common duration and 12h deadline'
+);
+select is(
+  (
+    select count(*)
+    from public.events e
+    where e.team_id = '82000000-0000-4000-8000-000000000001'
+      and e.title = 'Série com limites compartilhados'
+  ),
+  2::bigint,
+  'v3 materializes every requested recurrence'
+);
+select ok(
+  (
+    select bool_and(
+      e.ends_at - e.starts_at = interval '480 minutes'
+      and e.starts_at - e.attendance_deadline = interval '720 minutes'
+    )
+    from public.events e
+    where e.team_id = '82000000-0000-4000-8000-000000000001'
+      and e.title = 'Série com limites compartilhados'
+  ),
+  'every occurrence preserves duration and confirmation deadline'
+);
+select lives_ok(
+  $$
+    select public.update_event_as_staff_v3(
+      '82000000-0000-4000-8000-000000000001',
+      (
+        select e.id
+        from public.events e
+        where e.team_id = '82000000-0000-4000-8000-000000000001'
+          and e.title = 'Série com limites compartilhados'
+          and e.series_position = 1
+      ),
+      '83000000-0000-4000-8000-000000000007',
+      'this_and_future',
+      '2027-11-02 20:00',
+      'Série com valor personalizado',
+      'weekly_match',
+      'split_teams',
+      'society',
+      15,
+      0
+    )
+  $$,
+  'v3 updates this and future occurrences with a custom duration'
+);
+select ok(
+  (
+    select count(*) = 2
+      and bool_and(
+        e.ends_at - e.starts_at = interval '15 minutes'
+        and e.attendance_deadline = e.starts_at
+      )
+    from public.events e
+    where e.team_id = '82000000-0000-4000-8000-000000000001'
+      and e.title = 'Série com valor personalizado'
+  ),
+  'the recurring update preserves the custom duration and start-time deadline'
+);
+select throws_ok(
+  $$
+    select public.create_event_as_staff_v3(
+      '82000000-0000-4000-8000-000000000001',
+      '83000000-0000-4000-8000-000000000008',
+      '2027-12-01 20:00',
+      'Duração inválida',
+      'friendly',
+      'single_squad',
+      'society',
+      481,
+      120,
+      1
+    )
+  $$,
+  '22023',
+  null,
+  'v3 rejects a duration above 480 minutes'
+);
+select throws_ok(
+  $$
+    select public.create_event_as_staff_v3(
+      '82000000-0000-4000-8000-000000000001',
+      '83000000-0000-4000-8000-000000000009',
+      '2027-12-01 20:00',
+      'Prazo inválido',
+      'friendly',
+      'single_squad',
+      'society',
+      90,
+      30,
+      1
+    )
+  $$,
+  '22023',
+  null,
+  'v3 rejects a confirmation deadline outside the shared options'
 );
 
 select * from finish();

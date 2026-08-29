@@ -188,8 +188,8 @@ de eventos oferecem os mesmos limites e opções. Nenhum staff publica atleta.
 - [x] `AC-R12-11` — Novo `pending` gera no máximo um aviso por destinatário elegível e nunca inclui PII do atleta no e-mail.
 - [x] `AC-R12-12` — Preferência individual silencia o aviso opcional sem silenciar segurança; destinatários são recalculados no envio.
 - [x] `AC-R12-13` — Falha, retry ou kill switch de e-mail preserva a fila autenticada, gera telemetria redigida e não duplica efeito.
-- [ ] `AC-R12-14` — Criação e edição oferecem durações comuns até 480 min e valor personalizado entre 15 e 480 min.
-- [ ] `AC-R12-15` — Confirmação aceita até o início, 1 h, 2 h, 3 h, 6 h, 12 h ou 1 dia; servidor valida fuso, início, fim, prazo e recorrência.
+- [x] `AC-R12-14` — Criação e edição oferecem durações comuns até 480 min e valor personalizado entre 15 e 480 min.
+- [x] `AC-R12-15` — Confirmação aceita até o início, 1 h, 2 h, 3 h, 6 h, 12 h ou 1 dia; servidor valida fuso, início, fim, prazo e recorrência.
 - [ ] `AC-R12-16` — App/schema N/N−1 funcionam nas duas ordens, links antigos passam na regressão e flags novas não herdam o rollout global anterior.
 - [ ] `AC-R12-17` — Jornada passa em 360 px, Android, iPhone e navegador interno do WhatsApp, com acessibilidade, runbook, piloto, fallback e rollback comprovados.
 
@@ -373,3 +373,28 @@ Em 2026-08-29, antes de ativar os controles em produção, o transporte foi
 alterado de SMTP direto para AWS SES v2 por decisão operacional. Outbox,
 branding, destinatários, preferência, idempotência, retry, telemetria e fallback
 não mudaram; a produção permaneceu inerte durante a migração.
+
+### WP-R12-05 — concluído em 2026-08-29
+
+- criação e edição passaram a consumir um catálogo único de durações comuns de
+  30 a 480 minutos, com entrada personalizada inteira entre 15 e 480 minutos;
+- o fechamento de confirmação foi limitado, na interface e no servidor, a
+  início, 1 h, 2 h, 3 h, 6 h, 12 h ou 1 dia antes. O formulário mantém controles
+  de 48 px e uma coluna na largura móvel antes dos breakpoints maiores;
+- as RPCs `create_event_as_staff_v3` e `update_event_as_staff_v3` validam os
+  limites antes de delegar às escritas transacionais v2, preservando fuso civil,
+  fim, recorrência, idempotência, autorização e isolamento multi-time;
+- o app tenta v3 e usa v2 somente quando a função ainda não existe no schema,
+  tolerando app/schema nas duas ordens sem contornar rejeição de limite. O banco
+  novo mantém v2 disponível para a versão anterior do app;
+- 114 arquivos/554 testes de aplicação, 4 testes de contexto, lint, TypeScript,
+  build de produção Webpack, integridade das migrations e auditoria com zero
+  vulnerabilidades passaram. O build Turbopack ficou limitado somente pela
+  abertura de porta no sandbox local;
+- banco local aprovado com reset, tipos regenerados, lint sem alerta novo e 62
+  arquivos/1.596 testes pgTAP. As 28 provas focadas cobrem privilégio, DST,
+  recorrência, replay, edição, limites inferior/superior, prazo e cross-tenant;
+- rollback: reverter somente o consumidor restaura o catálogo anterior; as RPCs
+  v3 são expansões inertes para versões antigas, e v2 permanece operacional;
+- próximo pacote: `WP-R12-06`, consolidando compatibilidade, regressão, jornada
+  física em 360 px, piloto, observabilidade e recuperação da R12.
