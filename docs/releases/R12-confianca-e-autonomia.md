@@ -345,15 +345,16 @@ acessibilidade e smoke anônimo das rotas antigas e novas.
 - a preferência pessoal foi adicionada em **Ajustes** sem alterar alertas de
   segurança. A fila autenticada em `/app/{slug}/athletes` permanece a fonte
   autoritativa e o e-mail contém apenas time, chamada neutra e link protegido;
-- o adapter SMTP reutiliza o provedor transacional do Auth, exige TLS 1.2,
-  aplica timeouts e separa falha transitória, permanente e resultado ambíguo.
+- o adapter usa a API AWS SES v2 com chave IAM dedicada, identidade verificada,
+  timeout e uma única tentativa por chamada; separa falha transitória,
+  permanente e resultado ambíguo.
   Retry conhecido usa backoff; resultado incerto ou lease após início do efeito
   vai para revisão manual, nunca para reenvio automático;
 - produção e consumo nascem desligados em controles separados; o worker
   protegido pelo segredo operacional já existente roda no GitHub Actions a cada
   quinze minutos, retorna somente contagens e pode ser interrompido sem perder a
   fila do dashboard;
-- 112 arquivos/546 testes de aplicação, 4 testes de contexto, lint, TypeScript,
+- 112 arquivos/547 testes de aplicação, 4 testes de contexto, lint, TypeScript,
   build de produção Webpack, Terraform, integridade das migrations e auditoria
   com zero vulnerabilidades passaram. O build Turbopack ficou limitado somente
   pela abertura de porta no sandbox local;
@@ -367,3 +368,8 @@ acessibilidade e smoke anônimo das rotas antigas e novas.
   permanecem em revisão e nenhum controle republica PII;
 - próximo pacote: `WP-R12-05`, unificando duração e fechamento de confirmação
   entre criação, edição e recorrência de eventos.
+
+Em 2026-08-29, antes de ativar os controles em produção, o transporte foi
+alterado de SMTP direto para AWS SES v2 por decisão operacional. Outbox,
+branding, destinatários, preferência, idempotência, retry, telemetria e fallback
+não mudaram; a produção permaneceu inerte durante a migração.

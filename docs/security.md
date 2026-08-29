@@ -126,9 +126,10 @@ entram no evento, outbox, auditoria, telemetria nem mensagem.
   ativo. Tabelas privadas e RPCs do worker não têm grant para cliente;
 - o e-mail não identifica o atleta e aponta somente para a fila autenticada do
   mesmo time; a fila protegida continua autoritativa quando o transporte falha;
-- SMTP exige TLS 1.2, usa credencial server-only e registra apenas código
-  sanitizado e identificador opaco do provedor. Resposta incerta nunca é
-  reenviada automaticamente: segue para revisão manual;
+- AWS SES v2 usa chave IAM server-only restrita a `ses:SendEmail`, à identidade
+  verificada e ao endereço remetente. O adapter registra apenas código
+  sanitizado e identificador opaco do provedor; resposta incerta nunca é
+  reenviada automaticamente e segue para revisão manual;
 - lease vencido antes do início do efeito pode ser retomado; depois do início
   vai para revisão. Rejeição conhecida usa backoff limitado e cinco tentativas;
 - desligar consumo preserva eventos e outbox. Desligar produção impede somente

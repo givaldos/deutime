@@ -13,9 +13,9 @@ vi.mock("@/lib/env/server", () => ({ getAppUrl: () => new URL("https://deutime.a
 vi.mock("@/lib/features/delivery/server", () => ({
   isRegistrationEmailDeliveryEnabled: mocks.enabled,
 }));
-vi.mock("@/lib/features/registration-email/smtp-adapter", () => ({
-  parseRegistrationEmailSmtpConfig: mocks.parseConfig,
-  createRegistrationEmailSmtpAdapter: mocks.createAdapter,
+vi.mock("@/lib/features/registration-email/ses-adapter", () => ({
+  parseRegistrationEmailSesConfig: mocks.parseConfig,
+  createRegistrationEmailSesAdapter: mocks.createAdapter,
 }));
 vi.mock("@/lib/features/registration-email/supabase-repository", () => ({
   createRegistrationEmailRepository: mocks.createRepository,
@@ -54,7 +54,7 @@ describe("rota interna de avisos de cadastro", () => {
     expect(mocks.parseConfig).not.toHaveBeenCalled();
   });
 
-  it("falha fechado sem SMTP completo", async () => {
+  it("falha fechado sem AWS SES completo", async () => {
     process.env.WHATSAPP_WORKER_SECRET = secret;
     mocks.enabled.mockResolvedValue(true);
     mocks.parseConfig.mockReturnValue(null);
