@@ -133,6 +133,47 @@ variable "smtp_sender_name" {
   }
 }
 
+variable "aws_ses_region" {
+  description = "AWS region where the verified SES identity is configured."
+  type        = string
+  default     = "us-east-1"
+
+  validation {
+    condition     = can(regex("^[a-z]{2}(-gov)?-[a-z]+-[0-9]$", var.aws_ses_region))
+    error_message = "aws_ses_region must be a valid AWS region."
+  }
+}
+
+variable "aws_ses_access_key_id" {
+  description = "Least-privilege IAM access key allowed only to send through the verified SES identity."
+  type        = string
+  sensitive   = true
+}
+
+variable "aws_ses_secret_access_key" {
+  description = "Secret for the least-privilege SES IAM access key."
+  type        = string
+  sensitive   = true
+}
+
+variable "aws_ses_session_token" {
+  description = "Optional session token when temporary AWS credentials are used."
+  type        = string
+  sensitive   = true
+  default     = null
+  nullable    = true
+}
+
+variable "aws_ses_configuration_set" {
+  description = "SES configuration set used for delivery, bounce and complaint observability."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9_-]{1,64}$", var.aws_ses_configuration_set))
+    error_message = "aws_ses_configuration_set must use letters, numbers, underscores or hyphens."
+  }
+}
+
 variable "auth_email_rate_limit" {
   description = "Maximum authentication emails sent per hour by Supabase Auth."
   type        = number

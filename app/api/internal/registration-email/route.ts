@@ -1,7 +1,7 @@
 import { getAppUrl } from "@/lib/env/server";
 import { isRegistrationEmailDeliveryEnabled } from "@/lib/features/delivery/server";
 import { isAuthorizedWorkerRequest } from "@/lib/features/delivery/worker-auth";
-import { createRegistrationEmailSmtpAdapter, parseRegistrationEmailSmtpConfig } from "@/lib/features/registration-email/smtp-adapter";
+import { createRegistrationEmailSesAdapter, parseRegistrationEmailSesConfig } from "@/lib/features/registration-email/ses-adapter";
 import { createRegistrationEmailRepository } from "@/lib/features/registration-email/supabase-repository";
 import { runRegistrationEmailWorker } from "@/lib/features/registration-email/worker";
 import { NextRequest, NextResponse } from "next/server";
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
   let config;
   try {
-    config = parseRegistrationEmailSmtpConfig(process.env);
+    config = parseRegistrationEmailSesConfig(process.env);
   } catch {
     return response({ status: "worker indisponível" }, 503);
   }
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   try {
     const summary = await runRegistrationEmailWorker({
       repository: createRegistrationEmailRepository(),
-      adapter: createRegistrationEmailSmtpAdapter(config, getAppUrl()),
+      adapter: createRegistrationEmailSesAdapter(config, getAppUrl()),
     });
     return response({ status: "avisos processados", summary }, 200);
   } catch {
