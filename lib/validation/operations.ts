@@ -1,5 +1,10 @@
 import { TEAM_SLUG_PATTERN } from "./onboarding";
 import { normalizePhone } from "./phone";
+import {
+  EVENT_DURATION_MINUTES_MAX,
+  EVENT_DURATION_MINUTES_MIN,
+  isEventConfirmationDeadline,
+} from "@/lib/domain/event-options";
 import { z } from "zod";
 
 const optionalText = (max: number, min = 2) =>
@@ -140,8 +145,17 @@ const eventFieldsSchema = z.object({
   ]),
   organizationMode: z.enum(["single_squad", "split_teams"]),
   sportFormat: z.enum(["field", "society", "futsal"]),
-  durationMinutes: z.coerce.number().int().min(15).max(480),
-  deadlineMinutes: z.coerce.number().int().min(0).max(43_200),
+  durationMinutes: z.coerce
+    .number()
+    .int()
+    .min(EVENT_DURATION_MINUTES_MIN)
+    .max(EVENT_DURATION_MINUTES_MAX),
+  deadlineMinutes: z.coerce
+    .number()
+    .int()
+    .refine(isEventConfirmationDeadline, {
+      message: "Escolha um prazo de confirmação válido.",
+    }),
   opponentName: optionalText(120),
   venueName: optionalText(120),
   venueAddress: optionalText(500, 1),

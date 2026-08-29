@@ -3657,6 +3657,30 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_event_as_staff_v3: {
+        Args: {
+          attendance_deadline_minutes: number
+          event_duration_minutes: number
+          event_kind: Database["public"]["Enums"]["event_kind"]
+          event_opponent_name?: string
+          event_organization_mode: Database["public"]["Enums"]["organization_mode"]
+          event_sport_format: Database["public"]["Enums"]["sport_format"]
+          event_title: string
+          event_venue_address?: string
+          event_venue_name?: string
+          repeat_weeks?: number
+          request_id: string
+          requested_team_id: string
+          starts_at_local: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_event_match: {
         Args: {
           requested_event_id: string
@@ -4801,6 +4825,31 @@ export type Database = {
         Returns: number
       }
       update_event_as_staff_v2: {
+        Args: {
+          attendance_deadline_minutes: number
+          edit_scope: string
+          event_duration_minutes: number
+          event_kind: Database["public"]["Enums"]["event_kind"]
+          event_opponent_name?: string
+          event_organization_mode: Database["public"]["Enums"]["organization_mode"]
+          event_sport_format: Database["public"]["Enums"]["sport_format"]
+          event_title: string
+          event_venue_address?: string
+          event_venue_name?: string
+          request_id: string
+          requested_event_id: string
+          requested_team_id: string
+          starts_at_local: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_event_as_staff_v3: {
         Args: {
           attendance_deadline_minutes: number
           edit_scope: string
