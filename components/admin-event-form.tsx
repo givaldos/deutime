@@ -8,6 +8,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  EVENT_CONFIRMATION_DEADLINE_OPTIONS,
+  EVENT_DURATION_MINUTES_MAX,
+  EVENT_DURATION_MINUTES_MIN,
+  EVENT_DURATION_OPTIONS,
+  isCommonEventDuration,
+} from "@/lib/domain/event-options";
 import { useActionState, useState } from "react";
 
 const initialState: CreateEventState = {};
@@ -94,6 +101,12 @@ export function AdminEventForm({
     venueName: event?.venueName ?? "",
     venueAddress: event?.venueAddress ?? "",
     editScope: "single_event",
+  });
+  const [durationSelection, setDurationSelection] = useState(() => {
+    const initialDuration = Number(event?.durationMinutes ?? 90);
+    return isCommonEventDuration(initialDuration)
+      ? String(initialDuration)
+      : "custom";
   });
   const [editedFields, setEditedFields] = useState<Record<string, number>>({});
   const [editedAtAttempt, setEditedAtAttempt] = useState<number>();
@@ -263,27 +276,60 @@ export function AdminEventForm({
         <FieldError id="starts-at-error" message={startsAtError} />
       </div>
 
+      <input
+        type="hidden"
+        name="durationMinutes"
+        value={values.durationMinutes}
+      />
       <div
-        className={`grid grid-cols-2 gap-3 ${isEditing ? "" : "sm:grid-cols-3"}`}
+        className={`grid gap-3 ${isEditing ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}
       >
         <div className="space-y-2">
           <Label htmlFor="duration">Duração</Label>
           <select
             id="duration"
-            name="durationMinutes"
-            value={values.durationMinutes}
-            onChange={(event) =>
-              updateField("durationMinutes", event.target.value)
-            }
+            value={durationSelection}
+            onChange={(event) => {
+              const selection = event.target.value;
+              setDurationSelection(selection);
+              updateField(
+                "durationMinutes",
+                selection === "custom" ? "" : selection,
+              );
+            }}
             className="h-12 w-full rounded-xl border border-input bg-white px-3 text-sm"
             aria-invalid={Boolean(durationError)}
             aria-describedby={durationError ? "duration-error" : undefined}
           >
-            <option value="60">60 min</option>
-            <option value="75">75 min</option>
-            <option value="90">90 min</option>
-            <option value="120">120 min</option>
+            {EVENT_DURATION_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+            <option value="custom">Personalizada</option>
           </select>
+          {durationSelection === "custom" && (
+            <div className="space-y-2 pt-1">
+              <Label htmlFor="custom-duration">Minutos</Label>
+              <Input
+                id="custom-duration"
+                className="h-12 bg-white"
+                type="number"
+                min={EVENT_DURATION_MINUTES_MIN}
+                max={EVENT_DURATION_MINUTES_MAX}
+                step={1}
+                inputMode="numeric"
+                required
+                value={values.durationMinutes}
+                onChange={(event) =>
+                  updateField("durationMinutes", event.target.value)
+                }
+                aria-invalid={Boolean(durationError)}
+                aria-describedby={durationError ? "duration-error" : undefined}
+              />
+              <p className="text-xs text-slate-500">Entre 15 e 480 minutos.</p>
+            </div>
+          )}
           <FieldError id="duration-error" message={durationError} />
         </div>
         <div className="space-y-2">
@@ -299,15 +345,16 @@ export function AdminEventForm({
             aria-invalid={Boolean(deadlineError)}
             aria-describedby={deadlineError ? "deadline-error" : undefined}
           >
-            <option value="0">Até o início</option>
-            <option value="60">1h antes</option>
-            <option value="120">2h antes</option>
-            <option value="1440">1 dia antes</option>
+            {EVENT_CONFIRMATION_DEADLINE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
           <FieldError id="deadline-error" message={deadlineError} />
         </div>
         {!isEditing && (
-          <div className="col-span-2 space-y-2 sm:col-span-1">
+          <div className="space-y-2">
             <Label htmlFor="repeat-weeks">Semanas</Label>
             <Input
               id="repeat-weeks"

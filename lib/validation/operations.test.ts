@@ -115,6 +115,58 @@ describe("operational validation", () => {
     if (parsed.success) expect(parsed.data.repeatWeeks).toBe(12);
   });
 
+  it("applies the shared event duration and confirmation limits", () => {
+    const base = {
+      teamId: "11111111-1111-4111-8111-111111111111",
+      teamSlug: "racha-do-bairro",
+      title: "Racha com opções comuns",
+      kind: "weekly_match",
+      organizationMode: "split_teams",
+      sportFormat: "society",
+      requestId: "33333333-3333-4333-8333-333333333333",
+      startsAtLocal: "2030-08-15T20:30",
+      repeatWeeks: 2,
+    };
+
+    for (const deadlineMinutes of [0, 60, 120, 180, 360, 720, 1_440]) {
+      expect(
+        createEventSchema.safeParse({
+          ...base,
+          durationMinutes: 15,
+          deadlineMinutes,
+        }).success,
+      ).toBe(true);
+    }
+
+    expect(
+      createEventSchema.safeParse({
+        ...base,
+        durationMinutes: 480,
+        deadlineMinutes: 1_440,
+      }).success,
+    ).toBe(true);
+
+    for (const durationMinutes of [14, 481]) {
+      expect(
+        createEventSchema.safeParse({
+          ...base,
+          durationMinutes,
+          deadlineMinutes: 120,
+        }).success,
+      ).toBe(false);
+    }
+
+    for (const deadlineMinutes of [30, 1_800, 43_200]) {
+      expect(
+        createEventSchema.safeParse({
+          ...base,
+          durationMinutes: 90,
+          deadlineMinutes,
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("rejects malformed civil dates and excessive recurrence", () => {
     const base = {
       teamId: "11111111-1111-4111-8111-111111111111",
