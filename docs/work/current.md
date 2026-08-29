@@ -20,8 +20,8 @@ tests:
   - "SES us-east-1 fora do sandbox, identidade deutime.app e MAIL FROM verificados; configuration set deutime-transactional com métricas CloudWatch"
   - "canário sem destinatários retornou HTTP 503; consumo foi desligado imediatamente e novos alertas permaneceram desligados"
   - "npm audit sem vulnerabilidades"
-blocker: "O deployment atual da Vercel não recebeu um conjunto SES válido: AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, SES_FROM_EMAIL, SES_SENDER_NAME e SES_CONFIGURATION_SET."
-next_action: "Conferir as seis variáveis no ambiente Production da Vercel, remover AWS_SESSION_TOKEN quando forem usadas chaves IAM permanentes, redeployar main e repetir o canário com a fila zerada."
+blocker: "As variáveis SES foram aplicadas a um preview da branch de ativação; deutime.app ainda aponta para o deployment anterior de main."
+next_action: "Promover o checkpoint pelo fluxo branch -> dev -> main para gerar um deployment Production com as variáveis e repetir o canário com a fila zerada."
 ---
 
 # Trabalho atual
