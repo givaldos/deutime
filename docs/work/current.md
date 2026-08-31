@@ -2,9 +2,9 @@
 release: R12
 work_package: WP-R12-06
 scope: robustness_pilot_recovery
-branch_or_commit: "codex/r12-robustness-pilot"
-checkpoint: CP4
-status: active
+branch_or_commit: "091857c"
+checkpoint: idle
+status: done
 completed_ac:
   - AC-R12-01
   - AC-R12-02
@@ -22,43 +22,29 @@ completed_ac:
   - AC-R12-14
   - AC-R12-15
   - AC-R12-16
-dirty_files:
-  - components/athlete-registration-form.tsx
-  - docs/releases/R12-confianca-e-autonomia.md
-  - docs/releases/README.md
-  - docs/runbook.md
-  - docs/work/current.md
-  - lib/database.types.ts
-  - package.json
-  - scripts/r12-pilot-health.d.mts
-  - scripts/r12-pilot-health.mjs
-  - scripts/r12-pilot-health.test.ts
-  - supabase/migrations/202608310001_r12_pilot_health.sql
-  - supabase/tests/063_r12_pilot_health.test.sql
+  - AC-R12-17
+dirty_files: []
 tests:
-  - "16 provas focadas de aplicação para sonda, N/N-1, links e opções do evento"
-  - "reset local e 20 provas pgTAP focadas da nova sonda aprovados"
-  - "matriz de sete arquivos/158 provas pgTAP da R12 aprovada"
-  - "lint, TypeScript, 115 arquivos/557 testes de aplicação e 4 testes de contexto aprovados"
-  - "63 arquivos/1.616 testes pgTAP, tipos, integridade das migrations e auditoria aprovados"
-  - "build de produção Webpack aprovado; Turbopack limitado pela abertura de porta interna"
-  - "navegador em 360 px: rota legada segura, sem overflow/console e alvos de 44 a 66 px"
+  - "115 arquivos/557 testes de aplicação e 4 testes de contexto aprovados"
+  - "63 arquivos/1.616 testes pgTAP; 158 provas focadas da R12"
+  - "lint, TypeScript, tipos, migrations, build Webpack e auditoria aprovados"
+  - "360 px: link legado seguro, sem overflow/console e alvos de 44 a 66 px"
+  - "PRs #352 e #353; Vercel, Supabase, CI, Database, CodeQL, Terraform e smoke aprovados"
+  - "piloto SES: fallback sem destinatário e accepted=1 no simulador oficial, sem falha/revisão"
+  - "piloto de autonomia autenticado, rollback completo, restauração saudável e limpeza zerada"
 blocker: null
-next_action: "Executar gates completos, publicar a expansão inerte e iniciar CP5 pela sonda produtiva com os três controles desligados."
+next_action: "Iniciar o CP0 da R13, fechando vocabulário, equipes padrão, regulamento e matriz de conflitos antes de implementar."
 ---
 
 # Trabalho atual
 
-O `WP-R12-06` concluiu CP3 e CP4 localmente. A compatibilidade N/N−1, os links
-antigos e a não-herança do rollout anterior estão cobertos por testes focados.
-A nova sonda operacional é exclusiva da `service_role` e expõe somente estado
-agregado necessário para piloto e rollback.
+A R12 encerrou CP6 em produção. Os 17 critérios possuem evidência, os três
+controles permanecem ativos e a sonda final não encontrou fila, falha, revisão,
+encerramento travado, limpeza pendente ou dado sintético residual.
 
-Em 360 px, o cadastro público e a rota legada passaram sem overflow ou erro de
-console. O único alvo abaixo de 44 px foi corrigido. Conforme autorização do
-responsável pelo produto, o navegador responsivo serve como proxy dos aparelhos
-nesta release.
+O piloto comprovou autonomia autenticada, fallback do dashboard, transporte
+AWS SES com o simulador oficial, rollback na ordem segura e restauração do
+rollout. `main` foi sincronizada de volta em `dev` pela PR `#354`.
 
-A próxima ação é cruzar CP5: gates completos, expansão inerte em produção,
-sonda com os três controles desligados, piloto sintético e rollback exercitado
-antes da ativação global.
+A próxima frente permitida é o CP0 da R13. Nenhuma implementação deve começar
+antes de fechar vocabulário, equipes padrão, regulamento e matriz de conflitos.
