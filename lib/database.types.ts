@@ -4090,6 +4090,29 @@ export type Database = {
           recognition_count: number
         }[]
       }
+      get_r12_pilot_health: {
+        Args: { requested_team_id: string }
+        Returns: {
+          account_autonomy_enabled: boolean
+          failed_email_deliveries: number
+          failed_team_storage_jobs: number
+          last_control_change_at: string
+          last_lifecycle_command_at: string
+          last_registration_email_command_at: string
+          lifecycle_commands_24h: number
+          observed_at: string
+          pending_account_closures: number
+          pending_email_deliveries: number
+          pending_email_events: number
+          pending_team_storage_jobs: number
+          registration_email_alerts_enabled: boolean
+          registration_email_commands_24h: number
+          registration_email_delivery_enabled: boolean
+          review_email_deliveries: number
+          stalled_account_closures: number
+          team_open: boolean
+        }[]
+      }
       get_recognition_pilot_health: {
         Args: { requested_team_id: string }
         Returns: {
