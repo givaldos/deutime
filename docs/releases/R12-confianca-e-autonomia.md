@@ -190,7 +190,7 @@ de eventos oferecem os mesmos limites e opções. Nenhum staff publica atleta.
 - [x] `AC-R12-13` — Falha, retry ou kill switch de e-mail preserva a fila autenticada, gera telemetria redigida e não duplica efeito.
 - [x] `AC-R12-14` — Criação e edição oferecem durações comuns até 480 min e valor personalizado entre 15 e 480 min.
 - [x] `AC-R12-15` — Confirmação aceita até o início, 1 h, 2 h, 3 h, 6 h, 12 h ou 1 dia; servidor valida fuso, início, fim, prazo e recorrência.
-- [ ] `AC-R12-16` — App/schema N/N−1 funcionam nas duas ordens, links antigos passam na regressão e flags novas não herdam o rollout global anterior.
+- [x] `AC-R12-16` — App/schema N/N−1 funcionam nas duas ordens, links antigos passam na regressão e flags novas não herdam o rollout global anterior.
 - [ ] `AC-R12-17` — Jornada passa em 360 px, Android, iPhone e navegador interno do WhatsApp, com acessibilidade, runbook, piloto, fallback e rollback comprovados.
 
 ## Riscos e controles
@@ -405,3 +405,35 @@ migration v3 no Supabase com histórico remoto verificado. CI, Database, CodeQL,
 Terraform e smoke público read-only passaram; uma execução paralela do smoke
 teve timeout de rede e passou em 16 s na repetição isolada. A PR `#342`
 sincronizou o merge commit de `main` de volta em `dev` sem reescrever histórico.
+
+### WP-R12-06 — CP3 e CP4 concluídos localmente em 2026-08-31
+
+- a matriz focada reuniu 16 provas de aplicação para sonda, catálogo de evento,
+  fallback de RPC, rota antiga, retorno de autenticação e link canônico;
+- 158 provas pgTAP da R12 passaram em sete arquivos, cobrindo o catálogo global,
+  não-herança dos três controles novos, slug, privacidade, ciclo de vida,
+  concorrência do último owner, e-mail e rollback;
+- a expansão forward-only `202608310001_r12_pilot_health.sql` adiciona uma
+  sonda exclusiva da `service_role`, limitada a booleanos, contagens e horários
+  agregados. Coorte ausente não produz linha e nenhuma PII ou erro bruto é
+  retornado;
+- a sonda falha fechado para divergência de controles, encerramento travado,
+  limpeza de Storage com falha e entrega ambígua; atividade operacional pode ser
+  exigida antes e depois do rollback para provar preservação das filas;
+- em viewport real de 360 px, `/t/{slug}/cadastro` redirecionou para
+  `/register?novo=1`, preservou somente a query segura e descartou destino
+  externo. O cadastro ficou sem overflow horizontal ou erro de console, com um
+  `main`, um `h1`, labels associados e alvos clicáveis de 44 a 66 px;
+- a inspeção encontrou o consentimento opcional do WhatsApp com 40 px; o rótulo
+  foi corrigido para o mínimo de 44 px e a medição passou na repetição;
+- por autorização explícita do responsável pelo produto, o navegador responsivo
+  é o proxy de Android/iPhone/navegador interno nesta release. As verificações
+  anteriores dos fluxos de conta, preferências e evento foram preservadas;
+- o runbook agora descreve piloto sintético, barreiras do SES, telemetria,
+  fallback e rollback na ordem consumo → produção → autonomia;
+- lint, TypeScript, 115 arquivos/557 testes de aplicação, quatro testes de
+  contexto, 63 arquivos/1.616 testes pgTAP, tipos, integridade das migrations,
+  build de produção Webpack e auditoria sem vulnerabilidades passaram. O build
+  Turbopack ficou limitado somente pela abertura de porta interna no ambiente;
+- próximo checkpoint: CP5, publicando a expansão inerte, executando a sonda com
+  os três controles desligados e somente então exercitando o piloto sintético.

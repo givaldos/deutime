@@ -396,7 +396,7 @@ export function AthleteRegistrationForm({
           </div>
         )}
 
-        <label className="flex items-start gap-3 text-sm leading-5 text-slate-700">
+        <label className="flex min-h-11 items-start gap-3 text-sm leading-5 text-slate-700">
           <input
             className="mt-1 size-4 rounded border-slate-300 accent-emerald-700"
             type="checkbox"
@@ -410,7 +410,7 @@ export function AthleteRegistrationForm({
           </span>
         </label>
 
-        <label className="flex items-start gap-3 text-sm leading-5 text-slate-700">
+        <label className="flex min-h-11 items-start gap-3 text-sm leading-5 text-slate-700">
           <input
             className="mt-1 size-4 rounded border-slate-300 accent-emerald-700"
             type="checkbox"

@@ -703,6 +703,68 @@ Correções de schema são forward-only. Para retomar, corrija AWS SES, confirme
 `review_count` foi tratado, habilite consumo e execute o endpoint uma vez antes
 de aguardar a próxima execução do workflow **Avisos de novo cadastro**.
 
+### Piloto integrado e rollback — R12
+
+Use somente um time sintético aberto e a `service_role` no ambiente operacional
+protegido. A sonda retorna controles, contagens e horários agregados; não copie
+nomes, e-mails, UUIDs operacionais ou erros brutos para a evidência.
+
+Antes de ativar qualquer efeito, confirme a expansão inerte e a ausência de
+itens que exigem intervenção:
+
+```bash
+R12_PILOT_TEAM_ID='<TEAM_ID_DEMO>' \
+EXPECT_R12_ACCOUNT_AUTONOMY=false \
+EXPECT_R12_EMAIL_ALERTS=false \
+EXPECT_R12_EMAIL_DELIVERY=false \
+npm run pilot:r12:health
+```
+
+Interrompa se a coorte estiver encerrada, algum controle divergir, houver
+encerramento travado, limpeza de Storage com falha ou entrega em `review`. Para
+o caminho de autonomia, habilite `account_autonomy`, exercite com dados
+sintéticos retirada de pedido, recusa de convite e saída que não seja do último
+owner, e execute a sonda com `EXPECT_R12_LIFECYCLE_ACTIVITY=true`. Encerramento
+de conta/time permanece no Supabase local; produção recebe somente leitura
+agregada e reconciliação de uma falha previamente controlada.
+
+Para avisos, confirme primeiro identidade, DKIM/SPF/DMARC, configuration set,
+destinos de bounce/complaint e saída do sandbox do SES. Habilite produção,
+gere um único cadastro sintético e confira a fila autenticada. Só então habilite
+consumo e execute:
+
+```bash
+R12_PILOT_TEAM_ID='<TEAM_ID_DEMO>' \
+EXPECT_R12_ACCOUNT_AUTONOMY=true \
+EXPECT_R12_EMAIL_ALERTS=true \
+EXPECT_R12_EMAIL_DELIVERY=true \
+EXPECT_R12_LIFECYCLE_ACTIVITY=true \
+EXPECT_R12_EMAIL_ACTIVITY=true \
+npm run pilot:r12:health
+```
+
+O gate físico padrão é Android, iPhone, leitor de tela e navegador interno do
+WhatsApp. Para a R12, o responsável pelo produto autorizou o navegador
+responsivo como proxy de celular quando a jornada funcionar corretamente nele.
+Registre viewport de 360 px, ausência de overflow e erros de console, alvos de
+toque de pelo menos 44 px, ordem de headings, labels e foco por teclado. Essa
+exceção não autoriza ignorar testes automatizados nem ampliar dados reais.
+
+Rollback interrompe efeitos na ordem segura e preserva fatos e filas:
+
+```sql
+select public.set_runtime_control('registration_email_delivery', false);
+select public.set_runtime_control('registration_email_alerts', false);
+select public.set_runtime_control('account_autonomy', false);
+```
+
+Repita a primeira sonda com os três estados esperados em `false` e, quando o
+piloto tiver produzido atividade, mantenha também
+`EXPECT_R12_LIFECYCLE_ACTIVITY=true` e `EXPECT_R12_EMAIL_ACTIVITY=true`. A
+leitura de vínculos, a fila do dashboard, os eventos/outbox e encerramentos já
+confirmados permanecem disponíveis; nenhuma reversão reabre conta, republica
+identidade ou reenvia resultado ambíguo.
+
 ### Preparação do piloto WhatsApp — R03
 
 O Sandbox da Twilio é somente para teste e não aceita template personalizado.
