@@ -199,6 +199,21 @@ export const createEventSchema = eventFieldsSchema
     }),
   );
 
+export const createProfessionalEventSchema = createEventSchema
+  .and(z.object({
+    homeInternalTeamId: databaseUuidSchema,
+    awayInternalTeamId: databaseUuidSchema,
+  }))
+  .superRefine((value, context) => {
+    if (value.homeInternalTeamId === value.awayInternalTeamId) {
+      context.addIssue({
+        code: "custom",
+        path: ["awayInternalTeamId"],
+        message: "Escolha duas equipes diferentes.",
+      });
+    }
+  });
+
 const updateIdentitySchema = z.object({
   eventId: z.string().uuid(),
   editScope: z.enum(["single_event", "this_and_future"]),

@@ -2761,6 +2761,47 @@ export type Database = {
         }
         Relationships: []
       }
+      professional_scheduling_commands: {
+        Row: {
+          actor_id: string
+          created_at: string
+          id: string
+          kind: string
+          payload_hash: string
+          request_id: string
+          result: Json | null
+          team_id: string
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          payload_hash: string
+          request_id: string
+          result?: Json | null
+          team_id: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          payload_hash?: string
+          request_id?: string
+          result?: Json | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_scheduling_commands_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -3000,6 +3041,58 @@ export type Database = {
             foreignKeyName: "team_memberships_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_professional_scheduling_settings: {
+        Row: {
+          created_at: string
+          created_by: string
+          default_away_team_id: string
+          default_home_team_id: string
+          team_id: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          default_away_team_id: string
+          default_home_team_id: string
+          team_id: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          default_away_team_id?: string
+          default_home_team_id?: string
+          team_id?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_professional_scheduling__default_away_team_id_team_id_fkey"
+            columns: ["default_away_team_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "team_squad_presets"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "team_professional_scheduling__default_home_team_id_team_id_fkey"
+            columns: ["default_home_team_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "team_squad_presets"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "team_professional_scheduling_settings_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: true
             referencedRelation: "teams"
             referencedColumns: ["id"]
           },
@@ -3616,6 +3709,28 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_championship_draft_v2: {
+        Args: {
+          request_id: string
+          requested_draw_points: number
+          requested_format: Database["public"]["Enums"]["championship_format"]
+          requested_group_count?: number
+          requested_internal_team_ids?: string[]
+          requested_loss_points: number
+          requested_name: string
+          requested_qualifiers_per_group?: number
+          requested_team_id: string
+          requested_tiebreak_order: Database["public"]["Enums"]["championship_tiebreak_key"][]
+          requested_win_points: number
+        }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_event_as_staff: {
         Args: {
           attendance_deadline_minutes: number
@@ -3670,6 +3785,32 @@ export type Database = {
           event_venue_name?: string
           repeat_weeks?: number
           request_id: string
+          requested_team_id: string
+          starts_at_local: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_event_as_staff_v4: {
+        Args: {
+          attendance_deadline_minutes: number
+          event_duration_minutes: number
+          event_kind: Database["public"]["Enums"]["event_kind"]
+          event_opponent_name?: string
+          event_organization_mode: Database["public"]["Enums"]["organization_mode"]
+          event_sport_format: Database["public"]["Enums"]["sport_format"]
+          event_title: string
+          event_venue_address?: string
+          event_venue_name?: string
+          repeat_weeks?: number
+          request_id: string
+          requested_away_internal_team_id?: string
+          requested_home_internal_team_id?: string
           requested_team_id: string
           starts_at_local: string
         }
@@ -4469,6 +4610,22 @@ export type Database = {
       replace_team_squad_presets: {
         Args: {
           request_id: string
+          requested_presets: Json
+          requested_team_id: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["team_squad_preset_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "team_squad_preset_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      replace_team_squad_presets_v2: {
+        Args: {
+          request_id: string
+          requested_default_away_team_id: string
+          requested_default_home_team_id: string
           requested_presets: Json
           requested_team_id: string
         }

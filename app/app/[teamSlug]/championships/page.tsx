@@ -3,6 +3,7 @@ import { ChampionshipCreationProgress } from "@/components/professional-creation
 import { TeamAppHeader } from "@/components/team-app-header";
 import { AppContainer } from "@/components/ui/app-shell";
 import { getChampionships } from "@/lib/data/championships";
+import { getInternalSquadConfiguration } from "@/lib/data/internal-squads";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { championshipFormatLabels } from "@/lib/features/championships/rules";
@@ -51,6 +52,16 @@ export default async function ChampionshipsPage({
   ]);
   if (!membership || championships === null) notFound();
   const canConfigure = membership.role === "owner" || membership.role === "admin";
+  const internalConfiguration = professionalSchedulingEnabled
+    ? await getInternalSquadConfiguration(team.id)
+    : null;
+  const professionalConfigurationReady = Boolean(
+    internalConfiguration &&
+    internalConfiguration.squads.length >= 2 &&
+    internalConfiguration.defaultHomeTeamId &&
+    internalConfiguration.defaultAwayTeamId &&
+    internalConfiguration.defaultHomeTeamId !== internalConfiguration.defaultAwayTeamId,
+  );
 
   return (
     <main className="app-canvas min-h-screen pb-16">
@@ -93,7 +104,24 @@ export default async function ChampionshipsPage({
               <span className="text-xs text-slate-400 group-open:hidden">Abrir</span>
             </summary>
             <div className="mt-5 border-t border-slate-100 pt-5">
-              <CreateChampionshipForm teamId={team.id} teamSlug={team.slug} />
+              {professionalSchedulingEnabled && !professionalConfigurationReady ? (
+                <div className="text-center">
+                  <p className="font-black text-graphite">Defina as equipes padrão primeiro</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Salve ao menos duas equipes internas e escolha os dois padrões antes do primeiro campeonato.
+                  </p>
+                  <Link href={`/app/${team.slug}/settings`} className="mt-4 inline-flex min-h-12 items-center justify-center rounded-xl bg-emerald-700 px-5 text-sm font-black text-white">
+                    Abrir ajustes do time
+                  </Link>
+                </div>
+              ) : (
+                <CreateChampionshipForm
+                  teamId={team.id}
+                  teamSlug={team.slug}
+                  professionalSchedulingEnabled={professionalSchedulingEnabled}
+                  internalSquads={internalConfiguration?.squads}
+                />
+              )}
             </div>
           </details>
         ) : (

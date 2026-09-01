@@ -8,6 +8,7 @@ import {
   attendanceUpdateSchema,
   cancelEventSchema,
   createEventSchema,
+  createProfessionalEventSchema,
   deleteMatchIncidentSchema,
   extendEventSeriesSchema,
   legacyCreateEventSchema,
@@ -207,6 +208,9 @@ export async function createEvent(
   const eventControlEnabled =
     typeof rawTeamId === "string" &&
     (await isTeamFeatureEnabled(rawTeamId, "event_control"));
+  const professionalSchedulingEnabled =
+    typeof rawTeamId === "string" &&
+    (await isTeamFeatureEnabled(rawTeamId, "professional_scheduling"));
   const input = {
     teamId: formData.get("teamId"),
     teamSlug: formData.get("teamSlug"),
@@ -223,9 +227,13 @@ export async function createEvent(
     opponentName: formData.get("opponentName"),
     venueName: formData.get("venueName"),
     venueAddress: formData.get("venueAddress"),
+    homeInternalTeamId: formData.get("homeInternalTeamId"),
+    awayInternalTeamId: formData.get("awayInternalTeamId"),
   };
   const parsed = eventControlEnabled
-    ? createEventSchema.safeParse(input)
+    ? professionalSchedulingEnabled
+      ? createProfessionalEventSchema.safeParse(input)
+      : createEventSchema.safeParse(input)
     : legacyCreateEventSchema.safeParse(input);
 
   if (!parsed.success) {
@@ -276,9 +284,24 @@ export async function createEvent(
       event_venue_name: parsed.data.venueName,
       event_venue_address: parsed.data.venueAddress,
     };
-    result = await supabase.rpc("create_event_as_staff_v3", rpcArguments);
+    const homeInternalTeamId = "homeInternalTeamId" in parsed.data &&
+      typeof parsed.data.homeInternalTeamId === "string"
+      ? parsed.data.homeInternalTeamId
+      : null;
+    const awayInternalTeamId = "awayInternalTeamId" in parsed.data &&
+      typeof parsed.data.awayInternalTeamId === "string"
+      ? parsed.data.awayInternalTeamId
+      : null;
+    result = professionalSchedulingEnabled &&
+      homeInternalTeamId && awayInternalTeamId
+      ? await supabase.rpc("create_event_as_staff_v4", {
+          ...rpcArguments,
+          requested_home_internal_team_id: homeInternalTeamId,
+          requested_away_internal_team_id: awayInternalTeamId,
+        })
+      : await supabase.rpc("create_event_as_staff_v3", rpcArguments);
 
-    if (isMissingEventOptionsContract(result.error)) {
+    if (!professionalSchedulingEnabled && isMissingEventOptionsContract(result.error)) {
       result = await supabase.rpc("create_event_as_staff_v2", rpcArguments);
     }
   }
@@ -298,7 +321,9 @@ export async function createEvent(
       attempt,
       message:
         error?.code === "22023"
-          ? "A data deve estar no futuro e os limites do evento precisam ser válidos."
+          ? professionalSchedulingEnabled
+            ? "Revise a data e escolha duas equipes internas válidas."
+            : "A data deve estar no futuro e os limites do evento precisam ser válidos."
           : "Não foi possível criar o evento. Confira sua permissão e tente novamente.",
     };
   }

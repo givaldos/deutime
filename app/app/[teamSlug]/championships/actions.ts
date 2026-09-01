@@ -2,6 +2,7 @@
 
 import { requireUser } from "@/lib/auth/dal";
 import { isChampionshipsEnabled } from "@/lib/features/championships/server";
+import { isProfessionalSchedulingEnabled } from "@/lib/features/professional-scheduling/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   addChampionshipParticipantSchema,
@@ -9,6 +10,7 @@ import {
   championshipFormatCommandSchema,
   championshipPublicModeSchema,
   createChampionshipSchema,
+  createProfessionalChampionshipSchema,
   decideChampionshipQualifierSchema,
   linkChampionshipFixtureSchema,
   releaseChampionshipFixtureSchema,
@@ -45,7 +47,11 @@ export async function createChampionship(
 ): Promise<ChampionshipActionState> {
   await requireUser();
   const attempt = (previousState.attempt ?? 0) + 1;
-  const parsed = createChampionshipSchema.safeParse({
+  const rawTeamId = formData.get("teamId");
+  const professionalSchedulingEnabled =
+    typeof rawTeamId === "string" &&
+    (await isProfessionalSchedulingEnabled(rawTeamId));
+  const input = {
     teamId: formData.get("teamId"),
     teamSlug: formData.get("teamSlug"),
     requestId: formData.get("requestId"),
@@ -57,7 +63,11 @@ export async function createChampionship(
     groupCount: formData.get("groupCount") || undefined,
     qualifiersPerGroup: formData.get("qualifiersPerGroup") || undefined,
     tiebreakOrder: formData.getAll("tiebreakOrder"),
-  });
+    internalTeamIds: formData.getAll("internalTeamIds"),
+  };
+  const parsed = professionalSchedulingEnabled
+    ? createProfessionalChampionshipSchema.safeParse(input)
+    : createChampionshipSchema.safeParse(input);
   if (!parsed.success) {
     return {
       attempt,
@@ -74,7 +84,7 @@ export async function createChampionship(
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("create_championship_draft", {
+  const rpcArguments = {
     requested_team_id: parsed.data.teamId,
     request_id: parsed.data.requestId,
     requested_name: parsed.data.name,
@@ -89,7 +99,19 @@ export async function createChampionship(
     requested_qualifiers_per_group: parsed.data.format === "groups_knockout"
       ? parsed.data.qualifiersPerGroup
       : undefined,
-  });
+  };
+  const internalTeamIds = "internalTeamIds" in parsed.data &&
+    Array.isArray(parsed.data.internalTeamIds) &&
+    parsed.data.internalTeamIds.every((id): id is string => typeof id === "string")
+    ? parsed.data.internalTeamIds
+    : null;
+  const { data, error } = professionalSchedulingEnabled &&
+    internalTeamIds
+    ? await supabase.rpc("create_championship_draft_v2", {
+        ...rpcArguments,
+        requested_internal_team_ids: internalTeamIds,
+      })
+    : await supabase.rpc("create_championship_draft", rpcArguments);
   if (error || !data?.championship_id) {
     return {
       attempt,
