@@ -72,6 +72,7 @@ export function AdminEventForm({
   teamTimezone,
   defaultSportFormat,
   eventControlEnabled,
+  professionalSchedulingEnabled = false,
   initialRequestId,
   event,
 }: {
@@ -80,6 +81,7 @@ export function AdminEventForm({
   teamTimezone: string;
   defaultSportFormat: "field" | "society" | "futsal";
   eventControlEnabled: boolean;
+  professionalSchedulingEnabled?: boolean;
   initialRequestId: string;
   event?: EditableEventValues;
 }) {
@@ -88,14 +90,19 @@ export function AdminEventForm({
     initialState,
   );
   const isEditing = Boolean(event);
+  const [recurrenceMode, setRecurrenceMode] = useState<"once" | "weekly">(
+    professionalSchedulingEnabled ? "once" : "weekly",
+  );
   const [values, setValues] = useState<EventFormValues>({
     title: event?.title ?? "",
-    kind: event?.kind ?? "weekly_match",
+    kind:
+      event?.kind ??
+      (professionalSchedulingEnabled ? "friendly" : "weekly_match"),
     sportFormat: event?.sportFormat ?? defaultSportFormat,
     startsAtLocal: event?.startsAtLocal ?? "",
     durationMinutes: event?.durationMinutes ?? "90",
     deadlineMinutes: event?.deadlineMinutes ?? "120",
-    repeatWeeks: "12",
+    repeatWeeks: professionalSchedulingEnabled ? "1" : "12",
     organizationMode: event?.organizationMode ?? "split_teams",
     opponentName: event?.opponentName ?? "",
     venueName: event?.venueName ?? "",
@@ -130,7 +137,7 @@ export function AdminEventForm({
   }
 
   function updateKind(kind: string) {
-    if (isEditing) {
+    if (isEditing || professionalSchedulingEnabled) {
       updateField("kind", kind);
       return;
     }
@@ -150,6 +157,11 @@ export function AdminEventForm({
       organizationMode: currentAttempt,
     }));
     setEditedAtAttempt(currentAttempt);
+  }
+
+  function updateRecurrenceMode(mode: "once" | "weekly") {
+    setRecurrenceMode(mode);
+    updateField("repeatWeeks", mode === "weekly" ? "12" : "1");
   }
 
   function errorFor(field: string) {
@@ -187,8 +199,60 @@ export function AdminEventForm({
         <input type="hidden" name="editScope" value="single_event" />
       )}
 
+      {professionalSchedulingEnabled && !isEditing ? (
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-bold text-graphite">
+            Este jogo acontece
+          </legend>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 has-[:checked]:border-emerald-700 has-[:checked]:bg-emerald-50 has-[:checked]:ring-2 has-[:checked]:ring-emerald-700/15">
+              <input
+                type="radio"
+                name="recurrenceMode"
+                value="once"
+                checked={recurrenceMode === "once"}
+                onChange={() => updateRecurrenceMode("once")}
+                className="size-4 accent-emerald-700"
+              />
+              <span>
+                <span className="block text-sm font-black text-graphite">
+                  Uma vez
+                </span>
+                <span className="mt-1 block text-xs text-slate-600">
+                  Cria somente este jogo
+                </span>
+              </span>
+            </label>
+            <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 has-[:checked]:border-emerald-700 has-[:checked]:bg-emerald-50 has-[:checked]:ring-2 has-[:checked]:ring-emerald-700/15">
+              <input
+                type="radio"
+                name="recurrenceMode"
+                value="weekly"
+                checked={recurrenceMode === "weekly"}
+                onChange={() => updateRecurrenceMode("weekly")}
+                className="size-4 accent-emerald-700"
+              />
+              <span>
+                <span className="block text-sm font-black text-graphite">
+                  Toda semana
+                </span>
+                <span className="mt-1 block text-xs text-slate-600">
+                  Cria uma série recorrente
+                </span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+      ) : null}
+
+      {professionalSchedulingEnabled && !isEditing && recurrenceMode === "once" ? (
+        <input type="hidden" name="repeatWeeks" value="1" />
+      ) : null}
+
       <div className="space-y-2">
-        <Label htmlFor="event-title">Nome do evento</Label>
+        <Label htmlFor="event-title">
+          {professionalSchedulingEnabled ? "Nome do jogo" : "Nome do evento"}
+        </Label>
         <Input
           id="event-title"
           name="title"
@@ -207,7 +271,9 @@ export function AdminEventForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="event-kind">Tipo</Label>
+          <Label htmlFor="event-kind">
+            {professionalSchedulingEnabled ? "Tipo do jogo" : "Tipo"}
+          </Label>
           <select
             id="event-kind"
             name="kind"
@@ -220,7 +286,9 @@ export function AdminEventForm({
           >
             <option value="weekly_match">Racha semanal</option>
             <option value="friendly">Amistoso</option>
-            <option value="championship">Campeonato</option>
+            {!professionalSchedulingEnabled ? (
+              <option value="championship">Campeonato</option>
+            ) : null}
             <option value="tournament">Torneio</option>
             <option value="training">Treino</option>
             <option value="other">Outro</option>
@@ -353,7 +421,8 @@ export function AdminEventForm({
           </select>
           <FieldError id="deadline-error" message={deadlineError} />
         </div>
-        {!isEditing && (
+        {!isEditing &&
+          (!professionalSchedulingEnabled || recurrenceMode === "weekly") && (
           <div className="space-y-2">
             <Label htmlFor="repeat-weeks">Semanas</Label>
             <Input
@@ -378,9 +447,12 @@ export function AdminEventForm({
           </div>
         )}
       </div>
-      {!isEditing && (
+      {!isEditing &&
+        (!professionalSchedulingEnabled || recurrenceMode === "weekly") && (
         <p id="repeat-weeks-help" className="-mt-4 text-xs text-slate-500">
-          Use 1 para evento avulso ou até 52 para repetir semanalmente.
+          {professionalSchedulingEnabled
+            ? "Escolha de 2 a 52 semanas para esta série."
+            : "Use 1 para evento avulso ou até 52 para repetir semanalmente."}
         </p>
       )}
 
@@ -540,10 +612,14 @@ export function AdminEventForm({
         {pending
           ? isEditing
             ? "Salvando alterações..."
-            : "Criando agenda..."
+            : professionalSchedulingEnabled
+              ? "Criando jogo..."
+              : "Criando agenda..."
           : isEditing
             ? "Salvar alterações"
-            : "Criar evento e chamada"}
+            : professionalSchedulingEnabled
+              ? "Criar jogo e chamada"
+              : "Criar evento e chamada"}
       </Button>
     </form>
   );

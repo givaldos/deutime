@@ -1,11 +1,14 @@
 import { TeamAppHeader } from "@/components/team-app-header";
 import { TeamBottomNav } from "@/components/team-bottom-nav";
+import { ProfessionalCreationActions } from "@/components/professional-creation-actions";
 import { AppContainer } from "@/components/ui/app-shell";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { requireUser } from "@/lib/auth/dal";
 import { getAppUrl } from "@/lib/env/server";
 import { isChampionshipsEnabled } from "@/lib/features/championships/server";
+import { isProfessionalSchedulingEnabled } from "@/lib/features/professional-scheduling/server";
+import { shouldUseProfessionalCreationActions } from "@/lib/features/professional-scheduling/presentation";
 import {
   buildTeamRegistrationWhatsAppUrl,
   teamRegistrationPath,
@@ -222,7 +225,16 @@ export default async function TeamDashboardPage({
     events: recentEvents ?? [],
     teamSlug: currentTeam.slug,
   }).slice(0, 8);
-  const championshipsEnabled = await isChampionshipsEnabled(currentTeam.id);
+  const [championshipsEnabled, professionalSchedulingEnabled] =
+    await Promise.all([
+      isChampionshipsEnabled(currentTeam.id),
+      isProfessionalSchedulingEnabled(currentTeam.id),
+    ]);
+  const professionalCreationEnabled = shouldUseProfessionalCreationActions({
+    role: membership.role,
+    professionalSchedulingEnabled,
+    championshipsEnabled,
+  });
 
   return (
     <main className="app-canvas min-h-screen pb-24">
@@ -262,21 +274,27 @@ export default async function TeamDashboardPage({
               O que importa agora no {currentTeam.name}.
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {championshipsEnabled ? (
-              <Button asChild variant="outline" size="icon" className="size-11 rounded-xl" title="Campeonatos">
-                <Link href={`/app/${currentTeam.slug}/championships`} aria-label="Campeonatos">
-                  <Trophy aria-hidden />
+          {!professionalCreationEnabled ? (
+            <div className="flex shrink-0 items-center gap-2">
+              {championshipsEnabled ? (
+                <Button asChild variant="outline" size="icon" className="size-11 rounded-xl" title="Campeonatos">
+                  <Link href={`/app/${currentTeam.slug}/championships`} aria-label="Campeonatos">
+                    <Trophy aria-hidden />
+                  </Link>
+                </Button>
+              ) : null}
+              <Button asChild className="h-11 rounded-xl bg-emerald-700 px-4 hover:bg-emerald-800">
+                <Link href={`/app/${currentTeam.slug}/events/new`}>
+                  <Plus aria-hidden /> <span className="hidden sm:inline">Novo jogo</span><span className="sm:hidden">Jogo</span>
                 </Link>
               </Button>
-            ) : null}
-            <Button asChild className="h-11 rounded-xl bg-emerald-700 px-4 hover:bg-emerald-800">
-              <Link href={`/app/${currentTeam.slug}/events/new`}>
-                <Plus aria-hidden /> <span className="hidden sm:inline">Novo jogo</span><span className="sm:hidden">Jogo</span>
-              </Link>
-            </Button>
-          </div>
+            </div>
+          ) : null}
         </section>
+
+        {professionalCreationEnabled ? (
+          <ProfessionalCreationActions teamSlug={currentTeam.slug} />
+        ) : null}
 
         <section className="relative overflow-hidden rounded-[2rem] bg-grass text-white shadow-float">
           <div className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-emerald-500/25 blur-3xl" />

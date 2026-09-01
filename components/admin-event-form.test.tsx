@@ -55,4 +55,23 @@ describe("opções administrativas de evento", () => {
     expect(html).toContain('max="480"');
     expect(html).toContain('name="durationMinutes" value="150"');
   });
+
+  it("separa jogo único de recorrência atrás da agenda profissional", () => {
+    const html = renderToStaticMarkup(
+      <AdminEventForm
+        {...baseProps}
+        professionalSchedulingEnabled
+      />,
+    );
+
+    expect(html).toContain("Este jogo acontece");
+    expect(html).toContain("Uma vez");
+    expect(html).toContain("Toda semana");
+    expect(html).toContain("Cria uma série recorrente");
+    expect(html).toContain('name="repeatWeeks" value="1"');
+    expect(html).toContain("Nome do jogo");
+    expect(html).toContain("Tipo do jogo");
+    expect(html).toContain("Criar jogo e chamada");
+    expect(html).not.toContain('<option value="championship">');
+  });
 });

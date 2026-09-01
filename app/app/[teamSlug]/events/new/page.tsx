@@ -3,6 +3,7 @@ import { TeamAppHeader } from "@/components/team-app-header";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
+import { isProfessionalSchedulingEnabled } from "@/lib/features/professional-scheduling/server";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -33,10 +34,11 @@ export default async function NewEventPage({
     .eq("status", "active")
     .maybeSingle();
   if (!membership) notFound();
-  const eventControlEnabled = await isTeamFeatureEnabled(
-    team.id,
-    "event_control",
-  );
+  const [eventControlEnabled, professionalSchedulingEnabled] =
+    await Promise.all([
+      isTeamFeatureEnabled(team.id, "event_control"),
+      isProfessionalSchedulingEnabled(team.id),
+    ]);
 
   return (
     <main className="app-canvas">
@@ -48,9 +50,13 @@ export default async function NewEventPage({
 
         <div className="mt-4">
           <p className="app-kicker">Agenda do time</p>
-          <h1 className="app-title mt-2">Novo evento</h1>
+          <h1 className="app-title mt-2">
+            {professionalSchedulingEnabled ? "Novo jogo" : "Novo evento"}
+          </h1>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Eventos semanais geram as próximas ocorrências e já abrem a chamada para o elenco ativo.
+            {professionalSchedulingEnabled
+              ? "Escolha se acontece uma vez ou se repete. Cada jogo mantém sua própria chamada e escalação."
+              : "Eventos semanais geram as próximas ocorrências e já abrem a chamada para o elenco ativo."}
           </p>
         </div>
 
@@ -61,6 +67,7 @@ export default async function NewEventPage({
             teamTimezone={team.timezone}
             defaultSportFormat={team.default_sport_format}
             eventControlEnabled={eventControlEnabled}
+            professionalSchedulingEnabled={professionalSchedulingEnabled}
             initialRequestId={crypto.randomUUID()}
           />
         </section>

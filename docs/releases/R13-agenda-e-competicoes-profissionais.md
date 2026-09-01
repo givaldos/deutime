@@ -1,7 +1,7 @@
 ---
 id: R13
 type: vertical
-status: ready
+status: active
 outcome: "Permitir que a diretoria crie jogos ou campeonatos sem ambiguidade, reutilize equipes padrão e resolva conflitos de agenda manualmente sem perder histórico."
 depends_on:
   - R01
@@ -143,8 +143,8 @@ duplica mensagens.
 
 - [x] `AC-R13-01` — CP0 diferencia jogo, recorrência, campeonato, equipe, escalação, participante e partida sem criar fonte de verdade paralela.
 - [x] `AC-R13-02` — Resultado, dependências, escopo, decisões, entrypoints, riscos, rollout e fallback estão completos e não deixam decisão de schema/autorização aberta.
-- [ ] `AC-R13-03` — Dashboard oferece **Novo jogo** e **Novo campeonato** como ações textuais acessíveis; o primeiro pergunta uma vez ou recorrente.
-- [ ] `AC-R13-04` — Criação de campeonato preserva progresso entre identidade, equipes, formato, regras, calendário, revisão e publicação.
+- [x] `AC-R13-03` — Dashboard oferece **Novo jogo** e **Novo campeonato** como ações textuais acessíveis; o primeiro pergunta uma vez ou recorrente.
+- [x] `AC-R13-04` — Criação de campeonato preserva progresso entre identidade, equipes, formato, regras, calendário, revisão e publicação.
 - [ ] `AC-R13-05` — Missão e configuração mantêm de 2 a 12 equipes internas ativas e selecionam duas padrões distintas do próprio tenant.
 - [ ] `AC-R13-06` — Novo jogo preenche os padrões e permite troca; nenhum novo jogo ou campeonato é publicado sem os lados válidos.
 - [ ] `AC-R13-07` — Campeonato pré-seleciona equipes internas ativas; adversário externo continua snapshot e só vira equipe por ação separada.
@@ -156,7 +156,7 @@ duplica mensagens.
 - [ ] `AC-R13-13` — Pendências mostra gravidade, motivo e ações; conflito duro exige solução ou exceção justificada por owner/admin.
 - [ ] `AC-R13-14` — Remarcar, data a definir, adiar e cancelar preservam URL, convidados, respostas, vínculo, fatos e auditoria conforme o tipo de jogo.
 - [ ] `AC-R13-15` — Série oferece somente esta ocorrência ou esta e próximas; mensagem nasce após confirmação e não duplica em retry.
-- [ ] `AC-R13-16` — Migration forward-only, flag desligada e matriz N/N−1 preservam criação, agenda, campeonatos e histórico atuais.
+- [x] `AC-R13-16` — Migration forward-only, flag desligada e matriz N/N−1 preservam criação, agenda, campeonatos e histórico atuais.
 - [ ] `AC-R13-17` — RLS, grants, sessão verificada, idempotência e concorrência cobrem sucesso, negação e cross-tenant.
 - [ ] `AC-R13-18` — Jornada passa em 360 px, Android, iPhone e navegador interno do WhatsApp, com acessibilidade, piloto, fallback e rollback.
 
@@ -218,3 +218,28 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
 - nenhuma migration, tabela, RPC, flag, interface ou integração foi alterada;
 - próximo pacote: `WP-R13-01`, iniciando pela expansão inerte e pelo teste de
   regressão das rotas atuais antes das duas novas entradas.
+
+### CP1–CP2 — WP-R13-01 concluído em 2026-09-01
+
+- `professional_scheduling` foi adicionado por migration forward-only, fora do
+  catálogo do rollout global e sem materializar configuração para times atuais
+  ou futuros;
+- o consumidor falha fechado quando a expansão ainda não existe, preservando a
+  aplicação N−1, e o banco novo permanece inerte diante da aplicação N−1;
+- owner/admin com `championships` e `professional_scheduling` ativos recebe no
+  dashboard as duas ações textuais de 112 px; manager e flag desligada mantêm os
+  atalhos anteriores;
+- **Novo jogo** separa uma ocorrência da repetição semanal sem mudar a RPC de
+  eventos, as ocorrências independentes, a URL ou o fallback atual;
+- **Novo campeonato** abre o rascunho transacional existente e reconstrói a
+  etapa corrente pelos participantes, confrontos e estado persistidos, cobrindo
+  identidade, equipes, formato, regras, calendário, revisão e publicação;
+- inspeção autenticada em 390 × 844 confirmou as três jornadas sem overflow,
+  áreas de toque de 48 a 112 px, `aria-current`, fallback desligado e zero erro
+  ou aviso no console;
+- 118 arquivos/569 testes de aplicação, 64 arquivos/1.629 testes pgTAP, quatro
+  testes de contexto, lint, TypeScript, integridade das migrations, auditoria
+  sem vulnerabilidades e build Webpack passaram; o Turbopack ficou limitado
+  apenas pela abertura de porta no sandbox;
+- próximo pacote: `WP-R13-02`, adicionando equipes internas persistentes e os
+  padrões do time sem ativar `professional_scheduling` em produção.

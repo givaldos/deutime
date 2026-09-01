@@ -1,10 +1,12 @@
 import { CreateChampionshipForm } from "@/components/championship-forms";
+import { ChampionshipCreationProgress } from "@/components/professional-creation-actions";
 import { TeamAppHeader } from "@/components/team-app-header";
 import { AppContainer } from "@/components/ui/app-shell";
 import { getChampionships } from "@/lib/data/championships";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { championshipFormatLabels } from "@/lib/features/championships/rules";
+import { isProfessionalSchedulingEnabled } from "@/lib/features/professional-scheduling/server";
 import { ArrowLeft, ChevronRight, LockKeyhole, Plus, Trophy } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -19,18 +21,24 @@ const statusLabels = {
 
 export default async function ChampionshipsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ teamSlug: string }>;
+  searchParams: Promise<{ new?: string }>;
 }) {
   const user = await requireUser();
-  const { teamSlug } = await params;
+  const [{ teamSlug }, query] = await Promise.all([params, searchParams]);
   const supabase = await createClient();
   const [{ data: team }, { data: teams }] = await Promise.all([
     supabase.from("teams").select("id, name, slug").eq("slug", teamSlug).maybeSingle(),
     supabase.from("teams").select("name, slug").order("name"),
   ]);
   if (!team) notFound();
-  const [{ data: membership }, championships] = await Promise.all([
+  const [
+    { data: membership },
+    championships,
+    professionalSchedulingEnabled,
+  ] = await Promise.all([
     supabase
       .from("team_memberships")
       .select("role")
@@ -39,6 +47,7 @@ export default async function ChampionshipsPage({
       .eq("status", "active")
       .maybeSingle(),
     getChampionships(team.id),
+    isProfessionalSchedulingEnabled(team.id),
   ]);
   if (!membership || championships === null) notFound();
   const canConfigure = membership.role === "owner" || membership.role === "admin";
@@ -65,8 +74,20 @@ export default async function ChampionshipsPage({
           </div>
         </section>
 
+        {canConfigure &&
+        professionalSchedulingEnabled &&
+        query.new === "1" ? (
+          <ChampionshipCreationProgress />
+        ) : null}
+
         {canConfigure ? (
-          <details className="app-surface group p-5 sm:p-7" open={championships.length === 0}>
+          <details
+            className="app-surface group p-5 sm:p-7"
+            open={
+              championships.length === 0 ||
+              (professionalSchedulingEnabled && query.new === "1")
+            }
+          >
             <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-black text-graphite">
               <span className="flex items-center gap-3"><Plus className="size-5 text-emerald-700" aria-hidden /> Novo campeonato</span>
               <span className="text-xs text-slate-400 group-open:hidden">Abrir</span>
