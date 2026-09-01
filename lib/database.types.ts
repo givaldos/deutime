@@ -5063,6 +5063,7 @@ export type Database = {
         | "event_share_card"
         | "championships"
         | "recognition"
+        | "professional_scheduling"
       internal_squad_badge_key:
         | "shield"
         | "stripes"
@@ -5375,6 +5376,7 @@ export const Constants = {
         "event_share_card",
         "championships",
         "recognition",
+        "professional_scheduling",
       ],
       internal_squad_badge_key: [
         "shield",
