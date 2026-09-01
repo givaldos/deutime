@@ -26,6 +26,7 @@ body:
         - R09 — Campeonatos e tabela
         - R10 — Reconhecimento positivo
         - R12 — Confiança e autonomia
+        - R13 — Agenda e competições profissionais
     validations:
       required: true
   - type: input
