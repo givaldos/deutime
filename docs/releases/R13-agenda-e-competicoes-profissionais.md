@@ -145,10 +145,10 @@ duplica mensagens.
 - [x] `AC-R13-02` — Resultado, dependências, escopo, decisões, entrypoints, riscos, rollout e fallback estão completos e não deixam decisão de schema/autorização aberta.
 - [x] `AC-R13-03` — Dashboard oferece **Novo jogo** e **Novo campeonato** como ações textuais acessíveis; o primeiro pergunta uma vez ou recorrente.
 - [x] `AC-R13-04` — Criação de campeonato preserva progresso entre identidade, equipes, formato, regras, calendário, revisão e publicação.
-- [ ] `AC-R13-05` — Missão e configuração mantêm de 2 a 12 equipes internas ativas e selecionam duas padrões distintas do próprio tenant.
-- [ ] `AC-R13-06` — Novo jogo preenche os padrões e permite troca; nenhum novo jogo ou campeonato é publicado sem os lados válidos.
-- [ ] `AC-R13-07` — Campeonato pré-seleciona equipes internas ativas; adversário externo continua snapshot e só vira equipe por ação separada.
-- [ ] `AC-R13-08` — Redistribuir atleta por partida não muda equipe persistente, RSVP, fatos anteriores nem classificação.
+- [x] `AC-R13-05` — Missão e configuração mantêm de 2 a 12 equipes internas ativas e selecionam duas padrões distintas do próprio tenant.
+- [x] `AC-R13-06` — Novo jogo preenche os padrões e permite troca; nenhum novo jogo ou campeonato é publicado sem os lados válidos.
+- [x] `AC-R13-07` — Campeonato pré-seleciona equipes internas ativas; adversário externo continua snapshot e só vira equipe por ação separada.
+- [x] `AC-R13-08` — Redistribuir atleta por partida não muda equipe persistente, RSVP, fatos anteriores nem classificação.
 - [ ] `AC-R13-09` — Desempates possuem subir/descer, pontos primários, catálogo sem repetição e confronto direto explicado/testado para três ou mais empatados.
 - [ ] `AC-R13-10` — Publicação congela uma versão; edição posterior segue o limite anterior ao primeiro fato e nunca recalcula história por mutação silenciosa.
 - [ ] `AC-R13-11` — Página pública mostra exatamente formato, pontuação e ordem aplicada pela RPC transacional.
@@ -187,6 +187,27 @@ npm run security:audit
 
 Adicionar testes focados por pacote, concorrência, censo cross-tenant,
 acessibilidade, smoke anônimo e sonda agregada sem PII.
+
+### Contrato do WP-R13-02
+
+- `team_squad_presets` permanece a identidade persistente das equipes internas;
+  a configuração profissional referencia duas identidades ativas, distintas e do
+  mesmo `team_id` por FKs compostas, sem copiar nome, cor ou escudo;
+- times com exatamente duas equipes ativas recebem backfill determinístico dos
+  padrões; qualquer estado ausente ou ambíguo continua incompleto e precisa ser
+  confirmado por owner/admin antes de criar conteúdo profissional novo;
+- salvar equipes e padrões, criar jogo com seus dois lados e criar campeonato
+  com participantes internos são comandos transacionais e idempotentes; replay
+  com payload diferente é rejeitado e nenhuma escrita sensível depende do corpo
+  enviado pelo cliente para determinar o tenant;
+- `event_squads` e `championship_participants` congelam nome, cor e escudo no
+  momento da criação. Renome, desativação ou redistribuição posterior não altera
+  o snapshot, RSVP, fatos esportivos, participantes nem classificação;
+- adversário externo continua exclusivamente snapshot de participante; esta
+  etapa não cria `team_squad_presets` implicitamente;
+- as RPCs anteriores continuam disponíveis para aplicação N-1 e só os novos
+  consumidores usam as versões profissionais quando a flag estiver ativa. Com
+  a flag desligada, interface e banco preservam integralmente o fluxo anterior.
 
 ## Rollout, fallback e rollback
 
@@ -251,3 +272,28 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
 - a sonda privilegiada agregada encontrou `0` linhas de
   `professional_scheduling`, comprovando que a expansão chegou inerte e que o
   fallback continua ativo para todos os times.
+
+### CP2–CP4 — WP-R13-02 validado em 2026-09-01
+
+- `team_professional_scheduling_settings` referencia por FK composta duas
+  identidades internas ativas, distintas e do próprio tenant; times existentes
+  com exatamente duas equipes recebem backfill determinístico e estados
+  ausentes ou ambíguos permanecem incompletos;
+- RPCs profissionais versionadas salvam equipes e padrões, criam todas as
+  ocorrências com dois `event_squads` e criam o campeonato com 2 a 12
+  participantes internos em uma única transação idempotente, rejeitando replay
+  diferente e preservando as RPCs anteriores para N-1;
+- owner/admin configura padrões; manager cria jogo e troca os lados válidos;
+  campeonato pré-seleciona as equipes ativas e adversário externo continua
+  snapshot sem criar identidade persistente;
+- renome e redistribuição por partida não alteraram lados históricos,
+  participantes, RSVP nem a classificação derivada;
+- inspeção autenticada em 390 × 844 confirmou estado incompleto, salvamento dos
+  dois padrões, preenchimento do jogo e dois participantes marcados no
+  campeonato, sempre com `scrollWidth = 390` e zero erro ou aviso no console;
+- 118 arquivos/573 testes de aplicação, 65 arquivos/1.665 testes pgTAP, quatro
+  testes de contexto, lint, TypeScript, db lint, integridade das migrations,
+  auditoria sem vulnerabilidades e build Webpack passaram; Turbopack permaneceu
+  limitado apenas pela abertura de porta no sandbox;
+- `professional_scheduling` continua fora do rollout global e será promovida
+  desligada; a próxima frente após o smoke é `WP-R13-03`.

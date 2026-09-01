@@ -27,6 +27,7 @@ import {
 } from "@/lib/features/championships/rules";
 import {
   INTERNAL_SQUAD_BADGES,
+  type InternalSquad,
   type InternalSquadBadgeKey,
 } from "@/lib/features/team-division/internal-squads";
 import { CalendarPlus, Eye, Plus, Send, Trophy } from "lucide-react";
@@ -71,9 +72,13 @@ function PointsInput({ name, label, defaultValue }: { name: string; label: strin
 export function CreateChampionshipForm({
   teamId,
   teamSlug,
+  professionalSchedulingEnabled = false,
+  internalSquads = [],
 }: {
   teamId: string;
   teamSlug: string;
+  professionalSchedulingEnabled?: boolean;
+  internalSquads?: InternalSquad[];
 }) {
   const [state, action, pending] = useActionState(createChampionship, initialState);
   const [requestId] = useState(createRequestId);
@@ -97,6 +102,32 @@ export function CreateChampionshipForm({
           <option value="knockout">Mata-mata</option>
         </select>
       </label>
+      {professionalSchedulingEnabled ? (
+        <fieldset>
+          <legend className="text-xs font-bold text-slate-600">
+            Equipes participantes
+          </legend>
+          <p className="mt-1 text-xs leading-5 text-slate-500">
+            As equipes ativas já estão selecionadas. Você pode retirar alguma antes de criar o rascunho.
+          </p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {internalSquads.map((squad) => (
+              <label key={squad.id} className="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50">
+                <input
+                  type="checkbox"
+                  name="internalTeamIds"
+                  value={squad.id}
+                  defaultChecked
+                  className="size-5 accent-emerald-700"
+                />
+                <span className="min-w-0 truncate text-sm font-black text-graphite">
+                  {squad.name}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
       <label className="block text-xs font-bold text-slate-600">
         Nome do campeonato
         <input

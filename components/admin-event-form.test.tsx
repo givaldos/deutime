@@ -61,6 +61,12 @@ describe("opções administrativas de evento", () => {
       <AdminEventForm
         {...baseProps}
         professionalSchedulingEnabled
+        internalSquads={[
+          { id: "55555555-5555-4555-8555-555555555551", name: "Time A", color: "#0D9488", badgeKey: "stripes", sortOrder: 1 },
+          { id: "55555555-5555-4555-8555-555555555552", name: "Time B", color: "#2563EB", badgeKey: "sash", sortOrder: 2 },
+        ]}
+        defaultHomeTeamId="55555555-5555-4555-8555-555555555551"
+        defaultAwayTeamId="55555555-5555-4555-8555-555555555552"
       />,
     );
 
@@ -72,6 +78,9 @@ describe("opções administrativas de evento", () => {
     expect(html).toContain("Nome do jogo");
     expect(html).toContain("Tipo do jogo");
     expect(html).toContain("Criar jogo e chamada");
+    expect(html).toContain("Equipes do jogo");
+    expect(html).toContain('name="homeInternalTeamId"');
+    expect(html).toContain('name="awayInternalTeamId"');
     expect(html).not.toContain('<option value="championship">');
   });
 });

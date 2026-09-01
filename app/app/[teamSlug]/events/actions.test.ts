@@ -60,7 +60,30 @@ describe("ações das opções de evento", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.requireUser.mockResolvedValue({ id: "staff" });
+    mocks.isTeamFeatureEnabled.mockImplementation(async (_teamId, feature) =>
+      feature === "event_control"
+    );
+  });
+
+  it("usa o contrato profissional com os dois lados escolhidos", async () => {
     mocks.isTeamFeatureEnabled.mockResolvedValue(true);
+    mocks.rpc.mockResolvedValue({
+      data: { event_id: ids.event, affected_count: 1 },
+      error: null,
+    });
+    const form = eventForm();
+    form.set("homeInternalTeamId", "44444444-4444-4444-8444-444444444441");
+    form.set("awayInternalTeamId", "44444444-4444-4444-8444-444444444442");
+
+    await createEvent({}, form);
+
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      "create_event_as_staff_v4",
+      expect.objectContaining({
+        requested_home_internal_team_id: "44444444-4444-4444-8444-444444444441",
+        requested_away_internal_team_id: "44444444-4444-4444-8444-444444444442",
+      }),
+    );
   });
 
   it("delega criação recorrente ao contrato v3", async () => {

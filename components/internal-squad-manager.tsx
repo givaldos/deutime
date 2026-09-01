@@ -20,14 +20,26 @@ export function InternalSquadManager({
   teamId,
   teamSlug,
   initialSquads,
+  professionalSchedulingEnabled = false,
+  initialDefaultHomeTeamId,
+  initialDefaultAwayTeamId,
 }: {
   teamId: string;
   teamSlug: string;
   initialSquads: InternalSquad[];
+  professionalSchedulingEnabled?: boolean;
+  initialDefaultHomeTeamId?: string | null;
+  initialDefaultAwayTeamId?: string | null;
 }) {
   const [state, action] = useActionState(saveInternalSquads, initialActionState);
   const [initialRequestId] = useState(() => crypto.randomUUID());
   const [squads, setSquads] = useState(() => initialSquads);
+  const [defaultHomeTeamId, setDefaultHomeTeamId] = useState(
+    initialDefaultHomeTeamId ?? initialSquads[0]?.id ?? "",
+  );
+  const [defaultAwayTeamId, setDefaultAwayTeamId] = useState(
+    initialDefaultAwayTeamId ?? initialSquads[1]?.id ?? "",
+  );
 
   function updateSquad(id: string, patch: Partial<InternalSquad>) {
     setSquads((current) => current.map((squad) => (
@@ -50,9 +62,21 @@ export function InternalSquadManager({
 
   function removeSquad(id: string) {
     if (squads.length <= 2) return;
-    setSquads((current) => current
-      .filter((squad) => squad.id !== id)
-      .map((squad, index) => ({ ...squad, sortOrder: index + 1 })));
+    setSquads((current) => {
+      const next = current
+        .filter((squad) => squad.id !== id)
+        .map((squad, index) => ({ ...squad, sortOrder: index + 1 }));
+      const nextIds = next.map((squad) => squad.id);
+      const nextHome = id === defaultHomeTeamId
+        ? nextIds.find((candidate) => candidate !== defaultAwayTeamId) ?? ""
+        : defaultHomeTeamId;
+      const nextAway = id === defaultAwayTeamId
+        ? nextIds.find((candidate) => candidate !== nextHome) ?? ""
+        : defaultAwayTeamId;
+      setDefaultHomeTeamId(nextHome);
+      setDefaultAwayTeamId(nextAway);
+      return next;
+    });
   }
 
   const serialized = squads.map((squad, index) => ({
@@ -85,6 +109,50 @@ export function InternalSquadManager({
         <input type="hidden" name="teamSlug" value={teamSlug} />
         <input type="hidden" name="requestId" value={state.nextRequestId ?? initialRequestId} />
         <input type="hidden" name="squads" value={JSON.stringify(serialized)} />
+        {professionalSchedulingEnabled ? (
+          <>
+            <input type="hidden" name="defaultHomeTeamId" value={defaultHomeTeamId} />
+            <input type="hidden" name="defaultAwayTeamId" value={defaultAwayTeamId} />
+            <fieldset className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+              <legend className="px-1 text-sm font-black text-emerald-950">
+                Equipes padrão dos novos jogos
+              </legend>
+              <p className="mt-1 text-xs leading-5 text-emerald-800">
+                Elas já vêm selecionadas, mas podem ser trocadas em cada jogo.
+              </p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <label className="text-xs font-bold text-emerald-950">
+                  Primeira equipe
+                  <select
+                    value={defaultHomeTeamId}
+                    onChange={(event) => setDefaultHomeTeamId(event.target.value)}
+                    className="mt-1 min-h-12 w-full rounded-xl border border-emerald-200 bg-white px-3 text-base font-bold text-graphite"
+                  >
+                    {squads.map((squad) => (
+                      <option key={squad.id} value={squad.id} disabled={squad.id === defaultAwayTeamId}>
+                        {squad.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-xs font-bold text-emerald-950">
+                  Segunda equipe
+                  <select
+                    value={defaultAwayTeamId}
+                    onChange={(event) => setDefaultAwayTeamId(event.target.value)}
+                    className="mt-1 min-h-12 w-full rounded-xl border border-emerald-200 bg-white px-3 text-base font-bold text-graphite"
+                  >
+                    {squads.map((squad) => (
+                      <option key={squad.id} value={squad.id} disabled={squad.id === defaultHomeTeamId}>
+                        {squad.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            </fieldset>
+          </>
+        ) : null}
 
         {squads.map((squad, index) => (
           <article key={squad.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
