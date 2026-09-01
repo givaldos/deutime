@@ -297,3 +297,18 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
   limitado apenas pela abertura de porta no sandbox;
 - `professional_scheduling` continua fora do rollout global e será promovida
   desligada; a próxima frente após o smoke é `WP-R13-03`.
+
+### Produção — WP-R13-02 concluído em 2026-09-01
+
+- PR `#365` promoveu a branch temporária para `dev`; os gates consolidados
+  passaram antes da promoção `dev → main` pela PR `#366`;
+- produção recebeu `d67736b`; deploy Supabase `33529467589`, CI
+  `33529467509`, banco `33529467497`, CodeQL `33529467386` e Terraform
+  `33529467568` passaram;
+- o smoke somente leitura `33529857819` validou as jornadas públicas essenciais;
+- a sonda pós-deploy encontrou zero flags profissionais, zero times habilitados
+  e três configurações padrão retrocompatíveis, comprovando que a expansão
+  chegou inerte e que nenhum tenant foi ativado;
+- `main` foi reconciliada por fast-forward em `dev` e a branch temporária de
+  implementação foi removida local e remotamente. O checkpoint retorna a
+  `idle`; a próxima frente permitida é `WP-R13-03`.
