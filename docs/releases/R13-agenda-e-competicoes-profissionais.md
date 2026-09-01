@@ -1,0 +1,220 @@
+---
+id: R13
+type: vertical
+status: ready
+outcome: "Permitir que a diretoria crie jogos ou campeonatos sem ambiguidade, reutilize equipes padrão e resolva conflitos de agenda manualmente sem perder histórico."
+depends_on:
+  - R01
+  - R07
+  - R09
+  - R12
+baseline:
+  - BASE-TENANCY
+  - BASE-SERIES
+  - BASE-MATCH-REPORT
+  - BASE-PUBLIC
+  - BASE-WRITES
+  - BASE-DELIVERY
+verified_at: "251f361"
+decisions:
+  - DEC-EVENT-MATCH
+  - DEC-INTERNAL-SQUAD-IDENTITY
+  - DEC-CHAMPIONSHIP-MODEL
+  - DEC-PROFESSIONAL-SCHEDULING
+invariants:
+  - INV-MOBILE-WHATSAPP-FIRST
+  - INV-RLS-MULTI-TIME
+  - INV-DEPLOY-COMPATIBLE
+  - INV-HISTORICAL-EVENTS
+  - INV-CANONICAL-EVENT-URL
+  - INV-SINGLE-SOURCE
+  - INV-MANUAL-FALLBACK
+---
+
+# R13 — Agenda e competições profissionais
+
+## Resultado demonstrável
+
+No celular, a diretoria escolhe claramente entre **Novo jogo** e **Novo
+campeonato**, começa com duas equipes internas padrão e publica somente depois
+de revisar lados, regulamento e agenda. Conflitos aparecem em **Pendências da
+agenda** e exigem decisão humana auditável; o sistema nunca remarca sozinho nem
+duplica mensagens.
+
+## Três tempos
+
+### Passado a preservar
+
+- evento é ocorrência, chamada, comunicação e URL estável;
+- recorrência materializa ocorrências independentes e preserva exceções;
+- partida possui exatamente dois lados e fatos esportivos próprios;
+- equipes internas são persistentes; eventos e campeonatos guardam snapshots;
+- os três formatos, a classificação e a página pública da R09 permanecem;
+- remarcação, cancelamento, agenda e campeonatos atuais são fallback utilizável.
+
+### Presente a resolver
+
+- jogo, repetição e campeonato ainda aparecem no mesmo fluxo de evento;
+- criação não começa necessariamente com duas equipes internas válidas;
+- critérios de desempate são exibidos, mas não podem ser reordenados;
+- agenda não detecta sobreposição de equipe, local ou atleta;
+- adiamento, data a definir e exceção justificada não possuem contrato único.
+
+### Futuro compatível
+
+- reservas externas, geocodificação e cálculo real de deslocamento podem usar os
+  locais persistentes sem alterar o evento;
+- novos critérios ou formatos entram por nova versão de regulamento;
+- calendário multi-organização exigirá autorização própria, nunca FK implícita;
+- canais futuros consomem a mesma outbox sem mudar a decisão esportiva.
+
+## Escopo
+
+### Incluído
+
+- duas entradas textuais, grandes e empilhadas em 360 px;
+- jogo único ou recorrente e criação guiada de campeonato;
+- duas equipes padrão e Missão de estreia com identidades persistentes;
+- participantes internos pré-selecionados e adversário externo como snapshot;
+- lista acessível e reordenável de desempates, versão congelada e exposição pública;
+- locais internos opcionais, conflitos duros, alertas e painel de pendências;
+- remarcação, data a definir, adiamento, cancelamento e escopo de recorrência;
+- auditoria, idempotência, outbox, telemetria, flag, piloto e rollback.
+
+### Fora
+
+- remarcação automática, roteamento, GPS ou cálculo de distância;
+- reserva ou pagamento de quadra, arbitragem e integração com calendário externo;
+- liga com escrita entre tenants, ida e volta ou novo formato esportivo;
+- inscrição rígida de elenco, transferência, ranking ou estatística paralela;
+- migração de Twilio/SES, monetização da R11 ou indexação pública.
+
+## Contratos fechados no CP0
+
+- [`DEC-PROFESSIONAL-SCHEDULING`](../decisions/DEC-PROFESSIONAL-SCHEDULING.md)
+  fecha vocabulário, padrões, regulamento, matriz de conflitos, autorização,
+  comunicação, compatibilidade e rollout;
+- `DEC-EVENT-MATCH` e `DEC-CHAMPIONSHIP-MODEL` continuam autoritativas: R13 não
+  transforma evento em partida, recorrência em campeonato nem tabela em contador;
+- dois lados ativos e distintos são obrigatórios para publicação, não para ler
+  ou corrigir histórico anterior;
+- regra publicada é versionada e imutável; edição segura exige cancelar a
+  publicação antes do primeiro fato ou criar campeonato novo;
+- conflito duro bloqueia até remarcação, adiamento ou exceção motivada por
+  owner/admin; vínculo duplicado falha fechado e não aceita exceção;
+- WhatsApp/e-mail só nascem após decisão confirmada e nunca são condição para a
+  agenda ser salva.
+
+## Entry points
+
+- dashboard e missão: `app/app/[teamSlug]/page.tsx`;
+- criação de jogo: `app/app/[teamSlug]/events/new/page.tsx`,
+  `components/admin-event-form.tsx`, `app/app/[teamSlug]/events/actions.ts`;
+- edição, série e cancelamento: `app/app/[teamSlug]/events/[eventId]/edit/page.tsx`,
+  `components/event-series-extension-form.tsx`, `components/event-cancel-form.tsx`;
+- campeonatos: `app/app/[teamSlug]/championships/page.tsx`,
+  `app/app/[teamSlug]/championships/[championshipId]/page.tsx`,
+  `components/championship-forms.tsx`;
+- equipes/configurações: `components/internal-squad-manager.tsx`,
+  `components/team-settings-form.tsx`,
+  `app/app/[teamSlug]/settings/internal-squad-actions.ts`;
+- domínio/leitura: `lib/features/championships/rules.ts`,
+  `lib/features/team-division/internal-squads.ts`, `lib/data/championships.ts`;
+- banco: `supabase/migrations/202607130001_initial_schema.sql`,
+  `202607200004_event_editing.sql`, `202607280001_event_cancellation.sql`,
+  `202608110006_r07_internal_squad_identity.sql` e
+  `202608130002_r09_championship_contract.sql`;
+- testes-base: `components/admin-event-form.test.tsx`,
+  `supabase/tests/007_event_editing.test.sql`,
+  `supabase/tests/041_r07_reusable_squad_presets.test.sql`,
+  `supabase/tests/045_r09_championship_contract.test.sql`.
+
+## Pacotes de trabalho
+
+| Pacote | Critérios | Resultado | Validação |
+|---|---|---|---|
+| `WP-R13-01` — entrada e expansão inerte | `AC-R13-01` a `04`, `16` | flag, estados, duas entradas e criação compatível | `VAL-APP` + `VAL-DB` |
+| `WP-R13-02` — equipes e padrões | `AC-R13-05` a `08` | Missão, padrões, participantes e snapshots | `VAL-APP` + `VAL-DB` |
+| `WP-R13-03` — regulamento versionado | `AC-R13-09` a `11` | ordem acessível, congelamento e projeção idêntica | `VAL-APP` + `VAL-DB` + `VAL-PUBLIC` |
+| `WP-R13-04` — conflitos e ciclo da agenda | `AC-R13-12` a `15` | pendências, decisão manual e avisos idempotentes | `VAL-APP` + `VAL-DB` |
+| `WP-R13-05` — robustez e piloto | `AC-R13-01` a `18` | concorrência, mobile, telemetria, rollout e recuperação | CP3–CP6 |
+
+## Critérios de aceite
+
+- [x] `AC-R13-01` — CP0 diferencia jogo, recorrência, campeonato, equipe, escalação, participante e partida sem criar fonte de verdade paralela.
+- [x] `AC-R13-02` — Resultado, dependências, escopo, decisões, entrypoints, riscos, rollout e fallback estão completos e não deixam decisão de schema/autorização aberta.
+- [ ] `AC-R13-03` — Dashboard oferece **Novo jogo** e **Novo campeonato** como ações textuais acessíveis; o primeiro pergunta uma vez ou recorrente.
+- [ ] `AC-R13-04` — Criação de campeonato preserva progresso entre identidade, equipes, formato, regras, calendário, revisão e publicação.
+- [ ] `AC-R13-05` — Missão e configuração mantêm de 2 a 12 equipes internas ativas e selecionam duas padrões distintas do próprio tenant.
+- [ ] `AC-R13-06` — Novo jogo preenche os padrões e permite troca; nenhum novo jogo ou campeonato é publicado sem os lados válidos.
+- [ ] `AC-R13-07` — Campeonato pré-seleciona equipes internas ativas; adversário externo continua snapshot e só vira equipe por ação separada.
+- [ ] `AC-R13-08` — Redistribuir atleta por partida não muda equipe persistente, RSVP, fatos anteriores nem classificação.
+- [ ] `AC-R13-09` — Desempates possuem subir/descer, pontos primários, catálogo sem repetição e confronto direto explicado/testado para três ou mais empatados.
+- [ ] `AC-R13-10` — Publicação congela uma versão; edição posterior segue o limite anterior ao primeiro fato e nunca recalcula história por mutação silenciosa.
+- [ ] `AC-R13-11` — Página pública mostra exatamente formato, pontuação e ordem aplicada pela RPC transacional.
+- [ ] `AC-R13-12` — Sobreposição de equipe/local exclusivo, vínculo duplicado, intervalo curto, deslocamento potencial e atleta confirmado seguem a matriz aceita.
+- [ ] `AC-R13-13` — Pendências mostra gravidade, motivo e ações; conflito duro exige solução ou exceção justificada por owner/admin.
+- [ ] `AC-R13-14` — Remarcar, data a definir, adiar e cancelar preservam URL, convidados, respostas, vínculo, fatos e auditoria conforme o tipo de jogo.
+- [ ] `AC-R13-15` — Série oferece somente esta ocorrência ou esta e próximas; mensagem nasce após confirmação e não duplica em retry.
+- [ ] `AC-R13-16` — Migration forward-only, flag desligada e matriz N/N−1 preservam criação, agenda, campeonatos e histórico atuais.
+- [ ] `AC-R13-17` — RLS, grants, sessão verificada, idempotência e concorrência cobrem sucesso, negação e cross-tenant.
+- [ ] `AC-R13-18` — Jornada passa em 360 px, Android, iPhone e navegador interno do WhatsApp, com acessibilidade, piloto, fallback e rollback.
+
+## Riscos e controles
+
+| Risco | Controle | Evidência exigida |
+|---|---|---|
+| recorrência virar campeonato | entradas e estados distintos sobre fontes existentes | testes de jornada e contrato |
+| padrão atravessar tenant ou ficar inativo | FK composta, validação transacional e estado incompleto | pgTAP negativo/cross-tenant |
+| renome reescrever histórico | identidade persistente + snapshot por evento/participante/lado | regressão de rename/desativação |
+| regra pública divergir do cálculo | versão imutável consumida por RPC e projeção | teste de reconstrução e snapshot público |
+| corrida criar conflito invisível | lock/advisory lock, revalidação na escrita e unicidade | testes concorrentes |
+| exceção virar bypass comum | papel restrito, motivo obrigatório e auditoria | negação de manager/atleta e censo |
+| remarcação duplicar aviso | outbox e dedupe por revisão/finalidade/destinatário | replay, retry e kill switch |
+| schema novo quebrar agenda atual | expansão inerte, wrappers e fallback por flag | matriz N/N−1 e rollback |
+
+## Validação
+
+```bash
+npm run migrations:check -- origin/main HEAD
+npm run db:reset
+npm run db:lint
+npm run db:test
+npm run db:types
+npm run verify
+npm run security:audit
+```
+
+Adicionar testes focados por pacote, concorrência, censo cross-tenant,
+acessibilidade, smoke anônimo e sonda agregada sem PII.
+
+## Rollout, fallback e rollback
+
+- `professional_scheduling` nasce desligada e não herda rollout global anterior;
+- expansão do banco precede consumidores e tolera aplicação N−1;
+- piloto começa sintético, avança para um único time e mede conflitos por classe,
+  exceções, falhas, mensagens e divergências, nunca nomes ou endereços;
+- criação/edição atuais, ajustes manuais, painel autenticado e R09 permanecem
+  fallback enquanto o piloto não passar;
+- rollback desliga a flag, interrompe novos consumidores e preserva todos os
+  eventos, versões, decisões e fatos; comunicação possui kill switch próprio;
+- contração do formulário antigo ocorre apenas em release posterior.
+
+## Evidências e checkpoint
+
+### CP0 — concluído em 2026-09-01
+
+- R12 terminou CP6 e liberou a única frente seguinte do roadmap;
+- baseline e entrypoints foram revalidados em `251f361` sobre `dev` limpa;
+- `DEC-PROFESSIONAL-SCHEDULING` fechou vocabulário, duas equipes padrão,
+  versionamento do regulamento, matriz de conflitos, papéis e comunicação;
+- resultado, três tempos, escopo, cinco pacotes, 18 critérios, riscos, validação,
+  rollout, fallback e rollback satisfazem a Definition of Ready;
+- lint, TypeScript, 115 arquivos/557 testes de aplicação, 4 testes de contexto e
+  build de produção Webpack passaram; Turbopack ficou limitado somente pela
+  abertura de porta no sandbox;
+- integridade das migrations foi preservada e a auditoria encontrou zero
+  vulnerabilidades;
+- nenhuma migration, tabela, RPC, flag, interface ou integração foi alterada;
+- próximo pacote: `WP-R13-01`, iniciando pela expansão inerte e pelo teste de
+  regressão das rotas atuais antes das duas novas entradas.
