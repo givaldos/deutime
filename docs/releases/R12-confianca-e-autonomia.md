@@ -1,7 +1,7 @@
 ---
 id: R12
 type: vertical
-status: active
+status: done
 outcome: "Dar à pessoa e à diretoria uma jornada coerente e segura para cadastro, privacidade, vínculos, encerramento da conta, avisos e opções de evento."
 depends_on:
   - R00
@@ -14,7 +14,7 @@ baseline:
   - BASE-PUBLIC
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "5b375d2"
+verified_at: "091857c"
 decisions:
   - DEC-PUBLIC-PRIVACY
   - DEC-ACCOUNT-LIFECYCLE
@@ -191,7 +191,7 @@ de eventos oferecem os mesmos limites e opções. Nenhum staff publica atleta.
 - [x] `AC-R12-14` — Criação e edição oferecem durações comuns até 480 min e valor personalizado entre 15 e 480 min.
 - [x] `AC-R12-15` — Confirmação aceita até o início, 1 h, 2 h, 3 h, 6 h, 12 h ou 1 dia; servidor valida fuso, início, fim, prazo e recorrência.
 - [x] `AC-R12-16` — App/schema N/N−1 funcionam nas duas ordens, links antigos passam na regressão e flags novas não herdam o rollout global anterior.
-- [ ] `AC-R12-17` — Jornada passa em 360 px, Android, iPhone e navegador interno do WhatsApp, com acessibilidade, runbook, piloto, fallback e rollback comprovados.
+- [x] `AC-R12-17` — Jornada passa em 360 px, Android, iPhone e navegador interno do WhatsApp, com acessibilidade, runbook, piloto, fallback e rollback comprovados.
 
 ## Riscos e controles
 
@@ -437,3 +437,39 @@ sincronizou o merge commit de `main` de volta em `dev` sem reescrever histórico
   Turbopack ficou limitado somente pela abertura de porta interna no ambiente;
 - próximo checkpoint: CP5, publicando a expansão inerte, executando a sonda com
   os três controles desligados e somente então exercitando o piloto sintético.
+
+### WP-R12-06 — CP5 e CP6 concluídos em produção em 2026-08-31
+
+- as PRs `#352` (branch temporária → `dev`) e `#353` (`dev` → `main`)
+  promoveram o commit de produção `091857c`; a PR `#354` sincronizou `main` de
+  volta em `dev` sem reescrever histórico;
+- Deploy Supabase, CI, Database, CodeQL, Terraform, Vercel e smoke público
+  read-only passaram no mesmo commit. A migration da sonda foi aplicada e o
+  histórico remoto foi verificado;
+- a primeira sonda encontrou os três controles já ativos desde 29 de agosto,
+  sem fila, falha, revisão, encerramento travado ou limpeza pendente. O rollout
+  existente foi preservado em vez de ser alterado sem evidência;
+- a conta SES estava saudável e liberada para produção, com envio ativo, domínio
+  e DKIM verificados, Mail From válido, configuration set com reputação e
+  destinos CloudWatch para send, delivery, delay, bounce, complaint, reject e
+  rendering failure;
+- o primeiro evento sintético comprovou o fallback sem destinatário elegível:
+  foi expandido sem envio, erro ou fila residual. O segundo usou exclusivamente
+  o endereço oficial de simulador de sucesso do SES e o worker registrou
+  `claimed=1`, `prepared=1`, `accepted=1` e zero transitório, permanente,
+  ambíguo, retry ou revisão;
+- um usuário sintético autenticado retirou o próprio pedido pendente pela RPC,
+  comprovando a autonomia e a auditoria sem envolver pessoa real;
+- o rollback desligou, nessa ordem, consumo de e-mail, produção de e-mail e
+  autonomia. A sonda confirmou os três estados em `false`, filas zeradas e
+  atividade preservada; a restauração reativou autonomia, produção e por último
+  consumo, novamente sem pendência ou divergência;
+- dois cadastros do piloto de e-mail, um vínculo administrativo temporário, o
+  usuário do simulador e o usuário do piloto de autonomia foram removidos. A
+  leitura final encontrou zero registro sintético restante e zero item pendente,
+  falho, travado ou em revisão;
+- os controles `account_autonomy`, `registration_email_alerts` e
+  `registration_email_delivery` permanecem ativos em produção. O fallback da
+  fila, os workers de reconciliação e o rollback auditável continuam disponíveis;
+- todos os 17 critérios possuem evidência, o checkpoint volta a `idle` e a R12
+  encerra CP6. A próxima frente permitida é o CP0 da R13.

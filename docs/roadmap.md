@@ -15,7 +15,7 @@ O **MVP funcional completo** permite que um time real execute pelo celular e pel
 O MVP é considerado completo para **piloto controlado**, não para disponibilidade geral em escala. Nenhuma etapa pode depender de intervenção no banco, expor dados sem consentimento ou perder a operação quando WhatsApp, tempo real, vídeo, votação ou conversa estiverem desligados.
 
 **Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na
-R08M, e R09 e R10 encerraram CP6. A fundação recebeu três melhorias concluídas
+R08M, e R09, R10 e R12 encerraram CP6. A fundação recebeu três melhorias concluídas
 em produção: recuperação de senha corrigida, branding dos e-mails de autenticação
 e edição segura do perfil pós-login. As pendências observadas de confiança,
 autonomia da conta, agenda e experiência de competições foram consolidadas nas
@@ -24,11 +24,9 @@ como proposta de assinatura mensal por time via Asaas, com CP0 pendente;
 marketplace, cobrança de atletas, split e repasse permanecem fora da proposta.
 O rollout pré-lançamento foi concluído em 25 de agosto: os 5 times possuem as
 15 capacidades validadas ativas, com 75/75 flags, 3/3 controles globais,
-worker e smoke aprovados. A R12 foi promovida e fechou seu contrato de confiança,
-privacidade e autonomia no CP0. Seus quatro primeiros pacotes já corrigiram a
-interface pública, fecharam o cadastro administrativo como privado, entregaram
-autonomia de conta e adicionaram o aviso seguro de novo cadastro; a próxima
-frente única são as opções do evento.
+worker e smoke aprovados. A R12 concluiu em produção seu contrato de confiança,
+privacidade e autonomia, incluindo opções do evento, piloto SES, fallback e
+rollback. A próxima frente única permitida é o CP0 da R13.
 
 ## Estado executivo
 
@@ -47,7 +45,7 @@ frente única são as opções do evento.
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Três formatos, classificação, chave, página anônima, robustez, piloto e sonda protegida concluídos. | [Abrir](releases/R09-campeonatos-e-tabela.md) |
 | **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Modelo factual, visão privada, resumo consentido, revogação, piloto isolado, smokes e rollback comprovados. | [Abrir](releases/R10-reconhecimento-positivo.md) |
 | **Rollout pré-lançamento** | ✅ `done / produção` | 15 capacidades ativas nos 5 times, com 75/75 flags, 3/3 controles, auditoria, worker, smoke e rollback disponíveis. | [Evidência](releases/R00-fundacao-de-entrega.md#evidências-e-checkpoint) |
-| **R12 — Confiança e autonomia** | 🟡 `active / WP-R12-04 concluído` | Corrige inconsistências públicas, remove consentimento indevido do staff, entrega saída e encerramento da conta e recupera a gestão de novos cadastros. | [Abrir](releases/R12-confianca-e-autonomia.md) |
+| **R12 — Confiança e autonomia** | ✅ `done / CP6` | Privacidade, vínculos, encerramento, aviso SES, opções do evento, compatibilidade, mobile, piloto e rollback comprovados. | [Abrir](releases/R12-confianca-e-autonomia.md) |
 | **R13 — Agenda e competições profissionais** | ⬜ `planned / CP0 pendente` | Separa jogo, recorrência e campeonato; exige equipes reutilizáveis; torna desempates configuráveis e conflitos acionáveis. | pacote somente após R12 estabilizar |
 | **R11 — Assinatura pelo Asaas** | ⬜ `draft / CP0 pendente` | Assinatura mensal por time, entitlement local e liberação dos benefícios pagos por evento verificado, com Asaas atrás de adapter substituível. | [Abrir](releases/R11-assinatura-asaas.md) |
 
@@ -194,7 +192,7 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 | 7 | ~~Concluir robustez e piloto da R10~~ | ✅ `WP-R10-04` e CP6 concluídos; feature desligada após rollback |
 | 8 | ~~[Levantar a próxima decisão pós-R10](discovery/post-r10-next-decision.md)~~ | ✅ primeiro snapshot terminou sem promoção por densidade insuficiente |
 | 9 | ~~Liberar o catálogo concluído em produção~~ | ✅ 75/75 flags, 3/3 controles, auditoria, worker, smoke e rollback comprovados |
-| 10 | Promover e executar R12 | contrato de privacidade, retenção, destinatários de e-mail, rota canônica e critérios de conta fechados em CP0 |
+| 10 | ~~Promover e executar R12~~ | ✅ CP6, sonda agregada, piloto SES, fallback e rollback concluídos em produção |
 | 11 | Promover e executar R13 | R12 ativa globalmente em produção; vocabulário, equipes padrão, regulamento e matriz de conflitos aceitos em CP0 |
 | 12 | Validar a proposta R11 no sandbox do Asaas | R12 e R13 concluídas e ativas em produção; oferta, checkout, preço, assinatura existente, webhook, cancelamento e reativação comprovados |
 | 13 | Promover e executar R11 | somente depois do CP0, como única release ativa, com adapter, piloto produtivo e fallback manual |
@@ -215,7 +213,7 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
 - [x] definir produção como único ambiente integrado até nova autorização explícita para usar staging;
 - [x] inventariar e ativar globalmente em produção todas as capacidades concluídas ainda limitadas por flag, coorte ou piloto;
 - [x] promover R12 após o rollout integral e fechar seu CP0;
-- [ ] executar os pacotes da R12 em uma única frente;
+- [x] executar os pacotes da R12 em uma única frente;
 - [ ] promover R13 somente depois da estabilização da R12;
 - [ ] executar o CP0 da R11 no sandbox e fechar decisões comerciais e operacionais depois de R12 e R13;
 - [ ] promover R11 como única release ativa somente se a Definition of Ready for satisfeita;
@@ -340,26 +338,26 @@ novos pedidos de entrada.
 
 #### WP-R12-05 — opções de criação do evento
 
-- [ ] Em `/app/{slug}/events/new`, oferecer durações comuns acima de 120 minutos
+- [x] Em `/app/{slug}/events/new`, oferecer durações comuns acima de 120 minutos
   e a opção **Personalizada**, respeitando o contrato atual de 15 a 480 minutos;
   edição e recorrência usam a mesma regra.
-- [ ] Oferecer fechamento da confirmação em: até o início, 1 h, 2 h, 3 h, 6 h,
+- [x] Oferecer fechamento da confirmação em: até o início, 1 h, 2 h, 3 h, 6 h,
   12 h ou 1 dia antes.
-- [ ] Validar no servidor que duração, início, término, prazo e recorrência sejam
+- [x] Validar no servidor que duração, início, término, prazo e recorrência sejam
   coerentes no fuso do time; um valor manipulado no navegador não pode escapar
   dos limites.
-- [ ] Preservar eventos existentes e os padrões do time; indicar claramente
+- [x] Preservar eventos existentes e os padrões do time; indicar claramente
   quando o evento usa um valor personalizado.
 
 #### Gate da R12
 
-- [ ] Testes positivos, negativos e cross-tenant cobrem consentimento, saída,
+- [x] Testes positivos, negativos e cross-tenant cobrem consentimento, saída,
   anonimização, aviso por e-mail e validações do evento.
-- [ ] Links antigos de cadastro continuam funcionando e novos links não usam a
+- [x] Links antigos de cadastro continuam funcionando e novos links não usam a
   rota em português.
-- [ ] A interface e os textos de compartilhamento passam em produção, em 360 px,
+- [x] A interface e os textos de compartilhamento passam em produção, em 360 px,
   Android, iPhone e navegador interno do WhatsApp, sem `�` e sem jargão técnico.
-- [ ] Encerramento de conta, falha de e-mail e migração de rota possuem runbook,
+- [x] Encerramento de conta, falha de e-mail e migração de rota possuem runbook,
   telemetria redigida, fallback e recuperação operacional.
 
 ### R13 — agenda e competições profissionais
