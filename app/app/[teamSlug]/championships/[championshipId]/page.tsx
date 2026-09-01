@@ -10,11 +10,14 @@ import {
 } from "@/components/championship-forms";
 import { ChampionshipPublicControls } from "@/components/championship-public-controls";
 import { InternalSquadBadge } from "@/components/internal-squad-badge";
+import { ChampionshipCreationProgress } from "@/components/professional-creation-actions";
 import { TeamAppHeader } from "@/components/team-app-header";
 import { AppContainer } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
 import { getChampionshipWorkspace } from "@/lib/data/championships";
 import { championshipFormatLabels } from "@/lib/features/championships/rules";
+import { getChampionshipCreationStep } from "@/lib/features/professional-scheduling/presentation";
+import { isProfessionalSchedulingEnabled } from "@/lib/features/professional-scheduling/server";
 import { getAppUrl } from "@/lib/env/server";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -58,9 +61,10 @@ export default async function ChampionshipPage({
     supabase.from("teams").select("name, slug").order("name"),
   ]);
   if (!team) notFound();
-  const [{ data: membership }, workspace] = await Promise.all([
+  const [{ data: membership }, workspace, professionalSchedulingEnabled] = await Promise.all([
     supabase.from("team_memberships").select("role").eq("team_id", team.id).eq("user_id", user.id).eq("status", "active").maybeSingle(),
     getChampionshipWorkspace(team.id, championshipId),
+    isProfessionalSchedulingEnabled(team.id),
   ]);
   if (!membership || !workspace) notFound();
 
@@ -75,6 +79,11 @@ export default async function ChampionshipPage({
   } = workspace;
   const canConfigure = membership.role === "owner" || membership.role === "admin";
   const canOperate = canConfigure || membership.role === "manager";
+  const professionalCreationStep = getChampionshipCreationStep({
+    status: championship.status,
+    participantCount: participants.length,
+    fixtureCount: fixtures.length,
+  });
   const publicUrl = new URL(`/c/${championship.public_id}`, getAppUrl()).toString();
   const availableInternalSquads = workspace.internalSquads.filter(
     (squad) => !participants.some((participant) => participant.internal_team_id === squad.id),
@@ -183,6 +192,10 @@ export default async function ChampionshipPage({
             </div>
           </div>
         </section>
+
+        {canConfigure && professionalSchedulingEnabled ? (
+          <ChampionshipCreationProgress currentStep={professionalCreationStep} />
+        ) : null}
 
         {championship.status === "draft" && canConfigure ? (
           <div className="grid items-start gap-5 lg:grid-cols-2">
