@@ -3,7 +3,10 @@
 import { requireUser } from "@/lib/auth/dal";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { createClient } from "@/lib/supabase/server";
-import { saveInternalSquadsSchema } from "@/lib/validation/team-division";
+import {
+  saveInternalSquadsSchema,
+  saveProfessionalInternalSquadsSchema,
+} from "@/lib/validation/team-division";
 import { revalidatePath } from "next/cache";
 import { randomUUID } from "node:crypto";
 
@@ -29,12 +32,21 @@ export async function saveInternalSquads(
 ): Promise<InternalSquadActionState> {
   await requireUser();
   const attempt = (previousState.attempt ?? 0) + 1;
-  const parsed = saveInternalSquadsSchema.safeParse({
+  const rawTeamId = formData.get("teamId");
+  const professionalSchedulingEnabled =
+    typeof rawTeamId === "string" &&
+    (await isTeamFeatureEnabled(rawTeamId, "professional_scheduling"));
+  const input = {
     teamId: formData.get("teamId"),
     teamSlug: formData.get("teamSlug"),
     requestId: formData.get("requestId"),
     squads: parseSquads(formData.get("squads")),
-  });
+    defaultHomeTeamId: formData.get("defaultHomeTeamId"),
+    defaultAwayTeamId: formData.get("defaultAwayTeamId"),
+  };
+  const parsed = professionalSchedulingEnabled
+    ? saveProfessionalInternalSquadsSchema.safeParse(input)
+    : saveInternalSquadsSchema.safeParse(input);
   if (!parsed.success) {
     return {
       attempt,
@@ -47,11 +59,28 @@ export async function saveInternalSquads(
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("replace_team_squad_presets", {
-    requested_team_id: parsed.data.teamId,
-    request_id: parsed.data.requestId,
-    requested_presets: parsed.data.squads,
-  });
+  const defaultHomeTeamId = "defaultHomeTeamId" in parsed.data &&
+    typeof parsed.data.defaultHomeTeamId === "string"
+    ? parsed.data.defaultHomeTeamId
+    : null;
+  const defaultAwayTeamId = "defaultAwayTeamId" in parsed.data &&
+    typeof parsed.data.defaultAwayTeamId === "string"
+    ? parsed.data.defaultAwayTeamId
+    : null;
+  const { data, error } = professionalSchedulingEnabled &&
+    defaultHomeTeamId && defaultAwayTeamId
+    ? await supabase.rpc("replace_team_squad_presets_v2", {
+        requested_team_id: parsed.data.teamId,
+        request_id: parsed.data.requestId,
+        requested_presets: parsed.data.squads,
+        requested_default_home_team_id: defaultHomeTeamId,
+        requested_default_away_team_id: defaultAwayTeamId,
+      })
+    : await supabase.rpc("replace_team_squad_presets", {
+        requested_team_id: parsed.data.teamId,
+        request_id: parsed.data.requestId,
+        requested_presets: parsed.data.squads,
+      });
   if (error || !data) {
     return {
       attempt,
@@ -64,6 +93,7 @@ export async function saveInternalSquads(
 
   revalidatePath(`/app/${parsed.data.teamSlug}/settings`);
   revalidatePath(`/app/${parsed.data.teamSlug}/events`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/championships`);
   return {
     attempt,
     outcome: "success",

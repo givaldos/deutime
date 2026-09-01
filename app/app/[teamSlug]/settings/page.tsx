@@ -19,7 +19,10 @@ import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { parseEventSharePilotConfig } from "@/lib/features/public-event/pilot-config";
 import { parseChampionshipPilotConfig } from "@/lib/features/championships/pilot-config";
 import { recognitionPilotTeamSlug } from "@/lib/features/recognition/pilot-cohort";
-import { getInternalSquads } from "@/lib/data/internal-squads";
+import {
+  getInternalSquadConfiguration,
+  getInternalSquads,
+} from "@/lib/data/internal-squads";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -29,6 +32,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { randomUUID } from "node:crypto";
 
 export default async function TeamSettingsPage({
   params,
@@ -119,6 +123,7 @@ export default async function TeamSettingsPage({
     eventShareCardEnabled,
     championshipsEnabled,
     recognitionEnabled,
+    professionalSchedulingEnabled,
   ] = await Promise.all([
     isTeamFeatureEnabled(team.id, "whatsapp_reminders"),
     isTeamFeatureEnabled(team.id, "team_division"),
@@ -131,8 +136,29 @@ export default async function TeamSettingsPage({
     recognitionPilotEligible
       ? isTeamFeatureEnabled(team.id, "recognition")
       : Promise.resolve(false),
+    isTeamFeatureEnabled(team.id, "professional_scheduling"),
   ]);
-  const internalSquads = teamDivisionEnabled ? await getInternalSquads(team.id) : [];
+  const professionalConfiguration = professionalSchedulingEnabled
+    ? await getInternalSquadConfiguration(team.id)
+    : null;
+  const storedInternalSquads = professionalConfiguration?.squads ?? (
+    teamDivisionEnabled ? await getInternalSquads(team.id) : []
+  );
+  const internalSquads = professionalSchedulingEnabled && storedInternalSquads.length < 2
+    ? [
+        ...storedInternalSquads,
+        ...Array.from({ length: 2 - storedInternalSquads.length }, (_, index) => {
+          const position = storedInternalSquads.length + index + 1;
+          return {
+            id: randomUUID(),
+            name: `Time ${position === 1 ? "A" : "B"}`,
+            color: position === 1 ? "#0D9488" : "#2563EB",
+            badgeKey: position === 1 ? "stripes" as const : "sash" as const,
+            sortOrder: position,
+          };
+        }),
+      ]
+    : storedInternalSquads;
   const { data: reminderSettings, error: reminderSettingsError } =
     whatsappRemindersEnabled
       ? await supabase
@@ -243,11 +269,14 @@ export default async function TeamSettingsPage({
           />
         </section>
 
-        {teamDivisionEnabled && internalSquads.length >= 2 ? (
+        {(teamDivisionEnabled || professionalSchedulingEnabled) && internalSquads.length >= 2 ? (
           <InternalSquadManager
             teamId={team.id}
             teamSlug={team.slug}
             initialSquads={internalSquads}
+            professionalSchedulingEnabled={professionalSchedulingEnabled}
+            initialDefaultHomeTeamId={professionalConfiguration?.defaultHomeTeamId}
+            initialDefaultAwayTeamId={professionalConfiguration?.defaultAwayTeamId}
           />
         ) : null}
 

@@ -16,6 +16,7 @@ import {
   isCommonEventDuration,
 } from "@/lib/domain/event-options";
 import { useActionState, useState } from "react";
+import type { InternalSquad } from "@/lib/features/team-division/internal-squads";
 
 const initialState: CreateEventState = {};
 
@@ -73,6 +74,9 @@ export function AdminEventForm({
   defaultSportFormat,
   eventControlEnabled,
   professionalSchedulingEnabled = false,
+  internalSquads = [],
+  defaultHomeTeamId,
+  defaultAwayTeamId,
   initialRequestId,
   event,
 }: {
@@ -82,6 +86,9 @@ export function AdminEventForm({
   defaultSportFormat: "field" | "society" | "futsal";
   eventControlEnabled: boolean;
   professionalSchedulingEnabled?: boolean;
+  internalSquads?: InternalSquad[];
+  defaultHomeTeamId?: string | null;
+  defaultAwayTeamId?: string | null;
   initialRequestId: string;
   event?: EditableEventValues;
 }) {
@@ -118,6 +125,12 @@ export function AdminEventForm({
   const [editedFields, setEditedFields] = useState<Record<string, number>>({});
   const [editedAtAttempt, setEditedAtAttempt] = useState<number>();
   const [requestId] = useState(initialRequestId);
+  const [homeInternalTeamId, setHomeInternalTeamId] = useState(
+    defaultHomeTeamId ?? internalSquads[0]?.id ?? "",
+  );
+  const [awayInternalTeamId, setAwayInternalTeamId] = useState(
+    defaultAwayTeamId ?? internalSquads[1]?.id ?? "",
+  );
   const startsAtIso = eventControlEnabled
     ? ""
     : localDateTimeToIso(values.startsAtLocal);
@@ -247,6 +260,51 @@ export function AdminEventForm({
 
       {professionalSchedulingEnabled && !isEditing && recurrenceMode === "once" ? (
         <input type="hidden" name="repeatWeeks" value="1" />
+      ) : null}
+
+      {professionalSchedulingEnabled && !isEditing ? (
+        <fieldset className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+          <legend className="px-1 text-sm font-black text-emerald-950">
+            Equipes do jogo
+          </legend>
+          <p className="mt-1 text-xs leading-5 text-emerald-800">
+            Os padrões já estão preenchidos. Troque os lados se este jogo pedir outra combinação.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <label className="text-xs font-bold text-emerald-950">
+              Primeira equipe
+              <select
+                name="homeInternalTeamId"
+                value={homeInternalTeamId}
+                onChange={(event) => setHomeInternalTeamId(event.target.value)}
+                required
+                className="mt-1 min-h-12 w-full rounded-xl border border-emerald-200 bg-white px-3 text-base font-bold text-graphite"
+              >
+                {internalSquads.map((squad) => (
+                  <option key={squad.id} value={squad.id} disabled={squad.id === awayInternalTeamId}>
+                    {squad.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs font-bold text-emerald-950">
+              Segunda equipe
+              <select
+                name="awayInternalTeamId"
+                value={awayInternalTeamId}
+                onChange={(event) => setAwayInternalTeamId(event.target.value)}
+                required
+                className="mt-1 min-h-12 w-full rounded-xl border border-emerald-200 bg-white px-3 text-base font-bold text-graphite"
+              >
+                {internalSquads.map((squad) => (
+                  <option key={squad.id} value={squad.id} disabled={squad.id === homeInternalTeamId}>
+                    {squad.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </fieldset>
       ) : null}
 
       <div className="space-y-2">

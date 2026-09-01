@@ -41,7 +41,28 @@ describe("equipes internas", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.requireUser.mockResolvedValue({ id: "owner" });
+    mocks.isTeamFeatureEnabled.mockImplementation(async (_teamId, feature) =>
+      feature === "team_division"
+    );
+  });
+
+  it("salva as equipes e os dois padrões no contrato profissional", async () => {
     mocks.isTeamFeatureEnabled.mockResolvedValue(true);
+    mocks.rpc.mockResolvedValue({ data: { preset_count: 2, replayed: false }, error: null });
+    const form = validForm();
+    form.set("defaultHomeTeamId", ids.squadA);
+    form.set("defaultAwayTeamId", ids.squadB);
+
+    await expect(saveInternalSquads({}, form)).resolves.toMatchObject({
+      outcome: "success",
+    });
+    expect(mocks.rpc).toHaveBeenCalledWith("replace_team_squad_presets_v2", {
+      requested_team_id: ids.team,
+      request_id: ids.request,
+      requested_presets: expect.any(Array),
+      requested_default_home_team_id: ids.squadA,
+      requested_default_away_team_id: ids.squadB,
+    });
   });
 
   it("valida catálogo e delega a escrita para a RPC", async () => {

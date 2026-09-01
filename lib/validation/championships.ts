@@ -60,6 +60,17 @@ export const createChampionshipSchema = z
     }
   });
 
+export const createProfessionalChampionshipSchema = createChampionshipSchema
+  .and(z.object({
+    internalTeamIds: z
+      .array(uuid)
+      .min(2, "Selecione pelo menos duas equipes internas.")
+      .max(12)
+      .refine((ids) => new Set(ids).size === ids.length, {
+        message: "Não repita uma equipe interna.",
+      }),
+  }));
+
 export const addChampionshipParticipantSchema = z
   .object({
     teamId: uuid,

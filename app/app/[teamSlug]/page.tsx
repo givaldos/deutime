@@ -9,6 +9,7 @@ import { getAppUrl } from "@/lib/env/server";
 import { isChampionshipsEnabled } from "@/lib/features/championships/server";
 import { isProfessionalSchedulingEnabled } from "@/lib/features/professional-scheduling/server";
 import { shouldUseProfessionalCreationActions } from "@/lib/features/professional-scheduling/presentation";
+import { getInternalSquadConfiguration } from "@/lib/data/internal-squads";
 import {
   buildTeamRegistrationWhatsAppUrl,
   teamRegistrationPath,
@@ -196,7 +197,7 @@ export default async function TeamDashboardPage({
     registrationUrl,
   );
 
-  const activationSteps = [
+  const baseActivationSteps = [
     {
       label: "Time criado",
       description: "A casa do time está pronta",
@@ -217,9 +218,6 @@ export default async function TeamDashboardPage({
       href: `/app/${currentTeam.slug}/events/new`,
     },
   ];
-  const completedSteps = activationSteps.filter((step) => step.complete).length;
-  const activationComplete = completedSteps === activationSteps.length;
-  const nextActivationStep = activationSteps.find((step) => !step.complete);
   const activity = buildActivity({
     athletes: recentAthletes ?? [],
     events: recentEvents ?? [],
@@ -235,6 +233,31 @@ export default async function TeamDashboardPage({
     professionalSchedulingEnabled,
     championshipsEnabled,
   });
+  const internalConfiguration = professionalSchedulingEnabled
+    ? await getInternalSquadConfiguration(currentTeam.id)
+    : null;
+  const professionalConfigurationReady = Boolean(
+    internalConfiguration &&
+    internalConfiguration.squads.length >= 2 &&
+    internalConfiguration.defaultHomeTeamId &&
+    internalConfiguration.defaultAwayTeamId &&
+    internalConfiguration.defaultHomeTeamId !== internalConfiguration.defaultAwayTeamId,
+  );
+  const activationSteps = professionalSchedulingEnabled
+    ? [
+        ...baseActivationSteps.slice(0, 1),
+        {
+          label: "Equipes padrão definidas",
+          description: "Escolha dois lados diferentes para novos jogos",
+          complete: professionalConfigurationReady,
+          href: `/app/${currentTeam.slug}/settings`,
+        },
+        ...baseActivationSteps.slice(1),
+      ]
+    : baseActivationSteps;
+  const completedSteps = activationSteps.filter((step) => step.complete).length;
+  const activationComplete = completedSteps === activationSteps.length;
+  const nextActivationStep = activationSteps.find((step) => !step.complete);
 
   return (
     <main className="app-canvas min-h-screen pb-24">

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   requireUser: vi.fn(),
   isChampionshipsEnabled: vi.fn(),
+  isProfessionalSchedulingEnabled: vi.fn(),
   rpc: vi.fn(),
   revalidatePath: vi.fn(),
   redirect: vi.fn(),
@@ -11,6 +12,9 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/auth/dal", () => ({ requireUser: mocks.requireUser }));
 vi.mock("@/lib/features/championships/server", () => ({
   isChampionshipsEnabled: mocks.isChampionshipsEnabled,
+}));
+vi.mock("@/lib/features/professional-scheduling/server", () => ({
+  isProfessionalSchedulingEnabled: mocks.isProfessionalSchedulingEnabled,
 }));
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(async () => ({ rpc: mocks.rpc })),
@@ -72,6 +76,32 @@ describe("ações do campeonato de pontos corridos", () => {
     vi.clearAllMocks();
     mocks.requireUser.mockResolvedValue({ id: "staff" });
     mocks.isChampionshipsEnabled.mockResolvedValue(true);
+    mocks.isProfessionalSchedulingEnabled.mockResolvedValue(false);
+  });
+
+  it("cria rascunho profissional já com as equipes selecionadas", async () => {
+    mocks.isProfessionalSchedulingEnabled.mockResolvedValue(true);
+    mocks.rpc.mockResolvedValue({
+      data: { championship_id: ids.championship, replayed: false },
+      error: null,
+    });
+    mocks.redirect.mockImplementation(() => {
+      throw new Error("NEXT_REDIRECT");
+    });
+    const form = createForm();
+    form.append("internalTeamIds", "e9600000-0000-4000-8000-000000000001");
+    form.append("internalTeamIds", "e9600000-0000-4000-8000-000000000002");
+
+    await expect(createChampionship({}, form)).rejects.toThrow("NEXT_REDIRECT");
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      "create_championship_draft_v2",
+      expect.objectContaining({
+        requested_internal_team_ids: [
+          "e9600000-0000-4000-8000-000000000001",
+          "e9600000-0000-4000-8000-000000000002",
+        ],
+      }),
+    );
   });
 
   it("falha fechado antes do banco quando a flag está desligada", async () => {

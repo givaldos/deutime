@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { isProfessionalSchedulingEnabled } from "@/lib/features/professional-scheduling/server";
+import { getInternalSquadConfiguration } from "@/lib/data/internal-squads";
 import { ArrowLeft, ListChecks } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -39,6 +40,16 @@ export default async function NewEventPage({
       isTeamFeatureEnabled(team.id, "event_control"),
       isProfessionalSchedulingEnabled(team.id),
     ]);
+  const internalConfiguration = professionalSchedulingEnabled
+    ? await getInternalSquadConfiguration(team.id)
+    : null;
+  const professionalConfigurationReady = Boolean(
+    internalConfiguration &&
+    internalConfiguration.squads.length >= 2 &&
+    internalConfiguration.defaultHomeTeamId &&
+    internalConfiguration.defaultAwayTeamId &&
+    internalConfiguration.defaultHomeTeamId !== internalConfiguration.defaultAwayTeamId,
+  );
 
   return (
     <main className="app-canvas">
@@ -61,15 +72,30 @@ export default async function NewEventPage({
         </div>
 
         <section className="app-surface mt-6 p-5 sm:p-7">
-          <AdminEventForm
+          {professionalSchedulingEnabled && !professionalConfigurationReady ? (
+            <div className="text-center">
+              <h2 className="text-xl font-black text-graphite">Defina as equipes padrão</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Um owner ou admin precisa salvar ao menos duas equipes e escolher os dois lados padrão antes do primeiro jogo.
+              </p>
+              <Link href={`/app/${team.slug}/settings`} className="mt-5 inline-flex min-h-12 items-center justify-center rounded-xl bg-emerald-700 px-5 text-sm font-black text-white">
+                Abrir ajustes do time
+              </Link>
+            </div>
+          ) : (
+            <AdminEventForm
             teamId={team.id}
             teamSlug={team.slug}
             teamTimezone={team.timezone}
             defaultSportFormat={team.default_sport_format}
             eventControlEnabled={eventControlEnabled}
             professionalSchedulingEnabled={professionalSchedulingEnabled}
+            internalSquads={internalConfiguration?.squads}
+            defaultHomeTeamId={internalConfiguration?.defaultHomeTeamId}
+            defaultAwayTeamId={internalConfiguration?.defaultAwayTeamId}
             initialRequestId={crypto.randomUUID()}
           />
+          )}
         </section>
 
         <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-slate-500">

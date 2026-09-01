@@ -124,6 +124,25 @@ export const saveInternalSquadsSchema = z
     }
   });
 
+export const saveProfessionalInternalSquadsSchema = saveInternalSquadsSchema
+  .and(z.object({
+    defaultHomeTeamId: databaseUuid,
+    defaultAwayTeamId: databaseUuid,
+  }))
+  .superRefine((input, context) => {
+    const squadIds = new Set(input.squads.map((squad) => squad.id));
+    if (
+      input.defaultHomeTeamId === input.defaultAwayTeamId ||
+      !squadIds.has(input.defaultHomeTeamId) ||
+      !squadIds.has(input.defaultAwayTeamId)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "Selecione duas equipes padrão diferentes.",
+      });
+    }
+  });
+
 export type SaveEventLineupDraftInput = z.infer<
   typeof saveEventLineupDraftSchema
 >;
