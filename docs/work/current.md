@@ -2,7 +2,7 @@
 release: R13
 work_package: WP-R13-02
 scope: internal_teams_and_defaults
-branch_or_commit: "codex/r13-entry-expansion"
+branch_or_commit: "bac7953"
 checkpoint: CP2
 status: active
 completed_ac:
@@ -19,6 +19,8 @@ tests:
   - "64 arquivos/1.629 testes pgTAP, db lint e integridade de migrations aprovados"
   - "build de produção Webpack aprovado; Turbopack limitado apenas pela abertura de porta no sandbox"
   - "auditoria com zero vulnerabilidades"
+  - "produção bac7953: deploy Supabase, CI, banco, CodeQL e smoke público aprovados"
+  - "sonda agregada de produção: 0 linhas professional_scheduling; flag desligada para todos os times"
 blocker: null
 next_action: "Executar WP-R13-02: criar equipes internas persistentes, exigir duas identidades válidas e configurar as duas equipes padrão do time, mantendo a flag desligada."
 ---
