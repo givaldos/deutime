@@ -15,7 +15,7 @@ baseline:
   - BASE-PUBLIC
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "251f361"
+verified_at: "bac7953"
 decisions:
   - DEC-EVENT-MATCH
   - DEC-INTERNAL-SQUAD-IDENTITY
@@ -243,3 +243,11 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
   apenas pela abertura de porta no sandbox;
 - próximo pacote: `WP-R13-02`, adicionando equipes internas persistentes e os
   padrões do time sem ativar `professional_scheduling` em produção.
+- PRs `#361` (`codex/r13-entry-expansion → dev`) e `#362` (`dev → main`)
+  passaram por qualidade, banco, CodeQL, dependências, Terraform e preview;
+- produção recebeu `bac7953`; o deploy Supabase `33499012350`, o CI
+  `33499012400`, o banco `33499012497`, o CodeQL `33499012384` e o smoke
+  somente leitura `33499081106` concluíram com sucesso;
+- a sonda privilegiada agregada encontrou `0` linhas de
+  `professional_scheduling`, comprovando que a expansão chegou inerte e que o
+  fallback continua ativo para todos os times.
