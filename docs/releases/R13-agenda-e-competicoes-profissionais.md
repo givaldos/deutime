@@ -354,5 +354,15 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
   testes de contexto, lint, TypeScript, db lint, migrations, build Webpack e
   auditoria com zero vulnerabilidades passaram; Turbopack ficou limitado apenas
   pela abertura de porta no sandbox;
-- `professional_scheduling` permanece desligada fora do dado sintético local.
-  A próxima ação é a promoção protegida por `dev` e `main`, seguida do smoke.
+- os PRs `#370` (`codex/r13-regulation-versioning` → `dev`) e `#371`
+  (`dev` → `main`) passaram pelos checks protegidos; produção recebeu o commit
+  `7c92b69` sem reescrita de histórico;
+- o deploy Supabase `33577324165`, o gate Database `33577324191`, CI, CodeQL e
+  Terraform passaram; o deploy Vercel disparou o smoke somente leitura
+  `33577370813`, que confirmou evento e campeonato públicos;
+- a sonda agregada pós-deploy comprovou `professional_flags=0`,
+  `professional_enabled=0`, uma versão histórica migrada e nenhum campeonato
+  publicado sem `regulation_version_id`;
+- `main` foi reconciliada por fast-forward em `dev`. O checkpoint retorna a
+  `idle`, `professional_scheduling` permanece desligada e a próxima frente
+  permitida é `WP-R13-04`.
