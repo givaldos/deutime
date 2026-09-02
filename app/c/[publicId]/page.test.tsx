@@ -36,7 +36,7 @@ const leagueProjection = {
     win_points: 3,
     draw_points: 1,
     loss_points: 0,
-    tiebreak_order: ["wins", "goal_difference"] as const,
+    tiebreak_order: ["head_to_head", "wins", "goals_for", "goal_difference"] as const,
     group_count: null,
     qualifiers_per_group: null,
     published_at: "2026-08-13T12:00:00+00:00",
@@ -167,6 +167,8 @@ describe("public championship route", () => {
     const html = renderToStaticMarkup(await PublicChampionshipPage(props()));
 
     expect(html).toContain("Regulamento publicado");
+    expect(html).toContain("Pontos corridos");
+    expect(html).toContain("Desempates: Confronto direto · Vitórias · Gols pró · Saldo de gols");
     expect(html).toContain("Página oficial");
     expect(html).toContain("Time da Vila");
     expect(html).toContain("Escudo do Time da Vila");

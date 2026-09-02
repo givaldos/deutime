@@ -1,10 +1,12 @@
 import {
   AddParticipantForm,
+  ChampionshipRegulationEditor,
   ChampionshipPublicationControls,
   GroupAdvanceControl,
   KnockoutResolutionForm,
   LinkFixtureForm,
   QualifierDecisionForm,
+  ReopenChampionshipRegulationControl,
   ReleaseFixtureForm,
   WithdrawParticipantForm,
 } from "@/components/championship-forms";
@@ -15,7 +17,7 @@ import { TeamAppHeader } from "@/components/team-app-header";
 import { AppContainer } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
 import { getChampionshipWorkspace } from "@/lib/data/championships";
-import { championshipFormatLabels } from "@/lib/features/championships/rules";
+import { championshipFormatLabels, championshipTiebreakLabels } from "@/lib/features/championships/rules";
 import { getChampionshipCreationStep } from "@/lib/features/professional-scheduling/presentation";
 import { isProfessionalSchedulingEnabled } from "@/lib/features/professional-scheduling/server";
 import { getAppUrl } from "@/lib/env/server";
@@ -76,9 +78,13 @@ export default async function ChampionshipPage({
     standings,
     groupStandings,
     qualificationDecisions,
+    regulationVersions,
   } = workspace;
   const canConfigure = membership.role === "owner" || membership.role === "admin";
   const canOperate = canConfigure || membership.role === "manager";
+  const currentRegulationVersion = regulationVersions.find(
+    (version) => version.id === championship.regulation_version_id,
+  ) ?? null;
   const professionalCreationStep = getChampionshipCreationStep({
     status: championship.status,
     participantCount: participants.length,
@@ -196,6 +202,71 @@ export default async function ChampionshipPage({
         {canConfigure && professionalSchedulingEnabled ? (
           <ChampionshipCreationProgress currentStep={professionalCreationStep} />
         ) : null}
+
+        <section className="app-surface p-5 sm:p-7" aria-labelledby="regulation-title">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="app-kicker">
+                {championship.status === "draft" ? "Regulamento em revisão" : "Regulamento congelado"}
+              </p>
+              <h2 id="regulation-title" className="mt-1 text-xl font-black text-graphite">
+                Pontuação e desempates
+              </h2>
+            </div>
+            {currentRegulationVersion ? (
+              <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-800">
+                Versão {currentRegulationVersion.version_number}
+              </span>
+            ) : null}
+          </div>
+          {championship.status === "draft" && canConfigure && professionalSchedulingEnabled ? (
+            <div className="mt-5">
+              <ChampionshipRegulationEditor
+                teamId={team.id}
+                teamSlug={team.slug}
+                championshipId={championship.id}
+                winPoints={championship.win_points}
+                drawPoints={championship.draw_points}
+                lossPoints={championship.loss_points}
+                tiebreakOrder={championship.tiebreak_order}
+              />
+            </div>
+          ) : (
+            <div className="mt-5 space-y-4">
+              <div className="grid grid-cols-3 gap-2 text-center">
+                {[[championship.win_points, "Vitória"], [championship.draw_points, "Empate"], [championship.loss_points, "Derrota"]].map(([value, label]) => (
+                  <div key={label} className="rounded-xl bg-slate-50 p-3">
+                    <p className="font-black text-graphite">{value} pt</p>
+                    <p className="mt-1 text-[10px] font-bold text-slate-500">{label}</p>
+                  </div>
+                ))}
+              </div>
+              <ol className="space-y-2">
+                {championship.tiebreak_order.map((key, index) => (
+                  <li key={key} className="flex min-h-11 items-center gap-3 rounded-xl bg-slate-50 px-3 text-sm font-bold text-slate-700">
+                    <span className="grid size-6 place-items-center rounded-full bg-white text-xs text-emerald-700">{index + 1}</span>
+                    {championshipTiebreakLabels[key]}
+                  </li>
+                ))}
+              </ol>
+              <p className="text-xs leading-5 text-slate-500">
+                Pontos são o critério principal. Confronto direto usa o mini-torneio das equipes que ainda estiverem empatadas naquele passo.
+              </p>
+              {canConfigure && professionalSchedulingEnabled && championship.status !== "completed" && championship.status !== "archived" ? (
+                <ReopenChampionshipRegulationControl
+                  teamId={team.id}
+                  teamSlug={team.slug}
+                  championshipId={championship.id}
+                />
+              ) : null}
+            </div>
+          )}
+          {regulationVersions.length > 1 ? (
+            <p className="mt-4 text-xs font-bold text-slate-500">
+              {regulationVersions.length} versões preservadas no histórico.
+            </p>
+          ) : null}
+        </section>
 
         {championship.status === "draft" && canConfigure ? (
           <div className="grid items-start gap-5 lg:grid-cols-2">

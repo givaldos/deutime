@@ -1,10 +1,10 @@
 ---
 release: R13
-work_package: WP-R13-02
-scope: internal_teams_and_defaults
-branch_or_commit: "d67736b"
-checkpoint: CP4
-status: idle
+work_package: WP-R13-03
+scope: versioned_championship_regulation
+branch_or_commit: "codex/r13-regulation-versioning"
+checkpoint: CP2
+status: active
 completed_ac:
   - AC-R13-01
   - AC-R13-02
@@ -14,30 +14,40 @@ completed_ac:
   - AC-R13-06
   - AC-R13-07
   - AC-R13-08
+  - AC-R13-09
+  - AC-R13-10
+  - AC-R13-11
   - AC-R13-16
-dirty_files: []
+dirty_files:
+  - "app/app/[teamSlug]/championships"
+  - "app/c/[publicId]"
+  - "components/championship-forms.tsx"
+  - "lib/data/championships.ts"
+  - "lib/validation/championships.ts"
+  - "package-lock.json"
+  - "supabase/migrations/202609010003_r13_versioned_championship_regulation.sql"
+  - "supabase/tests/066_r13_versioned_championship_regulation.test.sql"
 tests:
-  - "migration forward-only; professional_scheduling desligada, fora do rollout global e compatível N/N−1"
-  - "dashboard, jogo único/recorrente, progresso persistido do campeonato e fallback validados em 390 × 844"
-  - "lint, TypeScript, 118 arquivos/573 testes de aplicação e 4 testes de contexto aprovados"
-  - "65 arquivos/1.665 testes pgTAP, db lint e integridade de migrations aprovados"
+  - "migration forward-only reconstruída localmente com FK composta e professional_scheduling desligada por padrão"
+  - "31 testes pgTAP focados cobrem versões, RLS, papéis, replay, três empatados, projeção pública e bloqueio após fato"
+  - "119 arquivos/578 testes de aplicação, 4 testes de contexto, TypeScript e lint aprovados"
+  - "66 arquivos/1.696 testes pgTAP, db lint, tipos e integridade das migrations aprovados"
   - "build de produção Webpack aprovado; Turbopack limitado apenas pela abertura de porta no sandbox"
-  - "auditoria com zero vulnerabilidades"
-  - "390 x 844: configuração, estado incompleto, jogo predefinido e campeonato pré-selecionado sem overflow ou erros de console"
-  - "PRs #365 e #366 aprovados; produção d67736b com deploy Supabase 33529467589 e smoke somente leitura 33529857819 verdes"
-  - "sonda pós-deploy: professional_flags=0, professional_enabled=0 e três configurações padrão retrocompatíveis"
+  - "auditoria npm com zero vulnerabilidades após atualizar browserslist para 4.28.8"
+  - "360/390 px: ordem salva, botões 44 px, página pública idêntica, sem overflow ou erros de console"
 blocker: null
-next_action: "Iniciar WP-R13-03 em branch temporária nascida de dev sincronizada, mantendo professional_scheduling desligada."
+next_action: "Promover por dev/main, comprovar professional_scheduling desligada em produção e executar o smoke somente leitura."
 ---
 
 # Trabalho atual
 
-A R13 concluiu o `WP-R13-02` em CP4. A expansão `professional_scheduling`
-chegou inerte e desligada à produção; aplicação e banco preservam a matriz N/N−1.
+A R13 executa o `WP-R13-03` em CP2. O regulamento reordenável e versionado está
+implementado localmente; `professional_scheduling` permanece desligada fora do
+ambiente sintético.
 
-Owner/admin mantém de 2 a 12 equipes e duas identidades padrão distintas.
-Novo jogo preenche os lados, campeonato pré-seleciona participantes e ambos
-congelam snapshots sem reescrever RSVP, fatos ou classificação.
+Owner/admin ordena os quatro desempates por botões acessíveis. Publicar captura
+uma versão imutável; reabrir só é permitido antes do primeiro fato esportivo, e
+a página pública usa a mesma pontuação e ordem aplicada pelo banco.
 
-Os gates, o deploy do banco, a sonda pós-deploy e o smoke somente leitura
-passaram. A próxima frente permitida é `WP-R13-03`.
+Os gates completos e a jornada responsiva passaram. A próxima ação é promover
+por `dev` e `main`, comprovar o estado desligado e executar o smoke de produção.

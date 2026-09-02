@@ -149,9 +149,9 @@ duplica mensagens.
 - [x] `AC-R13-06` — Novo jogo preenche os padrões e permite troca; nenhum novo jogo ou campeonato é publicado sem os lados válidos.
 - [x] `AC-R13-07` — Campeonato pré-seleciona equipes internas ativas; adversário externo continua snapshot e só vira equipe por ação separada.
 - [x] `AC-R13-08` — Redistribuir atleta por partida não muda equipe persistente, RSVP, fatos anteriores nem classificação.
-- [ ] `AC-R13-09` — Desempates possuem subir/descer, pontos primários, catálogo sem repetição e confronto direto explicado/testado para três ou mais empatados.
-- [ ] `AC-R13-10` — Publicação congela uma versão; edição posterior segue o limite anterior ao primeiro fato e nunca recalcula história por mutação silenciosa.
-- [ ] `AC-R13-11` — Página pública mostra exatamente formato, pontuação e ordem aplicada pela RPC transacional.
+- [x] `AC-R13-09` — Desempates possuem subir/descer, pontos primários, catálogo sem repetição e confronto direto explicado/testado para três ou mais empatados.
+- [x] `AC-R13-10` — Publicação congela uma versão; edição posterior segue o limite anterior ao primeiro fato e nunca recalcula história por mutação silenciosa.
+- [x] `AC-R13-11` — Página pública mostra exatamente formato, pontuação e ordem aplicada pela RPC transacional.
 - [ ] `AC-R13-12` — Sobreposição de equipe/local exclusivo, vínculo duplicado, intervalo curto, deslocamento potencial e atleta confirmado seguem a matriz aceita.
 - [ ] `AC-R13-13` — Pendências mostra gravidade, motivo e ações; conflito duro exige solução ou exceção justificada por owner/admin.
 - [ ] `AC-R13-14` — Remarcar, data a definir, adiar e cancelar preservam URL, convidados, respostas, vínculo, fatos e auditoria conforme o tipo de jogo.
@@ -208,6 +208,26 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
 - as RPCs anteriores continuam disponíveis para aplicação N-1 e só os novos
   consumidores usam as versões profissionais quando a flag estiver ativa. Com
   a flag desligada, interface e banco preservam integralmente o fluxo anterior.
+
+### Contrato do WP-R13-03
+
+- pontos permanecem o critério primário; os quatro critérios secundários formam
+  um catálogo completo sem repetição, ordenado por controles **subir/descer**
+  acessíveis no celular;
+- confronto direto calcula o mini-torneio somente entre participantes ainda
+  empatados depois dos critérios anteriores; igualdade persistente segue para o
+  próximo critério e mantém posição compartilhada ao esgotar a lista;
+- cada transição de rascunho para publicado captura uma versão imutável do
+  formato, pontuação e ordem. O campeonato referencia a versão aplicada por FK
+  composta do próprio tenant;
+- owner/admin pode recolher e reabrir o regulamento somente antes do primeiro
+  fato esportivo. A URL e as versões anteriores permanecem; a página pública
+  volta a privada até uma nova publicação explícita;
+- edição e reabertura são RPCs transacionais e idempotentes. Manager não altera
+  regulamento; RLS, grants mínimos e sessão verificada protegem versão e tenant;
+- classificação privada e projeção anônima continuam derivadas das súmulas e
+  leem os mesmos campos congelados. A expansão é aditiva, tolera N/N−1 e
+  `professional_scheduling` permanece desligada fora de coorte explícita.
 
 ## Rollout, fallback e rollback
 
@@ -312,3 +332,27 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
 - `main` foi reconciliada por fast-forward em `dev` e a branch temporária de
   implementação foi removida local e remotamente. O checkpoint retorna a
   `idle`; a próxima frente permitida é `WP-R13-03`.
+
+### CP2–CP4 — WP-R13-03 validado em 2026-09-01
+
+- `championship_regulation_versions` captura por trigger uma versão imutável em
+  cada publicação e o campeonato aponta para ela por FK composta do mesmo
+  tenant; rascunho permanece compatível com aplicação N−1;
+- owner/admin atualiza ou reabre por RPC idempotente; manager, anon, replay com
+  payload diferente e acesso cross-tenant falham fechados. Reabertura recolhe a
+  página e é bloqueada após fato, placar, decisão ou partida iniciada;
+- o catálogo completo possui controles textuais **subir/descer** de 44 × 44 px,
+  pontos permanecem primários e a explicação do confronto direto descreve o
+  mini-torneio das equipes ainda empatadas;
+- o caso de quatro equipes com A, B e C empatados em pontos e saldo comprovou o
+  mini-torneio de três: posições 1, 2 e 3 foram iguais na RPC privada e na
+  projeção anônima;
+- navegador autenticado confirmou salvar a nova ordem, estado de sucesso,
+  `scrollWidth` igual a 360/390, página pública com formato, 3/1/0 e ordem
+  congelada, alvos de toque de 44 px e zero erro ou aviso no console;
+- 119 arquivos/578 testes de aplicação, 66 arquivos/1.696 testes pgTAP, quatro
+  testes de contexto, lint, TypeScript, db lint, migrations, build Webpack e
+  auditoria com zero vulnerabilidades passaram; Turbopack ficou limitado apenas
+  pela abertura de porta no sandbox;
+- `professional_scheduling` permanece desligada fora do dado sintético local.
+  A próxima ação é a promoção protegida por `dev` e `main`, seguida do smoke.

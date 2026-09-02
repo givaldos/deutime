@@ -32,9 +32,11 @@ import {
   linkChampionshipFixture,
   publishChampionshipFormat,
   publishLeagueChampionship,
+  reopenChampionshipRegulation,
   releaseChampionshipFixture,
   resolveChampionshipFixture,
   setChampionshipPublicMode,
+  updateChampionshipRegulation,
   withdrawChampionshipParticipant,
 } from "./actions";
 
@@ -157,6 +159,45 @@ describe("ações do campeonato de pontos corridos", () => {
       requested_group_count: 2,
       requested_qualifiers_per_group: 1,
     }));
+  });
+
+  it("salva a ordem completa do regulamento profissional por RPC estreita", async () => {
+    mocks.isProfessionalSchedulingEnabled.mockResolvedValue(true);
+    mocks.rpc.mockResolvedValue({ data: { replayed: false }, error: null });
+    const form = commandForm();
+    form.set("winPoints", "3");
+    form.set("drawPoints", "1");
+    form.set("lossPoints", "0");
+    for (const key of ["head_to_head", "wins", "goals_for", "goal_difference"]) {
+      form.append("tiebreakOrder", key);
+    }
+
+    await expect(updateChampionshipRegulation({}, form)).resolves.toMatchObject({
+      outcome: "success",
+      message: expect.stringContaining("salvo"),
+    });
+    expect(mocks.rpc).toHaveBeenCalledWith("update_championship_regulation", {
+      requested_championship_id: ids.championship,
+      request_id: ids.request,
+      requested_win_points: 3,
+      requested_draw_points: 1,
+      requested_loss_points: 0,
+      requested_tiebreak_order: ["head_to_head", "wins", "goals_for", "goal_difference"],
+    });
+  });
+
+  it("reabre o regulamento sem aceitar tenant ou estado do cliente", async () => {
+    mocks.isProfessionalSchedulingEnabled.mockResolvedValue(true);
+    mocks.rpc.mockResolvedValue({ data: { replayed: false }, error: null });
+
+    await expect(reopenChampionshipRegulation({}, commandForm())).resolves.toMatchObject({
+      outcome: "success",
+      message: expect.stringContaining("recolhida"),
+    });
+    expect(mocks.rpc).toHaveBeenCalledWith("reopen_championship_regulation", {
+      requested_championship_id: ids.championship,
+      request_id: ids.request,
+    });
   });
 
   it("adiciona adversário externo como snapshot estreito", async () => {

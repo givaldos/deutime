@@ -8,9 +8,11 @@ import {
   generateChampionshipFixtures,
   linkChampionshipFixture,
   publishChampionshipFormat,
+  reopenChampionshipRegulation,
   releaseChampionshipFixture,
   resolveChampionshipFixture,
   withdrawChampionshipParticipant,
+  updateChampionshipRegulation,
   type ChampionshipActionState,
 } from "@/app/app/[teamSlug]/championships/actions";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
@@ -30,7 +32,7 @@ import {
   type InternalSquad,
   type InternalSquadBadgeKey,
 } from "@/lib/features/team-division/internal-squads";
-import { CalendarPlus, Eye, Plus, Send, Trophy } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarPlus, Eye, Plus, RotateCcw, Send, Trophy } from "lucide-react";
 import { useActionState, useState } from "react";
 
 const initialState: ChampionshipActionState = {};
@@ -66,6 +68,69 @@ function PointsInput({ name, label, defaultValue }: { name: string; label: strin
         className="mt-1 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-center text-base font-black text-graphite outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
       />
     </label>
+  );
+}
+
+function TiebreakOrderEditor({
+  initialOrder = championshipTiebreakKeys,
+}: {
+  initialOrder?: readonly (typeof championshipTiebreakKeys)[number][];
+}) {
+  const [order, setOrder] = useState([...initialOrder]);
+  const move = (index: number, offset: -1 | 1) => {
+    const target = index + offset;
+    if (target < 0 || target >= order.length) return;
+    setOrder((current) => {
+      const next = [...current];
+      const currentItem = next[index];
+      const targetItem = next[target];
+      if (!currentItem || !targetItem) return current;
+      next[index] = targetItem;
+      next[target] = currentItem;
+      return next;
+    });
+  };
+
+  return (
+    <fieldset>
+      <legend className="text-xs font-bold text-slate-600">
+        Ordem dos desempates
+      </legend>
+      <p className="mt-1 text-xs leading-5 text-slate-500">
+        Pontos vêm primeiro. Em confronto direto, o sistema considera somente o mini-torneio entre as equipes que ainda estiverem empatadas.
+      </p>
+      <ol className="mt-3 space-y-2">
+        {order.map((key, index) => (
+          <li key={key} className="flex min-h-14 items-center gap-2 rounded-xl border border-slate-200 bg-white p-2">
+            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-emerald-50 text-xs font-black text-emerald-800">
+              {index + 1}
+            </span>
+            <span className="min-w-0 flex-1 text-sm font-black text-graphite">
+              {championshipTiebreakLabels[key]}
+            </span>
+            <input type="hidden" name="tiebreakOrder" value={key} />
+            <button
+              type="button"
+              onClick={() => move(index, -1)}
+              disabled={index === 0}
+              aria-label={`Subir ${championshipTiebreakLabels[key]}`}
+              className="grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 text-slate-600 disabled:opacity-30"
+            >
+              <ArrowUp className="size-4" aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={() => move(index, 1)}
+              disabled={index === order.length - 1}
+              aria-label={`Descer ${championshipTiebreakLabels[key]}`}
+              className="grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 text-slate-600 disabled:opacity-30"
+            >
+              <ArrowDown className="size-4" aria-hidden />
+            </button>
+          </li>
+        ))}
+      </ol>
+    </fieldset>
   );
 }
 
@@ -168,25 +233,23 @@ export function CreateChampionshipForm({
           </div>
         </fieldset>
       ) : null}
-      <fieldset>
-        <legend className="text-xs font-bold text-slate-600">
-          Ordem dos desempates
-        </legend>
-        <p className="mt-1 text-xs leading-5 text-slate-500">
-          A ordem abaixo é fechada nesta primeira versão.
-        </p>
-        <ol className="mt-2 grid gap-2 sm:grid-cols-2">
-          {championshipTiebreakKeys.map((key, index) => (
-            <li key={key} className="flex min-h-11 items-center gap-3 rounded-xl bg-slate-50 px-3 text-sm font-bold text-slate-700">
-              <span className="grid size-6 place-items-center rounded-full bg-white text-xs text-emerald-700">
-                {index + 1}
-              </span>
-              {championshipTiebreakLabels[key]}
-              <input type="hidden" name="tiebreakOrder" value={key} />
-            </li>
-          ))}
-        </ol>
-      </fieldset>
+      {professionalSchedulingEnabled ? (
+        <TiebreakOrderEditor />
+      ) : (
+        <fieldset>
+          <legend className="text-xs font-bold text-slate-600">Ordem dos desempates</legend>
+          <p className="mt-1 text-xs leading-5 text-slate-500">A ordem abaixo é fechada nesta versão.</p>
+          <ol className="mt-2 grid gap-2 sm:grid-cols-2">
+            {championshipTiebreakKeys.map((key, index) => (
+              <li key={key} className="flex min-h-11 items-center gap-3 rounded-xl bg-slate-50 px-3 text-sm font-bold text-slate-700">
+                <span className="grid size-6 place-items-center rounded-full bg-white text-xs text-emerald-700">{index + 1}</span>
+                {championshipTiebreakLabels[key]}
+                <input type="hidden" name="tiebreakOrder" value={key} />
+              </li>
+            ))}
+          </ol>
+        </fieldset>
+      )}
       <ActionMessage state={state} />
       <AsyncSubmitButton
         disabled={pending}
@@ -451,6 +514,81 @@ function ChampionshipHiddenFields({
       <input type="hidden" name="championshipId" value={championshipId} />
       <input type="hidden" name="requestId" value={requestId} />
     </>
+  );
+}
+
+export function ChampionshipRegulationEditor({
+  teamId,
+  teamSlug,
+  championshipId,
+  winPoints,
+  drawPoints,
+  lossPoints,
+  tiebreakOrder,
+}: {
+  teamId: string;
+  teamSlug: string;
+  championshipId: string;
+  winPoints: number;
+  drawPoints: number;
+  lossPoints: number;
+  tiebreakOrder: readonly (typeof championshipTiebreakKeys)[number][];
+}) {
+  const [state, action, pending] = useActionState(updateChampionshipRegulation, initialState);
+  const [requestId] = useState(createRequestId);
+
+  return (
+    <form action={action} className="space-y-4">
+      <ChampionshipHiddenFields
+        teamId={teamId}
+        teamSlug={teamSlug}
+        championshipId={championshipId}
+        requestId={state.nextRequestId ?? requestId}
+      />
+      <fieldset>
+        <legend className="text-xs font-bold text-slate-600">Pontuação principal</legend>
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          <PointsInput name="winPoints" label="Vitória" defaultValue={winPoints} />
+          <PointsInput name="drawPoints" label="Empate" defaultValue={drawPoints} />
+          <PointsInput name="lossPoints" label="Derrota" defaultValue={lossPoints} />
+        </div>
+      </fieldset>
+      <TiebreakOrderEditor initialOrder={tiebreakOrder} />
+      <ActionMessage state={state} />
+      <AsyncSubmitButton disabled={pending} pendingLabel="Salvando regulamento..." className="min-h-12 w-full">
+        Salvar regulamento
+      </AsyncSubmitButton>
+    </form>
+  );
+}
+
+export function ReopenChampionshipRegulationControl({
+  teamId,
+  teamSlug,
+  championshipId,
+}: {
+  teamId: string;
+  teamSlug: string;
+  championshipId: string;
+}) {
+  const [state, action, pending] = useActionState(reopenChampionshipRegulation, initialState);
+  const [requestId] = useState(createRequestId);
+  return (
+    <form action={action} className="space-y-3">
+      <ChampionshipHiddenFields
+        teamId={teamId}
+        teamSlug={teamSlug}
+        championshipId={championshipId}
+        requestId={state.nextRequestId ?? requestId}
+      />
+      <p className="text-xs leading-5 text-slate-500">
+        Disponível somente antes do primeiro fato esportivo. A página pública será recolhida e a versão atual permanecerá no histórico.
+      </p>
+      <ActionMessage state={state} />
+      <AsyncSubmitButton disabled={pending} pendingLabel="Reabrindo regulamento..." variant="outline" className="min-h-12 w-full">
+        <RotateCcw aria-hidden /> Reabrir para editar
+      </AsyncSubmitButton>
+    </form>
   );
 }
 

@@ -663,6 +663,56 @@ export type Database = {
           },
         ]
       }
+      championship_regulation_versions: {
+        Row: {
+          championship_id: string
+          created_at: string
+          draw_points: number
+          id: string
+          loss_points: number
+          published_at: string
+          published_by: string
+          team_id: string
+          tiebreak_order: Database["public"]["Enums"]["championship_tiebreak_key"][]
+          version_number: number
+          win_points: number
+        }
+        Insert: {
+          championship_id: string
+          created_at?: string
+          draw_points: number
+          id?: string
+          loss_points: number
+          published_at: string
+          published_by: string
+          team_id: string
+          tiebreak_order: Database["public"]["Enums"]["championship_tiebreak_key"][]
+          version_number: number
+          win_points: number
+        }
+        Update: {
+          championship_id?: string
+          created_at?: string
+          draw_points?: number
+          id?: string
+          loss_points?: number
+          published_at?: string
+          published_by?: string
+          team_id?: string
+          tiebreak_order?: Database["public"]["Enums"]["championship_tiebreak_key"][]
+          version_number?: number
+          win_points?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "championship_regulation_versions_championship_id_team_id_fkey"
+            columns: ["championship_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "championships"
+            referencedColumns: ["id", "team_id"]
+          },
+        ]
+      }
       championships: {
         Row: {
           created_at: string
@@ -678,6 +728,7 @@ export type Database = {
           published_at: string | null
           published_by: string | null
           qualifiers_per_group: number | null
+          regulation_version_id: string | null
           status: Database["public"]["Enums"]["championship_status"]
           team_id: string
           tiebreak_order: Database["public"]["Enums"]["championship_tiebreak_key"][]
@@ -699,6 +750,7 @@ export type Database = {
           published_at?: string | null
           published_by?: string | null
           qualifiers_per_group?: number | null
+          regulation_version_id?: string | null
           status?: Database["public"]["Enums"]["championship_status"]
           team_id: string
           tiebreak_order?: Database["public"]["Enums"]["championship_tiebreak_key"][]
@@ -720,6 +772,7 @@ export type Database = {
           published_at?: string | null
           published_by?: string | null
           qualifiers_per_group?: number | null
+          regulation_version_id?: string | null
           status?: Database["public"]["Enums"]["championship_status"]
           team_id?: string
           tiebreak_order?: Database["public"]["Enums"]["championship_tiebreak_key"][]
@@ -728,6 +781,13 @@ export type Database = {
           win_points?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "championships_regulation_version_fk"
+            columns: ["regulation_version_id", "id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "championship_regulation_versions"
+            referencedColumns: ["id", "championship_id", "team_id"]
+          },
           {
             foreignKeyName: "championships_team_id_fkey"
             columns: ["team_id"]
@@ -4594,6 +4654,16 @@ export type Database = {
         Args: { requested_media_id: string }
         Returns: string
       }
+      reopen_championship_regulation: {
+        Args: { request_id: string; requested_championship_id: string }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       replace_my_player_photo: {
         Args: { requested_storage_path: string }
         Returns: string
@@ -4985,6 +5055,23 @@ export type Database = {
           team_notes?: string
         }
         Returns: boolean
+      }
+      update_championship_regulation: {
+        Args: {
+          request_id: string
+          requested_championship_id: string
+          requested_draw_points: number
+          requested_loss_points: number
+          requested_tiebreak_order: Database["public"]["Enums"]["championship_tiebreak_key"][]
+          requested_win_points: number
+        }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       update_event_as_staff: {
         Args: {
