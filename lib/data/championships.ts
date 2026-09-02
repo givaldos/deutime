@@ -11,6 +11,7 @@ type FixtureSlot = Database["public"]["Tables"]["championship_fixture_slots"]["R
 type Standing = Database["public"]["Functions"]["get_championship_standings"]["Returns"][number];
 type GroupStanding = Database["public"]["Functions"]["get_championship_group_standings"]["Returns"][number];
 type QualificationDecision = Database["public"]["Tables"]["championship_qualification_decisions"]["Row"];
+type RegulationVersion = Database["public"]["Tables"]["championship_regulation_versions"]["Row"];
 
 export type ChampionshipSummary = Pick<
   Championship,
@@ -49,6 +50,7 @@ export type ChampionshipWorkspace = {
   standings: Standing[];
   groupStandings: GroupStanding[];
   qualificationDecisions: QualificationDecision[];
+  regulationVersions: RegulationVersion[];
   internalSquads: {
     id: string;
     name: string;
@@ -90,7 +92,7 @@ export async function getChampionshipWorkspace(
   }
   if (!championship) return null;
 
-  const [participantsResult, fixturesResult, slotsResult, decisionsResult, squadsResult] =
+  const [participantsResult, fixturesResult, slotsResult, decisionsResult, regulationVersionsResult, squadsResult] =
     await Promise.all([
       supabase
         .from("championship_participants")
@@ -118,6 +120,12 @@ export async function getChampionshipWorkspace(
         .order("group_number")
         .order("qualifier_position"),
       supabase
+        .from("championship_regulation_versions")
+        .select("*")
+        .eq("championship_id", championshipId)
+        .eq("team_id", teamId)
+        .order("version_number", { ascending: false }),
+      supabase
         .from("team_squad_presets")
         .select("id, name, color, badge_key")
         .eq("team_id", teamId)
@@ -129,6 +137,7 @@ export async function getChampionshipWorkspace(
     fixturesResult.error ||
     slotsResult.error ||
     decisionsResult.error ||
+    regulationVersionsResult.error ||
     squadsResult.error
   ) {
     throw new Error("Não foi possível montar a área do campeonato.");
@@ -252,6 +261,7 @@ export async function getChampionshipWorkspace(
     standings,
     groupStandings,
     qualificationDecisions: decisionsResult.data ?? [],
+    regulationVersions: regulationVersionsResult.data ?? [],
     internalSquads: (squadsResult.data ?? []).map((squad) => ({
       id: squad.id,
       name: squad.name,
