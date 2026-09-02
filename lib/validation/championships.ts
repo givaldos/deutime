@@ -130,6 +130,18 @@ export const championshipFormatCommandSchema = championshipCommandSchema.extend(
   format: championshipFormat,
 });
 
+export const championshipRegulationSchema = championshipCommandSchema.extend({
+  winPoints: z.coerce.number().int().min(0).max(10),
+  drawPoints: z.coerce.number().int().min(0).max(10),
+  lossPoints: z.coerce.number().int().min(0).max(10),
+  tiebreakOrder: z
+    .array(z.enum(championshipTiebreakKeys))
+    .length(championshipTiebreakKeys.length, "Mantenha todos os critérios de desempate.")
+    .refine((items) => new Set(items).size === items.length, {
+      message: "Não repita um critério de desempate.",
+    }),
+});
+
 export const championshipPublicModeSchema = championshipCommandSchema.extend({
   publicId: uuid,
   mode: z.enum(["private", "public"]),

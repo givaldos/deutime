@@ -9,6 +9,7 @@ import {
   championshipCommandSchema,
   championshipFormatCommandSchema,
   championshipPublicModeSchema,
+  championshipRegulationSchema,
   createChampionshipSchema,
   createProfessionalChampionshipSchema,
   decideChampionshipQualifierSchema,
@@ -222,6 +223,118 @@ export async function publishChampionshipFormat(
   formData: FormData,
 ): Promise<ChampionshipActionState> {
   return runChampionshipFormatCommand(previousState, formData, "publish");
+}
+
+export async function updateChampionshipRegulation(
+  previousState: ChampionshipActionState,
+  formData: FormData,
+): Promise<ChampionshipActionState> {
+  await requireUser();
+  const attempt = (previousState.attempt ?? 0) + 1;
+  const parsed = championshipRegulationSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    championshipId: formData.get("championshipId"),
+    requestId: formData.get("requestId"),
+    winPoints: formData.get("winPoints"),
+    drawPoints: formData.get("drawPoints"),
+    lossPoints: formData.get("lossPoints"),
+    tiebreakOrder: formData.getAll("tiebreakOrder"),
+  });
+  if (!parsed.success) {
+    return {
+      attempt,
+      outcome: "error",
+      message: parsed.error.issues[0]?.message ?? "Revise o regulamento.",
+    };
+  }
+  if (
+    !(await isChampionshipsEnabled(parsed.data.teamId)) ||
+    !(await isProfessionalSchedulingEnabled(parsed.data.teamId))
+  ) {
+    return { attempt, outcome: "error", message: "Regulamento profissional indisponível." };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("update_championship_regulation", {
+    requested_championship_id: parsed.data.championshipId,
+    request_id: parsed.data.requestId,
+    requested_win_points: parsed.data.winPoints,
+    requested_draw_points: parsed.data.drawPoints,
+    requested_loss_points: parsed.data.lossPoints,
+    requested_tiebreak_order: parsed.data.tiebreakOrder,
+  });
+  if (error || !data) {
+    return {
+      attempt,
+      outcome: "error",
+      message: errorMessage(error?.code, "Não foi possível salvar o regulamento."),
+    };
+  }
+
+  console.info("championship_regulation.updated", {
+    replayed: data.replayed,
+    criterionCount: parsed.data.tiebreakOrder.length,
+  });
+  revalidateChampionship(parsed.data.teamSlug, parsed.data.championshipId);
+  return {
+    attempt,
+    outcome: "success",
+    nextRequestId: randomUUID(),
+    message: data.replayed
+      ? "Este regulamento já estava salvo."
+      : "Regulamento salvo para a próxima publicação.",
+  };
+}
+
+export async function reopenChampionshipRegulation(
+  previousState: ChampionshipActionState,
+  formData: FormData,
+): Promise<ChampionshipActionState> {
+  await requireUser();
+  const attempt = (previousState.attempt ?? 0) + 1;
+  const parsed = championshipCommandSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    championshipId: formData.get("championshipId"),
+    requestId: formData.get("requestId"),
+  });
+  if (!parsed.success) {
+    return { attempt, outcome: "error", message: "Comando inválido." };
+  }
+  if (
+    !(await isChampionshipsEnabled(parsed.data.teamId)) ||
+    !(await isProfessionalSchedulingEnabled(parsed.data.teamId))
+  ) {
+    return { attempt, outcome: "error", message: "Regulamento profissional indisponível." };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("reopen_championship_regulation", {
+    requested_championship_id: parsed.data.championshipId,
+    request_id: parsed.data.requestId,
+  });
+  if (error || !data) {
+    return {
+      attempt,
+      outcome: "error",
+      message: errorMessage(
+        error?.code,
+        "Não foi possível reabrir. Verifique se algum jogo já começou.",
+      ),
+    };
+  }
+
+  console.info("championship_regulation.reopened", { replayed: data.replayed });
+  revalidateChampionship(parsed.data.teamSlug, parsed.data.championshipId);
+  return {
+    attempt,
+    outcome: "success",
+    nextRequestId: randomUUID(),
+    message: data.replayed
+      ? "O regulamento já estava reaberto."
+      : "Publicação recolhida. Revise as regras e publique uma nova versão.",
+  };
 }
 
 export async function setChampionshipPublicMode(
