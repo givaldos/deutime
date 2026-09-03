@@ -2,7 +2,7 @@
 release: R13
 work_package: WP-R13-04
 scope: schedule_conflicts_and_lifecycle
-branch_or_commit: "codex/r13-agenda-conflicts"
+branch_or_commit: "26f9875"
 checkpoint: CP4
 status: idle
 completed_ac:
@@ -27,8 +27,9 @@ tests:
   - "VAL-APP: 119 arquivos e 585 testes; lint, TypeScript, contexto e build Webpack verdes"
   - "VAL-DB: 67 arquivos e 1.739 testes pgTAP; WP-R13-04 com 43 casos; db lint sem alerta novo"
   - "VAL-OPS: migrations preservadas e auditoria com zero vulnerabilidades"
+  - "VAL-PROD: Deploy Supabase 33778380681 e smoke 33778455290 verdes; professional_enabled=0"
 blocker: null
-next_action: "Promover codex/r13-agenda-conflicts para dev e depois main; manter professional_scheduling desligada."
+next_action: "Iniciar WP-R13-05 em branch temporária nova a partir de dev sincronizada; manter professional_scheduling desligada."
 ---
 
 # Trabalho atual
@@ -41,5 +42,6 @@ trilha imutável. Série, URL, convidados, respostas, vínculos e fatos não sã
 reescritos por remarcação, adiamento, data a definir ou cancelamento.
 
 A fatia de Pendências da agenda, RPCs idempotentes, autorização por papel,
-ciclo da agenda e comunicação posterior à decisão está validada. O checkpoint
-fica `idle` para a promoção protegida `branch → dev → main`.
+ciclo da agenda e comunicação posterior à decisão está validada e implantada.
+`main` foi reconciliada em `dev`, a branch temporária foi removida e o
+checkpoint fica `idle` para o `WP-R13-05`.
