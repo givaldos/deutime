@@ -22,7 +22,12 @@ vi.mock("@/lib/observability/event-control", () => ({
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 
-import { createEvent, updateEvent } from "./actions";
+import {
+  createEvent,
+  resolveEventScheduleConflict,
+  transitionEventSchedule,
+  updateEvent,
+} from "./actions";
 
 const ids = {
   team: "11111111-1111-4111-8111-111111111111",
@@ -74,14 +79,16 @@ describe("ações das opções de evento", () => {
     const form = eventForm();
     form.set("homeInternalTeamId", "44444444-4444-4444-8444-444444444441");
     form.set("awayInternalTeamId", "44444444-4444-4444-8444-444444444442");
+    form.set("venueExclusive", "false");
 
     await createEvent({}, form);
 
     expect(mocks.rpc).toHaveBeenCalledWith(
-      "create_event_as_staff_v4",
+      "create_event_as_staff_v5",
       expect.objectContaining({
         requested_home_internal_team_id: "44444444-4444-4444-8444-444444444441",
         requested_away_internal_team_id: "44444444-4444-4444-8444-444444444442",
+        requested_venue_exclusive: false,
       }),
     );
   });
@@ -167,6 +174,62 @@ describe("ações das opções de evento", () => {
         event_duration_minutes: 150,
         attendance_deadline_minutes: 720,
       }),
+    );
+  });
+
+  it("delega edição profissional ao contrato v4 e preserva exclusividade", async () => {
+    mocks.isTeamFeatureEnabled.mockResolvedValue(true);
+    mocks.rpc.mockResolvedValue({
+      data: { event_id: ids.event, affected_count: 1 },
+      error: null,
+    });
+    const form = eventForm("update");
+    form.set("venueExclusive", "true");
+
+    await updateEvent({}, form);
+
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      "update_event_as_staff_v4",
+      expect.objectContaining({ requested_venue_exclusive: true }),
+    );
+  });
+
+  it("delega a decisão de conflito usando somente identificadores validados", async () => {
+    mocks.rpc.mockResolvedValue({ data: { pending_count: 0 }, error: null });
+    const form = new FormData();
+    form.set("teamId", ids.team);
+    form.set("teamSlug", "racha-do-bairro");
+    form.set("eventId", ids.event);
+    form.set("conflictId", "44444444-4444-4444-8444-444444444444");
+    form.set("requestId", ids.request);
+    form.set("decision", "confirm_warning");
+
+    await resolveEventScheduleConflict(form);
+
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      "resolve_event_schedule_conflict",
+      expect.objectContaining({
+        requested_team_id: ids.team,
+        requested_event_id: ids.event,
+      }),
+    );
+  });
+
+  it("delega adiamento com alcance explícito", async () => {
+    mocks.rpc.mockResolvedValue({ data: { affected_count: 1 }, error: null });
+    const form = new FormData();
+    form.set("teamId", ids.team);
+    form.set("teamSlug", "racha-do-bairro");
+    form.set("eventId", ids.event);
+    form.set("requestId", ids.request);
+    form.set("transition", "postpone");
+    form.set("scope", "single_event");
+
+    await transitionEventSchedule(form);
+
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      "transition_event_schedule",
+      expect.objectContaining({ requested_transition: "postpone" }),
     );
   });
 });

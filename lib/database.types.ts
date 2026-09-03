@@ -1586,6 +1586,140 @@ export type Database = {
           },
         ]
       }
+      event_schedule_conflicts: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          details: Json
+          detected_schedule_version: number
+          event_id: string
+          id: string
+          kind: Database["public"]["Enums"]["event_schedule_conflict_kind"]
+          other_event_id: string
+          severity: Database["public"]["Enums"]["event_schedule_conflict_severity"]
+          status: Database["public"]["Enums"]["event_schedule_conflict_status"]
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          details?: Json
+          detected_schedule_version: number
+          event_id: string
+          id?: string
+          kind: Database["public"]["Enums"]["event_schedule_conflict_kind"]
+          other_event_id: string
+          severity: Database["public"]["Enums"]["event_schedule_conflict_severity"]
+          status?: Database["public"]["Enums"]["event_schedule_conflict_status"]
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          details?: Json
+          detected_schedule_version?: number
+          event_id?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["event_schedule_conflict_kind"]
+          other_event_id?: string
+          severity?: Database["public"]["Enums"]["event_schedule_conflict_severity"]
+          status?: Database["public"]["Enums"]["event_schedule_conflict_status"]
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_schedule_conflicts_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_schedule_conflicts_other_event_id_team_id_fkey"
+            columns: ["other_event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_schedule_conflicts_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_schedule_decisions: {
+        Row: {
+          actor_id: string
+          command_id: string
+          conflict_id: string | null
+          created_at: string
+          decision: string
+          event_id: string
+          id: string
+          justification: string | null
+          schedule_version: number
+          scope: string
+          team_id: string
+        }
+        Insert: {
+          actor_id: string
+          command_id: string
+          conflict_id?: string | null
+          created_at?: string
+          decision: string
+          event_id: string
+          id?: string
+          justification?: string | null
+          schedule_version: number
+          scope?: string
+          team_id: string
+        }
+        Update: {
+          actor_id?: string
+          command_id?: string
+          conflict_id?: string | null
+          created_at?: string
+          decision?: string
+          event_id?: string
+          id?: string
+          justification?: string | null
+          schedule_version?: number
+          scope?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_schedule_decisions_conflict_id_fkey"
+            columns: ["conflict_id"]
+            isOneToOne: false
+            referencedRelation: "event_schedule_conflicts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_schedule_decisions_event_id_team_id_fkey"
+            columns: ["event_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_schedule_decisions_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_series: {
         Row: {
           attendance_deadline_offset: string
@@ -1675,6 +1809,7 @@ export type Database = {
           is_official: boolean
           name: string
           sort_order: number
+          source_internal_team_id: string | null
           sport_format: Database["public"]["Enums"]["sport_format"]
           team_id: string
           updated_at: string
@@ -1689,6 +1824,7 @@ export type Database = {
           is_official?: boolean
           name: string
           sort_order?: number
+          source_internal_team_id?: string | null
           sport_format: Database["public"]["Enums"]["sport_format"]
           team_id: string
           updated_at?: string
@@ -1703,6 +1839,7 @@ export type Database = {
           is_official?: boolean
           name?: string
           sort_order?: number
+          source_internal_team_id?: string | null
           sport_format?: Database["public"]["Enums"]["sport_format"]
           team_id?: string
           updated_at?: string
@@ -1718,6 +1855,13 @@ export type Database = {
           {
             foreignKeyName: "event_squads_internal_team_fk"
             columns: ["internal_team_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "team_squad_presets"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "event_squads_source_internal_team_fk"
+            columns: ["source_internal_team_id", "team_id"]
             isOneToOne: false
             referencedRelation: "team_squad_presets"
             referencedColumns: ["id", "team_id"]
@@ -1892,7 +2036,9 @@ export type Database = {
           kind: Database["public"]["Enums"]["event_kind"]
           opponent_name: string | null
           organization_mode: Database["public"]["Enums"]["organization_mode"]
+          professional_schedule_state: Database["public"]["Enums"]["professional_schedule_state"]
           public_id: string
+          schedule_confirmed_version: number
           schedule_version: number
           series_id: string | null
           series_position: number | null
@@ -1916,7 +2062,9 @@ export type Database = {
           kind: Database["public"]["Enums"]["event_kind"]
           opponent_name?: string | null
           organization_mode?: Database["public"]["Enums"]["organization_mode"]
+          professional_schedule_state?: Database["public"]["Enums"]["professional_schedule_state"]
           public_id?: string
+          schedule_confirmed_version?: number
           schedule_version?: number
           series_id?: string | null
           series_position?: number | null
@@ -1940,7 +2088,9 @@ export type Database = {
           kind?: Database["public"]["Enums"]["event_kind"]
           opponent_name?: string | null
           organization_mode?: Database["public"]["Enums"]["organization_mode"]
+          professional_schedule_state?: Database["public"]["Enums"]["professional_schedule_state"]
           public_id?: string
+          schedule_confirmed_version?: number
           schedule_version?: number
           series_id?: string | null
           series_position?: number | null
@@ -3372,6 +3522,7 @@ export type Database = {
           address: string | null
           created_at: string
           id: string
+          is_exclusive: boolean
           name: string
           team_id: string
           updated_at: string
@@ -3380,6 +3531,7 @@ export type Database = {
           address?: string | null
           created_at?: string
           id?: string
+          is_exclusive?: boolean
           name: string
           team_id: string
           updated_at?: string
@@ -3388,6 +3540,7 @@ export type Database = {
           address?: string | null
           created_at?: string
           id?: string
+          is_exclusive?: boolean
           name?: string
           team_id?: string
           updated_at?: string
@@ -3872,6 +4025,33 @@ export type Database = {
           requested_away_internal_team_id?: string
           requested_home_internal_team_id?: string
           requested_team_id: string
+          starts_at_local: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_event_as_staff_v5: {
+        Args: {
+          attendance_deadline_minutes: number
+          event_duration_minutes: number
+          event_kind: Database["public"]["Enums"]["event_kind"]
+          event_opponent_name?: string
+          event_organization_mode: Database["public"]["Enums"]["organization_mode"]
+          event_sport_format: Database["public"]["Enums"]["sport_format"]
+          event_title: string
+          event_venue_address?: string
+          event_venue_name?: string
+          repeat_weeks?: number
+          request_id: string
+          requested_away_internal_team_id?: string
+          requested_home_internal_team_id?: string
+          requested_team_id: string
+          requested_venue_exclusive?: boolean
           starts_at_local: string
         }
         Returns: Database["public"]["CompositeTypes"]["event_command_result"]
@@ -4752,6 +4932,17 @@ export type Database = {
           public_id: string
         }[]
       }
+      resolve_event_schedule_conflict: {
+        Args: {
+          request_id: string
+          requested_conflict_id: string
+          requested_decision: string
+          requested_event_id: string
+          requested_justification?: string
+          requested_team_id: string
+        }
+        Returns: Json
+      }
       respond_to_event_as_player: {
         Args: {
           requested_event_id: string
@@ -5041,6 +5232,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      transition_event_schedule: {
+        Args: {
+          request_id: string
+          requested_event_id: string
+          requested_scope: string
+          requested_team_id: string
+          requested_transition: string
+        }
+        Returns: Json
+      }
       update_athlete_as_admin: {
         Args: {
           athlete_birth_date?: string
@@ -5131,6 +5332,32 @@ export type Database = {
           request_id: string
           requested_event_id: string
           requested_team_id: string
+          starts_at_local: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["event_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "event_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_event_as_staff_v4: {
+        Args: {
+          attendance_deadline_minutes: number
+          edit_scope: string
+          event_duration_minutes: number
+          event_kind: Database["public"]["Enums"]["event_kind"]
+          event_opponent_name?: string
+          event_organization_mode: Database["public"]["Enums"]["organization_mode"]
+          event_sport_format: Database["public"]["Enums"]["sport_format"]
+          event_title: string
+          event_venue_address?: string
+          event_venue_name?: string
+          request_id: string
+          requested_event_id: string
+          requested_team_id: string
+          requested_venue_exclusive?: boolean
           starts_at_local: string
         }
         Returns: Database["public"]["CompositeTypes"]["event_command_result"]
@@ -5290,6 +5517,14 @@ export type Database = {
         | "enqueued"
         | "skipped"
         | "cancelled"
+      event_schedule_conflict_kind:
+        | "internal_team_overlap"
+        | "exclusive_venue_overlap"
+        | "short_interval"
+        | "travel_buffer"
+        | "athlete_overlap"
+      event_schedule_conflict_severity: "hard" | "warning"
+      event_schedule_conflict_status: "pending" | "accepted" | "resolved"
       event_status: "scheduled" | "cancelled" | "completed"
       feature_key:
         | "persistent_event_access"
@@ -5334,6 +5569,11 @@ export type Database = {
       message_channel: "whatsapp" | "email" | "push"
       message_status: "pending" | "processing" | "sent" | "failed" | "cancelled"
       organization_mode: "single_squad" | "split_teams"
+      professional_schedule_state:
+        | "scheduled"
+        | "pending_review"
+        | "date_tbd"
+        | "postponed"
       recognition_kind: "goal_recorded" | "assist_recorded" | "crowd_star"
       registration_source: "admin" | "public_form" | "import"
       runtime_control_key:
@@ -5603,6 +5843,15 @@ export const Constants = {
         "skipped",
         "cancelled",
       ],
+      event_schedule_conflict_kind: [
+        "internal_team_overlap",
+        "exclusive_venue_overlap",
+        "short_interval",
+        "travel_buffer",
+        "athlete_overlap",
+      ],
+      event_schedule_conflict_severity: ["hard", "warning"],
+      event_schedule_conflict_status: ["pending", "accepted", "resolved"],
       event_status: ["scheduled", "cancelled", "completed"],
       feature_key: [
         "persistent_event_access",
@@ -5650,6 +5899,12 @@ export const Constants = {
       message_channel: ["whatsapp", "email", "push"],
       message_status: ["pending", "processing", "sent", "failed", "cancelled"],
       organization_mode: ["single_squad", "split_teams"],
+      professional_schedule_state: [
+        "scheduled",
+        "pending_review",
+        "date_tbd",
+        "postponed",
+      ],
       recognition_kind: ["goal_recorded", "assist_recorded", "crowd_star"],
       registration_source: ["admin", "public_form", "import"],
       runtime_control_key: [

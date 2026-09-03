@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { TeamAppHeader } from "@/components/team-app-header";
 import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { requireUser } from "@/lib/auth/dal";
+import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   CalendarDays,
@@ -46,12 +47,24 @@ export default async function EventsPage({ params }: { params: Promise<{ teamSlu
       .maybeSingle(),
     supabase
       .from("events")
-      .select("id, title, kind, organization_mode, sport_format, starts_at, ends_at, status, opponent_name, venue_id")
+      .select("id, title, kind, organization_mode, sport_format, starts_at, ends_at, status, professional_schedule_state, opponent_name, venue_id")
       .eq("team_id", team.id)
       .order("starts_at", { ascending: true })
       .limit(200),
   ]);
   if (!membership) notFound();
+
+  const professionalSchedulingEnabled = await isTeamFeatureEnabled(
+    team.id,
+    "professional_scheduling",
+  );
+  const { count: pendingConflictCount } = professionalSchedulingEnabled
+    ? await supabase
+        .from("event_schedule_conflicts")
+        .select("id", { count: "exact", head: true })
+        .eq("team_id", team.id)
+        .eq("status", "pending")
+    : { count: 0 };
 
   const eventIds = (events ?? []).map((event) => event.id);
   const venueIds = [...new Set((events ?? []).flatMap((event) => (event.venue_id ? [event.venue_id] : [])))];
@@ -73,8 +86,19 @@ export default async function EventsPage({ params }: { params: Promise<{ teamSlu
   }
   const venueById = new Map((venues ?? []).map((venue) => [venue.id, venue.name]));
   const now = new Date().toISOString();
-  const upcoming = (events ?? []).filter((event) => event.status === "scheduled" && event.starts_at >= now);
-  const history = (events ?? []).filter((event) => event.status !== "scheduled" || event.starts_at < now).reverse();
+  const upcoming = (events ?? []).filter((event) =>
+    event.status === "scheduled" &&
+    ["scheduled", "pending_review"].includes(event.professional_schedule_state) &&
+    event.starts_at >= now,
+  );
+  const awaitingDate = (events ?? []).filter((event) =>
+    event.status === "scheduled" &&
+    ["date_tbd", "postponed"].includes(event.professional_schedule_state),
+  );
+  const history = (events ?? []).filter((event) =>
+    event.status !== "scheduled" ||
+    (event.starts_at < now && !["date_tbd", "postponed"].includes(event.professional_schedule_state)),
+  ).reverse();
 
   const renderEvent = (event: NonNullable<typeof events>[number]) => {
     const call = attendanceByEvent.get(event.id) ?? { total: 0, confirmed: 0 };
@@ -93,6 +117,15 @@ export default async function EventsPage({ params }: { params: Promise<{ teamSlu
               <div>
                 <p className="text-xs font-semibold text-emerald-700">{kindLabels[event.kind]} · {event.sport_format === "field" ? "Campo" : event.sport_format === "futsal" ? "Futsal" : "Society"}</p>
                 <h2 className="mt-1 truncate text-base font-black tracking-tight text-graphite">{event.title}</h2>
+                {event.professional_schedule_state !== "scheduled" ? (
+                  <span className="mt-2 inline-flex rounded-full bg-amber-100 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-amber-900">
+                    {event.professional_schedule_state === "pending_review"
+                      ? "Revisão necessária"
+                      : event.professional_schedule_state === "date_tbd"
+                        ? "Data a definir"
+                        : "Adiado"}
+                  </span>
+                ) : null}
               </div>
               <ChevronRight className="size-5 shrink-0 text-slate-300 transition group-hover:text-emerald-700" aria-hidden />
             </div>
@@ -132,6 +165,18 @@ export default async function EventsPage({ params }: { params: Promise<{ teamSlu
           }
         />
 
+        {professionalSchedulingEnabled ? (
+          <Link
+            href={`/app/${team.slug}/events/pending`}
+            className="-mt-3 mb-6 flex min-h-12 items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 px-4 text-sm font-black text-amber-950"
+          >
+            <span>Pendências e decisões da agenda</span>
+            <span className="rounded-full bg-amber-200 px-2.5 py-1 text-xs">
+              {pendingConflictCount ?? 0}
+            </span>
+          </Link>
+        ) : null}
+
         <section>
           <p className="app-kicker">Em aberto</p>
           <h2 className="mt-1 text-xl font-black tracking-tight">Próximos jogos</h2>
@@ -146,6 +191,13 @@ export default async function EventsPage({ params }: { params: Promise<{ teamSlu
             </div>
           )}
         </section>
+
+        {awaitingDate.length > 0 ? (
+          <section>
+            <div className="flex items-center gap-2"><CalendarDays className="size-5 text-amber-700" aria-hidden /><h2 className="text-lg font-black tracking-tight">Aguardando nova data</h2></div>
+            <div className="mt-3 grid gap-3 lg:grid-cols-2">{awaitingDate.map(renderEvent)}</div>
+          </section>
+        ) : null}
 
         {history.length > 0 && (
           <section>

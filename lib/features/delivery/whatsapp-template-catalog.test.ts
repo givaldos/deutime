@@ -5,6 +5,7 @@ import {
   EVENT_CALL_TEMPLATE_V1,
   EVENT_REMINDER_FIRST_CARD_TEMPLATE_V2,
   EVENT_REMINDER_LAST_CARD_TEMPLATE_V2,
+  EVENT_SCHEDULE_CHANGE_TEMPLATE_V1,
   renderTwilioTemplateVariables,
 } from "./whatsapp-template-catalog";
 
@@ -64,6 +65,31 @@ describe("catálogo de templates do WhatsApp", () => {
     expect(renderTwilioTemplateVariables(command, "event_call_v1")).toEqual({
       "1": "Racha de sexta",
       "2": "02/08/2030, 19:00",
+      "3": "e/example#c=secret",
+    });
+  });
+
+  it("renderiza a decisão confirmada da agenda sem inventar uma nova data", () => {
+    const scheduleCommand = {
+      ...command,
+      template: {
+        ...command.template,
+        variables: {
+          ...command.template.variables,
+          schedule_state: "date_tbd",
+        },
+      },
+    };
+    expect(EVENT_SCHEDULE_CHANGE_TEMPLATE_V1).toMatchObject({
+      key: "event_schedule_change",
+      version: "v1",
+      approval: { category: "UTILITY" },
+    });
+    expect(
+      renderTwilioTemplateVariables(scheduleCommand, "event_schedule_change_v1"),
+    ).toEqual({
+      "1": "Racha de sexta",
+      "2": "Data a definir",
       "3": "e/example#c=secret",
     });
   });
