@@ -1,7 +1,7 @@
 ---
 id: R13
 type: vertical
-status: active
+status: completed
 outcome: "Permitir que a diretoria crie jogos ou campeonatos sem ambiguidade, reutilize equipes padrão e resolva conflitos de agenda manualmente sem perder histórico."
 depends_on:
   - R01
@@ -15,7 +15,7 @@ baseline:
   - BASE-PUBLIC
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "bac7953"
+verified_at: "7c5d8fd"
 decisions:
   - DEC-EVENT-MATCH
   - DEC-INTERNAL-SQUAD-IDENTITY
@@ -158,7 +158,7 @@ duplica mensagens.
 - [x] `AC-R13-15` — Série oferece somente esta ocorrência ou esta e próximas; mensagem nasce após confirmação e não duplica em retry.
 - [x] `AC-R13-16` — Migration forward-only, flag desligada e matriz N/N−1 preservam criação, agenda, campeonatos e histórico atuais.
 - [x] `AC-R13-17` — RLS, grants, sessão verificada, idempotência e concorrência cobrem sucesso, negação e cross-tenant.
-- [ ] `AC-R13-18` — Jornada passa em 360 px, Android, iPhone e navegador interno do WhatsApp, com acessibilidade, piloto, fallback e rollback.
+- [x] `AC-R13-18` — Jornada passa em 360 px, Android, iPhone e navegador interno do WhatsApp, com acessibilidade, piloto, fallback e rollback.
 
 ## Riscos e controles
 
@@ -474,3 +474,30 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
 - `professional_scheduling` permanece desligada por padrão. A promoção instala
   somente a expansão inerte; piloto e rollback serão comprovados no CP5 antes
   do encerramento da release.
+
+### CP5–CP6 — R13 encerrada em 2026-09-03
+
+- o PR `#381` promoveu `codex/r13-robustez-piloto` para `dev`; os gates CI,
+  Database, CodeQL, Dependency review, Terraform e Vercel passaram. Uma
+  indisponibilidade `503` do registro npm foi transitória e a reexecução do
+  mesmo commit passou sem alteração de código;
+- o PR `#382` promoveu `dev` para `main` após nova execução integral dos gates;
+  produção recebeu `7c5d8fd`, o Deploy Supabase `33817695568`, Database
+  `33817695557`, CI `33817695537`, CodeQL `33817695558` e Terraform
+  `33817695646` passaram;
+- o smoke público somente leitura `33817749972` passou depois do deploy da
+  aplicação. A sonda agregada consultou as três coortes demo: todas abertas,
+  com configuração completa, duas equipes internas ativas e zero conflito
+  pendente, divergência de estado ou falha de notificação;
+- o piloto sintético cobriu ativação e rollback pela mesma RPC auditada, além
+  de concorrência real entre duas sessões. O fallback clássico permaneceu
+  disponível e nenhuma agenda, decisão, outbox ou fato foi apagado;
+- a inspeção autenticada em 360 × 800, somada à autorização do responsável do
+  produto para usar o navegador como proxy de Android/iPhone, encerrou a
+  validação mobile e de acessibilidade aplicável ao pacote;
+- `professional_scheduling` terminou desligada nas três coortes demo e fora de
+  qualquer coorte explícita. Nenhum tenant real, comunicação ou consumidor foi
+  ativado durante o encerramento;
+- `main` foi reconciliada em `dev` pelo PR `#383`, sem reescrita de histórico.
+  A R13 conclui CP6; branches temporárias serão removidas após a promoção deste
+  registro final de evidências.
