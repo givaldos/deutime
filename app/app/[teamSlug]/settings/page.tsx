@@ -7,6 +7,7 @@ import { TeamSettingsForm } from "@/components/team-settings-form";
 import { EventSharePilotControl } from "@/components/event-share-pilot-control";
 import { ChampionshipPilotControl } from "@/components/championship-pilot-control";
 import { RecognitionPilotControl } from "@/components/recognition-pilot-control";
+import { ProfessionalSchedulingPilotControl } from "@/components/professional-scheduling-pilot-control";
 import { InternalSquadManager } from "@/components/internal-squad-manager";
 import { WhatsAppReminderSettingsForm } from "@/components/whatsapp-reminder-settings-form";
 import { RegistrationEmailPreferenceForm } from "@/components/registration-email-preference-form";
@@ -18,6 +19,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { parseEventSharePilotConfig } from "@/lib/features/public-event/pilot-config";
 import { parseChampionshipPilotConfig } from "@/lib/features/championships/pilot-config";
+import { parseProfessionalSchedulingPilotConfig } from "@/lib/features/professional-scheduling/pilot-config";
 import { recognitionPilotTeamSlug } from "@/lib/features/recognition/pilot-cohort";
 import {
   getInternalSquadConfiguration,
@@ -116,6 +118,15 @@ export default async function TeamSettingsPage({
     console.error("championship_pilot.config_invalid");
   }
   const championshipPilotEligible = championshipPilotTeamId === team.id;
+  let professionalSchedulingPilotTeamId: string | null = null;
+  try {
+    professionalSchedulingPilotTeamId =
+      parseProfessionalSchedulingPilotConfig(process.env)?.teamId ?? null;
+  } catch {
+    console.error("professional_scheduling_pilot.config_invalid");
+  }
+  const professionalSchedulingPilotEligible =
+    professionalSchedulingPilotTeamId === team.id;
   const recognitionPilotEligible = team.slug === recognitionPilotTeamSlug;
   const [
     whatsappRemindersEnabled,
@@ -310,6 +321,14 @@ export default async function TeamSettingsPage({
             teamName={team.name}
             teamSlug={team.slug}
             enabled={championshipsEnabled}
+          />
+        ) : null}
+
+        {professionalSchedulingPilotEligible ? (
+          <ProfessionalSchedulingPilotControl
+            teamName={team.name}
+            teamSlug={team.slug}
+            enabled={professionalSchedulingEnabled}
           />
         ) : null}
 

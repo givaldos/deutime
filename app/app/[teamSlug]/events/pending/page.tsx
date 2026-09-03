@@ -81,7 +81,7 @@ export default async function PendingSchedulePage({
       .select("id, event_id, other_event_id, kind, severity, details")
       .eq("team_id", team.id)
       .eq("status", "pending")
-      .order("detected_at", { ascending: true }),
+      .order("created_at", { ascending: true }),
     supabase
       .from("events")
       .select(

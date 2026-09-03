@@ -157,7 +157,7 @@ duplica mensagens.
 - [x] `AC-R13-14` — Remarcar, data a definir, adiar e cancelar preservam URL, convidados, respostas, vínculo, fatos e auditoria conforme o tipo de jogo.
 - [x] `AC-R13-15` — Série oferece somente esta ocorrência ou esta e próximas; mensagem nasce após confirmação e não duplica em retry.
 - [x] `AC-R13-16` — Migration forward-only, flag desligada e matriz N/N−1 preservam criação, agenda, campeonatos e histórico atuais.
-- [ ] `AC-R13-17` — RLS, grants, sessão verificada, idempotência e concorrência cobrem sucesso, negação e cross-tenant.
+- [x] `AC-R13-17` — RLS, grants, sessão verificada, idempotência e concorrência cobrem sucesso, negação e cross-tenant.
 - [ ] `AC-R13-18` — Jornada passa em 360 px, Android, iPhone e navegador interno do WhatsApp, com acessibilidade, piloto, fallback e rollback.
 
 ## Riscos e controles
@@ -259,6 +259,26 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
   fallback;
 - app N−1 ignora as colunas novas, o consumidor novo só chama as RPCs novas com
   `professional_scheduling` ativa e o rollback continua sendo desligar a flag.
+
+### Contrato do WP-R13-05
+
+- gravações que podem alterar a agenda ou a confirmação de atleta adquirem lock
+  transacional determinístico por `team_id` antes da escrita. Times distintos
+  continuam independentes e duas sessões do mesmo time são serializadas;
+- a sonda `get_r13_pilot_health` é exclusiva da `service_role` e expõe somente
+  flags, controles, completude e contagens agregadas. Nenhum nome, endereço,
+  contato, destinatário, ator ou justificativa integra o contrato;
+- divergência de versão/estado, configuração incompleta e falha na comunicação
+  fazem a validação do piloto falhar fechada quando a capacidade está ativa;
+- `R13_PILOT_TEAM_ID` autoriza exatamente uma coorte a ver o controle de
+  ativação/rollback. A ausência ou formato inválido da variável mantém a UI
+  inerte; a RPC revalida sessão, papel e tenant;
+- owner/admin confirma cada transição. O log contém somente o novo estado da
+  flag, e o rollback desliga a capacidade sem apagar agenda, competição,
+  decisões, outbox ou fatos;
+- o navegador responsivo em 360 px é o proxy físico autorizado pelo responsável
+  do produto para Android/iPhone nesta release, sem substituir testes
+  automatizados, acessibilidade, smoke anônimo ou sonda pós-deploy.
 
 ## Rollout, fallback e rollback
 
@@ -429,3 +449,28 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
   tenant nem produzir mensagem;
 - `main` foi reconciliada em `dev` pelo PR `#376`, a branch temporária foi
   removida local e remotamente e a próxima frente permitida é `WP-R13-05`.
+
+### CP3–CP4 — WP-R13-05 validado em 2026-09-03
+
+- locks transacionais determinísticos por `team_id` serializam mutações da
+  agenda e confirmações do mesmo tenant; o teste real com duas conexões provou
+  espera e retomada após o commit, sem bloquear times distintos;
+- a RPC de ativação revalida sessão, papel, tenant e configuração persistida, e
+  a sonda agregada é exclusiva da `service_role`, sem nomes, contatos, atores,
+  endereços ou justificativas;
+- grants históricos sensíveis foram explicitamente negados a `anon` e
+  `authenticated`; sucesso, negação, cross-tenant, replay, ativação e rollback
+  estão cobertos por 42 casos focados;
+- owner/admin da única coorte configurada recebe o controle com confirmação
+  explícita; variável ausente ou inválida mantém a interface inerte e nenhum
+  identificador do time é exposto no cliente ou no log;
+- navegador autenticado em 360 × 800 confirmou Configurações e Pendências sem
+  overflow e sem erro ou aviso no console. O responsável pelo produto autorizou
+  esse navegador responsivo como proxy para Android e iPhone;
+- 123 arquivos/600 testes de aplicação, 68 arquivos/1.781 testes pgTAP, lint,
+  TypeScript, contexto, db lint, migrations, build Webpack e auditoria com zero
+  vulnerabilidades passaram; os dois avisos SQL continuam sendo débitos
+  anteriores fora deste pacote;
+- `professional_scheduling` permanece desligada por padrão. A promoção instala
+  somente a expansão inerte; piloto e rollback serão comprovados no CP5 antes
+  do encerramento da release.

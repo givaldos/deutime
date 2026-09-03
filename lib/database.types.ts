@@ -4494,6 +4494,37 @@ export type Database = {
           team_open: boolean
         }[]
       }
+      get_r13_pilot_health: {
+        Args: { requested_team_id: string }
+        Returns: {
+          accepted_exceptions_24h: number
+          active_internal_teams: number
+          commands_24h: number
+          configuration_complete: boolean
+          date_tbd_events: number
+          hard_conflicts: number
+          integration_consume_enabled: boolean
+          integration_produce_enabled: boolean
+          last_decision_at: string
+          last_flag_change_at: string
+          notifications_failed: number
+          notifications_pending: number
+          notifications_processing: number
+          notifications_sent_24h: number
+          observed_at: string
+          pending_conflicts: number
+          pending_review_events: number
+          postponed_events: number
+          professional_scheduling_enabled: boolean
+          schedule_state_mismatches: number
+          scheduled_events: number
+          stale_conflicts: number
+          team_open: boolean
+          upcoming_events: number
+          warning_conflicts: number
+          whatsapp_delivery_enabled: boolean
+        }[]
+      }
       get_recognition_pilot_health: {
         Args: { requested_team_id: string }
         Returns: {
@@ -5093,6 +5124,23 @@ export type Database = {
       set_my_registration_email_preference: {
         Args: { requested_enabled: boolean; requested_team_id: string }
         Returns: boolean
+      }
+      set_professional_scheduling_pilot_state: {
+        Args: { requested_enabled: boolean; requested_team_id: string }
+        Returns: {
+          created_at: string
+          enabled: boolean
+          feature: Database["public"]["Enums"]["feature_key"]
+          team_id: string
+          updated_at: string
+          updated_by: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "team_feature_flags"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       set_public_recognition_summary_consent: {
         Args: {
