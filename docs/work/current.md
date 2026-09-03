@@ -2,9 +2,9 @@
 release: R13
 work_package: WP-R13-05
 scope: robustness_and_pilot
-branch_or_commit: "codex/r13-robustez-piloto"
-checkpoint: CP4
-status: ready_for_pilot
+branch_or_commit: "7c5d8fd"
+checkpoint: CP6
+status: idle
 completed_ac:
   - AC-R13-01
   - AC-R13-02
@@ -23,25 +23,28 @@ completed_ac:
   - AC-R13-15
   - AC-R13-16
   - AC-R13-17
+  - AC-R13-18
 dirty_files: []
 tests:
   - "VAL-APP: 123 arquivos e 600 testes; lint, TypeScript, contexto e build Webpack verdes"
   - "VAL-DB: 68 arquivos e 1.781 testes pgTAP; WP-R13-05 com 42 casos, incluindo duas sessões concorrentes"
   - "VAL-OPS: migrations preservadas, sonda sem PII e auditoria com zero vulnerabilidades"
   - "VAL-MOBILE: navegador autenticado em 360 x 800 sem overflow nem erro de console"
+  - "VAL-PROD: commit 7c5d8fd; deploy 33817695568 e smoke 33817749972 verdes; três coortes demo saudáveis e desligadas"
 blocker: null
-next_action: "Promover branch para dev e main, verificar expansão inerte em produção, executar piloto sintético e rollback e encerrar a R13 em CP6."
+next_action: "R13 encerrada; iniciar a próxima frente somente em nova tarefa e branch temporária criada a partir de dev sincronizada."
 ---
 
 # Trabalho atual
 
-A R13 concluiu a validação local do `WP-R13-05` em CP4. `events` permanece como
-ocorrência canônica e `professional_scheduling` segue desligada por padrão.
+A R13 concluiu o `WP-R13-05` e retornou a `idle` em CP6. `events` permanece
+como ocorrência canônica e `professional_scheduling` segue desligada.
 
 Conflitos são uma projeção privada recalculada; decisões e exceções ficam em
 trilha imutável. Série, URL, convidados, respostas, vínculos e fatos não são
 reescritos por remarcação, adiamento, data a definir ou cancelamento.
 
 Locks por tenant, grants explícitos, ativação restrita a uma coorte, sonda
-agregada sem PII e rollback preservando os fatos estão validados. A próxima
-ação é promover a expansão inerte, executar o smoke e registrar o CP5–CP6.
+agregada sem PII e rollback preservando os fatos estão implantados e
+validados. Produção recebeu a expansão inerte, o smoke passou e as três coortes
+demo permanecem saudáveis e desligadas. A próxima frente exige nova tarefa.
