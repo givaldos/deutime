@@ -50,7 +50,7 @@ function authErrorMessage(code?: string) {
   if (code === "otp_expired" || code === "invalid_otp") {
     return "Código inválido ou expirado. Confira a mensagem recebida.";
   }
-  return "Não foi possível acessar o WhatsApp agora. Confira o número e tente novamente.";
+  return "Não foi possível enviar o SMS agora. Confira o número e tente novamente.";
 }
 
 export function AthleteRegistrationForm({
@@ -125,7 +125,7 @@ export function AthleteRegistrationForm({
       const { error: authError } = await supabase.auth.signInWithOtp({
         phone: prepared.phone,
         options: {
-          channel: "whatsapp",
+          channel: "sms",
           shouldCreateUser: true,
           captchaToken,
           data: { display_name: fields.fullName },
@@ -233,7 +233,7 @@ export function AthleteRegistrationForm({
       <form onSubmit={verifyAndComplete} className="space-y-5">
         <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-950">
           <MessageCircle className="mb-3 size-6 text-emerald-700" aria-hidden />
-          Enviamos um código pelo WhatsApp para <strong>{verifiedPhone}</strong>.
+          Enviamos um código por SMS para <strong>{verifiedPhone}</strong>.
         </div>
         <div className="space-y-2">
           <Label htmlFor="otp">Código de 6 dígitos</Label>
@@ -373,13 +373,13 @@ export function AthleteRegistrationForm({
           <div className="flex items-start gap-3 rounded-2xl bg-emerald-50 p-4 text-sm leading-6 text-emerald-900">
             <UserRoundCheck className="mt-0.5 size-5 shrink-0 text-emerald-700" aria-hidden />
             <p>
-              Seus dados vieram do perfil já confirmado pelo WhatsApp. Revise as
+              Seus dados vieram do perfil já confirmado pelo celular. Revise as
               posições e autorize o vínculo com este time.
             </p>
           </div>
         ) : (
           <div className="space-y-2">
-            <Label htmlFor="phone">WhatsApp *</Label>
+            <Label htmlFor="phone">Celular *</Label>
             <Input
               id="phone"
               name="phone"
@@ -452,7 +452,7 @@ export function AthleteRegistrationForm({
               : "Enviando código..."
             : existingProfile
               ? "Solicitar entrada no time"
-              : "Confirmar pelo WhatsApp"}
+              : "Confirmar por SMS"}
         </Button>
       </form>
     </>

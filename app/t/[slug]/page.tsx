@@ -241,7 +241,7 @@ export default async function PublicTeamPage({
             <div className="mt-4 flex flex-col gap-3 rounded-2xl bg-grass p-5 text-white sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-bold">Já é atleta deste time?</p>
-                <p className="mt-1 text-sm text-slate-300">Entre com seu WhatsApp para confirmar presença.</p>
+                <p className="mt-1 text-sm text-slate-300">Entre com o código enviado por SMS para confirmar presença.</p>
               </div>
               <Button asChild className="h-11 rounded-xl bg-white text-graphite hover:bg-emerald-50">
                 <Link href={`/auth/login?next=${encodeURIComponent(`/t/${slug}#agenda`)}`}>

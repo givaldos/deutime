@@ -89,7 +89,7 @@ export async function prepareAthleteRegistration(
   if (!phone) {
     return {
       ok: false,
-      message: "Informe um WhatsApp válido. O +55 é adicionado automaticamente.",
+      message: "Informe um celular válido. O +55 é adicionado automaticamente.",
     };
   }
 
@@ -146,7 +146,7 @@ export async function completeAthleteRegistration(
   if (claimsError || !claims?.claims?.sub) {
     return {
       ok: false,
-      message: "Confirme o código recebido no WhatsApp antes de concluir.",
+      message: "Confirme o código recebido por SMS antes de concluir.",
     };
   }
 
@@ -165,7 +165,7 @@ export async function completeAthleteRegistration(
       ok: false,
       message:
         error.code === "42501"
-          ? "O WhatsApp desta sessão ainda não foi confirmado. Solicite um novo código."
+          ? "O celular desta sessão ainda não foi confirmado. Solicite um novo código."
           : "Não foi possível enviar o cadastro ao time. Tente novamente.",
     };
   }

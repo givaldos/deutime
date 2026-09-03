@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 describe("erros do login de atleta por OTP", () => {
   it("orienta o primeiro acesso quando o telefone ainda não possui identidade", () => {
     expect(athleteLoginAuthErrorMessage("otp_disabled")).toBe(
-      "Este WhatsApp ainda não tem perfil. No link público do seu time, escolha Primeiro acesso.",
+      "Este celular ainda não tem perfil. No link público do seu time, escolha Primeiro acesso.",
     );
   });
 

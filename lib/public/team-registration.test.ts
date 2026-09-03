@@ -27,7 +27,7 @@ describe("cadastro público do time", () => {
     const text = buildTeamRegistrationShareText("Demo Campo", url);
 
     expect(text).toBe(
-      `Venha jogar com o Demo Campo! Entre com seu WhatsApp ou crie seu perfil: ${url}`,
+      `Venha jogar com o Demo Campo! Entre com seu celular ou crie seu perfil: ${url}`,
     );
     expect(text).not.toMatch(/[⚽�]/u);
     expect(decodeURIComponent(buildTeamRegistrationWhatsAppUrl("Demo Campo", url))).toContain(text);

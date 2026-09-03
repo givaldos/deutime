@@ -8,7 +8,7 @@ export function athleteLoginAuthErrorMessage(code?: string) {
     return "Código inválido ou expirado.";
   }
   if (code === "otp_disabled") {
-    return "Este WhatsApp ainda não tem perfil. No link público do seu time, escolha Primeiro acesso.";
+    return "Este celular ainda não tem perfil. No link público do seu time, escolha Primeiro acesso.";
   }
   return "Não foi possível entrar. Confira o número usado no cadastro.";
 }
