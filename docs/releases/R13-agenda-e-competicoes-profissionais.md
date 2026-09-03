@@ -420,3 +420,12 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
   débitos anteriores fora deste pacote;
 - `professional_scheduling` continua desligada por padrão e o rollback é
   desligar a flag sem apagar ocorrências, decisões ou fatos.
+- os PRs `#374` (`codex/r13-agenda-conflicts` → `dev`) e `#375`
+  (`dev` → `main`) passaram pelos checks protegidos; produção recebeu o commit
+  `26f9875`, com Deploy Supabase `33778380681`, Database `33778380598`, CI,
+  CodeQL e Terraform verdes;
+- o smoke somente leitura `33778455290` passou após o deploy e a sonda agregada
+  confirmou `professional_enabled=0` e `schedule_conflicts=0`, sem ativar
+  tenant nem produzir mensagem;
+- `main` foi reconciliada em `dev` pelo PR `#376`, a branch temporária foi
+  removida local e remotamente e a próxima frente permitida é `WP-R13-05`.
