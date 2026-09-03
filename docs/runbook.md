@@ -765,6 +765,48 @@ leitura de vínculos, a fila do dashboard, os eventos/outbox e encerramentos já
 confirmados permanecem disponíveis; nenhuma reversão reabre conta, republica
 identidade ou reenvia resultado ambíguo.
 
+### Piloto e rollback — agenda profissional R13
+
+Autorize uma única coorte pelo segredo server-only `R13_PILOT_TEAM_ID`. Sem a
+variável, o controle não aparece e `professional_scheduling` continua
+desligada. Antes da ativação, execute a sonda com a expectativa fechada:
+
+```bash
+R13_PILOT_TEAM_ID='<TEAM_ID_PILOTO>' \
+EXPECT_R13_PROFESSIONAL_SCHEDULING=false \
+EXPECT_R13_NOTIFICATION_DELIVERY=false \
+EXPECT_R13_ACTIVITY=false \
+npm run pilot:r13:health
+```
+
+Na tela **Configurações**, owner/admin confirma explicitamente a ativação. O
+controle chama a RPC auditada `set_team_feature_flag`; nunca atualize a tabela
+de flags pelo navegador. Interrompa se não houver duas equipes padrão ativas e
+distintas ou se a sonda apontar projeção antiga, divergência entre estado e
+pendência, ou comunicação com falha.
+
+Exercite no navegador responsivo em 360 px: criar jogo, abrir **Pendências e
+decisões**, reconhecer um alerta, remarcar e confirmar que não há overflow,
+erro de console ou alvo menor que 44 px. Para validar efeitos reais do canal,
+confirme consentimento, template aprovado, `whatsapp_delivery` e os dois
+controles da integração antes de exigir entrega:
+
+```bash
+R13_PILOT_TEAM_ID='<TEAM_ID_PILOTO>' \
+EXPECT_R13_PROFESSIONAL_SCHEDULING=true \
+EXPECT_R13_NOTIFICATION_DELIVERY=true \
+EXPECT_R13_ACTIVITY=true \
+npm run pilot:r13:health
+```
+
+Rollback usa o mesmo controle da tela para desligar somente
+`professional_scheduling`. Depois, repita a primeira sonda com a expectativa
+desligada. URLs, eventos, séries, campeonatos, RSVP, decisões, conflitos,
+outbox e fatos permanecem; a agenda clássica e os ajustes manuais continuam
+como fallback. A comunicação possui kill switch próprio: interrompa primeiro
+`integration_consume` e depois `integration_produce` quando o incidente for no
+canal, sem apagar a decisão esportiva.
+
 ### Preparação do piloto WhatsApp — R03
 
 O Sandbox da Twilio é somente para teste e não aceita template personalizado.
