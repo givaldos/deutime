@@ -168,4 +168,18 @@ describe("catálogo de produção Twilio", () => {
       },
     });
   });
+
+  it("registra mudanças confirmadas da agenda em template próprio", () => {
+    const config = parseTwilioProductionConfig({
+      TWILIO_ACCOUNT_SID: sandboxEnv.TWILIO_ACCOUNT_SID,
+      TWILIO_AUTH_TOKEN: sandboxEnv.TWILIO_AUTH_TOKEN,
+      TWILIO_WHATSAPP_FROM: "+15553101875",
+      TWILIO_CONTENT_SID_EVENT_SCHEDULE_CHANGE_V1: `HX${"1".repeat(32)}`,
+    });
+
+    expect(config?.templates["event_schedule_change:v1"]).toEqual({
+      contentSid: `HX${"1".repeat(32)}`,
+      profile: "event_schedule_change_v1",
+    });
+  });
 });

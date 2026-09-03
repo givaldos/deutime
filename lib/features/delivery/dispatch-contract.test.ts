@@ -77,4 +77,21 @@ describe("contrato de dispatch WhatsApp", () => {
       "America/Sao_Paulo",
     );
   });
+
+  it("propaga somente o estado operacional confirmado da agenda", () => {
+    const parsed = parsePreparedDispatch({
+      ...prepared,
+      template_payload: {
+        ...prepared.template_payload,
+        schedule_state: "postponed",
+      },
+    })!;
+    const command = buildWhatsAppDispatchCommand(
+      parsed,
+      new URL("https://deutime.app"),
+    );
+
+    expect(command.template.variables.schedule_state).toBe("postponed");
+    expect(command.template.variables).not.toHaveProperty("athlete_name");
+  });
 });

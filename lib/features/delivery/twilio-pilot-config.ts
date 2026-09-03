@@ -53,6 +53,10 @@ const productionSchema = z.object({
     .string()
     .regex(/^HX[A-Fa-f0-9]{32}$/)
     .optional(),
+  TWILIO_CONTENT_SID_EVENT_SCHEDULE_CHANGE_V1: z
+    .string()
+    .regex(/^HX[A-Fa-f0-9]{32}$/)
+    .optional(),
 });
 
 export type TwilioProductionConfig = {
@@ -179,6 +183,12 @@ export function parseTwilioProductionConfig(
       contentSid:
         parsed.data.TWILIO_CONTENT_SID_EVENT_CALL_CARD_LAST_REMEMBER_V2,
       profile: "event_call_card_last_remember_v2",
+    };
+  }
+  if (parsed.data.TWILIO_CONTENT_SID_EVENT_SCHEDULE_CHANGE_V1) {
+    templates["event_schedule_change:v1"] = {
+      contentSid: parsed.data.TWILIO_CONTENT_SID_EVENT_SCHEDULE_CHANGE_V1,
+      profile: "event_schedule_change_v1",
     };
   }
 

@@ -203,6 +203,12 @@ export const createProfessionalEventSchema = createEventSchema
   .and(z.object({
     homeInternalTeamId: databaseUuidSchema,
     awayInternalTeamId: databaseUuidSchema,
+    venueExclusive: z.preprocess(
+      (value) => value === null || value === ""
+        ? undefined
+        : value === "true" || value === "on",
+      z.boolean().optional(),
+    ),
   }))
   .superRefine((value, context) => {
     if (value.homeInternalTeamId === value.awayInternalTeamId) {
@@ -226,6 +232,36 @@ export const legacyUpdateEventSchema = eventFieldsSchema
 export const updateEventSchema = eventFieldsSchema
   .and(civilStartsAtSchema)
   .and(updateIdentitySchema);
+
+export const updateProfessionalEventSchema = updateEventSchema.and(
+  z.object({
+    venueExclusive: z.preprocess(
+      (value) => value === null || value === ""
+        ? undefined
+        : value === "true" || value === "on",
+      z.boolean().optional(),
+    ),
+  }),
+);
+
+export const resolveEventScheduleConflictSchema = z.object({
+  teamId: databaseUuidSchema,
+  teamSlug: z.string().regex(TEAM_SLUG_PATTERN),
+  eventId: databaseUuidSchema,
+  conflictId: databaseUuidSchema,
+  requestId: databaseUuidSchema,
+  decision: z.enum(["confirm_warning", "accept_exception"]),
+  justification: optionalText(500, 10),
+});
+
+export const transitionEventScheduleSchema = z.object({
+  teamId: databaseUuidSchema,
+  teamSlug: z.string().regex(TEAM_SLUG_PATTERN),
+  eventId: databaseUuidSchema,
+  requestId: databaseUuidSchema,
+  transition: z.enum(["date_tbd", "postpone", "cancel"]),
+  scope: z.enum(["single_event", "this_and_future"]),
+});
 
 export const cancelEventSchema = z.object({
   teamId: databaseUuidSchema,

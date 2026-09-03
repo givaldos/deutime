@@ -90,6 +90,7 @@ export default async function NewEventPage({
             defaultSportFormat={team.default_sport_format}
             eventControlEnabled={eventControlEnabled}
             professionalSchedulingEnabled={professionalSchedulingEnabled}
+            canConfigureExclusiveVenue={["owner", "admin"].includes(membership.role)}
             internalSquads={internalConfiguration?.squads}
             defaultHomeTeamId={internalConfiguration?.defaultHomeTeamId}
             defaultAwayTeamId={internalConfiguration?.defaultAwayTeamId}

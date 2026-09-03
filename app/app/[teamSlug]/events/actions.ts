@@ -15,7 +15,10 @@ import {
   legacyUpdateEventSchema,
   matchIncidentSchema,
   matchReportSchema,
+  resolveEventScheduleConflictSchema,
+  transitionEventScheduleSchema,
   updateEventSchema,
+  updateProfessionalEventSchema,
 } from "@/lib/validation/operations";
 import {
   eventReminderSettingsSchema,
@@ -229,6 +232,7 @@ export async function createEvent(
     venueAddress: formData.get("venueAddress"),
     homeInternalTeamId: formData.get("homeInternalTeamId"),
     awayInternalTeamId: formData.get("awayInternalTeamId"),
+    venueExclusive: formData.get("venueExclusive"),
   };
   const parsed = eventControlEnabled
     ? professionalSchedulingEnabled
@@ -294,10 +298,15 @@ export async function createEvent(
       : null;
     result = professionalSchedulingEnabled &&
       homeInternalTeamId && awayInternalTeamId
-      ? await supabase.rpc("create_event_as_staff_v4", {
+      ? await supabase.rpc("create_event_as_staff_v5", {
           ...rpcArguments,
           requested_home_internal_team_id: homeInternalTeamId,
           requested_away_internal_team_id: awayInternalTeamId,
+          requested_venue_exclusive:
+            "venueExclusive" in parsed.data &&
+            typeof parsed.data.venueExclusive === "boolean"
+              ? parsed.data.venueExclusive
+              : undefined,
         })
       : await supabase.rpc("create_event_as_staff_v3", rpcArguments);
 
@@ -343,6 +352,9 @@ export async function updateEvent(
   const eventControlEnabled =
     typeof rawTeamId === "string" &&
     (await isTeamFeatureEnabled(rawTeamId, "event_control"));
+  const professionalSchedulingEnabled =
+    typeof rawTeamId === "string" &&
+    (await isTeamFeatureEnabled(rawTeamId, "professional_scheduling"));
   const input = {
     teamId: formData.get("teamId"),
     teamSlug: formData.get("teamSlug"),
@@ -360,9 +372,12 @@ export async function updateEvent(
     opponentName: formData.get("opponentName"),
     venueName: formData.get("venueName"),
     venueAddress: formData.get("venueAddress"),
+    venueExclusive: formData.get("venueExclusive"),
   };
   const parsed = eventControlEnabled
-    ? updateEventSchema.safeParse(input)
+    ? professionalSchedulingEnabled
+      ? updateProfessionalEventSchema.safeParse(input)
+      : updateEventSchema.safeParse(input)
     : legacyUpdateEventSchema.safeParse(input);
 
   if (!parsed.success) {
@@ -415,9 +430,18 @@ export async function updateEvent(
       event_venue_name: parsed.data.venueName,
       event_venue_address: parsed.data.venueAddress,
     };
-    result = await supabase.rpc("update_event_as_staff_v3", rpcArguments);
+    result = professionalSchedulingEnabled
+      ? await supabase.rpc("update_event_as_staff_v4", {
+          ...rpcArguments,
+          requested_venue_exclusive:
+            "venueExclusive" in parsed.data &&
+            typeof parsed.data.venueExclusive === "boolean"
+              ? parsed.data.venueExclusive
+              : undefined,
+        })
+      : await supabase.rpc("update_event_as_staff_v3", rpcArguments);
 
-    if (isMissingEventOptionsContract(result.error)) {
+    if (!professionalSchedulingEnabled && isMissingEventOptionsContract(result.error)) {
       result = await supabase.rpc("update_event_as_staff_v2", rpcArguments);
     }
   }
@@ -456,6 +480,70 @@ export async function updateEvent(
   redirect(
     `/app/${parsed.data.teamSlug}/events/${parsed.data.eventId}?updated=${parsed.data.editScope}`,
   );
+}
+
+export async function resolveEventScheduleConflict(formData: FormData) {
+  await requireUser();
+  const parsed = resolveEventScheduleConflictSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    eventId: formData.get("eventId"),
+    conflictId: formData.get("conflictId"),
+    requestId: formData.get("requestId"),
+    decision: formData.get("decision"),
+    justification: formData.get("justification") ?? "",
+  });
+  if (!parsed.success) {
+    redirect("/app?error=agenda-invalida");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("resolve_event_schedule_conflict", {
+    requested_team_id: parsed.data.teamId,
+    requested_event_id: parsed.data.eventId,
+    request_id: parsed.data.requestId,
+    requested_conflict_id: parsed.data.conflictId,
+    requested_decision: parsed.data.decision,
+    requested_justification: parsed.data.justification,
+  });
+  if (error) {
+    redirect(`/app/${parsed.data.teamSlug}/events/pending?error=resolve`);
+  }
+  revalidatePath(`/app/${parsed.data.teamSlug}/events`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/events/pending`);
+  redirect(`/app/${parsed.data.teamSlug}/events/pending?resolved=1`);
+}
+
+export async function transitionEventSchedule(formData: FormData) {
+  await requireUser();
+  const parsed = transitionEventScheduleSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    eventId: formData.get("eventId"),
+    requestId: formData.get("requestId"),
+    transition: formData.get("transition"),
+    scope: formData.get("scope"),
+  });
+  if (!parsed.success) {
+    redirect("/app?error=agenda-invalida");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("transition_event_schedule", {
+    requested_team_id: parsed.data.teamId,
+    requested_event_id: parsed.data.eventId,
+    request_id: parsed.data.requestId,
+    requested_transition: parsed.data.transition,
+    requested_scope: parsed.data.scope,
+  });
+  if (error) {
+    redirect(`/app/${parsed.data.teamSlug}/events/pending?error=transition`);
+  }
+  revalidatePath(`/app/${parsed.data.teamSlug}`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/events`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/events/pending`);
+  revalidatePath(`/t/${parsed.data.teamSlug}`);
+  redirect(`/app/${parsed.data.teamSlug}/events/pending?transitioned=1`);
 }
 
 export async function cancelEvent(

@@ -6,7 +6,31 @@ export type TwilioTemplateProfile =
   | "event_call_card_v2"
   | "event_call_card_first_remember_v2"
   | "event_call_card_last_remember_v2"
+  | "event_schedule_change_v1"
   | "sandbox_appointment";
+
+export const EVENT_SCHEDULE_CHANGE_TEMPLATE_V1 = {
+  key: "event_schedule_change",
+  version: "v1",
+  content: {
+    friendly_name: "deutime_event_schedule_change_v1",
+    language: "pt_BR",
+    variables: {
+      "1": "Treino de sexta",
+      "2": "09/09/2030 às 20:00",
+      "3": "e/00000000-0000-4000-8000-000000000000#c=exemplo",
+    },
+    types: {
+      "twilio/text": {
+        body: "A agenda do evento {{1}} mudou. Situação: {{2}}. Consulte os detalhes e sua confirmação em https://deutime.app/{{3}}.",
+      },
+    },
+  },
+  approval: {
+    name: "deutime_event_schedule_change_v1",
+    category: "UTILITY",
+  },
+} as const;
 
 export const EVENT_CALL_TEMPLATE_V1 = {
   key: "event_call",
@@ -150,6 +174,18 @@ export function renderTwilioTemplateVariables(
     variables.event_timezone,
   );
   const eventLink = required(variables.event_link);
+
+  if (profile === "event_schedule_change_v1") {
+    const scheduleState = variables.schedule_state;
+    const status = scheduleState === "date_tbd"
+      ? "Data a definir"
+      : scheduleState === "postponed"
+        ? "Adiado"
+        : scheduleState === "cancelled"
+          ? "Cancelado"
+          : eventStart;
+    return { "1": eventTitle, "2": status, "3": eventLink };
+  }
 
   if (profile === "sandbox_appointment") {
     return {

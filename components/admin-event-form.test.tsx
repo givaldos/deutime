@@ -82,5 +82,19 @@ describe("opções administrativas de evento", () => {
     expect(html).toContain('name="homeInternalTeamId"');
     expect(html).toContain('name="awayInternalTeamId"');
     expect(html).not.toContain('<option value="championship">');
+    expect(html).not.toContain("Uso exclusivo do local neste horário");
+  });
+
+  it("mostra exclusividade somente a owner/admin e envia valor explícito", () => {
+    const html = renderToStaticMarkup(
+      <AdminEventForm
+        {...baseProps}
+        professionalSchedulingEnabled
+        canConfigureExclusiveVenue
+      />,
+    );
+
+    expect(html).toContain("Uso exclusivo do local neste horário");
+    expect(html).toContain('name="venueExclusive" value="false"');
   });
 });
