@@ -43,7 +43,7 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
     const captchaToken = getTurnstileToken(event.currentTarget);
     const normalized = normalizePhone(phoneInput);
     if (!normalized) {
-      setError("Informe um WhatsApp válido. O +55 é adicionado automaticamente.");
+      setError("Informe um celular válido. O +55 é adicionado automaticamente.");
       return;
     }
 
@@ -54,7 +54,7 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
       const supabase = createClient();
       const { error: authError } = await supabase.auth.signInWithOtp({
         phone: normalized,
-        options: { channel: "whatsapp", shouldCreateUser: false, captchaToken },
+        options: { channel: "sms", shouldCreateUser: false, captchaToken },
       });
       if (authError) {
         resetTurnstile();
@@ -101,13 +101,13 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
           <MessageCircle className="size-5" aria-hidden />
         </div>
         <CardTitle className="text-xl">Sou atleta</CardTitle>
-        <CardDescription>Entre sem senha usando o WhatsApp confirmado.</CardDescription>
+        <CardDescription>Entre sem senha usando um código recebido por SMS.</CardDescription>
       </CardHeader>
       <CardContent>
         {stage === "phone" ? (
           <form onSubmit={requestOtp} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="athlete-phone">WhatsApp</Label>
+              <Label htmlFor="athlete-phone">Celular</Label>
               <Input
                 id="athlete-phone"
                 type="tel"

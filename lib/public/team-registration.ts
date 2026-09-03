@@ -12,7 +12,7 @@ export function buildTeamRegistrationShareText(
   teamName: string,
   registrationUrl: string,
 ) {
-  return `Venha jogar com o ${teamName.trim()}! Entre com seu WhatsApp ou crie seu perfil: ${registrationUrl}`;
+  return `Venha jogar com o ${teamName.trim()}! Entre com seu celular ou crie seu perfil: ${registrationUrl}`;
 }
 
 export function buildTeamRegistrationWhatsAppUrl(

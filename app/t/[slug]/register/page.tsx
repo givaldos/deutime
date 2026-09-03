@@ -156,7 +156,7 @@ export default async function AthleteRegistrationPage({
                     Perfil encontrado: {existingProfile.preferredName || existingProfile.fullName}
                   </p>
                   <p className="mt-1 text-sm leading-6 text-emerald-900">
-                    Você entrou com o WhatsApp já confirmado. Agora basta revisar
+                    Você entrou com o celular já confirmado. Agora basta revisar
                     os dados e solicitar entrada neste time.
                   </p>
                 </div>
@@ -172,7 +172,7 @@ export default async function AthleteRegistrationPage({
               <div className="mb-6 flex items-start gap-3 rounded-2xl bg-slate-50 p-4 text-sm leading-6 text-slate-700">
                 <UserPlus className="mt-0.5 size-5 shrink-0 text-emerald-700" aria-hidden />
                 <p>
-                  Crie seu perfil uma única vez. O WhatsApp será seu acesso sem
+                  Crie seu perfil uma única vez. Seu celular será seu acesso sem
                   senha e o perfil poderá acompanhar você em outros times.
                 </p>
               </div>
@@ -240,7 +240,7 @@ function RegistrationChoice({
               Já tenho perfil
             </p>
             <h2 className="mt-1 text-lg font-bold text-emerald-950">
-              Entrar com WhatsApp
+              Entrar com SMS
             </h2>
             <p className="mt-1 text-sm leading-6 text-emerald-900">
               Use o mesmo perfil, histórico e preferências que você já possui.
@@ -255,7 +255,7 @@ function RegistrationChoice({
           <Link
             href={`/auth/login?next=${encodeURIComponent(loginDestination)}`}
           >
-            Entrar com WhatsApp <ArrowRight aria-hidden />
+            Entrar com SMS <ArrowRight aria-hidden />
           </Link>
         </Button>
       </div>
@@ -281,7 +281,7 @@ function RegistrationChoice({
               Criar perfil de atleta
             </h2>
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              Cadastre seus dados e confirme o WhatsApp. Não precisa criar senha.
+              Cadastre seus dados e confirme o celular por SMS. Não precisa criar senha.
             </p>
           </div>
         </div>
