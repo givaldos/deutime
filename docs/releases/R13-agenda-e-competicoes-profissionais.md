@@ -152,10 +152,10 @@ duplica mensagens.
 - [x] `AC-R13-09` — Desempates possuem subir/descer, pontos primários, catálogo sem repetição e confronto direto explicado/testado para três ou mais empatados.
 - [x] `AC-R13-10` — Publicação congela uma versão; edição posterior segue o limite anterior ao primeiro fato e nunca recalcula história por mutação silenciosa.
 - [x] `AC-R13-11` — Página pública mostra exatamente formato, pontuação e ordem aplicada pela RPC transacional.
-- [ ] `AC-R13-12` — Sobreposição de equipe/local exclusivo, vínculo duplicado, intervalo curto, deslocamento potencial e atleta confirmado seguem a matriz aceita.
-- [ ] `AC-R13-13` — Pendências mostra gravidade, motivo e ações; conflito duro exige solução ou exceção justificada por owner/admin.
-- [ ] `AC-R13-14` — Remarcar, data a definir, adiar e cancelar preservam URL, convidados, respostas, vínculo, fatos e auditoria conforme o tipo de jogo.
-- [ ] `AC-R13-15` — Série oferece somente esta ocorrência ou esta e próximas; mensagem nasce após confirmação e não duplica em retry.
+- [x] `AC-R13-12` — Sobreposição de equipe/local exclusivo, vínculo duplicado, intervalo curto, deslocamento potencial e atleta confirmado seguem a matriz aceita.
+- [x] `AC-R13-13` — Pendências mostra gravidade, motivo e ações; conflito duro exige solução ou exceção justificada por owner/admin.
+- [x] `AC-R13-14` — Remarcar, data a definir, adiar e cancelar preservam URL, convidados, respostas, vínculo, fatos e auditoria conforme o tipo de jogo.
+- [x] `AC-R13-15` — Série oferece somente esta ocorrência ou esta e próximas; mensagem nasce após confirmação e não duplica em retry.
 - [x] `AC-R13-16` — Migration forward-only, flag desligada e matriz N/N−1 preservam criação, agenda, campeonatos e histórico atuais.
 - [ ] `AC-R13-17` — RLS, grants, sessão verificada, idempotência e concorrência cobrem sucesso, negação e cross-tenant.
 - [ ] `AC-R13-18` — Jornada passa em 360 px, Android, iPhone e navegador interno do WhatsApp, com acessibilidade, piloto, fallback e rollback.
@@ -228,6 +228,37 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
 - classificação privada e projeção anônima continuam derivadas das súmulas e
   leem os mesmos campos congelados. A expansão é aditiva, tolera N/N−1 e
   `professional_scheduling` permanece desligada fora de coorte explícita.
+
+### Contrato do WP-R13-04
+
+- `events` continua a ocorrência canônica. Um estado profissional aditivo
+  diferencia **Agendado**, **Revisão pendente**, **Data a definir** e **Adiado**
+  sem apagar horário anterior, URL, convidados, respostas ou vínculo esportivo;
+- `venues` recebe a opção persistente de uso exclusivo e `event_squads` passa a
+  referenciar opcionalmente a identidade interna que originou o snapshot. Dados
+  legados continuam válidos e texto livre não produz conflito duro;
+- a projeção privada de pendências é recalculada sob lock com intervalos
+  semiabertos. Ela classifica equipe/local sobreposto como duro; intervalo curto,
+  deslocamento potencial e atleta confirmado sobreposto como alerta. A
+  unicidade 1:1 de confronto/partida permanece invariável e sem exceção;
+- criar ou remarcar profissionalmente salva a ocorrência e a coloca em revisão
+  quando houver pendência. Sem pendência, confirma **Agendado**. Manager pode
+  confirmar alertas e operar a agenda; somente owner/admin aceita conflito duro,
+  sempre com justificativa não vazia e auditoria;
+- decisões, transições e replays usam RPCs transacionais com `request_id` e hash
+  do payload. **Somente este jogo** preserva a série como exceção; **este e os
+  próximos** alcança apenas ocorrências futuras ainda editáveis e não reescreve
+  passado nem exceções anteriores;
+- **Data a definir**, **Adiar** e **Cancelar** preservam relações e fatos. Partida
+  finalizada falha fechada; confronto de campeonato continua vinculado e volta
+  apenas ao estado operacional aplicável, sem apagar a competição;
+- aviso só entra na outbox depois de uma decisão que deixe a ocorrência
+  agendada. A deduplicação usa ocorrência + revisão + finalidade + destinatário;
+  consentimento, contato elegível, flags e kill switch são reavaliados. Falha de
+  comunicação nunca desfaz a decisão esportiva e o painel autenticado permanece
+  fallback;
+- app N−1 ignora as colunas novas, o consumidor novo só chama as RPCs novas com
+  `professional_scheduling` ativa e o rollback continua sendo desligar a flag.
 
 ## Rollout, fallback e rollback
 
@@ -366,3 +397,26 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
 - `main` foi reconciliada por fast-forward em `dev`. O checkpoint retorna a
   `idle`, `professional_scheduling` permanece desligada e a próxima frente
   permitida é `WP-R13-04`.
+
+### CP2–CP4 — WP-R13-04 validado em 2026-09-03
+
+- a projeção privada cobre equipe interna e local exclusivo sobrepostos,
+  intervalo curto, deslocamento e confirmação simultânea de atleta com
+  intervalos semiabertos e dados agregados; o vínculo duplicado de partida
+  permanece invariável e sem exceção;
+- a tela autenticada **Pendências e decisões** mostra bloqueio ou alerta,
+  motivo, eventos envolvidos, remarcação e decisão manual. Manager reconhece
+  alerta; somente owner/admin autoriza conflito duro com justificativa;
+- criação e edição profissionais usam as RPCs `v5`/`v4`, preservam identidade
+  interna e exclusividade do local e deixam os consumidores N−1 disponíveis;
+- data a definir, adiamento e cancelamento mantêm URL, horário anterior, RSVP,
+  equipes, vínculos e auditoria; partida finalizada bloqueia a transição;
+- a comunicação WhatsApp nasce depois da decisão, usa template utilitário
+  próprio, consentimento, flags, kill switch e dedupe por revisão. Falha na
+  preparação não desfaz a decisão esportiva;
+- 119 arquivos/585 testes de aplicação, 67 arquivos/1.739 testes pgTAP, 43
+  testes focados, lint, TypeScript, db lint, migrations, build Webpack e
+  auditoria com zero vulnerabilidades passaram; os únicos avisos SQL são dois
+  débitos anteriores fora deste pacote;
+- `professional_scheduling` continua desligada por padrão e o rollback é
+  desligar a flag sem apagar ocorrências, decisões ou fatos.

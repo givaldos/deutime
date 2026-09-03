@@ -56,7 +56,7 @@ export default async function EditEventPage({
     supabase
       .from("events")
       .select(
-        "id, series_id, title, kind, organization_mode, sport_format, starts_at, ends_at, attendance_deadline, status, opponent_name, venue_id",
+        "id, series_id, title, kind, organization_mode, sport_format, starts_at, ends_at, attendance_deadline, status, professional_schedule_state, opponent_name, venue_id",
       )
       .eq("id", eventId)
       .eq("team_id", team.id)
@@ -74,7 +74,7 @@ export default async function EditEventPage({
   const { data: venue } = event.venue_id
     ? await supabase
         .from("venues")
-        .select("name, address")
+        .select("name, address, is_exclusive")
         .eq("id", event.venue_id)
         .eq("team_id", team.id)
         .maybeSingle()
@@ -104,9 +104,11 @@ export default async function EditEventPage({
     opponentName: event.opponent_name ?? "",
     venueName: venue?.name ?? "",
     venueAddress: venue?.address ?? "",
+    venueExclusive: venue?.is_exclusive ?? false,
   };
-  const [eventControlEnabled, whatsappRemindersEnabled] = await Promise.all([
+  const [eventControlEnabled, professionalSchedulingEnabled, whatsappRemindersEnabled] = await Promise.all([
     isTeamFeatureEnabled(team.id, "event_control"),
+    isTeamFeatureEnabled(team.id, "professional_scheduling"),
     membership.role !== "manager"
       ? isTeamFeatureEnabled(team.id, "whatsapp_reminders")
       : Promise.resolve(false),
@@ -159,6 +161,8 @@ export default async function EditEventPage({
             teamTimezone={team.timezone}
             defaultSportFormat={team.default_sport_format}
             eventControlEnabled={eventControlEnabled}
+            professionalSchedulingEnabled={professionalSchedulingEnabled}
+            canConfigureExclusiveVenue={["owner", "admin"].includes(membership.role)}
             initialRequestId={crypto.randomUUID()}
             event={editableEvent}
           />

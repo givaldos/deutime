@@ -48,6 +48,7 @@ export type EditableEventValues = {
   opponentName: string;
   venueName: string;
   venueAddress: string;
+  venueExclusive?: boolean;
 };
 
 function localDateTimeToIso(value: string) {
@@ -78,6 +79,7 @@ export function AdminEventForm({
   defaultHomeTeamId,
   defaultAwayTeamId,
   initialRequestId,
+  canConfigureExclusiveVenue = false,
   event,
 }: {
   teamId: string;
@@ -90,6 +92,7 @@ export function AdminEventForm({
   defaultHomeTeamId?: string | null;
   defaultAwayTeamId?: string | null;
   initialRequestId: string;
+  canConfigureExclusiveVenue?: boolean;
   event?: EditableEventValues;
 }) {
   const [state, formAction, pending] = useActionState(
@@ -130,6 +133,9 @@ export function AdminEventForm({
   );
   const [awayInternalTeamId, setAwayInternalTeamId] = useState(
     defaultAwayTeamId ?? internalSquads[1]?.id ?? "",
+  );
+  const [venueExclusive, setVenueExclusive] = useState(
+    event?.venueExclusive ?? false,
   );
   const startsAtIso = eventControlEnabled
     ? ""
@@ -595,6 +601,32 @@ export function AdminEventForm({
           <FieldError id="venue-address-error" message={venueAddressError} />
         </div>
       </div>
+
+      {professionalSchedulingEnabled ? (
+        canConfigureExclusiveVenue ? (
+          <label className="flex min-h-14 cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 has-[:checked]:border-emerald-700 has-[:checked]:bg-emerald-50">
+            <input
+              type="hidden"
+              name="venueExclusive"
+              value={venueExclusive ? "true" : "false"}
+            />
+            <input
+              type="checkbox"
+              checked={venueExclusive}
+              onChange={(event) => setVenueExclusive(event.target.checked)}
+              className="mt-0.5 size-5 shrink-0 accent-emerald-700"
+            />
+            <span>
+              <span className="block text-sm font-black text-graphite">
+                Uso exclusivo do local neste horário
+              </span>
+              <span className="mt-1 block text-xs leading-5 text-slate-600">
+                Uma sobreposição neste local bloqueará a confirmação da agenda.
+              </span>
+            </span>
+          </label>
+        ) : null
+      ) : null}
 
       {event?.seriesId && (
         <fieldset className="space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
