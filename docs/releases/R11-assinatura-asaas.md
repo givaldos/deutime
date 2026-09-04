@@ -1,7 +1,7 @@
 ---
 id: R11
 type: vertical
-status: draft
+status: blocked
 outcome: "Permitir que a pessoa administradora contrate uma assinatura mensal por time pelo Asaas e libere os benefícios pagos após confirmação verificável, sem acoplar cobrança, onboarding ou automação de WhatsApp ao provedor."
 depends_on: [R00, R03, R03R, R08M]
 baseline:
@@ -232,3 +232,17 @@ cross-tenant, compatibilidade N/N−1, jornada mobile e piloto controlado.
 - ainda exigem decisão do responsável do produto: preço inicial, benefícios do
   plano `racha`, carência, cancelamento, grandfathering e suporte financeiro;
 - CP1 continua proibido enquanto a decisão estiver `proposed`.
+
+#### Tarefas para desbloquear
+
+- [ ] Concluir o rollout global da R13 e confirmar `professional_scheduling`
+  ativa para times atuais e futuros.
+- [ ] Disponibilizar `ASAAS_SANDBOX_API_KEY` exclusiva no ambiente autorizado,
+  sem registrar o segredo no repositório, shell history, log ou evidência.
+- [ ] Aprovar preço inicial, benefícios e limites versionados do plano `racha`.
+- [ ] Aprovar carência, cancelamento, reativação, grandfathering e responsável
+  pelo suporte financeiro.
+- [ ] Executar os sete ensaios sintéticos de `DEC-SUBSCRIPTION-BILLING`, remover
+  os dados criados e registrar somente identificadores redigidos.
+- [ ] Aceitar ou rejeitar a decisão; CP1 continua proibido enquanto qualquer
+  item anterior permanecer aberto.
