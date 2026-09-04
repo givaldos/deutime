@@ -9,6 +9,8 @@ Cada arquivo desta pasta é o contexto operacional autossuficiente de uma releas
 - `ready`: Definition of Ready satisfeita;
 - `active`: única release em implementação naquela frente;
 - `pilot`: disponível para coorte controlada;
+- `rollout`: implementação e piloto aprovados, mas ativação global ainda
+  pendente; não equivale a `done`;
 - `done`: entregue com evidências;
 - `blocked`: impedimento externo ou decisão registrada.
 
@@ -29,7 +31,8 @@ Cada arquivo desta pasta é o contexto operacional autossuficiente de uma releas
 | [R09 — Campeonatos e tabela](R09-campeonatos-e-tabela.md) | `completed` | Três formatos, página pública, piloto, sonda agregada e CP6 concluídos |
 | [R10 — Reconhecimento positivo](R10-reconhecimento-positivo.md) | `done` | Visão privada, resumo consentido, piloto, smokes e rollback concluídos em CP6 |
 | [R12 — Confiança e autonomia](R12-confianca-e-autonomia.md) | `done` | 17 critérios, compatibilidade, mobile, SES, piloto, fallback e rollback concluídos em CP6 |
-| [R13 — Agenda e competições profissionais](R13-agenda-e-competicoes-profissionais.md) | `ready` | CP0 fecha vocabulário, equipes padrão, regulamento versionado e matriz de conflitos; WP-R13-01 é o próximo pacote |
+| [R13 — Agenda e competições profissionais](R13-agenda-e-competicoes-profissionais.md) | `rollout` | Implementação e piloto aprovados; ativação global de `professional_scheduling` e CP6 operacional pendentes |
+| [R11 — Assinatura pelo Asaas](R11-assinatura-asaas.md) | `blocked` | Descoberta iniciada; aguarda rollout R13, chave Sandbox e decisões comerciais antes do CP1 |
 
 Uma release só recebe arquivo próprio quando a anterior estabilizar seus contratos. Ao promovê-la, adicione-a também ao dropdown do template de issue. Isso evita abrir trabalho sem pacote, reduz especificação prematura e limita o contexto mantido.
 

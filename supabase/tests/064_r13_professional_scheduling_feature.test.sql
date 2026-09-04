@@ -18,10 +18,10 @@ select ok(
   'flag da agenda profissional existe no catálogo tipado'
 );
 select ok(
-  'professional_scheduling' <> all(array(
+  'professional_scheduling' = any(array(
     select feature::text from private.product_feature_keys() feature
   )),
-  'capacidade futura não entra no catálogo global já validado'
+  'agenda profissional integra o catálogo global validado'
 );
 select is(
   (select count(*) from public.team_feature_flags
@@ -62,15 +62,15 @@ select is(
    where team_id in (
      'fa131000-0000-4000-8000-000000000001',
      'fa131000-0000-4000-8000-000000000002'
-   ) and feature = 'professional_scheduling'),
-  0::bigint,
-  'times criados após o rollout também permanecem sem a capacidade futura'
+   ) and feature = 'professional_scheduling' and enabled),
+  2::bigint,
+  'times criados após o rollout recebem a agenda profissional ativa'
 );
 select is(
   (select count(*) from public.team_feature_flags
    where team_id = 'fa131000-0000-4000-8000-000000000001' and enabled),
-  15::bigint,
-  'catálogo anterior continua sendo aplicado sem regressão'
+  16::bigint,
+  'catálogo completo é aplicado sem regressão'
 );
 
 set local role authenticated;
@@ -80,8 +80,8 @@ select is(
     'fa131000-0000-4000-8000-000000000001',
     'professional_scheduling'
   ),
-  false,
-  'ausência de configuração falha fechada para o owner'
+  true,
+  'novo time recebe configuração e capacidade ativa para o owner'
 );
 reset role;
 
@@ -127,7 +127,8 @@ select is(
 );
 select is(
   (select count(*) from public.team_feature_flags
-   where feature = 'professional_scheduling'),
+   where team_id = 'fa131000-0000-4000-8000-000000000001'
+     and feature = 'professional_scheduling'),
   0::bigint,
   'RLS não expõe a linha da capacidade de outro tenant'
 );

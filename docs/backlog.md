@@ -1,6 +1,6 @@
 # DeuTime — Catálogo detalhado de capacidades
 
-> Preservado em 27 de julho de 2026 durante a reorganização do desenvolvimento.
+> Preservado em 27 de julho de 2026 e reconciliado em 3 de setembro de 2026.
 
 Este documento guarda o detalhamento funcional levantado no roadmap anterior. Seus checkboxes representam capacidades e critérios — não são, isoladamente, issues nem ordem de execução.
 
@@ -13,13 +13,39 @@ A sequência oficial fica no [Roadmap executivo](roadmap.md). Ao promover uma re
 
 ## Onde estamos
 
-**Já disponível:** cadastro de times e elenco, agenda avulsa e recorrente, confirmação de presença dentro do app, edição de eventos, súmula com placar, gols, assistências e cartões, página pública do time, perfil público do atleta e entrada do atleta pelo WhatsApp.
+**Já disponível:** o catálogo pré-R13 está ativo em produção; R12 entregou
+privacidade, autonomia da conta, aviso de cadastro e opções ampliadas do evento.
+A R13 possui código, banco, interface, piloto, smoke e rollback comprovados, mas
+`professional_scheduling` permanece desligada e ainda não conta como entregue
+globalmente.
 
-**WhatsApp hoje:** o número já pode ser verificado por OTP e o compartilhamento manual existe, mas chamadas, lembretes, confirmação por link e acompanhamento de entrega ainda não são automáticos.
+**WhatsApp hoje:** OTP, convite, confirmação pelo mesmo link, duas cotas de
+lembrete, acompanhamento de entrega e fallback manual estão disponíveis com
+consentimento, idempotência e controles operacionais.
 
-**Divisão e escalação hoje:** `event_squads` e `lineup_spots` já existem como fundação no banco, mas não há fluxo de produto para dividir confirmados, montar escalação ou gerar uma imagem. Para o organizador, o Marco 3 continua sendo uma construção nova, sem operação legada a migrar.
+**Divisão e escalação hoje:** equipes internas, distribuição dos confirmados,
+publicação e imagem compartilhável estão disponíveis. A experiência profissional
+que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos depende do
+rollout global da R13.
 
-**Principal atrito:** confirmar presença ainda exige sessão autenticada e cobrar quem não respondeu é um trabalho manual. O Marco 2 resolve os dois antes de investir na divisão automática.
+**Principal pendência:** liberar R13 globalmente. Em seguida, a R11 precisa
+concluir sua descoberta no Sandbox Asaas; nenhum schema ou cobrança pode começar
+enquanto o CP0 estiver bloqueado.
+
+### Tarefas atuais
+
+- [ ] Concluir configuração mínima e ativação global de
+  `professional_scheduling` para todos os times atuais.
+- [ ] Fazer novos times herdarem a R13 de forma forward-only e fail-closed
+  durante o deploy.
+- [ ] Executar smoke, rollback e restauração ativa em produção e fechar o CP6
+  operacional da R13.
+- [ ] Disponibilizar chave exclusiva do Sandbox Asaas e aprovar preço,
+  benefícios, limites, carência, cancelamento, grandfathering e suporte.
+- [ ] Executar os sete ensaios de `DEC-SUBSCRIPTION-BILLING` e decidir se a R11
+  pode avançar ao CP1.
+- [ ] Manter marketplace, split, repasse e cobrança de atletas fora da execução
+  até validação própria de densidade, regulação e viabilidade.
 
 ## Vocabulário do domínio
 
@@ -121,8 +147,8 @@ A conta pertence à pessoa, não ao time. Ela deve ser acessível independenteme
 - [ ] Recuperar o acesso pelo e-mail ou WhatsApp.
 - [ ] Ver os aparelhos com sessão aberta e encerrar qualquer sessão.
 - [ ] Escolher notificações por WhatsApp, e-mail ou ambos.
-- [ ] Sair de um time sem apagar a conta.
-- [ ] Encerrar a conta por conta própria, explicando o que será anonimizado e o que permanecerá no histórico dos times.
+- [x] Sair de um time sem apagar a conta.
+- [x] Encerrar a conta por conta própria, explicando o que será anonimizado e o que permanecerá no histórico dos times.
 
 ### 1.3 Quem organiza com você
 

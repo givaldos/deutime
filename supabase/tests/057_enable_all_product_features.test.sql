@@ -28,8 +28,8 @@ select ok(not has_function_privilege(
 select ok(not has_function_privilege(
   'anon', 'public.set_all_product_features(boolean)', 'execute'
 ), 'anônimo não opera o lançamento global');
-select is((select count(*) from private.product_feature_keys()), 15::bigint,
-  'catálogo congela somente as quinze capacidades validadas');
+select is((select count(*) from private.product_feature_keys()), 16::bigint,
+  'catálogo contém as dezesseis capacidades validadas');
 select is((select enabled from private.product_rollout_state where singleton), false,
   'ambientes novos permanecem fail-closed até o rollout explícito');
 
@@ -48,31 +48,31 @@ select * from public.set_all_product_features(true);
 
 select is((select teams_seen from activation_result), 5,
   'lançamento observa todos os times');
-select is((select flags_changed from activation_result), 75,
+select is((select flags_changed from activation_result), 80,
   'lançamento ativa todas as flags inertes');
-select is((select controls_changed from activation_result), 3,
+select is((select controls_changed from activation_result), 6,
   'lançamento ativa todos os controles globais');
 select ok(not exists (
   select 1 from public.team_feature_flags where not enabled
 ), 'todas as flags ficam ativas');
-select is((select count(*) from public.runtime_controls where enabled),3::bigint,
-  'somente os três controles globais validados ficam ativos');
-select is((select enabled from public.runtime_controls where control='account_autonomy'),false,
-  'capacidade futura não herda o rollout global anterior');
-select is((select enabled from public.runtime_controls where control='registration_email_alerts'),false,
-  'produção do aviso de cadastro não herda o rollout global anterior');
-select is((select enabled from public.runtime_controls where control='registration_email_delivery'),false,
-  'consumo do aviso de cadastro não herda o rollout global anterior');
+select is((select count(*) from public.runtime_controls where enabled),6::bigint,
+  'os seis controles globais validados ficam ativos');
+select is((select enabled from public.runtime_controls where control='account_autonomy'),true,
+  'autonomia da conta integra o rollout global');
+select is((select enabled from public.runtime_controls where control='registration_email_alerts'),true,
+  'produção do aviso de cadastro integra o rollout global');
+select is((select enabled from public.runtime_controls where control='registration_email_delivery'),true,
+  'consumo do aviso de cadastro integra o rollout global');
 select is((select enabled from private.product_rollout_state where singleton), true,
   'estado do produto acompanha a ativação');
 select is((select count(*) from public.audit_logs
   where action = 'feature_flag.changed'
     and metadata ->> 'source' = 'product_rollout'
-), 75::bigint, 'ativação global é auditada sem atribuir ator humano');
+), 80::bigint, 'ativação global é auditada sem atribuir ator humano');
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','f2500000-0000-4000-8000-000000000001',true);
-select is((select count(*) from public.team_feature_flags), 15::bigint,
+select is((select count(*) from public.team_feature_flags), 16::bigint,
   'RLS limita o owner às flags do próprio time');
 reset role;
 
@@ -99,13 +99,13 @@ insert into public.teams (id, name, slug, created_by) values (
 select is((select count(*) from public.team_feature_flags
   where team_id = 'f2510000-0000-4000-8000-000000000003'
     and enabled
-), 15::bigint, 'times criados após o rollout recebem o catálogo ativo');
+), 16::bigint, 'times criados após o rollout recebem o catálogo ativo');
 
 create temporary table rollback_result as
 select * from public.set_all_product_features(false);
 select results_eq(
   $$select flags_changed, controls_changed from rollback_result$$,
-  $$values (90, 3)$$,
+  $$values (96, 6)$$,
   'rollback desativa flags e controles no mesmo comando'
 );
 select ok(not exists (

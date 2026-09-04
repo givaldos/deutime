@@ -37,7 +37,7 @@ insert into public.teams (id, name, slug, created_by) values (
 select is((
   select count(*) from public.team_feature_flags
   where team_id = 'f3110000-0000-4000-8000-000000000001' and enabled
-), 15::bigint, 'time novo herda somente o catálogo global já validado');
+), 16::bigint, 'time novo herda o catálogo global completo');
 select is((select account_autonomy_enabled from public.get_r12_pilot_health(
   'f3110000-0000-4000-8000-000000000001'
 )), false, 'autonomia futura não herda rollout global anterior');

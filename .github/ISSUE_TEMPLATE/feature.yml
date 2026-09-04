@@ -25,6 +25,7 @@ body:
         - R08M — Fechamento do MVP compartilhável
         - R09 — Campeonatos e tabela
         - R10 — Reconhecimento positivo
+        - R11 — Assinatura pelo Asaas
         - R12 — Confiança e autonomia
         - R13 — Agenda e competições profissionais
     validations:
