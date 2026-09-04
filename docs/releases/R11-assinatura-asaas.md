@@ -8,8 +8,9 @@ baseline:
   - BASE-TENANCY
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: ""
-decisions: []
+verified_at: "a3a5087"
+decisions:
+  - DEC-SUBSCRIPTION-BILLING
 invariants:
   - INV-MOBILE-WHATSAPP-FIRST
   - INV-RLS-MULTI-TIME
@@ -123,17 +124,20 @@ adapter não pode exigir mudanças no onboarding, entitlement ou WhatsApp.
 
 ## Entry points
 
-O CP0 deve localizar e registrar entrypoints concretos no commit `verified_at`
-antes de qualquer edição. Caminhos novos e nomes definitivos não são antecipados
-por este rascunho.
-
-- código: domínio de assinatura, adapter Asaas, projeção de entitlement,
-  checkout administrativo, webhook e reconciliação;
-- migrations: oferta observada, assinatura projetada, eventos idempotentes,
-  auditoria, RLS, grants e RPCs transacionais;
-- testes: domínio, adapter, rotas, autorização, pgTAP positivo/negativo,
-  cross-tenant, concorrência, replay e app/schema N/N−1;
-- documentação: decisão do provedor, segurança, arquitetura, runbook e evidências.
+- `app/app/[teamSlug]/settings/page.tsx`: superfície owner/admin existente para
+  oferta, estado projetado, divergência e ações; manager já falha fechado;
+- `lib/features/registration-email/contract.ts`: referência de contrato neutro
+  com resultados aceito, rejeitado e ambíguo; a R11 terá domínio próprio em
+  `lib/features/subscriptions/`, sem importar tipos do Asaas;
+- `app/api/integrations/twilio/whatsapp/status/route.ts`: referência de webhook
+  server-only com URL canônica, autenticação antes do banco, limite de corpo e
+  resposta que não revela correlação; o Asaas terá rota e verificador próprios;
+- `supabase/migrations/202607270001_delivery_foundation.sql`: referência de
+  flag por time, controles globais, auditoria, RLS e grants mínimos;
+- `lib/features/registration-email/ses-adapter.test.ts` e
+  `app/api/integrations/twilio/whatsapp/status/route.test.ts`: contratos de
+  configuração parcial, falha fechada, efeito ambíguo, autenticação inválida e
+  persistência mínima que os testes da R11 devem preservar.
 
 ## Pacotes de trabalho
 
@@ -210,14 +214,21 @@ cross-tenant, compatibilidade N/N−1, jornada mobile e piloto controlado.
 
 ## Evidências e checkpoint
 
-### `DP-R11-01` — proposta registrada; CP0 pendente
+### `DP-R11-01` — descoberta iniciada em 2026-09-03; CP0 pendente
 
-- requisitos comerciais, arquiteturais, de segurança e operação foram reunidos;
+- `DEC-SUBSCRIPTION-BILLING` registra a fronteira proposta do provedor, o
+  threat model inicial, opções, consequências, validação e reversão;
+- a documentação oficial confirmou ambientes e chaves independentes, checkout
+  recorrente hospedado, retorno não confirmatório, webhook `at least once` com
+  token próprio, eventos separados de assinatura/cobrança e atualização de
+  preço apenas para cobranças futuras por padrão;
+- entrypoints concretos de interface administrativa, adapter, webhook, flags,
+  controles e testes foram localizados em `a3a5087`;
 - nenhuma API, credencial, migration, tabela, checkout, webhook, flag ou time foi
   criado ou alterado;
-- antes de implementar, validar no sandbox o comportamento real do Asaas e
-  fechar decisões de oferta, preço, grandfathering, carência, cancelamento,
-  webhook, benefícios e suporte;
-- ao promover a release, usar `$executar-release-deutime`, preencher
-  `verified_at`, localizar entrypoints concretos e registrar o checkpoint ativo
-  em `docs/work/current.md`.
+- o ambiente local não possui `ASAAS_SANDBOX_API_KEY`. CP0 permanece aberto até
+  o ensaio real de oferta, checkout, preço, assinatura existente, webhook,
+  cancelamento e reativação com dados sintéticos;
+- ainda exigem decisão do responsável do produto: preço inicial, benefícios do
+  plano `racha`, carência, cancelamento, grandfathering e suporte financeiro;
+- CP1 continua proibido enquanto a decisão estiver `proposed`.

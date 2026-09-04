@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 28 de agosto de 2026.
+> Atualizado em 3 de setembro de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -15,7 +15,7 @@ O **MVP funcional completo** permite que um time real execute pelo celular e pel
 O MVP é considerado completo para **piloto controlado**, não para disponibilidade geral em escala. Nenhuma etapa pode depender de intervenção no banco, expor dados sem consentimento ou perder a operação quando WhatsApp, tempo real, vídeo, votação ou conversa estiverem desligados.
 
 **Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na
-R08M, e R09, R10 e R12 encerraram CP6. A fundação recebeu três melhorias concluídas
+R08M, e R09, R10, R12 e R13 encerraram CP6. A fundação recebeu três melhorias concluídas
 em produção: recuperação de senha corrigida, branding dos e-mails de autenticação
 e edição segura do perfil pós-login. As pendências observadas de confiança,
 autonomia da conta, agenda e experiência de competições foram consolidadas nas
@@ -26,8 +26,9 @@ O rollout pré-lançamento foi concluído em 25 de agosto: os 5 times possuem as
 15 capacidades validadas ativas, com 75/75 flags, 3/3 controles globais,
 worker e smoke aprovados. A R12 concluiu em produção seu contrato de confiança,
 privacidade e autonomia, incluindo opções do evento, piloto SES, fallback e
-rollback. A R13 concluiu o WP-R13-01 em CP2 e a próxima frente única permitida é
-o WP-R13-02.
+rollback. A R13 foi publicada, reconciliada e encerrada. A próxima frente única
+é o `DP-R11-01`: validar contratos e políticas no Sandbox do Asaas sem alterar
+schema ou produção.
 
 ## Estado executivo
 
@@ -47,8 +48,8 @@ o WP-R13-02.
 | **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Modelo factual, visão privada, resumo consentido, revogação, piloto isolado, smokes e rollback comprovados. | [Abrir](releases/R10-reconhecimento-positivo.md) |
 | **Rollout pré-lançamento** | ✅ `done / produção` | 15 capacidades ativas nos 5 times, com 75/75 flags, 3/3 controles, auditoria, worker, smoke e rollback disponíveis. | [Evidência](releases/R00-fundacao-de-entrega.md#evidências-e-checkpoint) |
 | **R12 — Confiança e autonomia** | ✅ `done / CP6` | Privacidade, vínculos, encerramento, aviso SES, opções do evento, compatibilidade, mobile, piloto e rollback comprovados. | [Abrir](releases/R12-confianca-e-autonomia.md) |
-| **R13 — Agenda e competições profissionais** | 🟨 `active / WP-R13-01 concluído` | Separa jogo, recorrência e campeonato; exige equipes reutilizáveis; torna desempates configuráveis e conflitos acionáveis. | [Abrir](releases/R13-agenda-e-competicoes-profissionais.md) |
-| **R11 — Assinatura pelo Asaas** | ⬜ `draft / CP0 pendente` | Assinatura mensal por time, entitlement local e liberação dos benefícios pagos por evento verificado, com Asaas atrás de adapter substituível. | [Abrir](releases/R11-assinatura-asaas.md) |
+| **R13 — Agenda e competições profissionais** | ✅ `completed / CP6` | Jogo, recorrência e campeonato separados; equipes reutilizáveis, regulamento versionado, conflitos acionáveis, piloto, smoke e rollback comprovados. | [Abrir](releases/R13-agenda-e-competicoes-profissionais.md) |
+| **R11 — Assinatura pelo Asaas** | 🟡 `discovery / CP0` | Assinatura mensal por time, entitlement local e liberação dos benefícios pagos por evento verificado, com Asaas atrás de adapter substituível. | [Abrir](releases/R11-assinatura-asaas.md) |
 
 ## Política temporária de ambientes
 
@@ -194,7 +195,7 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 | 8 | ~~[Levantar a próxima decisão pós-R10](discovery/post-r10-next-decision.md)~~ | ✅ primeiro snapshot terminou sem promoção por densidade insuficiente |
 | 9 | ~~Liberar o catálogo concluído em produção~~ | ✅ 75/75 flags, 3/3 controles, auditoria, worker, smoke e rollback comprovados |
 | 10 | ~~Promover e executar R12~~ | ✅ CP6, sonda agregada, piloto SES, fallback e rollback concluídos em produção |
-| 11 | Executar R13 a partir de WP-R13-01 | ✅ R12 ativa globalmente; ✅ vocabulário, equipes padrão, regulamento e matriz de conflitos aceitos em CP0 |
+| 11 | ~~Executar R13 a partir de WP-R13-01~~ | ✅ CP6, produção, smoke, sonda agregada, fallback e rollback concluídos |
 | 12 | Validar a proposta R11 no sandbox do Asaas | R12 e R13 concluídas e ativas em produção; oferta, checkout, preço, assinatura existente, webhook, cancelamento e reativação comprovados |
 | 13 | Promover e executar R11 | somente depois do CP0, como única release ativa, com adapter, piloto produtivo e fallback manual |
 | 14 | Descobrir marketplace e cobrança dos atletas | densidade real de oferta e demanda, regulação, contabilidade, confiança e viabilidade transacional |
@@ -216,7 +217,7 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
 - [x] promover R12 após o rollout integral e fechar seu CP0;
 - [x] executar os pacotes da R12 em uma única frente;
 - [x] promover R13 somente depois da estabilização da R12;
-- [ ] executar o CP0 da R11 no sandbox e fechar decisões comerciais e operacionais depois de R12 e R13;
+- [ ] executar o CP0 da R11 no sandbox e fechar decisões comerciais e operacionais depois de R12 e R13 — descoberta iniciada; chave exclusiva do Sandbox e decisões comerciais pendentes;
 - [ ] promover R11 como única release ativa somente se a Definition of Ready for satisfeita;
 - [ ] manter marketplace condicionado à densidade e a migração para a Meta como tarefa opcional, sem bloquear a implantação pela Twilio.
 
@@ -363,7 +364,7 @@ novos pedidos de entrada.
 
 ### R13 — agenda e competições profissionais
 
-**Estado:** 🟨 `active / WP-R13-01 concluído`. O contrato executável está em
+**Estado:** ✅ `completed / CP6`. O contrato executável está em
 [`R13-agenda-e-competicoes-profissionais.md`](releases/R13-agenda-e-competicoes-profissionais.md)
 e a decisão canônica em
 [`DEC-PROFESSIONAL-SCHEDULING`](decisions/DEC-PROFESSIONAL-SCHEDULING.md).
@@ -391,76 +392,77 @@ sem perder histórico nem alterar o calendário automaticamente.
 
 #### WP-R13-02 — equipes na Missão de estreia e nos padrões
 
-- [ ] Exigir pelo menos duas equipes internas persistentes antes do primeiro
+- [x] Exigir pelo menos duas equipes internas persistentes antes do primeiro
   jogo, inclusive na Missão de estreia, com rascunhos editáveis de nome, cor e
   escudo para reduzir atrito.
-- [ ] Para times existentes sem duas equipes, preservar leitura e histórico,
+- [x] Para times existentes sem duas equipes, preservar leitura e histórico,
   mas conduzir a configuração antes de publicar um novo jogo ou campeonato.
-- [ ] Permitir escolher nas configurações as duas equipes padrão dos novos jogos;
+- [x] Permitir escolher nas configurações as duas equipes padrão dos novos jogos;
   preencher automaticamente e permitir troca antes da publicação.
-- [ ] Em campeonato, pré-selecionar todas as equipes internas ativas como
+- [x] Em campeonato, pré-selecionar todas as equipes internas ativas como
   participantes, permitindo inclusão e retirada antes da publicação; cada
   confronto gerado herda exatamente seus dois participantes.
-- [ ] Usar na interface **equipes participantes** e **atletas convidados**:
+- [x] Usar na interface **equipes participantes** e **atletas convidados**:
   equipes não recebem convite, e atletas ativos elegíveis formam a audiência
   editável da chamada.
-- [ ] Permitir redistribuir os atletas confirmados a cada partida. Vitórias,
+- [x] Permitir redistribuir os atletas confirmados a cada partida. Vitórias,
   derrotas e gols pertencem à identidade persistente da equipe; estatísticas
   pessoais usam a participação real do atleta no lado defendido naquele jogo.
-- [ ] Permitir adversário externo como snapshot e oferecer separadamente
+- [x] Permitir adversário externo como snapshot e oferecer separadamente
   **Salvar como equipe**; não poluir o catálogo permanente sem decisão do admin.
 
 #### WP-R13-03 — regulamento configurável do campeonato
 
-- [ ] Preservar os três formatos entregues: pontos corridos, grupos + mata-mata
+- [x] Preservar os três formatos entregues: pontos corridos, grupos + mata-mata
   e mata-mata direto.
-- [ ] Na criação, apresentar os critérios de desempate como lista numerada e
+- [x] Na criação, apresentar os critérios de desempate como lista numerada e
   reordenável, com botões **subir** e **descer** acessíveis no celular; arrastar
   pode existir como atalho, nunca como único controle.
-- [ ] Manter pontos como classificação primária, impedir critérios repetidos e
+- [x] Manter pontos como classificação primária, impedir critérios repetidos e
   explicar confronto direto quando houver empate entre mais de duas equipes.
-- [ ] Permitir alteração enquanto o campeonato estiver em rascunho. A publicação
+- [x] Permitir alteração enquanto o campeonato estiver em rascunho. A publicação
   congela a versão do regulamento; no primeiro pacote, alteração posterior exige
   cancelar a publicação antes do primeiro resultado ou criar novo campeonato.
-- [ ] Mostrar formato, pontuação e ordem exata dos desempates na página pública
+- [x] Mostrar formato, pontuação e ordem exata dos desempates na página pública
   antes do início; cálculo, correção e recálculo continuam transacionais.
 
 #### WP-R13-04 — conflitos, adiamento e cancelamento
 
-- [ ] Detectar antes de salvar e também após edições: mesma equipe em horários
+- [x] Detectar antes de salvar e também após edições: mesma equipe em horários
   sobrepostos, mesma quadra/local indisponível e confronto ligado duas vezes.
-- [ ] Tratar como alertas, não bloqueios silenciosos: intervalo curto entre jogos,
+- [x] Tratar como alertas, não bloqueios silenciosos: intervalo curto entre jogos,
   deslocamento insuficiente e atleta confirmado em eventos sobrepostos.
-- [ ] Exibir no dashboard **Pendências da agenda**, com contadores por gravidade,
+- [x] Exibir no dashboard **Pendências da agenda**, com contadores por gravidade,
   motivo legível e ações **Revisar**, **Remarcar** e **Adiar**.
-- [ ] Nunca remarcar automaticamente. O admin pode escolher nova data, deixar
+- [x] Nunca remarcar automaticamente. O admin pode escolher nova data, deixar
   **Data a definir** ou manter um conflito excepcional com justificativa e
   auditoria; conflito duro não passa despercebido na publicação.
-- [ ] Jogo independente pode ser remarcado, adiado ou cancelado. Confronto de
+- [x] Jogo independente pode ser remarcado, adiado ou cancelado. Confronto de
   campeonato permanece na competição e pode ser remarcado ou voltar a
   **A agendar**; W.O., anulação e retirada seguem o regulamento, não o fluxo de
   cancelamento de amistoso.
-- [ ] Em uma série, oferecer **somente este jogo** ou **este e os próximos**;
+- [x] Em uma série, oferecer **somente este jogo** ou **este e os próximos**;
   preservar exceções passadas, respostas e confrontos já vinculados.
-- [ ] Preservar identificador, URL pública, convidados, confirmações, vínculo com
+- [x] Preservar identificador, URL pública, convidados, confirmações, vínculo com
   campeonato e trilha de auditoria em adiamentos; partida encerrada nunca é
   apagada.
-- [ ] Mostrar o conflito somente na operação interna. WhatsApp ou e-mail são
+- [x] Mostrar o conflito somente na operação interna. WhatsApp ou e-mail são
   enviados apenas depois que o administrador confirmar remarcação, adiamento ou
   cancelamento, para os destinatários afetados e sem duplicidade.
 
 #### Gate da R13
 
-- [ ] O administrador cria jogo único, série e cada formato de campeonato sem
+- [x] O administrador cria jogo único, série e cada formato de campeonato sem
   confundir recorrência com regulamento, em 360 px e por teclado/leitor de tela.
-- [ ] Nenhum novo jogo ou campeonato é publicado sem os lados exigidos; atletas
+- [x] Nenhum novo jogo ou campeonato é publicado sem os lados exigidos; atletas
   podem mudar de equipe sem corromper histórico ou classificação.
-- [ ] A ordem pública dos desempates é a mesma ordem aplicada no banco.
-- [ ] Todo conflito conhecido aparece antes da publicação ou em Pendências da
+- [x] A ordem pública dos desempates é a mesma ordem aplicada no banco.
+- [x] Todo conflito conhecido aparece antes da publicação ou em Pendências da
   agenda; decisão manual é auditada e não dispara mensagem duplicada.
-- [ ] Feature flags, migrações forward-only, RLS, isolamento multi-time,
-  telemetria, fallback, piloto produtivo e rollback passam pelos checkpoints
-  CP0–CP6; CP6 exige ativação global em produção.
+- [x] Feature flags, migrações forward-only, RLS, isolamento multi-time,
+  telemetria, fallback, piloto controlado e rollback passam pelos checkpoints
+  CP0–CP6; a expansão está em produção e a capacidade permanece desligada fora
+  de uma coorte explicitamente autorizada.
 
 ## Pós-MVP — releases verticais
 
@@ -469,9 +471,9 @@ sem perder histórico nem alterar o calendário automaticamente.
 | **R08 — Divisão automática** | ↪️ `incorporado à R07` | Sugestão reproduzível, ajustável e explicável foi incorporada à jornada de divisão para não entregar uma experiência fragmentada. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Ajuste manual |
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento, página compartilhável e piloto com rollback. | R04, R07, R08M | concluída | Histórico por partida |
 | **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Catálogo factual, visão privada, resumo consentido, revogação e piloto isolado concluídos sem ranking constrangedor. | R04, R05, R07 | concluída | Estatísticas básicas |
-| **R11 — Assinatura pelo Asaas** | ⬜ `draft / CP0 pendente` | Administrador contrata assinatura mensal por time e benefícios pagos são liberados pela projeção local após confirmação verificável. | R00, R03, R03R, R08M | validar sandbox, carência, benefícios, cancelamento e suporte | Operação e compartilhamento manual |
+| **R11 — Assinatura pelo Asaas** | 🟡 `discovery / CP0` | Administrador contrata assinatura mensal por time e benefícios pagos são liberados pela projeção local após confirmação verificável. | R00, R03, R03R, R08M, R12, R13 | validar sandbox, carência, benefícios, cancelamento e suporte | Operação e compartilhamento manual |
 | **R12 — Confiança e autonomia** | ✅ [`done / CP6`](releases/R12-confianca-e-autonomia.md) | Corrige inconsistências, reforça consentimento, entrega saída e encerramento da conta, aviso de cadastro e opções ampliadas do evento. | R00, R01, R02, R10 | concluída | rotas antigas, dashboard e suporte manual |
-| **R13 — Agenda e competições profissionais** | 🟨 [`active / WP-R13-01 concluído`](releases/R13-agenda-e-competicoes-profissionais.md) | Criação clara, equipes padrão, regulamento configurável e resolução manual de conflitos sem perda de histórico. | R01, R07, R09, R12 | concluída em `DEC-PROFESSIONAL-SCHEDULING` | criação e remarcação atuais |
+| **R13 — Agenda e competições profissionais** | ✅ [`completed / CP6`](releases/R13-agenda-e-competicoes-profissionais.md) | Criação clara, equipes padrão, regulamento configurável e resolução manual de conflitos sem perda de histórico. | R01, R07, R09, R12 | concluída em `DEC-PROFESSIONAL-SCHEDULING` | criação e remarcação atuais |
 
 ### R09 — campeonatos configuráveis
 
