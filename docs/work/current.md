@@ -1,44 +1,39 @@
 ---
-release: R13
-work_package: WP-R13-06
-scope: global_product_rollout
-branch_or_commit: "codex/r13-global-rollout"
-checkpoint: CP5
-status: active
+release: R11
+work_package: DP-R11-01
+scope: asaas_sandbox_and_contracts
+branch_or_commit: "00a09a3"
+checkpoint: idle
+status: blocked
 completed_ac:
-  - "catálogo global evoluído de 15 para 16 capacidades"
-  - "configuração mínima idempotente para times atuais e futuros"
-  - "seis controles operacionais cobertos pelo rollout e rollback"
-  - "RLS, grants, auditoria, isolamento e preservação de dados validados"
+  - "R13 promovida pelo fluxo branch temporária → dev → main"
+  - "catálogo global com 16 capacidades e 80/80 flags ativas em produção"
+  - "seis controles operacionais ativos e cinco de cinco times configurados"
+  - "rollback e restauração exercitados sem perda de dados"
+  - "saúde global e smoke público aprovados"
 dirty_files:
   - "docs/work/current.md"
-  - "supabase/migrations/202609040001_r13_global_product_rollout.sql"
-  - "supabase/tests/057_enable_all_product_features.test.sql"
-  - "supabase/tests/063_r12_pilot_health.test.sql"
-  - "supabase/tests/064_r13_professional_scheduling_feature.test.sql"
-  - "supabase/tests/069_r13_global_product_rollout.test.sql"
+  - "docs/backlog.md"
+  - "docs/roadmap.md"
+  - "docs/releases/README.md"
+  - "docs/releases/R11-assinatura-asaas.md"
+  - "docs/releases/R13-agenda-e-competicoes-profissionais.md"
 tests:
-  - "PASS: npm run db:reset"
-  - "PASS: npm run db:lint (somente 2 avisos legados)"
-  - "PASS: npm run db:test (69 arquivos, 1802 testes)"
-  - "PASS: npm test (123 arquivos, 600 testes)"
-  - "PASS: npm run lint"
-  - "PASS: npm run typecheck"
-  - "PASS: npm run test:context"
-  - "PASS: npm run migrations:check -- origin/dev HEAD"
-  - "PASS: npm run security:audit (0 vulnerabilidades)"
-  - "PASS: next build --webpack"
-blocker: null
-next_action: "Executar gates completos, promover branch → dev → main, aplicar migration, ativar, exercitar rollback/restauração, executar smoke e fechar CP6."
+  - "PASS: PR #388 branch temporária → dev"
+  - "PASS: PR #389 dev → main"
+  - "PASS: deploy Supabase 33870569996"
+  - "PASS: smoke de produção 33870624292"
+  - "PASS: produção com 80/80 flags, 6/6 controles e 5/5 times configurados"
+  - "PASS: rollback/restauração preservou 23 eventos, 215 presenças, 10 equipes internas, 2 campeonatos e 1 regulamento"
+  - "PASS: saúde global sem conflitos vencidos, divergências de agenda ou falhas de notificação"
+blocker: "R11 aguarda ASAAS_SANDBOX_API_KEY e decisões comerciais de preço, benefícios, limites, carência, cancelamento, grandfathering e suporte financeiro."
+next_action: "Configurar a chave sandbox do Asaas, aprovar as políticas comerciais e executar os sete testes contratuais da R11."
 ---
 
 # Trabalho atual
 
-O rollout global da R13 adiciona `professional_scheduling` ao catálogo
-validado. A migration é inerte no deploy: a mudança de estado ocorre somente
-pela RPC transacional de `service_role`.
-
-Times sem equipes internas recebem apenas os padrões neutros e editáveis
-`Time A` e `Time B`; configurações existentes não são sobrescritas. O kill
-switch desliga flags e controles sem apagar equipes, eventos, confirmações,
-confrontos, decisões ou outbox, permitindo restauração idempotente.
+A CP6 da R13 está encerrada em produção. O catálogo completo está ativo para
+todos os times e o rollback transacional foi exercitado e restaurado sem perda
+de dados. A próxima frente é a validação contratual da assinatura R11, hoje
+parada apenas pelas credenciais sandbox e decisões comerciais externas ao
+código.

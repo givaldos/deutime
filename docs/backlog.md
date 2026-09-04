@@ -13,11 +13,10 @@ A sequência oficial fica no [Roadmap executivo](roadmap.md). Ao promover uma re
 
 ## Onde estamos
 
-**Já disponível:** o catálogo pré-R13 está ativo em produção; R12 entregou
-privacidade, autonomia da conta, aviso de cadastro e opções ampliadas do evento.
-A R13 possui código, banco, interface, piloto, smoke e rollback comprovados, mas
-`professional_scheduling` permanece desligada e ainda não conta como entregue
-globalmente.
+**Já disponível:** o catálogo completo está ativo em produção com 16
+capacidades, 80/80 flags nos cinco times e 6/6 controles. R12 entregou
+privacidade, autonomia da conta, aviso de cadastro e opções ampliadas do evento;
+R13 entregou agenda profissional, herança para novos times, smoke e rollback.
 
 **WhatsApp hoje:** OTP, convite, confirmação pelo mesmo link, duas cotas de
 lembrete, acompanhamento de entrega e fallback manual estão disponíveis com
@@ -25,20 +24,18 @@ consentimento, idempotência e controles operacionais.
 
 **Divisão e escalação hoje:** equipes internas, distribuição dos confirmados,
 publicação e imagem compartilhável estão disponíveis. A experiência profissional
-que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos depende do
-rollout global da R13.
+que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos está ativa.
 
-**Principal pendência:** liberar R13 globalmente. Em seguida, a R11 precisa
-concluir sua descoberta no Sandbox Asaas; nenhum schema ou cobrança pode começar
-enquanto o CP0 estiver bloqueado.
+**Principal pendência:** a R11 precisa concluir sua descoberta no Sandbox
+Asaas; nenhum schema ou cobrança pode começar enquanto o CP0 estiver bloqueado.
 
 ### Tarefas atuais
 
-- [ ] Concluir configuração mínima e ativação global de
+- [x] Concluir configuração mínima e ativação global de
   `professional_scheduling` para todos os times atuais.
-- [ ] Fazer novos times herdarem a R13 de forma forward-only e fail-closed
+- [x] Fazer novos times herdarem a R13 de forma forward-only e fail-closed
   durante o deploy.
-- [ ] Executar smoke, rollback e restauração ativa em produção e fechar o CP6
+- [x] Executar smoke, rollback e restauração ativa em produção e fechar o CP6
   operacional da R13.
 - [ ] Disponibilizar chave exclusiva do Sandbox Asaas e aprovar preço,
   benefícios, limites, carência, cancelamento, grandfathering e suporte.
