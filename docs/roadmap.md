@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 3 de setembro de 2026.
+> Atualizado em 4 de setembro de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -15,19 +15,15 @@ O **MVP funcional completo** permite que um time real execute pelo celular e pel
 O MVP é considerado completo para **piloto controlado**, não para disponibilidade geral em escala. Nenhuma etapa pode depender de intervenção no banco, expor dados sem consentimento ou perder a operação quando WhatsApp, tempo real, vídeo, votação ou conversa estiverem desligados.
 
 **Estado atual:** ✅ o MVP funcional para piloto controlado foi concluído na
-R08M; R09, R10 e R12 encerraram CP6. O rollout pré-lançamento ativou nos cinco
-times as 15 capacidades então existentes, com 75/75 flags, três controles
-globais, worker e smoke aprovados. A R12 está ativa em produção com privacidade,
-autonomia, opções do evento, SES, fallback e rollback comprovados.
+R08M; R09, R10, R12 e R13 encerraram CP6. O catálogo completo está ativo nos
+cinco times com 16 capacidades, 80/80 flags, 6/6 controles, worker, smoke,
+sondas e rollback/restauração aprovados. Times futuros herdam o mesmo catálogo
+e a configuração profissional enquanto o rollout global estiver ativo.
 
-A R13 concluiu implementação, piloto e evidências técnicas, mas
-`professional_scheduling` terminou desligada em todas as coortes. Pela regra de
-que `done` exige ativação global em produção, seu estado correto é **rollout** e
-o CP6 operacional permanece aberto. A descoberta `DP-R11-01` registrou os
-contratos propostos da assinatura Asaas, porém está **bloqueada** antes do CP1
-por ausência de chave exclusiva do Sandbox, decisões comerciais pendentes e
-pelo rollout global da R13 ainda não concluído. Marketplace, cobrança de
-atletas, split e repasse permanecem fora da proposta atual.
+A descoberta `DP-R11-01` registrou os contratos propostos da assinatura Asaas,
+porém está **bloqueada** antes do CP1 por ausência de chave exclusiva do Sandbox
+e decisões comerciais pendentes. Marketplace, cobrança de atletas, split e
+repasse permanecem fora da proposta atual.
 
 ## Estado executivo
 
@@ -47,7 +43,7 @@ atletas, split e repasse permanecem fora da proposta atual.
 | **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Modelo factual, visão privada, resumo consentido, revogação, piloto isolado, smokes e rollback comprovados. | [Abrir](releases/R10-reconhecimento-positivo.md) |
 | **Rollout pré-lançamento** | ✅ `done / produção` | 15 capacidades ativas nos 5 times, com 75/75 flags, 3/3 controles, auditoria, worker, smoke e rollback disponíveis. | [Evidência](releases/R00-fundacao-de-entrega.md#evidências-e-checkpoint) |
 | **R12 — Confiança e autonomia** | ✅ `done / CP6` | Privacidade, vínculos, encerramento, aviso SES, opções do evento, compatibilidade, mobile, piloto e rollback comprovados. | [Abrir](releases/R12-confianca-e-autonomia.md) |
-| **R13 — Agenda e competições profissionais** | 🟡 `rollout / CP6 operacional aberto` | Implementação, piloto, smoke e rollback passaram; falta ativar `professional_scheduling` para todos os times atuais e futuros. | [Abrir](releases/R13-agenda-e-competicoes-profissionais.md) |
+| **R13 — Agenda e competições profissionais** | ✅ `done / CP6` | Agenda profissional ativa nos cinco times e herdada por novos times, com smoke e rollback/restauração comprovados. | [Abrir](releases/R13-agenda-e-competicoes-profissionais.md) |
 | **R11 — Assinatura pelo Asaas** | 🛑 `blocked / CP0` | Contrato proposto e entrypoints localizados; Sandbox, preço, benefícios, carência, cancelamento, grandfathering e suporte ainda impedem CP1. | [Abrir](releases/R11-assinatura-asaas.md) |
 
 ## Política temporária de ambientes
@@ -114,9 +110,9 @@ ativação global própria descrita abaixo.
 | 7. Descoberta pós-MVP | ✅ requisitos consolidados | Recomendações foram separadas em correções de confiança e evolução da experiência profissional, sem reabrir releases históricas. |
 | 8. Evoluções de produto | ✅ R09 e R10 em CP6 | Campeonatos e reconhecimento positivo concluídos com pilotos, smokes, fallbacks e rollback. |
 | 9. Conta e autenticação | ✅ melhoria concluída | Recuperação publicada, três e-mails com branding e edição do perfil em `/app/profile`, com produção e mobile validados. |
-| 10. Rollout pré-lançamento | ✅ concluído | Catálogo validado ativo globalmente, com 75/75 flags, controles, auditoria, worker, smoke e rollback disponíveis. |
+| 10. Rollout pré-lançamento | ✅ concluído | Catálogo inicial ativo globalmente; ampliado pela R13 para 80/80 flags e 6/6 controles. |
 | 11. Confiança e autonomia | ✅ R12 concluída | Rotas, privacidade, vínculos, encerramento, aviso de cadastro e opções do evento ativos em produção. |
-| 12. Agenda profissional | 🟡 R13 em rollout | Implementação e piloto concluídos; ativar globalmente em produção e comprovar herança para novos times antes de `done`. |
+| 12. Agenda profissional | ✅ R13 concluída | Ativação global, herança para novos times, smoke e rollback/restauração concluídos em CP6. |
 | 13. Monetização do DeuTime | 🛑 R11 bloqueada no CP0 | Retomar o Sandbox Asaas somente com chave exclusiva, políticas comerciais aceitas e R13 globalmente ativa. |
 | 14. Consolidação e escala | ⬜ decisão pendente | Priorizar somente melhorias com risco, uso real ou retorno mensurável. |
 | Opcional — troca de provedor | ⚪ sem posição no cronograma | Avaliar a WhatsApp Cloud API direta da Meta somente se custo, escala ou requisito operacional justificarem; a Twilio permanece como provedora de produção. |
@@ -170,20 +166,15 @@ ativação global própria descrita abaixo.
 
 ## Ordem recomendada para uma única frente
 
-1. concluir o rollout da R13 em produção, incluindo times atuais e a herança
-   segura para novos times;
-2. comprovar flags, configuração mínima, duas equipes, criação profissional,
-   conflitos, rollback e restauração ativa em smoke produtivo;
-3. encerrar o CP6 operacional da R13 e reconciliar documentação, `dev` e `main`;
-4. obter uma chave exclusiva do Sandbox Asaas e aprovar preço, benefícios,
+1. obter uma chave exclusiva do Sandbox Asaas e aprovar preço, benefícios,
    limites, carência, cancelamento, grandfathering e suporte financeiro;
-5. executar os sete ensaios de `DEC-SUBSCRIPTION-BILLING` e aceitar ou rejeitar
+2. executar os sete ensaios de `DEC-SUBSCRIPTION-BILLING` e aceitar ou rejeitar
    a decisão da R11;
-6. somente com CP0 aceito promover `WP-R11-01`; marketplace e cobrança de
+3. somente com CP0 aceito promover `WP-R11-01`; marketplace e cobrança de
    atletas continuam fora da frente.
 
-Enquanto a R11 estiver bloqueada, a única tarefa de produto executável é o
-rollout da R13. Uma única release fica ativa por vez.
+Enquanto a R11 estiver bloqueada, nenhuma implementação de cobrança está
+autorizada. Uma única release fica ativa por vez.
 
 ## Próximas entregas e entrada de melhorias
 
@@ -202,7 +193,7 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 | 9 | ~~Liberar o catálogo concluído em produção~~ | ✅ 75/75 flags, 3/3 controles, auditoria, worker, smoke e rollback comprovados |
 | 10 | ~~Promover e executar R12~~ | ✅ CP6, sonda agregada, piloto SES, fallback e rollback concluídos em produção |
 | 11 | ~~Implementar e pilotar R13~~ | ✅ código, banco, mobile, produção, smoke, sonda agregada, fallback e rollback comprovados |
-| 12 | Liberar R13 globalmente em produção | todos os times atuais prontos e ativos, novos times herdando a capacidade, smoke produtivo e rollback/restauração comprovados |
+| 12 | ~~Liberar R13 globalmente em produção~~ | ✅ cinco times prontos e ativos, novos times herdando a capacidade, smoke produtivo e rollback/restauração comprovados |
 | 13 | Concluir `DP-R11-01` no Sandbox Asaas | chave exclusiva disponível, sete ensaios executados e políticas comerciais aceitas; R13 já em `done` |
 | 14 | Promover e executar R11 | somente depois do CP0, como única release ativa, com adapter, piloto produtivo e fallback manual |
 | 15 | Descobrir marketplace e cobrança dos atletas | densidade real de oferta e demanda, regulação, contabilidade, confiança e viabilidade transacional |
@@ -226,7 +217,7 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
 - [x] promover R13 somente depois da estabilização da R12;
 - [x] implementar, publicar e pilotar todos os pacotes funcionais da R13, com
   smoke, sonda, fallback e rollback comprovados;
-- [ ] ativar `professional_scheduling` globalmente para times atuais e futuros,
+- [x] ativar `professional_scheduling` globalmente para times atuais e futuros,
   restaurar o estado ativo depois do ensaio de rollback e só então encerrar o
   CP6 operacional da R13;
 - [x] iniciar `DP-R11-01`, pesquisar a documentação oficial e registrar adapter,
@@ -379,8 +370,8 @@ novos pedidos de entrada.
 
 ### R13 — agenda e competições profissionais
 
-**Estado:** 🟡 `rollout / CP6 operacional aberto`. Implementação e piloto estão
-concluídos, mas `professional_scheduling` ainda precisa ser ativada globalmente.
+**Estado:** ✅ `done / CP6`. Implementação, piloto, ativação global, herança,
+smoke e rollback/restauração estão concluídos.
 O contrato executável está em
 [`R13-agenda-e-competicoes-profissionais.md`](releases/R13-agenda-e-competicoes-profissionais.md)
 e a decisão canônica em
@@ -479,10 +470,10 @@ sem perder histórico nem alterar o calendário automaticamente.
 - [x] Feature flags, migrações forward-only, RLS, isolamento multi-time,
   telemetria, fallback, piloto controlado e rollback passam pelos checkpoints
   técnicos; a expansão está em produção e o piloto foi encerrado com rollback.
-- [ ] Incluir `professional_scheduling` no rollout global para times atuais e
+- [x] Incluir `professional_scheduling` no rollout global para times atuais e
   futuros, garantir configuração mínima com duas equipes, ativar em produção,
   executar smoke e ensaiar rollback seguido de restauração ativa.
-- [ ] Confirmar zero time elegível com flag desligada ou configuração divergente,
+- [x] Confirmar zero time elegível com flag desligada ou configuração divergente,
   registrar evidências, fechar o CP6 operacional e manter a capacidade ativa.
 
 ## Pós-MVP — releases verticais
@@ -492,9 +483,9 @@ sem perder histórico nem alterar o calendário automaticamente.
 | **R08 — Divisão automática** | ↪️ `incorporado à R07` | Sugestão reproduzível, ajustável e explicável foi incorporada à jornada de divisão para não entregar uma experiência fragmentada. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Ajuste manual |
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento, página compartilhável e piloto com rollback. | R04, R07, R08M | concluída | Histórico por partida |
 | **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Catálogo factual, visão privada, resumo consentido, revogação e piloto isolado concluídos sem ranking constrangedor. | R04, R05, R07 | concluída | Estatísticas básicas |
-| **R11 — Assinatura pelo Asaas** | 🛑 `blocked / CP0` | Contratos propostos e entrypoints localizados; nenhum schema, cobrança ou efeito externo criado. | R00, R03, R03R, R08M, R12, R13 | concluir rollout R13; fornecer chave Sandbox e decidir preço, benefícios, carência, cancelamento e suporte | Operação e compartilhamento manual |
+| **R11 — Assinatura pelo Asaas** | 🛑 `blocked / CP0` | Contratos propostos e entrypoints localizados; nenhum schema, cobrança ou efeito externo criado. | R00, R03, R03R, R08M, R12, R13 | fornecer chave Sandbox e decidir preço, benefícios, carência, cancelamento e suporte | Operação e compartilhamento manual |
 | **R12 — Confiança e autonomia** | ✅ [`done / CP6`](releases/R12-confianca-e-autonomia.md) | Corrige inconsistências, reforça consentimento, entrega saída e encerramento da conta, aviso de cadastro e opções ampliadas do evento. | R00, R01, R02, R10 | concluída | rotas antigas, dashboard e suporte manual |
-| **R13 — Agenda e competições profissionais** | 🟡 [`rollout / CP6 operacional aberto`](releases/R13-agenda-e-competicoes-profissionais.md) | Criação clara, equipes padrão, regulamento configurável e resolução manual de conflitos passaram no piloto; ativação global pendente. | R01, R07, R09, R12 | rollout global e herança para novos times | criação e remarcação atuais |
+| **R13 — Agenda e competições profissionais** | ✅ [`done / CP6`](releases/R13-agenda-e-competicoes-profissionais.md) | Criação clara, equipes padrão, regulamento e conflitos ativos globalmente, com herança e recuperação comprovadas. | R01, R07, R09, R12 | concluída | criação e remarcação atuais |
 
 ### R09 — campeonatos configuráveis
 
@@ -554,9 +545,8 @@ bloqueado em descoberta. CP0 deve validar no sandbox mudanças de preço, novas 
 assinaturas, checkout, autenticidade dos webhooks, cancelamento e reativação, e
 fechar política de carência, benefícios, grandfathering e suporte. Nenhuma
 implementação, credencial, tabela, webhook, cobrança ou time piloto foi ativado.
-A promoção aguarda o rollout global da R13, uma chave exclusiva do Sandbox e as
-decisões comerciais para não monetizar uma jornada com pendência conhecida nem
-desenhar schema sobre comportamento financeiro não comprovado.
+A promoção aguarda uma chave exclusiva do Sandbox e as decisões comerciais para
+não desenhar schema sobre comportamento financeiro não comprovado.
 
 ## Fora do MVP entregue
 
@@ -637,8 +627,7 @@ flowchart LR
     R10 --> PROD
     PROD --> R12["R12 Confiança e autonomia"]
     R12 --> R13["R13 Agenda profissional"]
-    R13 --> R13R["Rollout global R13"]
-    R13R --> R11["R11 CP0 Asaas"]
+    R13 --> R11["R11 CP0 Asaas"]
     R11 --> MARKET["Marketplace e pagamentos"]
     MARKET --> SCALE["Melhorias comprovadas de escala"]
     SCALE -. "opcional se custo/escala justificarem" .-> META["API direta da Meta"]
