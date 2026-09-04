@@ -235,7 +235,7 @@ cross-tenant, compatibilidade N/N−1, jornada mobile e piloto controlado.
 
 #### Tarefas para desbloquear
 
-- [ ] Concluir o rollout global da R13 e confirmar `professional_scheduling`
+- [x] Concluir o rollout global da R13 e confirmar `professional_scheduling`
   ativa para times atuais e futuros.
 - [ ] Disponibilizar `ASAAS_SANDBOX_API_KEY` exclusiva no ambiente autorizado,
   sem registrar o segredo no repositório, shell history, log ou evidência.

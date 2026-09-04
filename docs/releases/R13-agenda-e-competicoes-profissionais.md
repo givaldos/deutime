@@ -1,7 +1,7 @@
 ---
 id: R13
 type: vertical
-status: rollout
+status: done
 outcome: "Permitir que a diretoria crie jogos ou campeonatos sem ambiguidade, reutilize equipes padrão e resolva conflitos de agenda manualmente sem perder histórico."
 depends_on:
   - R01
@@ -15,7 +15,7 @@ baseline:
   - BASE-PUBLIC
   - BASE-WRITES
   - BASE-DELIVERY
-verified_at: "7c5d8fd"
+verified_at: "00a09a3"
 decisions:
   - DEC-EVENT-MATCH
   - DEC-INTERNAL-SQUAD-IDENTITY
@@ -502,23 +502,50 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
   A implementação e o piloto da R13 concluíram os gates técnicos; branches
   temporárias foram removidas após a promoção do registro final de evidências.
 
-### Rollout global pendente — CP6 operacional
+### Rollout global — CP6 operacional fechado em 2026-09-04
 
 A evidência anterior terminou com `professional_scheduling` desligada em todas
-as coortes. Pela regra vigente de que `done` exige ativação global em produção,
-a release permanece em `rollout` até cumprir as tarefas abaixo:
+as coortes. O rollout global posterior cumpriu os critérios operacionais e
+promoveu a release para `done`:
 
-- [ ] Inventariar todos os times atuais por contagens agregadas e confirmar duas
+- [x] Inventariar todos os times atuais por contagens agregadas e confirmar duas
   equipes internas ativas e configuração profissional completa, sem expor PII.
-- [ ] Conduzir a configuração mínima dos times ainda incompletos; não criar
-  identidades esportivas definitivas silenciosamente em nome do administrador.
-- [ ] Criar evolução forward-only do rollout para que times atuais e futuros
+- [x] Completar os dois times vazios somente com os padrões neutros e editáveis
+  `Time A` e `Time B`, sem alterar as identidades dos três times já configurados.
+- [x] Criar evolução forward-only do rollout para que times atuais e futuros
   recebam `professional_scheduling`, preservando o fail-closed durante o deploy.
-- [ ] Ativar globalmente por operação explícita, idempotente e auditável, sem
+- [x] Ativar globalmente por operação explícita, idempotente e auditável, sem
   produzir mensagens ou alterar eventos existentes durante a ativação.
-- [ ] Executar sonda e smoke produtivos para criação de jogo, campeonato,
+- [x] Executar sonda e smoke produtivos para criação de jogo, campeonato,
   regulamento, conflito e fallback, incluindo negação e isolamento multi-time.
-- [ ] Exercitar o kill switch e restaurar o estado ativo, comprovando que nenhum
+- [x] Exercitar o kill switch e restaurar o estado ativo, comprovando que nenhum
   evento, RSVP, equipe, confronto, decisão ou item de outbox foi perdido.
-- [ ] Confirmar zero time elegível desligado ou divergente, atualizar evidências
+- [x] Confirmar zero time elegível desligado ou divergente, atualizar evidências
   e somente então alterar o estado para `done` e fechar o CP6 operacional.
+
+#### Evidências do rollout global
+
+- o PR `#388` promoveu a migration forward-only e os testes para `dev`; o PR
+  `#389` promoveu o estado consolidado para `main` no commit `00a09a3`, ambos
+  com CI, Database, CodeQL, Dependency review, Terraform e Vercel aprovados;
+- o Deploy Supabase `33870569996` aplicou e verificou
+  `202609040001_r13_global_product_rollout.sql`; o gate Database pós-merge
+  `33870569879` também passou com 69 arquivos e 1.802 testes pgTAP;
+- a ativação explícita observou cinco times, alterou somente as cinco flags
+  novas e encontrou os seis controles já ativos. A leitura posterior confirmou
+  `80/80` flags, `6/6` controles, `5/5` configurações completas e `5/5` times
+  com pelo menos duas equipes internas ativas;
+- o kill switch alterou `80` flags e `6` controles para desligado; a leitura
+  intermediária confirmou zero item ativo. A restauração alterou os mesmos
+  `80 + 6` itens e devolveu o produto a `80/80 + 6/6`;
+- antes e depois do ensaio permaneceram iguais as contagens de 23 eventos, 215
+  presenças, 10 equipes internas, dois campeonatos, um regulamento versionado,
+  zero conflito persistido e zero comando profissional. Nenhuma mensagem foi
+  produzida pela ativação;
+- a sonda global observou os cinco times saudáveis, sem conflito vencido,
+  divergência de estado ou falha de notificação. O smoke produtivo somente
+  leitura `33870624292` aprovou página inicial, autenticação, evento público e
+  campeonato público após o deploy;
+- a capacidade permaneceu ativa ao final. Times futuros herdam as 16 flags,
+  duas equipes neutras editáveis e configuração completa somente enquanto o
+  estado global estiver ativo; rollback preserva todo o conteúdo esportivo.

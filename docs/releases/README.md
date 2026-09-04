@@ -31,8 +31,8 @@ Cada arquivo desta pasta é o contexto operacional autossuficiente de uma releas
 | [R09 — Campeonatos e tabela](R09-campeonatos-e-tabela.md) | `completed` | Três formatos, página pública, piloto, sonda agregada e CP6 concluídos |
 | [R10 — Reconhecimento positivo](R10-reconhecimento-positivo.md) | `done` | Visão privada, resumo consentido, piloto, smokes e rollback concluídos em CP6 |
 | [R12 — Confiança e autonomia](R12-confianca-e-autonomia.md) | `done` | 17 critérios, compatibilidade, mobile, SES, piloto, fallback e rollback concluídos em CP6 |
-| [R13 — Agenda e competições profissionais](R13-agenda-e-competicoes-profissionais.md) | `rollout` | Implementação e piloto aprovados; ativação global de `professional_scheduling` e CP6 operacional pendentes |
-| [R11 — Assinatura pelo Asaas](R11-assinatura-asaas.md) | `blocked` | Descoberta iniciada; aguarda rollout R13, chave Sandbox e decisões comerciais antes do CP1 |
+| [R13 — Agenda e competições profissionais](R13-agenda-e-competicoes-profissionais.md) | `done` | 16ª capacidade ativa nos 5 times, herança para novos times, smoke e rollback/restauração concluídos em CP6 |
+| [R11 — Assinatura pelo Asaas](R11-assinatura-asaas.md) | `blocked` | Descoberta iniciada; aguarda chave Sandbox e decisões comerciais antes do CP1 |
 
 Uma release só recebe arquivo próprio quando a anterior estabilizar seus contratos. Ao promovê-la, adicione-a também ao dropdown do template de issue. Isso evita abrir trabalho sem pacote, reduz especificação prematura e limita o contexto mantido.
 
