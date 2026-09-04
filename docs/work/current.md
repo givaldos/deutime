@@ -1,50 +1,40 @@
 ---
-release: R13
-work_package: WP-R13-05
-scope: robustness_and_pilot
-branch_or_commit: "7c5d8fd"
-checkpoint: CP6
-status: idle
-completed_ac:
-  - AC-R13-01
-  - AC-R13-02
-  - AC-R13-03
-  - AC-R13-04
-  - AC-R13-05
-  - AC-R13-06
-  - AC-R13-07
-  - AC-R13-08
-  - AC-R13-09
-  - AC-R13-10
-  - AC-R13-11
-  - AC-R13-12
-  - AC-R13-13
-  - AC-R13-14
-  - AC-R13-15
-  - AC-R13-16
-  - AC-R13-17
-  - AC-R13-18
-dirty_files: []
+release: R11
+work_package: DP-R11-01
+scope: asaas_sandbox_and_contracts
+branch_or_commit: "codex/r11-sandbox-contracts"
+checkpoint: CP0
+status: blocked
+completed_ac: []
+dirty_files:
+  - ".github/ISSUE_TEMPLATE/feature.yml"
+  - "docs/backlog.md"
+  - "docs/releases/R11-assinatura-asaas.md"
+  - "docs/releases/R13-agenda-e-competicoes-profissionais.md"
+  - "docs/releases/README.md"
+  - "docs/roadmap.md"
+  - "docs/work/current.md"
 tests:
-  - "VAL-APP: 123 arquivos e 600 testes; lint, TypeScript, contexto e build Webpack verdes"
-  - "VAL-DB: 68 arquivos e 1.781 testes pgTAP; WP-R13-05 com 42 casos, incluindo duas sessões concorrentes"
-  - "VAL-OPS: migrations preservadas, sonda sem PII e auditoria com zero vulnerabilidades"
-  - "VAL-MOBILE: navegador autenticado em 360 x 800 sem overflow nem erro de console"
-  - "VAL-PROD: commit 7c5d8fd; deploy 33817695568 e smoke 33817749972 verdes; três coortes demo saudáveis e desligadas"
-blocker: null
-next_action: "R13 encerrada; iniciar a próxima frente somente em nova tarefa e branch temporária criada a partir de dev sincronizada."
+  - "DISCOVERY: documentação oficial Asaas verificada em 2026-09-03; nenhum efeito externo executado"
+  - "BASELINE: entrypoints de adapter, webhook, autorização e controles localizados em a3a5087"
+  - "DOCS: git diff --check aprovado após sincronização de roadmap e tarefas"
+blocker: "R13 ainda sem rollout global; ASAAS_SANDBOX_API_KEY ausente e políticas comerciais ainda não aprovadas"
+next_action: "Promover esta sincronização documental; executar o rollout global da R13 em branch própria; depois configurar uma chave exclusiva do Sandbox Asaas, aprovar as políticas comerciais e executar os sete ensaios de DEC-SUBSCRIPTION-BILLING."
 ---
 
 # Trabalho atual
 
-A R13 concluiu o `WP-R13-05` e retornou a `idle` em CP6. `events` permanece
-como ocorrência canônica e `professional_scheduling` segue desligada.
+A R11 iniciou `DP-R11-01` em CP0 sem alterar produto, banco ou produção. A
+fronteira proposta usa checkout recorrente hospedado do Asaas atrás de adapter
+neutro; retorno do navegador nunca ativa benefício.
 
-Conflitos são uma projeção privada recalculada; decisões e exceções ficam em
-trilha imutável. Série, URL, convidados, respostas, vínculos e fatos não são
-reescritos por remarcação, adiamento, data a definir ou cancelamento.
+A documentação oficial e os entrypoints locais estão registrados em
+`DEC-SUBSCRIPTION-BILLING`. O CP0 não pode ser aceito sem chave exclusiva do
+Sandbox e sem fechar as políticas comerciais; CP1 e qualquer migration seguem
+proibidos até essa validação.
 
-Locks por tenant, grants explícitos, ativação restrita a uma coorte, sonda
-agregada sem PII e rollback preservando os fatos estão implantados e
-validados. Produção recebeu a expansão inerte, o smoke passou e as três coortes
-demo permanecem saudáveis e desligadas. A próxima frente exige nova tarefa.
+A auditoria do roadmap identificou que a R13 encerrou o piloto com
+`professional_scheduling` desligada em todas as coortes. Como `done` exige
+ativação global em produção, o rollout da R13 volta a ser a próxima tarefa
+executável. Ele deve ocorrer em branch própria depois que esta sincronização
+documental passar por `dev`; a R11 permanece preservada e bloqueada nesta branch.

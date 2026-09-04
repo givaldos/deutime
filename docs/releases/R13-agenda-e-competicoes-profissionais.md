@@ -1,7 +1,7 @@
 ---
 id: R13
 type: vertical
-status: completed
+status: rollout
 outcome: "Permitir que a diretoria crie jogos ou campeonatos sem ambiguidade, reutilize equipes padrão e resolva conflitos de agenda manualmente sem perder histórico."
 depends_on:
   - R01
@@ -499,5 +499,26 @@ acessibilidade, smoke anônimo e sonda agregada sem PII.
   qualquer coorte explícita. Nenhum tenant real, comunicação ou consumidor foi
   ativado durante o encerramento;
 - `main` foi reconciliada em `dev` pelo PR `#383`, sem reescrita de histórico.
-  A R13 conclui CP6; branches temporárias serão removidas após a promoção deste
-  registro final de evidências.
+  A implementação e o piloto da R13 concluíram os gates técnicos; branches
+  temporárias foram removidas após a promoção do registro final de evidências.
+
+### Rollout global pendente — CP6 operacional
+
+A evidência anterior terminou com `professional_scheduling` desligada em todas
+as coortes. Pela regra vigente de que `done` exige ativação global em produção,
+a release permanece em `rollout` até cumprir as tarefas abaixo:
+
+- [ ] Inventariar todos os times atuais por contagens agregadas e confirmar duas
+  equipes internas ativas e configuração profissional completa, sem expor PII.
+- [ ] Conduzir a configuração mínima dos times ainda incompletos; não criar
+  identidades esportivas definitivas silenciosamente em nome do administrador.
+- [ ] Criar evolução forward-only do rollout para que times atuais e futuros
+  recebam `professional_scheduling`, preservando o fail-closed durante o deploy.
+- [ ] Ativar globalmente por operação explícita, idempotente e auditável, sem
+  produzir mensagens ou alterar eventos existentes durante a ativação.
+- [ ] Executar sonda e smoke produtivos para criação de jogo, campeonato,
+  regulamento, conflito e fallback, incluindo negação e isolamento multi-time.
+- [ ] Exercitar o kill switch e restaurar o estado ativo, comprovando que nenhum
+  evento, RSVP, equipe, confronto, decisão ou item de outbox foi perdido.
+- [ ] Confirmar zero time elegível desligado ou divergente, atualizar evidências
+  e somente então alterar o estado para `done` e fechar o CP6 operacional.
