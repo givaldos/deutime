@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 4 de setembro de 2026.
+> Atualizado em 5 de setembro de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -18,7 +18,9 @@ O MVP é considerado completo para **piloto controlado**, não para disponibilid
 R08M; R09, R10, R12 e R13 encerraram CP6. O catálogo completo está ativo nos
 cinco times com 16 capacidades, 80/80 flags, 6/6 controles, worker, smoke,
 sondas e rollback/restauração aprovados. Times futuros herdam o mesmo catálogo
-e a configuração profissional enquanto o rollout global estiver ativo.
+e a configuração profissional enquanto o rollout global estiver ativo. A R14
+restringe temporariamente a criação de novas equipes a códigos individuais e
+encerrou CP6 com ativação, smoke e rollback/restauração comprovados.
 
 A descoberta `DP-R11-01` registrou os contratos propostos da assinatura Asaas,
 porém está **bloqueada** antes do CP1 por ausência de chave exclusiva do Sandbox
@@ -44,6 +46,7 @@ repasse permanecem fora da proposta atual.
 | **Rollout pré-lançamento** | ✅ `done / produção` | 15 capacidades ativas nos 5 times, com 75/75 flags, 3/3 controles, auditoria, worker, smoke e rollback disponíveis. | [Evidência](releases/R00-fundacao-de-entrega.md#evidências-e-checkpoint) |
 | **R12 — Confiança e autonomia** | ✅ `done / CP6` | Privacidade, vínculos, encerramento, aviso SES, opções do evento, compatibilidade, mobile, piloto e rollback comprovados. | [Abrir](releases/R12-confianca-e-autonomia.md) |
 | **R13 — Agenda e competições profissionais** | ✅ `done / CP6` | Agenda profissional ativa nos cinco times e herdada por novos times, com smoke e rollback/restauração comprovados. | [Abrir](releases/R13-agenda-e-competicoes-profissionais.md) |
+| **R14 — Acesso por convite** | ✅ `done / CP6` | Novas equipes exigem código individual com hash, validade e revogação; ativação e rollback foram comprovados em produção. | [Abrir](releases/R14-acesso-por-convite.md) |
 | **R11 — Assinatura pelo Asaas** | 🛑 `blocked / CP0` | Contrato proposto e entrypoints localizados; Sandbox, preço, benefícios, carência, cancelamento, grandfathering e suporte ainda impedem CP1. | [Abrir](releases/R11-assinatura-asaas.md) |
 
 ## Política temporária de ambientes
@@ -113,8 +116,9 @@ ativação global própria descrita abaixo.
 | 10. Rollout pré-lançamento | ✅ concluído | Catálogo inicial ativo globalmente; ampliado pela R13 para 80/80 flags e 6/6 controles. |
 | 11. Confiança e autonomia | ✅ R12 concluída | Rotas, privacidade, vínculos, encerramento, aviso de cadastro e opções do evento ativos em produção. |
 | 12. Agenda profissional | ✅ R13 concluída | Ativação global, herança para novos times, smoke e rollback/restauração concluídos em CP6. |
-| 13. Monetização do DeuTime | 🛑 R11 bloqueada no CP0 | Retomar o Sandbox Asaas somente com chave exclusiva, políticas comerciais aceitas e R13 globalmente ativa. |
-| 14. Consolidação e escala | ⬜ decisão pendente | Priorizar somente melhorias com risco, uso real ou retorno mensurável. |
+| 13. Acesso pré-lançamento | ✅ R14 concluída | Criação de novas equipes restrita a códigos individuais, com kill switch para o lançamento comercial. |
+| 14. Monetização do DeuTime | 🛑 R11 bloqueada no CP0 | Retomar o Sandbox Asaas somente com chave exclusiva e políticas comerciais aceitas. |
+| 15. Consolidação e escala | ⬜ decisão pendente | Priorizar somente melhorias com risco, uso real ou retorno mensurável. |
 | Opcional — troca de provedor | ⚪ sem posição no cronograma | Avaliar a WhatsApp Cloud API direta da Meta somente se custo, escala ou requisito operacional justificarem; a Twilio permanece como provedora de produção. |
 
 ## Entregas do MVP concluídas
@@ -486,6 +490,7 @@ sem perder histórico nem alterar o calendário automaticamente.
 | **R11 — Assinatura pelo Asaas** | 🛑 `blocked / CP0` | Contratos propostos e entrypoints localizados; nenhum schema, cobrança ou efeito externo criado. | R00, R03, R03R, R08M, R12, R13 | fornecer chave Sandbox e decidir preço, benefícios, carência, cancelamento e suporte | Operação e compartilhamento manual |
 | **R12 — Confiança e autonomia** | ✅ [`done / CP6`](releases/R12-confianca-e-autonomia.md) | Corrige inconsistências, reforça consentimento, entrega saída e encerramento da conta, aviso de cadastro e opções ampliadas do evento. | R00, R01, R02, R10 | concluída | rotas antigas, dashboard e suporte manual |
 | **R13 — Agenda e competições profissionais** | ✅ [`done / CP6`](releases/R13-agenda-e-competicoes-profissionais.md) | Criação clara, equipes padrão, regulamento e conflitos ativos globalmente, com herança e recuperação comprovadas. | R01, R07, R09, R12 | concluída | criação e remarcação atuais |
+| **R14 — Acesso por convite** | ✅ [`done / CP6`](releases/R14-acesso-por-convite.md) | Criação de novas equipes autorizada por código individual durante o pré-lançamento, com operação e rollback. | R00, R12 | concluída | desligar o controle global |
 
 ### R09 — campeonatos configuráveis
 

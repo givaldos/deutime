@@ -22,6 +22,11 @@ R13 entregou agenda profissional, herança para novos times, smoke e rollback.
 lembrete, acompanhamento de entrega e fallback manual estão disponíveis com
 consentimento, idempotência e controles operacionais.
 
+**Acesso durante a divulgação:** a criação de novas equipes exige um código
+individual do DeuTime. O segredo é armazenado somente como hash, tem validade,
+revogação e limite de usos; o controle pode ser desligado no lançamento
+comercial sem apagar times ou resgates.
+
 **Divisão e escalação hoje:** equipes internas, distribuição dos confirmados,
 publicação e imagem compartilhável estão disponíveis. A experiência profissional
 que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos está ativa.
