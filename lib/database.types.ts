@@ -2971,6 +2971,75 @@ export type Database = {
         }
         Relationships: []
       }
+      prelaunch_team_invite_codes: {
+        Row: {
+          code_hash: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          label: string
+          max_redemptions: number
+          redemption_count: number
+          revoked_at: string | null
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          label: string
+          max_redemptions?: number
+          redemption_count?: number
+          revoked_at?: string | null
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          label?: string
+          max_redemptions?: number
+          redemption_count?: number
+          revoked_at?: string | null
+        }
+        Relationships: []
+      }
+      prelaunch_team_invite_redemptions: {
+        Row: {
+          invite_id: string
+          redeemed_at: string
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          invite_id: string
+          redeemed_at?: string
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          invite_id?: string
+          redeemed_at?: string
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prelaunch_team_invite_redemptions_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "prelaunch_team_invite_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prelaunch_team_invite_redemptions_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: true
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professional_scheduling_commands: {
         Row: {
           actor_id: string
@@ -4081,15 +4150,24 @@ export type Database = {
         }
         Returns: string
       }
-      create_team_for_current_user: {
-        Args: {
-          invite_code?: string
-          sport_format: Database["public"]["Enums"]["sport_format"]
-          team_name: string
-          team_slug: string
-        }
-        Returns: string
-      }
+      create_team_for_current_user:
+        | {
+            Args: {
+              sport_format: Database["public"]["Enums"]["sport_format"]
+              team_name: string
+              team_slug: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              invite_code: string
+              sport_format: Database["public"]["Enums"]["sport_format"]
+              team_name: string
+              team_slug: string
+            }
+            Returns: string
+          }
       create_team_invitation: {
         Args: {
           invited_email: string
@@ -4442,6 +4520,16 @@ export type Database = {
         Args: { requested_team_id: string }
         Returns: boolean
       }
+      get_prelaunch_team_invite_status: {
+        Args: never
+        Returns: {
+          available_codes: number
+          expired_codes: number
+          invite_only: boolean
+          redeemed_codes: number
+          revoked_codes: number
+        }[]
+      }
       get_public_championship: {
         Args: { requested_public_id: string }
         Returns: Json
@@ -4559,16 +4647,6 @@ export type Database = {
           review_count: number
         }[]
       }
-      get_prelaunch_team_invite_status: {
-        Args: never
-        Returns: {
-          available_codes: number
-          expired_codes: number
-          invite_only: boolean
-          redeemed_codes: number
-          revoked_codes: number
-        }[]
-      }
       get_team_invitation_preview: {
         Args: { raw_token: string }
         Returns: {
@@ -4611,6 +4689,15 @@ export type Database = {
           requested_user_id: string
         }
         Returns: boolean
+      }
+      issue_prelaunch_team_invite: {
+        Args: {
+          requested_code: string
+          requested_expires_at?: string
+          requested_label: string
+          requested_max_redemptions?: number
+        }
+        Returns: string
       }
       leave_my_team: {
         Args: { request_id: string; requested_team_id: string }
@@ -5019,6 +5106,10 @@ export type Database = {
       }
       revoke_event_access_credential: {
         Args: { requested_credential_id: string; requested_reason?: string }
+        Returns: boolean
+      }
+      revoke_prelaunch_team_invite: {
+        Args: { requested_invite_id: string }
         Returns: boolean
       }
       revoke_team_invitation: {

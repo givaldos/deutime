@@ -37,7 +37,7 @@ export async function createTeam(
     team_name: parsed.data.name,
     team_slug: parsed.data.slug,
     sport_format: parsed.data.sportFormat,
-    invite_code: parsed.data.inviteCode,
+    invite_code: parsed.data.inviteCode ?? "",
   });
 
   if (error) {
