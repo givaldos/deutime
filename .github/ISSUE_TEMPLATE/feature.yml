@@ -28,6 +28,7 @@ body:
         - R11 — Assinatura pelo Asaas
         - R12 — Confiança e autonomia
         - R13 — Agenda e competições profissionais
+        - R14 — Acesso por convite
     validations:
       required: true
   - type: input

@@ -4083,6 +4083,7 @@ export type Database = {
       }
       create_team_for_current_user: {
         Args: {
+          invite_code?: string
           sport_format: Database["public"]["Enums"]["sport_format"]
           team_name: string
           team_slug: string
@@ -4558,6 +4559,16 @@ export type Database = {
           review_count: number
         }[]
       }
+      get_prelaunch_team_invite_status: {
+        Args: never
+        Returns: {
+          available_codes: number
+          expired_codes: number
+          invite_only: boolean
+          redeemed_codes: number
+          revoked_codes: number
+        }[]
+      }
       get_team_invitation_preview: {
         Args: { raw_token: string }
         Returns: {
@@ -4569,6 +4580,7 @@ export type Database = {
       }
       is_account_autonomy_enabled: { Args: never; Returns: boolean }
       is_my_account_blocked: { Args: never; Returns: boolean }
+      is_team_creation_invite_required: { Args: never; Returns: boolean }
       is_runtime_control_enabled: {
         Args: {
           requested_control: Database["public"]["Enums"]["runtime_control_key"]
@@ -5631,6 +5643,7 @@ export type Database = {
         | "account_autonomy"
         | "registration_email_alerts"
         | "registration_email_delivery"
+        | "team_creation_invite_only"
       sport_format: "field" | "society" | "futsal"
       team_invitation_status:
         | "pending"
@@ -5962,6 +5975,7 @@ export const Constants = {
         "account_autonomy",
         "registration_email_alerts",
         "registration_email_delivery",
+        "team_creation_invite_only",
       ],
       sport_format: ["field", "society", "futsal"],
       team_invitation_status: [
@@ -5975,4 +5989,3 @@ export const Constants = {
     },
   },
 } as const
-
