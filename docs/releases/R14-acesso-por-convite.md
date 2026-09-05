@@ -1,8 +1,9 @@
 ---
 id: R14
 type: vertical
-status: active
+status: done
 outcome: "Permitir que somente pessoas convidadas concluam a criação de uma nova equipe durante o pré-lançamento, com desligamento operacional imediato no lançamento comercial."
+verified_at: "9cf074c"
 depends_on:
   - R00
   - R12
@@ -66,16 +67,16 @@ compatibilidade de deploy e rollback. A migration nasce inerte e a autorização
 
 ## Critérios de aceite
 
-- [ ] controle desligado preserva a criação compatível sem consumir convite;
-- [ ] controle ligado exige código válido e cria equipe + resgate atomicamente;
-- [ ] código inválido, vencido, revogado ou esgotado falha com mensagem única;
-- [ ] concorrência não ultrapassa o limite de resgates;
-- [ ] `anon` e `authenticated` não leem nem escrevem convites ou resgates;
-- [ ] UI é acessível em 360 px, não inclui código em URL e evita autocomplete;
-- [ ] emissão, status e ativação possuem comando operacional sem imprimir hash;
-- [ ] deploy banco/app funciona nas duas ordens com expansão inicialmente inerte;
-- [ ] rollback libera criação sem apagar equipes, convites ou resgates;
-- [ ] testes `VAL-APP`, `VAL-DB`, segurança e smoke produtivo passam.
+- [x] controle desligado preserva a criação compatível sem consumir convite;
+- [x] controle ligado exige código válido e cria equipe + resgate atomicamente;
+- [x] código inválido, vencido, revogado ou esgotado falha com mensagem única;
+- [x] concorrência não ultrapassa o limite de resgates;
+- [x] `anon` e `authenticated` não leem nem escrevem convites ou resgates;
+- [x] UI é acessível em 360 px, não inclui código em URL e evita autocomplete;
+- [x] emissão, status e ativação possuem comando operacional sem imprimir hash;
+- [x] deploy banco/app funciona nas duas ordens com expansão inicialmente inerte;
+- [x] rollback libera criação sem apagar equipes, convites ou resgates;
+- [x] testes `VAL-APP`, `VAL-DB`, segurança e smoke produtivo passam.
 
 ## Validação
 
@@ -94,3 +95,25 @@ compatibilidade de deploy e rollback. A migration nasce inerte e a autorização
 4. ativar `team_creation_invite_only` explicitamente;
 5. confirmar negação sem código, consumo válido e impossibilidade de replay;
 6. exercitar rollback, restaurar o estado ativo e encerrar CP6.
+
+## Evidências CP2–CP6
+
+- o PR `#393` promoveu a fatia completa para `dev` e o PR `#394` promoveu
+  `dev → main` no commit `9cf074c`; CI, Database, CodeQL, Dependency review,
+  Terraform e Vercel aprovaram as duas passagens;
+- quatro arquivos focados somaram 18 testes de validação, Action, interface e
+  gerador; o gate integral aprovou 125 arquivos e 606 testes de aplicação;
+- o Database aprovou 70 arquivos e 1.833 testes pgTAP, incluindo 31 cenários da
+  R14 para grants, RLS, inércia, código inválido, vencido, revogado, consumo,
+  replay, atomicidade, auditoria redigida e rollback;
+- a auditoria npm encontrou zero vulnerabilidades; typecheck, lint, integridade
+  das migrations e build Webpack passaram. Vercel comprovou o build equivalente;
+- o Deploy Supabase `33983401376` aplicou e verificou as duas migrations. O
+  Database pós-merge `33983401386`, CI `33983401362`, CodeQL `33983401361`,
+  Terraform `33983401378` e smoke produtivo `33983439072` passaram;
+- a leitura inicial confirmou política desligada e zero códigos. Um convite
+  individual, com um uso e validade de 30 dias, foi emitido sem persistir ou
+  registrar o segredo em texto puro;
+- o ensaio produtivo confirmou `ativa → desligada → ativa`, mantendo um código
+  disponível, zero resgates, zero vencidos e zero revogados em todas as
+  transições. O estado final é `invite_only = true`.
