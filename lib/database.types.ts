@@ -4658,13 +4658,13 @@ export type Database = {
       }
       is_account_autonomy_enabled: { Args: never; Returns: boolean }
       is_my_account_blocked: { Args: never; Returns: boolean }
-      is_team_creation_invite_required: { Args: never; Returns: boolean }
       is_runtime_control_enabled: {
         Args: {
           requested_control: Database["public"]["Enums"]["runtime_control_key"]
         }
         Returns: boolean
       }
+      is_team_creation_invite_required: { Args: never; Returns: boolean }
       is_team_feature_enabled: {
         Args: {
           requested_feature: Database["public"]["Enums"]["feature_key"]
@@ -6080,3 +6080,4 @@ export const Constants = {
     },
   },
 } as const
+
