@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 export const TEAM_SLUG_PATTERN = /^(?=.{3,48}$)[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const PRELAUNCH_INVITE_CODE_PATTERN =
+  /^[A-Z0-9]{4}(?:-[A-Z0-9]{4}){3}$/;
 
 export function sanitizeTeamSlug(value: string) {
   return value
@@ -30,6 +32,13 @@ export const createTeamSchema = z.object({
     .max(48)
     .regex(TEAM_SLUG_PATTERN),
   sportFormat: z.enum(["field", "society", "futsal"]),
+  inviteCode: z.preprocess(
+    (value) => {
+      if (typeof value !== "string" || value.trim() === "") return undefined;
+      return value.trim().toUpperCase();
+    },
+    z.string().regex(PRELAUNCH_INVITE_CODE_PATTERN).optional(),
+  ),
 });
 
 const optionalText = (max: number) =>

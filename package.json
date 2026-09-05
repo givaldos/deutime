@@ -34,6 +34,7 @@
     "pilot:recognition:health": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/recognition-pilot-health.mjs",
     "pilot:r12:health": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/r12-pilot-health.mjs",
     "pilot:r13:health": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/r13-pilot-health.mjs",
+    "prelaunch:invite": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/prelaunch-team-invite.mjs",
     "smoke:production": "SMOKE_MODE=production-readonly node scripts/smoke.mjs",
     "security:audit": "npm audit --audit-level=moderate",
     "verify": "npm run lint && npm run typecheck && npm run test && npm run test:context && npm run build"

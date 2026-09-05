@@ -2,11 +2,16 @@ import { BrandMark } from "@/components/brand-mark";
 import { CreateTeamForm } from "@/components/create-team-form";
 import { LogoutButton } from "@/components/logout-button";
 import { requireUser } from "@/lib/auth/dal";
+import { createClient } from "@/lib/supabase/server";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 export default async function NewTeamPage() {
   await requireUser();
+  const supabase = await createClient();
+  const { data: inviteOnly, error: invitePolicyError } = await supabase.rpc(
+    "is_team_creation_invite_required",
+  );
 
   return (
     <main className="app-canvas pb-10">
@@ -35,7 +40,9 @@ export default async function NewTeamPage() {
         </div>
 
         <section className="app-surface p-5 sm:p-7">
-          <CreateTeamForm />
+          <CreateTeamForm
+            inviteOnly={invitePolicyError ? true : Boolean(inviteOnly)}
+          />
         </section>
       </div>
     </main>

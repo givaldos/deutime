@@ -29,8 +29,28 @@ describe("onboarding validation", () => {
         name: "Racha do Bairro",
         slug: " RACHA-DO-BAIRRO ",
         sportFormat: "society",
+        inviteCode: " abcd-efgh-jklm-npqr ",
       }).slug,
     ).toBe("racha-do-bairro");
+  });
+
+  it("normaliza e valida o código temporário de convite", () => {
+    expect(
+      createTeamSchema.parse({
+        name: "Racha do Bairro",
+        slug: "racha-do-bairro",
+        sportFormat: "society",
+        inviteCode: " abcd-efgh-jklm-npqr ",
+      }).inviteCode,
+    ).toBe("ABCD-EFGH-JKLM-NPQR");
+    expect(
+      createTeamSchema.safeParse({
+        name: "Racha do Bairro",
+        slug: "racha-do-bairro",
+        sportFormat: "society",
+        inviteCode: "codigo-curto",
+      }).success,
+    ).toBe(false);
   });
 
   it("rejects unsafe or malformed public slugs", () => {

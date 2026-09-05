@@ -9,7 +9,7 @@ import { useActionState, useState } from "react";
 
 const initialState: CreateTeamState = {};
 
-export function CreateTeamForm() {
+export function CreateTeamForm({ inviteOnly }: { inviteOnly: boolean }) {
   const [state, formAction, pending] = useActionState(createTeam, initialState);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -41,6 +41,39 @@ export function CreateTeamForm() {
           </p>
         )}
       </div>
+
+      {inviteOnly && (
+        <div className="space-y-2">
+          <Label htmlFor="team-invite-code">Código de convite</Label>
+          <Input
+            id="team-invite-code"
+            name="inviteCode"
+            placeholder="XXXX-XXXX-XXXX-XXXX"
+            minLength={19}
+            maxLength={19}
+            pattern="[A-Za-z0-9]{4}(?:-[A-Za-z0-9]{4}){3}"
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            required
+            className="font-mono uppercase tracking-wider"
+            aria-describedby={
+              state.errors?.inviteCode
+                ? "team-invite-code-error"
+                : "team-invite-code-help"
+            }
+          />
+          <p id="team-invite-code-help" className="text-xs text-slate-500">
+            Durante o pré-lançamento, novas equipes são liberadas somente por
+            convite do DeuTime.
+          </p>
+          {state.errors?.inviteCode && (
+            <p id="team-invite-code-error" className="text-sm text-red-600">
+              Informe o código de 16 caracteres recebido no convite.
+            </p>
+          )}
+        </div>
+      )}
 
       <fieldset className="space-y-3">
         <legend className="text-sm font-medium">Modalidade principal</legend>
@@ -109,7 +142,7 @@ export function CreateTeamForm() {
         className="h-12 w-full rounded-xl bg-emerald-700 hover:bg-emerald-800"
         disabled={pending}
       >
-        {pending ? "Criando time..." : "Criar time e continuar"}
+        {pending ? "Validando e criando..." : "Criar time e continuar"}
       </Button>
     </form>
   );
