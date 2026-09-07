@@ -64,29 +64,24 @@ export function ProfessionalCreationActions({
 
 const championshipProgressCopy = {
   1: {
-    title: "Comece pelo rascunho",
-    description:
-      "Ao criar o rascunho, seu progresso fica salvo. Você pode sair e continuar as próximas etapas depois.",
+    title: "Dê nome ao campeonato",
+    description: "Escolha o nome e o formato. Você poderá voltar antes de continuar.",
   },
   2: {
+    title: "Escolha as regras",
+    description: "Defina pontuação, grupos e a ordem dos critérios de desempate.",
+  },
+  3: {
     title: "Escolha as equipes",
-    description:
-      "Identidade, formato e regras já estão salvos no rascunho. Adicione ao menos duas equipes para continuar.",
+    description: "Selecione pelo menos duas equipes que disputarão o campeonato.",
+  },
+  4: {
+    title: "Distribua os convocados",
+    description: "Escolha em qual equipe cada atleta vai jogar neste campeonato.",
   },
   5: {
-    title: "Monte o calendário",
-    description:
-      "Equipes, formato e regras estão salvos. Gere os confrontos para revisar o calendário antes da publicação.",
-  },
-  6: {
-    title: "Revise os jogos",
-    description:
-      "O calendário está salvo no rascunho. Revise os confrontos e publique quando estiver tudo certo.",
-  },
-  7: {
-    title: "Campeonato publicado",
-    description:
-      "A configuração e os confrontos publicados permanecem registrados no campeonato.",
+    title: "Acerte a agenda e conclua",
+    description: "Informe a primeira data e confira os jogos antes de criar a agenda e publicar.",
   },
 } as const;
 
@@ -96,13 +91,11 @@ export function ChampionshipCreationProgress({
   currentStep?: keyof typeof championshipProgressCopy;
 }) {
   const steps = [
-    "Identidade",
-    "Equipes",
-    "Formato",
+    "Campeonato",
     "Regras",
-    "Calendário",
-    "Revisão",
-    "Publicação",
+    "Equipes",
+    "Convocados",
+    "Agenda",
   ];
 
   const copy = championshipProgressCopy[currentStep];
@@ -113,7 +106,7 @@ export function ChampionshipCreationProgress({
       className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4"
     >
       <p className="text-xs font-black uppercase tracking-[0.12em] text-emerald-800">
-        Etapa {currentStep} de 7
+        Etapa {currentStep} de 5
       </p>
       <h2
         id="championship-progress-title"

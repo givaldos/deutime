@@ -16,6 +16,7 @@ import {
   type ChampionshipActionState,
 } from "@/app/app/[teamSlug]/championships/actions";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
+import { ChampionshipCreationProgress } from "@/components/professional-creation-actions";
 import { createRequestId } from "@/lib/client/request-id";
 import {
   championshipTiebreakKeys,
@@ -148,32 +149,103 @@ export function CreateChampionshipForm({
   const [state, action, pending] = useActionState(createChampionship, initialState);
   const [requestId] = useState(createRequestId);
   const [format, setFormat] = useState<ChampionshipFormat>("league");
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [name, setName] = useState("");
+  const [selectedTeamIds, setSelectedTeamIds] = useState(
+    () => internalSquads.map((squad) => squad.id),
+  );
+  const guided = professionalSchedulingEnabled;
 
   return (
     <form action={action} className="space-y-5">
       <input type="hidden" name="teamId" value={teamId} />
       <input type="hidden" name="teamSlug" value={teamSlug} />
       <input type="hidden" name="requestId" value={requestId} />
-      <label className="block text-xs font-bold text-slate-600">
-        Formato
-        <select
-          name="format"
-          value={format}
-          onChange={(event) => setFormat(event.target.value as ChampionshipFormat)}
-          className="mt-1 min-h-14 w-full rounded-xl border border-slate-200 bg-white px-4 text-base font-black text-graphite outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
-        >
-          <option value="league">Pontos corridos</option>
-          <option value="groups_knockout">Grupos + mata-mata</option>
-          <option value="knockout">Mata-mata</option>
-        </select>
-      </label>
-      {professionalSchedulingEnabled ? (
+      {guided ? <ChampionshipCreationProgress currentStep={step} /> : null}
+      <section hidden={guided && step !== 1} className="space-y-5">
+        <label className="block text-xs font-bold text-slate-600">
+          Nome do campeonato
+          <input
+            name="name"
+            required
+            minLength={2}
+            maxLength={120}
+            autoComplete="off"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Ex.: Liga de Inverno"
+            className="mt-1 min-h-14 w-full rounded-xl border border-slate-200 bg-white px-4 text-base font-black text-graphite outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
+          />
+        </label>
+        <label className="block text-xs font-bold text-slate-600">
+          Formato
+          <select
+            name="format"
+            value={format}
+            onChange={(event) => setFormat(event.target.value as ChampionshipFormat)}
+            className="mt-1 min-h-14 w-full rounded-xl border border-slate-200 bg-white px-4 text-base font-black text-graphite outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
+          >
+            <option value="league">Pontos corridos</option>
+            <option value="groups_knockout">Grupos + mata-mata</option>
+            <option value="knockout">Mata-mata</option>
+          </select>
+        </label>
+      </section>
+      <section hidden={guided && step !== 2} className="space-y-5">
         <fieldset>
+          <legend className="text-xs font-bold text-slate-600">Pontuação</legend>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            <PointsInput name="winPoints" label="Vitória" defaultValue={3} />
+            <PointsInput name="drawPoints" label="Empate" defaultValue={1} />
+            <PointsInput name="lossPoints" label="Derrota" defaultValue={0} />
+          </div>
+        </fieldset>
+        {format === "groups_knockout" ? (
+          <fieldset>
+            <legend className="text-xs font-bold text-slate-600">Fase de grupos</legend>
+            <div className="mt-2 grid grid-cols-2 gap-3">
+              <label className="text-xs font-bold text-slate-600">
+                Grupos
+                <select name="groupCount" defaultValue="2" className="mt-1 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-base font-black text-graphite">
+                  {[2, 3, 4, 5, 6, 7, 8].map((count) => <option key={count} value={count}>{count}</option>)}
+                </select>
+              </label>
+              <label className="text-xs font-bold text-slate-600">
+                Avançam por grupo
+                <select name="qualifiersPerGroup" defaultValue="1" className="mt-1 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-base font-black text-graphite">
+                  <option value="1">1 equipe</option>
+                  <option value="2">2 equipes</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
+        ) : null}
+        {professionalSchedulingEnabled ? (
+          <TiebreakOrderEditor />
+        ) : (
+          <fieldset>
+            <legend className="text-xs font-bold text-slate-600">Ordem dos desempates</legend>
+            <p className="mt-1 text-xs leading-5 text-slate-500">A ordem abaixo é fechada nesta versão.</p>
+            <ol className="mt-2 grid gap-2 sm:grid-cols-2">
+              {championshipTiebreakKeys.map((key, index) => (
+                <li key={key} className="flex min-h-11 items-center gap-3 rounded-xl bg-slate-50 px-3 text-sm font-bold text-slate-700">
+                  <span className="grid size-6 place-items-center rounded-full bg-white text-xs text-emerald-700">{index + 1}</span>
+                  {championshipTiebreakLabels[key]}
+                  <input type="hidden" name="tiebreakOrder" value={key} />
+                </li>
+              ))}
+            </ol>
+          </fieldset>
+        )}
+      </section>
+      {professionalSchedulingEnabled ? (
+        <section hidden={step !== 3}>
+          <fieldset>
           <legend className="text-xs font-bold text-slate-600">
             Equipes participantes
           </legend>
           <p className="mt-1 text-xs leading-5 text-slate-500">
-            As equipes ativas já estão selecionadas. Você pode retirar alguma antes de criar o rascunho.
+            As equipes ativas já estão selecionadas. Retire apenas quem não disputará o campeonato.
           </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             {internalSquads.map((squad) => (
@@ -182,7 +254,11 @@ export function CreateChampionshipForm({
                   type="checkbox"
                   name="internalTeamIds"
                   value={squad.id}
-                  defaultChecked
+                  checked={selectedTeamIds.includes(squad.id)}
+                  onChange={(event) => setSelectedTeamIds((current) =>
+                    event.target.checked
+                      ? [...current, squad.id]
+                      : current.filter((id) => id !== squad.id))}
                   className="size-5 accent-emerald-700"
                 />
                 <span className="min-w-0 truncate text-sm font-black text-graphite">
@@ -191,73 +267,32 @@ export function CreateChampionshipForm({
               </label>
             ))}
           </div>
-        </fieldset>
+          </fieldset>
+        </section>
       ) : null}
-      <label className="block text-xs font-bold text-slate-600">
-        Nome do campeonato
-        <input
-          name="name"
-          required
-          minLength={2}
-          maxLength={120}
-          autoComplete="off"
-          placeholder="Ex.: Liga de Inverno"
-          className="mt-1 min-h-14 w-full rounded-xl border border-slate-200 bg-white px-4 text-base font-black text-graphite outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
-        />
-      </label>
-      <fieldset>
-        <legend className="text-xs font-bold text-slate-600">Pontuação</legend>
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          <PointsInput name="winPoints" label="Vitória" defaultValue={3} />
-          <PointsInput name="drawPoints" label="Empate" defaultValue={1} />
-          <PointsInput name="lossPoints" label="Derrota" defaultValue={0} />
-        </div>
-      </fieldset>
-      {format === "groups_knockout" ? (
-        <fieldset>
-          <legend className="text-xs font-bold text-slate-600">Fase de grupos</legend>
-          <div className="mt-2 grid grid-cols-2 gap-3">
-            <label className="text-xs font-bold text-slate-600">
-              Grupos
-              <select name="groupCount" defaultValue="2" className="mt-1 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-base font-black text-graphite">
-                {[2, 3, 4, 5, 6, 7, 8].map((count) => <option key={count} value={count}>{count}</option>)}
-              </select>
-            </label>
-            <label className="text-xs font-bold text-slate-600">
-              Avançam por grupo
-              <select name="qualifiersPerGroup" defaultValue="1" className="mt-1 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-base font-black text-graphite">
-                <option value="1">1 equipe</option>
-                <option value="2">2 equipes</option>
-              </select>
-            </label>
-          </div>
-        </fieldset>
-      ) : null}
-      {professionalSchedulingEnabled ? (
-        <TiebreakOrderEditor />
-      ) : (
-        <fieldset>
-          <legend className="text-xs font-bold text-slate-600">Ordem dos desempates</legend>
-          <p className="mt-1 text-xs leading-5 text-slate-500">A ordem abaixo é fechada nesta versão.</p>
-          <ol className="mt-2 grid gap-2 sm:grid-cols-2">
-            {championshipTiebreakKeys.map((key, index) => (
-              <li key={key} className="flex min-h-11 items-center gap-3 rounded-xl bg-slate-50 px-3 text-sm font-bold text-slate-700">
-                <span className="grid size-6 place-items-center rounded-full bg-white text-xs text-emerald-700">{index + 1}</span>
-                {championshipTiebreakLabels[key]}
-                <input type="hidden" name="tiebreakOrder" value={key} />
-              </li>
-            ))}
-          </ol>
-        </fieldset>
-      )}
       <ActionMessage state={state} />
-      <AsyncSubmitButton
-        disabled={pending}
-        pendingLabel="Criando campeonato..."
-        className="min-h-14 w-full text-base"
-      >
-        <Trophy aria-hidden /> Criar rascunho
-      </AsyncSubmitButton>
+      {guided ? (
+        <div className="grid grid-cols-2 gap-3">
+          {step > 1 ? (
+            <button type="button" onClick={() => setStep((step - 1) as 1 | 2)} className="min-h-14 rounded-xl border border-slate-200 bg-white px-4 font-black text-slate-700">
+              Voltar
+            </button>
+          ) : <span />}
+          {step < 3 ? (
+            <button type="button" disabled={step === 1 && name.trim().length < 2} onClick={() => setStep((step + 1) as 2 | 3)} className="min-h-14 rounded-xl bg-emerald-700 px-4 font-black text-white disabled:opacity-40">
+              Próximo
+            </button>
+          ) : (
+            <AsyncSubmitButton disabled={pending || selectedTeamIds.length < 2} pendingLabel="Preparando tabela..." className="min-h-14 w-full text-base">
+              Continuar
+            </AsyncSubmitButton>
+          )}
+        </div>
+      ) : (
+        <AsyncSubmitButton disabled={pending} pendingLabel="Criando campeonato..." className="min-h-14 w-full text-base">
+          <Trophy aria-hidden /> Criar campeonato
+        </AsyncSubmitButton>
+      )}
     </form>
   );
 }
@@ -433,7 +468,7 @@ export function ChampionshipPublicationControls({
       <form action={generateAction}>
         {hiddenFields(generateState.nextRequestId ?? generateRequestId)}
         <AsyncSubmitButton disabled={expected === 0} pendingLabel="Gerando confrontos..." variant="outline" className="min-h-12 w-full">
-          <Eye aria-hidden /> {fixtureCount ? "Regerar rascunho" : "Gerar para revisar"}
+          <Eye aria-hidden /> {fixtureCount ? "Atualizar tabela" : "Montar tabela"}
         </AsyncSubmitButton>
       </form>
       <ActionMessage state={generateState} />
