@@ -4729,10 +4729,7 @@ export type Database = {
         }[]
       }
       is_account_autonomy_enabled: { Args: never; Returns: boolean }
-      is_championship_guided_setup_available: {
-        Args: never
-        Returns: boolean
-      }
+      is_championship_guided_setup_available: { Args: never; Returns: boolean }
       is_my_account_blocked: { Args: never; Returns: boolean }
       is_runtime_control_enabled: {
         Args: {
