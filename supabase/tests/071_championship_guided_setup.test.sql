@@ -119,7 +119,7 @@ select is((select count(*) from public.championship_fixtures where championship_
 select is((select count(*) from public.match_participations participation join public.events event on event.id=participation.event_id where event.title like 'Liga Guiada ·%'),2::bigint,'convocados chegam à partida');
 select is((select count(*) from public.event_attendance attendance join public.events event on event.id=attendance.event_id where event.title like 'Liga Guiada ·%'),2::bigint,'chamada contém somente convocados');
 select is((select count(*) from public.championship_roster_assignments where championship_id=(select id from public.championships where name='Liga Guiada')),2::bigint,'convocação do campeonato é preservada');
-select is((select string_agg(name,',' order by sort_order) from public.event_squads squad join public.events event on event.id=squad.event_id where event.title like 'Liga Guiada ·%'),'Verde,Azul','lados da agenda preservam as equipes');
+select is((select string_agg(name,',' order by name) from public.event_squads squad join public.events event on event.id=squad.event_id where event.title like 'Liga Guiada ·%'),'Azul,Verde','lados da agenda preservam as equipes');
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','f1100000-0000-4000-8000-000000000001',true);
