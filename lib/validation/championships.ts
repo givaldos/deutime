@@ -130,6 +130,45 @@ export const championshipFormatCommandSchema = championshipCommandSchema.extend(
   format: championshipFormat,
 });
 
+const championshipRosterAssignmentSchema = z.object({
+  participantId: uuid,
+  athleteId: uuid,
+});
+
+const championshipScheduleItemSchema = z.object({
+  fixtureId: uuid,
+  startsAtLocal: z.string().regex(
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,
+    "Informe data e hora para todos os jogos.",
+  ),
+});
+
+export const finishChampionshipSetupSchema = championshipCommandSchema.extend({
+  rosters: z
+    .array(championshipRosterAssignmentSchema)
+    .max(300)
+    .refine(
+      (items) => new Set(items.map((item) => item.athleteId)).size === items.length,
+      { message: "Cada atleta pode ser convocado por apenas uma equipe." },
+    ),
+  schedule: z
+    .array(championshipScheduleItemSchema)
+    .min(1, "A agenda precisa ter pelo menos um jogo.")
+    .max(100)
+    .refine(
+      (items) => new Set(items.map((item) => item.fixtureId)).size === items.length,
+      { message: "Não repita um confronto na agenda." },
+    ),
+  sportFormat: z.enum(["field", "society", "futsal"]),
+  durationMinutes: z.coerce.number().int().min(15).max(480),
+  attendanceDeadlineMinutes: z.coerce.number().int().refine(
+    (value) => [0, 60, 120, 180, 360, 720, 1440].includes(value),
+    { message: "Escolha um prazo de confirmação válido." },
+  ),
+  venueName: z.string().trim().max(120).optional(),
+  venueAddress: z.string().trim().max(500).optional(),
+});
+
 export const championshipRegulationSchema = championshipCommandSchema.extend({
   winPoints: z.coerce.number().int().min(0).max(10),
   drawPoints: z.coerce.number().int().min(0).max(10),

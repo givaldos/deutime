@@ -11,14 +11,13 @@ import {
   WithdrawParticipantForm,
 } from "@/components/championship-forms";
 import { ChampionshipPublicControls } from "@/components/championship-public-controls";
+import { ChampionshipSetupWizard } from "@/components/championship-setup-wizard";
 import { InternalSquadBadge } from "@/components/internal-squad-badge";
-import { ChampionshipCreationProgress } from "@/components/professional-creation-actions";
 import { TeamAppHeader } from "@/components/team-app-header";
 import { AppContainer } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
 import { getChampionshipWorkspace } from "@/lib/data/championships";
 import { championshipFormatLabels, championshipTiebreakLabels } from "@/lib/features/championships/rules";
-import { getChampionshipCreationStep } from "@/lib/features/professional-scheduling/presentation";
 import { isProfessionalSchedulingEnabled } from "@/lib/features/professional-scheduling/server";
 import { getAppUrl } from "@/lib/env/server";
 import { createClient } from "@/lib/supabase/server";
@@ -35,7 +34,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 const statusLabels = {
-  draft: "Rascunho privado",
+  draft: "Configuração em andamento",
   published: "Publicado",
   active: "Em andamento",
   completed: "Encerrado",
@@ -50,6 +49,24 @@ const resolutionLabels = {
   administrative: "Decisão administrativa",
 };
 
+function nextEveningLocal(timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone,
+  }).formatToParts(new Date());
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((item) => item.type === type)?.value ?? "";
+  const date = new Date(Date.UTC(
+    Number(part("year")),
+    Number(part("month")) - 1,
+    Number(part("day")) + 1,
+    19,
+  ));
+  return date.toISOString().slice(0, 16);
+}
+
 export default async function ChampionshipPage({
   params,
 }: {
@@ -59,7 +76,7 @@ export default async function ChampionshipPage({
   const { teamSlug, championshipId } = await params;
   const supabase = await createClient();
   const [{ data: team }, { data: teams }] = await Promise.all([
-    supabase.from("teams").select("id, name, slug, timezone").eq("slug", teamSlug).maybeSingle(),
+    supabase.from("teams").select("id, name, slug, timezone, default_sport_format").eq("slug", teamSlug).maybeSingle(),
     supabase.from("teams").select("name, slug").order("name"),
   ]);
   if (!team) notFound();
@@ -85,11 +102,6 @@ export default async function ChampionshipPage({
   const currentRegulationVersion = regulationVersions.find(
     (version) => version.id === championship.regulation_version_id,
   ) ?? null;
-  const professionalCreationStep = getChampionshipCreationStep({
-    status: championship.status,
-    participantCount: participants.length,
-    fixtureCount: fixtures.length,
-  });
   const publicUrl = new URL(`/c/${championship.public_id}`, getAppUrl()).toString();
   const availableInternalSquads = workspace.internalSquads.filter(
     (squad) => !participants.some((participant) => participant.internal_team_id === squad.id),
@@ -136,6 +148,84 @@ export default async function ChampionshipPage({
     const status = fixture.match_id ? workspace.matchById[fixture.match_id]?.status : null;
     return status === "finalized" || status === "void";
   });
+
+  const setupFixtures = fixtures.flatMap((fixture) => {
+    if (fixture.status !== "draft") return [];
+    const fixtureSlots = [...(slotsByFixture.get(fixture.id) ?? [])]
+      .sort((a, b) => a.side_index - b.side_index);
+    if (fixtureSlots[0]?.kind !== "participant" || fixtureSlots[1]?.kind !== "participant") {
+      return [];
+    }
+    const sideOne = resolveSlot(fixtureSlots[0]);
+    const sideTwo = resolveSlot(fixtureSlots[1]);
+    if (!sideOne || !sideTwo) return [];
+    return [{
+      id: fixture.id,
+      roundNumber: fixture.round_number,
+      ordinal: fixture.ordinal,
+      sideOneName: sideOne.snapshot_name,
+      sideTwoName: sideTwo.snapshot_name,
+    }];
+  });
+
+  const guidedSetupResult = canConfigure &&
+    professionalSchedulingEnabled &&
+    championship.status === "draft"
+    ? await supabase.rpc("is_championship_guided_setup_available")
+    : { data: false, error: null };
+  const athletesResult = guidedSetupResult.data === true
+    ? await supabase
+        .from("athletes")
+        .select("id, full_name, preferred_name, shirt_number")
+        .eq("team_id", team.id)
+        .eq("status", "active")
+        .order("preferred_name")
+    : { data: [], error: null };
+  const guidedSetupAvailable = guidedSetupResult.data === true &&
+    !guidedSetupResult.error &&
+    !athletesResult.error &&
+    setupFixtures.length > 0;
+
+  if (guidedSetupAvailable) {
+    return (
+      <main className="app-canvas min-h-screen pb-16">
+        <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
+        <AppContainer className="space-y-6 pb-12">
+          <Link href={`/app/${team.slug}/championships`} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-600 hover:text-emerald-800">
+            <ArrowLeft className="size-4" aria-hidden /> Campeonatos
+          </Link>
+          <section className="relative overflow-hidden rounded-[2rem] bg-grass p-6 text-white shadow-float sm:p-8">
+            <div className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-emerald-500/20 blur-3xl" />
+            <div className="relative">
+              <span className="grid size-12 place-items-center rounded-2xl bg-white/10 text-emerald-300"><Trophy className="size-6" aria-hidden /></span>
+              <p className="mt-6 text-xs font-bold uppercase tracking-[0.14em] text-emerald-300">Configuração em andamento</p>
+              <h1 className="mt-2 text-3xl font-black tracking-[-0.04em]">{championship.name}</h1>
+              <p className="mt-3 text-sm text-slate-300">Equipes e regras salvas. Agora distribua os convocados e acerte a agenda.</p>
+            </div>
+          </section>
+          <ChampionshipSetupWizard
+            teamId={team.id}
+            teamSlug={team.slug}
+            championshipId={championship.id}
+            teamTimezone={team.timezone}
+            sportFormat={team.default_sport_format}
+            participants={participants.map((participant) => ({
+              id: participant.id,
+              name: participant.snapshot_name,
+              internalTeamId: participant.internal_team_id,
+            }))}
+            athletes={(athletesResult.data ?? []).map((athlete) => ({
+              id: athlete.id,
+              name: athlete.preferred_name || athlete.full_name,
+              shirtNumber: athlete.shirt_number,
+            }))}
+            fixtures={setupFixtures}
+            defaultStartLocal={nextEveningLocal(team.timezone)}
+          />
+        </AppContainer>
+      </main>
+    );
+  }
 
   const pendingQualifierDecisions: {
     groupNumber: number;
@@ -198,10 +288,6 @@ export default async function ChampionshipPage({
             </div>
           </div>
         </section>
-
-        {canConfigure && professionalSchedulingEnabled ? (
-          <ChampionshipCreationProgress currentStep={professionalCreationStep} />
-        ) : null}
 
         <section className="app-surface p-5 sm:p-7" aria-labelledby="regulation-title">
           <div className="flex items-start justify-between gap-3">
@@ -304,7 +390,7 @@ export default async function ChampionshipPage({
             </section>
           </div>
         ) : championship.status === "draft" ? (
-          <p className="app-surface flex items-start gap-3 p-4 text-sm text-slate-600"><LockKeyhole className="mt-0.5 size-5 shrink-0 text-slate-400" aria-hidden />Owner ou admin conclui a preparação deste rascunho.</p>
+          <p className="app-surface flex items-start gap-3 p-4 text-sm text-slate-600"><LockKeyhole className="mt-0.5 size-5 shrink-0 text-slate-400" aria-hidden />Owner ou admin conclui a configuração deste campeonato.</p>
         ) : null}
 
         {championship.status !== "draft" ? (

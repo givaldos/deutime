@@ -27,6 +27,7 @@ import {
   advanceChampionshipGroups,
   createChampionship,
   decideChampionshipQualifier,
+  finishChampionshipSetup,
   generateChampionshipFixtures,
   generateLeagueFixtures,
   linkChampionshipFixture,
@@ -263,6 +264,50 @@ describe("ações do campeonato de pontos corridos", () => {
     expect(mocks.rpc).toHaveBeenLastCalledWith("publish_championship_format", {
       requested_championship_id: ids.championship,
       request_id: ids.request,
+    });
+  });
+
+  it("finaliza agenda, partidas e convocados por uma única RPC", async () => {
+    mocks.isProfessionalSchedulingEnabled.mockResolvedValue(true);
+    mocks.rpc.mockResolvedValue({
+      data: { championship_id: ids.championship, replayed: false },
+      error: null,
+    });
+    mocks.redirect.mockImplementation(() => {
+      throw new Error("NEXT_REDIRECT");
+    });
+    const form = commandForm();
+    form.set("rosters", JSON.stringify([{
+      participantId: "e9600000-0000-4000-8000-000000000001",
+      athleteId: "e9700000-0000-4000-8000-000000000001",
+    }]));
+    form.set("schedule", JSON.stringify([{
+      fixtureId: ids.fixture,
+      startsAtLocal: "2026-09-08T19:00",
+    }]));
+    form.set("sportFormat", "society");
+    form.set("durationMinutes", "90");
+    form.set("attendanceDeadlineMinutes", "1440");
+    form.set("venueName", "Arena Central");
+    form.set("venueAddress", "Rua Um, 10");
+
+    await expect(finishChampionshipSetup({}, form)).rejects.toThrow("NEXT_REDIRECT");
+    expect(mocks.rpc).toHaveBeenCalledWith("finish_championship_setup", {
+      requested_championship_id: ids.championship,
+      request_id: ids.request,
+      requested_rosters: [{
+        participant_id: "e9600000-0000-4000-8000-000000000001",
+        athlete_id: "e9700000-0000-4000-8000-000000000001",
+      }],
+      requested_schedule: [{
+        fixture_id: ids.fixture,
+        starts_at_local: "2026-09-08T19:00",
+      }],
+      requested_sport_format: "society",
+      requested_duration_minutes: 90,
+      requested_attendance_deadline_minutes: 1440,
+      requested_venue_name: "Arena Central",
+      requested_venue_address: "Rua Um, 10",
     });
   });
 

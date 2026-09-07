@@ -1,5 +1,4 @@
 import { CreateChampionshipForm } from "@/components/championship-forms";
-import { ChampionshipCreationProgress } from "@/components/professional-creation-actions";
 import { TeamAppHeader } from "@/components/team-app-header";
 import { AppContainer } from "@/components/ui/app-shell";
 import { getChampionships } from "@/lib/data/championships";
@@ -13,7 +12,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 const statusLabels = {
-  draft: "Rascunho",
+  draft: "Configuração em andamento",
   published: "Publicado",
   active: "Em andamento",
   completed: "Encerrado",
@@ -85,12 +84,6 @@ export default async function ChampionshipsPage({
           </div>
         </section>
 
-        {canConfigure &&
-        professionalSchedulingEnabled &&
-        query.new === "1" ? (
-          <ChampionshipCreationProgress />
-        ) : null}
-
         {canConfigure ? (
           <details
             className="app-surface group p-5 sm:p-7"
@@ -156,7 +149,7 @@ export default async function ChampionshipsPage({
             <div className="app-surface mt-3 border-dashed p-8 text-center">
               <Trophy className="mx-auto size-8 text-slate-300" aria-hidden />
               <p className="mt-3 font-black text-graphite">Nenhum campeonato ainda</p>
-              <p className="mt-1 text-sm text-slate-500">O primeiro começa como rascunho privado.</p>
+              <p className="mt-1 text-sm text-slate-500">Crie o primeiro em cinco passos simples.</p>
             </div>
           )}
         </section>

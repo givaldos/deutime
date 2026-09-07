@@ -1,36 +1,30 @@
 ---
-release: R11
-work_package: DP-R11-01
-scope: asaas_sandbox_and_contracts
-branch_or_commit: "9cf074c"
-checkpoint: idle
-status: blocked
+release: R15
+work_package: WP-R15-01
+scope: campeonato_guiado_com_agenda_e_convocados
+branch_or_commit: "codex/campeonato-assistente"
+checkpoint: CP2
+status: active
 completed_ac:
-  - "R14 promovida pelo fluxo branch temporária → dev → main"
-  - "criação de novas equipes protegida por convite individual em produção"
-  - "RLS, grants, hash, validade, revogação e consumo atômico validados"
-  - "ativação, rollback, restauração e smoke produtivo aprovados"
+  - "causa confirmada: publicação atual não cria eventos nem partidas"
+  - "contrato de cinco passos e finalização atômica fechado"
+  - "assistente mobile implementado sem linguagem de rascunho"
+  - "finalização cria agenda, partidas, lados e convocados na mesma transação"
 dirty_files:
-  - "docs/backlog.md"
-  - "docs/roadmap.md"
-  - "docs/releases/R14-acesso-por-convite.md"
-  - "docs/releases/README.md"
+  - "docs/decisions/DEC-CHAMPIONSHIP-GUIDED-SETUP.md"
+  - "docs/releases/R15-campeonato-guiado.md"
   - "docs/work/current.md"
 tests:
-  - "PASS: PR #393 branch temporária → dev"
-  - "PASS: PR #394 dev → main"
-  - "PASS: 606 testes de aplicação"
-  - "PASS: 70 arquivos e 1833 testes pgTAP"
-  - "PASS: deploy Supabase 33983401376"
-  - "PASS: smoke de produção 33983439072"
-  - "PASS: produção ativa com 1 convite disponível e 0 resgates"
-blocker: "R11 aguarda ASAAS_SANDBOX_API_KEY e decisões comerciais de preço, benefícios, limites, carência, cancelamento, grandfathering e suporte financeiro."
-next_action: "Configurar a chave sandbox do Asaas, aprovar as políticas comerciais e executar os sete testes contratuais da R11."
+  - "PASS: 127 arquivos e 611 testes de aplicação"
+  - "PASS: lint, TypeScript, contexto, migrations e build Webpack"
+  - "PASS: auditoria npm sem vulnerabilidades"
+  - "PENDENTE: banco no CI; Docker local indisponível"
+blocker: null
+next_action: "Executar Database no CI, corrigir a migration se necessário e validar a jornada no navegador."
 ---
 
 # Trabalho atual
 
-A CP6 da R14 está encerrada em produção. Novas equipes exigem código individual;
-o primeiro convite está disponível e a política terminou ativa depois do ensaio
-de rollback. A próxima frente volta a ser a validação contratual da assinatura
-R11, bloqueada somente por credencial Sandbox e decisões comerciais externas.
+A R15 corrige a lacuna entre publicar a grade e organizar jogos reais. O fluxo
+guiado termina somente quando agenda, partidas, lados e convocados estão criados;
+estado técnico continua preservado no domínio, mas deixa de aparecer ao usuário.

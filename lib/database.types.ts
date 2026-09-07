@@ -713,6 +713,58 @@ export type Database = {
           },
         ]
       }
+      championship_roster_assignments: {
+        Row: {
+          athlete_id: string
+          championship_id: string
+          created_at: string
+          created_by: string
+          id: string
+          participant_id: string
+          team_id: string
+        }
+        Insert: {
+          athlete_id: string
+          championship_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          participant_id: string
+          team_id: string
+        }
+        Update: {
+          athlete_id?: string
+          championship_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          participant_id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "championship_roster_athlete_fk"
+            columns: ["athlete_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "athletes"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "championship_roster_championship_fk"
+            columns: ["championship_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "championships"
+            referencedColumns: ["id", "team_id"]
+          },
+          {
+            foreignKeyName: "championship_roster_participant_fk"
+            columns: ["participant_id", "championship_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "championship_participants"
+            referencedColumns: ["id", "championship_id", "team_id"]
+          },
+        ]
+      }
       championships: {
         Row: {
           created_at: string
@@ -4267,6 +4319,26 @@ export type Database = {
         Args: { requested_match_id: string }
         Returns: undefined
       }
+      finish_championship_setup: {
+        Args: {
+          request_id: string
+          requested_attendance_deadline_minutes: number
+          requested_championship_id: string
+          requested_duration_minutes: number
+          requested_rosters: Json
+          requested_schedule: Json
+          requested_sport_format: Database["public"]["Enums"]["sport_format"]
+          requested_venue_address?: string
+          requested_venue_name?: string
+        }
+        Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
+        SetofOptions: {
+          from: "*"
+          to: "championship_command_result"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       generate_championship_fixtures: {
         Args: { request_id: string; requested_championship_id: string }
         Returns: Database["public"]["CompositeTypes"]["championship_command_result"]
@@ -4657,6 +4729,10 @@ export type Database = {
         }[]
       }
       is_account_autonomy_enabled: { Args: never; Returns: boolean }
+      is_championship_guided_setup_available: {
+        Args: never
+        Returns: boolean
+      }
       is_my_account_blocked: { Args: never; Returns: boolean }
       is_runtime_control_enabled: {
         Args: {
@@ -5616,6 +5692,7 @@ export type Database = {
         | "release_fixture"
         | "withdraw"
         | "set_public_mode"
+        | "finish_setup"
       championship_fixture_resolution:
         | "score"
         | "penalties"
@@ -5935,6 +6012,7 @@ export const Constants = {
         "release_fixture",
         "withdraw",
         "set_public_mode",
+        "finish_setup",
       ],
       championship_fixture_resolution: [
         "score",
@@ -6080,4 +6158,3 @@ export const Constants = {
     },
   },
 } as const
-
