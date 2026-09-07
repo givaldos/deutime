@@ -381,7 +381,7 @@ begin
       );
 
     created_match_id := public.create_event_match(
-      created_event.event_id, 1, side_one.snapshot_name,
+      created_event.event_id, 1::smallint, side_one.snapshot_name,
       side_two.snapshot_name,
       case when side_two.kind = 'external'
         then side_two.snapshot_name else null end
@@ -393,7 +393,7 @@ begin
 
     for roster_item in
       select assignment.athlete_id,
-        case when assignment.participant_id = side_one.id then 1 else 2 end
+        (case when assignment.participant_id = side_one.id then 1 else 2 end)::smallint
           as side_index
       from public.championship_roster_assignments assignment
       where assignment.championship_id = target_championship.id
