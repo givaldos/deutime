@@ -34,6 +34,7 @@ Cada arquivo desta pasta é o contexto operacional autossuficiente de uma releas
 | [R13 — Agenda e competições profissionais](R13-agenda-e-competicoes-profissionais.md) | `done` | 16ª capacidade ativa nos 5 times, herança para novos times, smoke e rollback/restauração concluídos em CP6 |
 | [R11 — Assinatura pelo Asaas](R11-assinatura-asaas.md) | `blocked` | Descoberta iniciada; aguarda chave Sandbox e decisões comerciais antes do CP1 |
 | [R14 — Acesso por convite](R14-acesso-por-convite.md) | `done` | Criação de equipes protegida por código individual, com emissão, revogação, smoke e rollback concluídos em CP6 |
+| [R15 — Campeonato guiado](R15-campeonato-guiado.md) | `active` | Cinco passos simples até agenda, partidas, convocados e publicação |
 
 Uma release só recebe arquivo próprio quando a anterior estabilizar seus contratos. Ao promovê-la, adicione-a também ao dropdown do template de issue. Isso evita abrir trabalho sem pacote, reduz especificação prematura e limita o contexto mantido.
 

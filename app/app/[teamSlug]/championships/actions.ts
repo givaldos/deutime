@@ -13,6 +13,7 @@ import {
   createChampionshipSchema,
   createProfessionalChampionshipSchema,
   decideChampionshipQualifierSchema,
+  finishChampionshipSetupSchema,
   linkChampionshipFixtureSchema,
   releaseChampionshipFixtureSchema,
   resolveChampionshipFixtureSchema,
@@ -121,11 +122,116 @@ export async function createChampionship(
     };
   }
 
+  if (professionalSchedulingEnabled) {
+    const generationFunction = parsed.data.format === "league"
+      ? "generate_league_fixtures"
+      : "generate_championship_fixtures";
+    const generated = await supabase.rpc(generationFunction, {
+      requested_championship_id: data.championship_id,
+      request_id: randomUUID(),
+    });
+    if (generated.error || !generated.data) {
+      return {
+        attempt,
+        outcome: "error",
+        message: "O campeonato foi salvo, mas a tabela não pôde ser montada. Tente continuar novamente.",
+      };
+    }
+  }
+
   revalidatePath(`/app/${parsed.data.teamSlug}`);
   revalidatePath(`/app/${parsed.data.teamSlug}/championships`);
   redirect(
     `/app/${parsed.data.teamSlug}/championships/${data.championship_id}`,
   );
+}
+
+function parseJsonField(value: FormDataEntryValue | null): unknown {
+  if (typeof value !== "string") return null;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+export async function finishChampionshipSetup(
+  previousState: ChampionshipActionState,
+  formData: FormData,
+): Promise<ChampionshipActionState> {
+  await requireUser();
+  const attempt = (previousState.attempt ?? 0) + 1;
+  const parsed = finishChampionshipSetupSchema.safeParse({
+    teamId: formData.get("teamId"),
+    teamSlug: formData.get("teamSlug"),
+    championshipId: formData.get("championshipId"),
+    requestId: formData.get("requestId"),
+    rosters: parseJsonField(formData.get("rosters")),
+    schedule: parseJsonField(formData.get("schedule")),
+    sportFormat: formData.get("sportFormat"),
+    durationMinutes: formData.get("durationMinutes"),
+    attendanceDeadlineMinutes: formData.get("attendanceDeadlineMinutes"),
+    venueName: formData.get("venueName") || undefined,
+    venueAddress: formData.get("venueAddress") || undefined,
+  });
+  if (!parsed.success) {
+    return {
+      attempt,
+      outcome: "error",
+      message: parsed.error.issues[0]?.message ?? "Revise a preparação do campeonato.",
+    };
+  }
+  if (
+    !(await isChampionshipsEnabled(parsed.data.teamId)) ||
+    !(await isProfessionalSchedulingEnabled(parsed.data.teamId))
+  ) {
+    return {
+      attempt,
+      outcome: "error",
+      message: "A preparação guiada não está disponível para este time.",
+    };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("finish_championship_setup", {
+    requested_championship_id: parsed.data.championshipId,
+    request_id: parsed.data.requestId,
+    requested_rosters: parsed.data.rosters.map((item) => ({
+      participant_id: item.participantId,
+      athlete_id: item.athleteId,
+    })),
+    requested_schedule: parsed.data.schedule.map((item) => ({
+      fixture_id: item.fixtureId,
+      starts_at_local: item.startsAtLocal,
+    })),
+    requested_sport_format: parsed.data.sportFormat,
+    requested_duration_minutes: parsed.data.durationMinutes,
+    requested_attendance_deadline_minutes: parsed.data.attendanceDeadlineMinutes,
+    requested_venue_name: parsed.data.venueName || undefined,
+    requested_venue_address: parsed.data.venueAddress || undefined,
+  });
+  if (error || !data) {
+    const scheduleConflict = error?.message
+      .toLocaleLowerCase("pt-BR")
+      .includes("conflito");
+    return {
+      attempt,
+      outcome: "error",
+      message: scheduleConflict
+        ? "Há conflito de horário. Ajuste a primeira data ou o intervalo e tente novamente."
+        : errorMessage(error?.code, "Não foi possível concluir o campeonato."),
+    };
+  }
+
+  console.info("championship.setup.finished", {
+    replayed: data.replayed,
+    rosterCount: parsed.data.rosters.length,
+    fixtureCount: parsed.data.schedule.length,
+  });
+  revalidatePath(`/app/${parsed.data.teamSlug}`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/events`);
+  revalidateChampionship(parsed.data.teamSlug, parsed.data.championshipId);
+  redirect(`/app/${parsed.data.teamSlug}/championships/${parsed.data.championshipId}`);
 }
 
 export async function addChampionshipParticipant(
@@ -193,7 +299,7 @@ export async function addChampionshipParticipant(
     nextRequestId: randomUUID(),
     message: data.replayed
       ? "Este participante já estava salvo."
-      : "Participante adicionado ao rascunho.",
+      : "Participante adicionado à configuração.",
   };
 }
 

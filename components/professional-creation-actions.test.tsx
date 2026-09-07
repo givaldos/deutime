@@ -21,32 +21,30 @@ describe("entradas da agenda profissional", () => {
     expect(html.match(/min-h-28/g)).toHaveLength(2);
   });
 
-  it("explica as sete etapas e torna a primeira corrente", () => {
+  it("explica as cinco etapas e torna a primeira corrente", () => {
     const html = renderToStaticMarkup(<ChampionshipCreationProgress />);
 
     for (const label of [
-      "Identidade",
-      "Equipes",
-      "Formato",
+      "Campeonato",
       "Regras",
-      "Calendário",
-      "Revisão",
-      "Publicação",
+      "Equipes",
+      "Convocados",
+      "Agenda",
     ]) {
       expect(html).toContain(label);
     }
     expect(html).toContain('aria-current="step"');
-    expect(html).toContain("seu progresso fica salvo");
+    expect(html).toContain("Escolha o nome e o formato");
   });
 
   it("retoma uma etapa persistida e identifica as anteriores como concluídas", () => {
     const html = renderToStaticMarkup(
-      <ChampionshipCreationProgress currentStep={6} />,
+      <ChampionshipCreationProgress currentStep={5} />,
     );
 
-    expect(html).toContain("Etapa 6 de 7");
-    expect(html).toContain("Revise os jogos");
-    expect(html.match(/concluída/g)).toHaveLength(5);
-    expect(html).toMatch(/aria-current="step"[^>]*>[^<]*<span[^>]*>6<\/span>Revisão/);
+    expect(html).toContain("Etapa 5 de 5");
+    expect(html).toContain("Acerte a agenda e conclua");
+    expect(html.match(/concluída/g)).toHaveLength(4);
+    expect(html).toMatch(/aria-current="step"[^>]*>[^<]*<span[^>]*>5<\/span>Agenda/);
   });
 });

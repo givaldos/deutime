@@ -29,6 +29,7 @@ body:
         - R12 — Confiança e autonomia
         - R13 — Agenda e competições profissionais
         - R14 — Acesso por convite
+        - R15 — Campeonato guiado
     validations:
       required: true
   - type: input
