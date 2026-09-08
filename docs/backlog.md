@@ -1,6 +1,6 @@
 # DeuTime — Catálogo detalhado de capacidades
 
-> Preservado em 27 de julho de 2026 e reconciliado em 3 de setembro de 2026.
+> Preservado em 27 de julho de 2026 e reconciliado em 8 de setembro de 2026.
 
 Este documento guarda o detalhamento funcional levantado no roadmap anterior. Seus checkboxes representam capacidades e critérios — não são, isoladamente, issues nem ordem de execução.
 
@@ -31,8 +31,11 @@ comercial sem apagar times ou resgates.
 publicação e imagem compartilhável estão disponíveis. A experiência profissional
 que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos está ativa.
 
-**Principal pendência:** a R11 precisa concluir sua descoberta no Sandbox
-Asaas; nenhum schema ou cobrança pode começar enquanto o CP0 estiver bloqueado.
+**Prioridade atual:** reconciliar o fechamento produtivo da R15, de criação
+guiada de campeonatos, e preparar a R16 para navegação e gestão simples. As listas
+existentes ainda precisam ser fáceis de encontrar, filtrar e administrar.
+A R11/Asaas está adiada e fora da fila, sem prazo: exige MVP consolidado e sinal
+explícito para desenvolver, antes de retomar qualquer descoberta ou implementação.
 
 ### Tarefas atuais
 
@@ -42,12 +45,45 @@ Asaas; nenhum schema ou cobrança pode começar enquanto o CP0 estiver bloqueado
   durante o deploy.
 - [x] Executar smoke, rollback e restauração ativa em produção e fechar o CP6
   operacional da R13.
-- [ ] Disponibilizar chave exclusiva do Sandbox Asaas e aprovar preço,
-  benefícios, limites, carência, cancelamento, grandfathering e suporte.
-- [ ] Executar os sete ensaios de `DEC-SUBSCRIPTION-BILLING` e decidir se a R11
-  pode avançar ao CP1.
+- [ ] Reconciliar evidências produtivas e encerrar a R15 sem repetir trabalho
+  já implementado ou inferir CP6 pelo estado do Git.
+- [ ] Validar `DP-R16-01` e executar a sequência de gestão simples abaixo,
+  antes de ampliar monetização; uma única frente ativa.
+- [ ] Começar pelo [guia de navegação](releases/work-packages/WP-R16-01-navegacao.md),
+  com seis subtarefas e CP0 restrito à fatia; calendário/lote/fotos não bloqueiam
+  a correção dos menus. Execução prevista com GPT Sol, sem reduzir os gates.
 - [ ] Manter marketplace, split, repasse e cobrança de atletas fora da execução
   até validação própria de densidade, regulação e viabilidade.
+
+### R16 — pendências de experiência de gestão
+
+Fonte dos contratos, critérios `AC-R16-*`, riscos e rollout:
+[R16 — Experiência de gestão simples](releases/R16-experiencia-de-gestao.md).
+Esta lista é índice de capacidades, não um segundo controle de execução.
+
+- [ ] `WP-R16-01`: manter Início, Jogos, Campeonatos, Atletas e Mais acessíveis
+  no celular e nos detalhes; início com pendências e próxima ação compreensível.
+- [ ] `WP-R16-02`: listar todos os jogos e campeonatos com busca, filtros,
+  ordenação e paginação; corrigir limite que pode ocultar futuros após 200 eventos.
+- [ ] `WP-R16-03`: elenco em lista/cartões, fotos privadas autorizadas ou
+  iniciais, posições e situação; distinguir atletas de Diretoria e acessos.
+- [ ] `WP-R16-04`: campeonato com resumo, jogos, classificação por formato,
+  equipes e regulamento; continuar configuração pelo assistente da R15.
+- [ ] `WP-R16-05`: agenda diária, calendário mensal/semanal, filtros,
+  conflitos e jogos a reagendar, mantendo a fonte autoritativa dos eventos.
+- [ ] `WP-R16-06`: operações em lote com seleção explícita, prévia,
+  confirmação, autorização, atomicidade e replay seguro; proteger históricos e
+  não enviar mensagens pagas ou consumir cotas sem ação explícita.
+- [ ] `WP-R16-07`: equipes, campeões e estatísticas por período/campeonato,
+  sem duplicar confrontos, presumir presença ou confundir líder com campeão.
+- [ ] `WP-R16-08`: detalhe e link estável por fase, com sessão duradoura,
+  timeline, votação/conversa existentes e projeção pública mínima preservada.
+- [ ] `WP-R16-09`: validar tarefas com cinco organizadores, incluindo pessoas
+  pouco familiarizadas com tecnologia, e liberar globalmente após piloto produtivo,
+  gates de privacidade, smoke e rollback/restauração.
+
+O MVP funcional permanece entregue. Estas lacunas têm aceite próprio; adicionar
+uma tela ou marcar uma capacidade histórica não conclui a nova experiência.
 
 ## Vocabulário do domínio
 
@@ -557,6 +593,10 @@ Este é um trabalho contínuo e não espera os Marcos 1 a 6 terminarem.
 
 ## Marco 8 — Assinatura do DeuTime
 
+> **Prioridade:** adiada, fora da fila e sem prazo. Todos os itens deste marco
+> aguardam MVP consolidado e autorização explícita para desenvolver Asaas,
+> conforme `DEC-ASAAS-PRIORITY`. Não é a próxima entrega automática após a R16.
+>
 > **Objetivo:** cobrar uma assinatura mensal por time para financiar os recursos
 > pagos do DeuTime, sem cobrar atletas e sem acoplar o produto ao Asaas.
 >
@@ -579,7 +619,7 @@ Este é um trabalho contínuo e não espera os Marcos 1 a 6 terminarem.
 - [ ] Comprovar RLS, grants, RPCs, cross-tenant, N/N−1, recuperação, piloto e
   rollback antes do rollout.
 
-O pacote executável permanece em
+O levantamento preservado permanece em
 [`R11 — Assinatura pelo Asaas`](releases/R11-assinatura-asaas.md). Cobrança de
 atletas, split, repasse, subcontas e marketplace não fazem parte deste marco.
 

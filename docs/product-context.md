@@ -52,6 +52,7 @@ Alterar uma invariante exige decisão explícita, atualização do roadmap, thre
 - `DEC-POSITIVE-POINTS`: pontos reconhecem ações positivas e são opcionais.
 - `DEC-DEFAULT-DEADLINES`: confirmação fecha por padrão 24 h antes, lembrete geral sai 1 h antes e lembrete de pendência sempre precede o fechamento.
 - `DEC-CAPTAIN-ROTATION`: cada equipe recebe um capitão por partida com sugestão em rodízio.
+- [`DEC-ASAAS-PRIORITY`](roadmap.md#regra-de-prioridade-asaas-sob-autorização): decisão aceita do responsável em 2026-09-08; Asaas fica fora da fila e sem prazo até MVP consolidado e autorização explícita para desenvolver. Não retomar descoberta, Sandbox ou implementação por conclusão da R16, disponibilidade de chave ou pedido genérico de próxima tarefa. A prioridade atual é navegação.
 
 ## Decisões bloqueadoras
 

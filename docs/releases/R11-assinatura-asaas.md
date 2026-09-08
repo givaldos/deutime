@@ -2,6 +2,8 @@
 id: R11
 type: vertical
 status: blocked
+priority: deferred
+resume_requires: "MVP consolidado e autorização explícita do responsável para desenvolver Asaas; depois, CP0 financeiro revalidado."
 outcome: "Permitir que a pessoa administradora contrate uma assinatura mensal por time pelo Asaas e libere os benefícios pagos após confirmação verificável, sem acoplar cobrança, onboarding ou automação de WhatsApp ao provedor."
 depends_on: [R00, R03, R03R, R08M]
 baseline:
@@ -19,6 +21,18 @@ invariants:
 ---
 
 # R11 — Assinatura do DeuTime pelo Asaas
+
+## Prioridade suspensa por decisão do produto
+
+Em 8 de setembro de 2026, o responsável retirou Asaas da fila de desenvolvimento:
+**sem prazo e sem retomada automática**, mesmo após concluir a R16. A prioridade
+atual é navegação e consolidação do MVP.
+
+Vale [`DEC-ASAAS-PRIORITY`](../roadmap.md#regra-de-prioridade-asaas-sob-autorização):
+primeiro MVP consolidado e aceito; depois sinal explícito para desenvolver Asaas;
+somente então revalidar descoberta e CP0 financeiro. Não solicitar credenciais,
+executar Sandbox ou preparar schema/adapter/webhook enquanto essa autorização
+não existir. O levantamento abaixo é preservado, não uma próxima tarefa ativa.
 
 ## Resultado demonstrável
 
@@ -233,7 +247,12 @@ cross-tenant, compatibilidade N/N−1, jornada mobile e piloto controlado.
   plano `racha`, carência, cancelamento, grandfathering e suporte financeiro;
 - CP1 continua proibido enquanto a decisão estiver `proposed`.
 
-#### Tarefas para desbloquear
+#### Tarefas para desbloquear — somente após sinal explícito
+
+- [ ] Registrar MVP consolidado e aceite do responsável pelo produto.
+- [ ] Registrar autorização explícita para retomar o desenvolvimento do Asaas;
+  conclusão da R16, interesse comercial ou disponibilidade de chave não equivalem
+  a essa autorização. Os itens seguintes permanecem suspensos até este gate.
 
 - [x] Concluir o rollout global da R13 e confirmar `professional_scheduling`
   ativa para times atuais e futuros.
