@@ -232,7 +232,8 @@ function isExpectedAccessFailure(error: { code?: string; message?: string }) {
     error.code === "42501" ||
     error.code === "42883" ||
     error.code === "PGRST202" ||
-    error.code === "PGRST204"
+    error.code === "PGRST204" ||
+    error.code === "54000"
   ) {
     return true;
   }
@@ -255,7 +256,8 @@ function isUnavailableResponseFailure(error: {
     error.code === "42501" ||
     error.code === "42883" ||
     error.code === "PGRST202" ||
-    error.code === "PGRST204"
+    error.code === "PGRST204" ||
+    error.code === "54000"
   ) {
     return true;
   }
