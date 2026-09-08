@@ -29,7 +29,7 @@ O baseline é OWASP ASVS 5.0 nível 2 e OWASP Top 10. Isso não é uma certifica
 
 ## Cadastro público
 
-O formulário usa duas camadas de validação, campo honeypot, Turnstile validado no servidor, limite de tamanho e resposta genérica antes de solicitar OTP. A conclusão exige sessão autenticada com telefone confirmado e chama `complete_verified_athlete_registration`, que revalida a identidade no banco; não usa a chave secreta da aplicação. Todo cadastro entra como `pending`, invisível no diretório público até aprovação e conforme as flags atuais. `DEC-PUBLIC-PRIVACY` decidiu que BID administrativo não reivindicado nunca recebe consentimento por ato do staff; a retirada do controle legado ainda depende da expansão R04.
+O formulário usa duas camadas de validação, campo honeypot, Turnstile validado no servidor com fail-closed em produção (sem configuração, o cadastro recusa em vez de liberar o OTP), limite de tamanho e resposta genérica antes de solicitar OTP. O erro de OTP para número sem perfil é idêntico ao genérico para impedir enumeração de contas. A conclusão exige sessão autenticada com telefone confirmado e chama `complete_verified_athlete_registration`, que revalida a identidade no banco; não usa a chave secreta da aplicação. Todo cadastro entra como `pending`, invisível no diretório público até aprovação e conforme as flags atuais. `DEC-PUBLIC-PRIVACY` decidiu que BID administrativo não reivindicado nunca recebe consentimento por ato do staff; a retirada do controle legado ainda depende da expansão R04.
 
 O Turnstile não substitui rate limiting. Antes de abrir produção, configure limite por IP/slug no firewall da Vercel ou serviço equivalente, com política conservadora e observabilidade de falsos positivos.
 
@@ -267,7 +267,8 @@ fornecedor de mensageria.
 
 - [ ] domínio e URLs de callback definitivos configurados;
 - [ ] SMTP transacional próprio e políticas SPF/DKIM/DMARC;
-- [ ] Turnstile e rate limiting ativos;
+- [ ] Turnstile fail-closed em produção (código exige configuração; formulário desabilitado sem `siteKey`) — implementado;
+- [ ] rate limiting no edge antes de abrir produção: `/auth/*`, `/t/*/cadastro`, `/t/*/register`, `/e/*/access`, `/invite/*`, `/api/*` por IP/slug, com dashboard de falsos positivos (Turnstile não substitui rate limiting);
 - [ ] MFA obrigatório para owners/admins quando o fluxo for implementado;
 - [ ] segredos exclusivos por ambiente, rotação testada e sem legado `service_role`/`anon` quando possível;
 - [ ] Supabase e Vercel na região definida, com backups/PITR e teste de restauração;
@@ -276,7 +277,9 @@ fornecedor de mensageria.
 - [ ] threat model, rotação, revogação e testes de replay da credencial duradoura aprovados;
 - [ ] alertas para erro, pico de cadastros, falhas de auth, RLS e outbox;
 - [ ] política de retenção e rotina de exclusão implementadas;
-- [ ] threat model revisado por feature e pentest independente concluído;
+- [ ] LGPD fechada antes de coletar dados reais: controlador e base legal definidos, Termos/Política versionados publicados, DPA com Supabase/Vercel/Twilio/AWS e transferência internacional mapeada;
+- [ ] staging operativo ou aceitação formal do risco documentada (produção é o único remoto; sem staging, só expansão inerte + smoke somente-leitura);
+- [ ] threat model revisado por feature e pentest independente concluído (interno em `docs/pentest-deutime-app.md`; produção exige revisão externa);
 - [ ] plano de incidente com responsáveis, contatos e janela de comunicação;
 - [ ] conta de serviço de deploy com mínimo privilégio e MFA nas contas humanas;
 

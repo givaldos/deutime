@@ -7,9 +7,8 @@ export function athleteLoginAuthErrorMessage(code?: string) {
   if (code === "otp_expired" || code === "invalid_otp") {
     return "Código inválido ou expirado.";
   }
-  if (code === "otp_disabled") {
-    return "Este celular ainda não tem perfil. No link público do seu time, escolha Primeiro acesso.";
-  }
+  // otp_disabled usa a mensagem genérica de propósito: uma resposta distinta
+  // permitiria enumerar quais números possuem perfil de atleta.
   return "Não foi possível entrar. Confira o número usado no cadastro.";
 }
 
