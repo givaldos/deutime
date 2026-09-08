@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/lib/database.types";
 import { getPublicEnv } from "@/lib/env/public";
 import { cookies } from "next/headers";
+import { getAuthCookieOptions } from "./cookie-options";
 
 /**
  * Especially important if using Fluid compute: Don't put this client in a
@@ -16,6 +17,7 @@ export async function createClient() {
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     {
+      cookieOptions: getAuthCookieOptions(),
       cookies: {
         getAll() {
           return cookieStore.getAll();

@@ -101,6 +101,15 @@ export async function prepareAthleteRegistration(
   const turnstileConfig = getTurnstileConfig();
   const hasTurnstileConfig = turnstileConfig !== null;
 
+  // Fail-closed: sem a configuração anti-bot, o cadastro público não avança
+  // em produção (antes retornava ok e liberava o OTP).
+  if (process.env.NODE_ENV === "production" && !hasTurnstileConfig) {
+    return {
+      ok: false,
+      message: "Cadastro temporariamente indisponível. Tente novamente mais tarde.",
+    };
+  }
+
   if (process.env.NODE_ENV === "production" && hasTurnstileConfig && !parsed.data.turnstileToken) {
     return {
       ok: false,
@@ -123,11 +132,6 @@ export async function prepareAthleteRegistration(
         message: "Conclua a verificação de segurança para continuar.",
       };
     }
-  } else if (process.env.NODE_ENV === "production" && hasTurnstileConfig) {
-    return {
-      ok: false,
-      message: "Conclua a verificação de segurança para continuar.",
-    };
   }
 
   return { ok: true, phone };

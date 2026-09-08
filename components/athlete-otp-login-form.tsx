@@ -33,7 +33,6 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
   const [stage, setStage] = useState<"phone" | "otp">("phone");
   const [otpRequestCount, setOtpRequestCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [needsRegistration, setNeedsRegistration] = useState(false);
   const [pending, setPending] = useState(false);
   const router = useRouter();
   const registrationReturnPath = athleteRegistrationReturnPath(nextPath);
@@ -49,7 +48,6 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
 
     setPending(true);
     setError(null);
-    setNeedsRegistration(false);
     try {
       const supabase = createClient();
       const { error: authError } = await supabase.auth.signInWithOtp({
@@ -58,7 +56,6 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
       });
       if (authError) {
         resetTurnstile();
-        setNeedsRegistration(authError.code === "otp_disabled");
         setError(athleteLoginAuthErrorMessage(authError.code));
         return;
       }
@@ -122,7 +119,7 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
               <p className="text-xs text-slate-500">Para números do Brasil, o +55 é automático.</p>
             </div>
             {error ? <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-            {needsRegistration && registrationReturnPath ? (
+            {registrationReturnPath ? (
               <Button asChild variant="outline" className="h-12 w-full rounded-xl">
                 <Link href={registrationReturnPath}>
                   Voltar e fazer o primeiro acesso
@@ -168,7 +165,6 @@ export function AthleteOtpLoginForm({ siteKey, nonce, nextPath = "/me" }: { site
                 setOtpRequestCount((c) => c + 1);
                 setOtp("");
                 setError(null);
-                setNeedsRegistration(false);
               }}
             >
               <ArrowLeft className="size-4" aria-hidden /> Corrigir número

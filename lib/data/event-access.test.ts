@@ -311,6 +311,7 @@ describe("event access data boundary", () => {
   it.each([
     ["revoked capability", "42501", "Resposta ao evento indisponível"],
     ["missing N-1 contract", "PGRST202", "schema cache"],
+    ["rate limited call", "54000", "Too many attempts"],
   ])("fails %s closed without noisy logs", async (_case, code, message) => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mocks.state.cookie = capabilitySecret;
