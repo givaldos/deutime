@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { AppContainer, PageHeader } from "@/components/ui/app-shell";
 import { Progress } from "@/components/ui/progress";
-import { TeamAppHeader } from "@/components/team-app-header";
-import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { requireUser } from "@/lib/auth/dal";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { createClient } from "@/lib/supabase/server";
@@ -31,10 +29,11 @@ export default async function EventsPage({ params }: { params: Promise<{ teamSlu
   const user = await requireUser();
   const { teamSlug } = await params;
   const supabase = await createClient();
-  const [{ data: team }, { data: teams }] = await Promise.all([
-    supabase.from("teams").select("id, name, slug, timezone").eq("slug", teamSlug).maybeSingle(),
-    supabase.from("teams").select("name, slug").order("name"),
-  ]);
+  const { data: team } = await supabase
+    .from("teams")
+    .select("id, name, slug, timezone")
+    .eq("slug", teamSlug)
+    .maybeSingle();
   if (!team) notFound();
 
   const [{ data: membership }, { data: events }] = await Promise.all([
@@ -152,7 +151,6 @@ export default async function EventsPage({ params }: { params: Promise<{ teamSlu
 
   return (
     <main className="app-canvas pb-24">
-      <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
       <AppContainer>
         <PageHeader
           eyebrow="Organização"
@@ -206,7 +204,6 @@ export default async function EventsPage({ params }: { params: Promise<{ teamSlu
           </section>
         )}
       </AppContainer>
-      <TeamBottomNav teamSlug={team.slug} active="events" nextEventId={upcoming[0]?.id} />
     </main>
   );
 }

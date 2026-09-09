@@ -6,8 +6,6 @@ import { AthleteRemoveButton } from "@/components/athlete-remove-button";
 import { Button } from "@/components/ui/button";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { AppContainer, PageHeader } from "@/components/ui/app-shell";
-import { TeamAppHeader } from "@/components/team-app-header";
-import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -55,13 +53,14 @@ export default async function AthletesPage({
   const { teamSlug } = await params;
   const query = await searchParams;
   const supabase = await createClient();
-  const [{ data: team }, { data: teams }] = await Promise.all([
-    supabase.from("teams").select("id, name, slug").eq("slug", teamSlug).maybeSingle(),
-    supabase.from("teams").select("name, slug").order("name"),
-  ]);
+  const { data: team } = await supabase
+    .from("teams")
+    .select("id, name, slug")
+    .eq("slug", teamSlug)
+    .maybeSingle();
   if (!team) notFound();
 
-  const [{ data: membership }, { data: athletes }, { data: nextEvent }] = await Promise.all([
+  const [{ data: membership }, { data: athletes }] = await Promise.all([
     supabase
       .from("team_memberships")
       .select("role")
@@ -74,15 +73,6 @@ export default async function AthletesPage({
       .select("id, user_id, registration_number, full_name, preferred_name, shirt_number, status, registration_source, created_at, removed_at")
       .eq("team_id", team.id)
       .order("created_at", { ascending: false }),
-    supabase
-      .from("events")
-      .select("id")
-      .eq("team_id", team.id)
-      .eq("status", "scheduled")
-      .gte("starts_at", new Date().toISOString())
-      .order("starts_at")
-      .limit(1)
-      .maybeSingle(),
   ]);
   if (!membership) notFound();
 
@@ -128,7 +118,6 @@ export default async function AthletesPage({
 
   return (
     <main className="app-canvas pb-24">
-      <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
       <AppContainer>
         {query.created === "1" && (
           <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950">
@@ -401,7 +390,6 @@ export default async function AthletesPage({
           </section>
         )}
       </AppContainer>
-      <TeamBottomNav teamSlug={team.slug} active="athletes" nextEventId={nextEvent?.id} />
     </main>
   );
 }

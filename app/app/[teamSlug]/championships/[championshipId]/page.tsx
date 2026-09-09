@@ -13,7 +13,6 @@ import {
 import { ChampionshipPublicControls } from "@/components/championship-public-controls";
 import { ChampionshipSetupWizard } from "@/components/championship-setup-wizard";
 import { InternalSquadBadge } from "@/components/internal-squad-badge";
-import { TeamAppHeader } from "@/components/team-app-header";
 import { AppContainer } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
 import { getChampionshipWorkspace } from "@/lib/data/championships";
@@ -75,10 +74,11 @@ export default async function ChampionshipPage({
   const user = await requireUser();
   const { teamSlug, championshipId } = await params;
   const supabase = await createClient();
-  const [{ data: team }, { data: teams }] = await Promise.all([
-    supabase.from("teams").select("id, name, slug, timezone, default_sport_format").eq("slug", teamSlug).maybeSingle(),
-    supabase.from("teams").select("name, slug").order("name"),
-  ]);
+  const { data: team } = await supabase
+    .from("teams")
+    .select("id, name, slug, timezone, default_sport_format")
+    .eq("slug", teamSlug)
+    .maybeSingle();
   if (!team) notFound();
   const [{ data: membership }, workspace, professionalSchedulingEnabled] = await Promise.all([
     supabase.from("team_memberships").select("role").eq("team_id", team.id).eq("user_id", user.id).eq("status", "active").maybeSingle(),
@@ -189,7 +189,6 @@ export default async function ChampionshipPage({
   if (guidedSetupAvailable) {
     return (
       <main className="app-canvas min-h-screen pb-16">
-        <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
         <AppContainer className="space-y-6 pb-12">
           <Link href={`/app/${team.slug}/championships`} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-600 hover:text-emerald-800">
             <ArrowLeft className="size-4" aria-hidden /> Campeonatos
@@ -265,7 +264,6 @@ export default async function ChampionshipPage({
 
   return (
     <main className="app-canvas min-h-screen pb-16">
-      <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
       <AppContainer className="space-y-6 pb-12">
         <Link href={`/app/${team.slug}/championships`} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-600 hover:text-emerald-800">
           <ArrowLeft className="size-4" aria-hidden /> Campeonatos

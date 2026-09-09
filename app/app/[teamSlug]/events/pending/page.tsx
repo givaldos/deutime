@@ -2,7 +2,6 @@ import {
   resolveEventScheduleConflict,
   transitionEventSchedule,
 } from "@/app/app/[teamSlug]/events/actions";
-import { TeamAppHeader } from "@/components/team-app-header";
 import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth/dal";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
@@ -53,14 +52,11 @@ export default async function PendingSchedulePage({
   const { teamSlug } = await params;
   const query = await searchParams;
   const supabase = await createClient();
-  const [{ data: team }, { data: teams }] = await Promise.all([
-    supabase
-      .from("teams")
-      .select("id, name, slug, timezone")
-      .eq("slug", teamSlug)
-      .maybeSingle(),
-    supabase.from("teams").select("name, slug").order("name"),
-  ]);
+  const { data: team } = await supabase
+    .from("teams")
+    .select("id, name, slug, timezone")
+    .eq("slug", teamSlug)
+    .maybeSingle();
   if (!team) notFound();
 
   const [{ data: membership }, professionalEnabled] = await Promise.all([
@@ -106,7 +102,6 @@ export default async function PendingSchedulePage({
 
   return (
     <main className="app-canvas min-h-screen pb-16">
-      <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
         <Link
           href={`/app/${team.slug}/events`}

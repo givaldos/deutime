@@ -1,7 +1,5 @@
 import { revokeTeamInvitation } from "@/app/app/team-actions";
 import { AdminInviteForm } from "@/components/admin-invite-form";
-import { TeamAppHeader } from "@/components/team-app-header";
-import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { TeamMediaManager } from "@/components/team-media-manager";
 import { TeamSettingsForm } from "@/components/team-settings-form";
 import { EventSharePilotControl } from "@/components/event-share-pilot-control";
@@ -47,17 +45,11 @@ export default async function TeamSettingsPage({
   const [{ teamSlug }, query] = await Promise.all([params, searchParams]);
   const supabase = await createClient();
   const now = new Date().toISOString();
-  const [
-    { data: team },
-    { data: teams },
-  ] = await Promise.all([
-    supabase
-      .from("teams")
-      .select("id, name, slug, default_sport_format, timezone, is_public")
-      .eq("slug", teamSlug)
-      .maybeSingle(),
-    supabase.from("teams").select("name, slug").order("name"),
-  ]);
+  const { data: team } = await supabase
+    .from("teams")
+    .select("id, name, slug, default_sport_format, timezone, is_public")
+    .eq("slug", teamSlug)
+    .maybeSingle();
   if (!team) notFound();
 
   const [
@@ -206,8 +198,6 @@ export default async function TeamSettingsPage({
 
   return (
     <main className="app-canvas min-h-screen pb-24">
-      <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
-
       <AppContainer narrow className="space-y-5 sm:space-y-7">
         <div>
           <Link
@@ -422,7 +412,6 @@ export default async function TeamSettingsPage({
         </section>
       </AppContainer>
 
-      <TeamBottomNav teamSlug={team.slug} active="settings" />
     </main>
   );
 }

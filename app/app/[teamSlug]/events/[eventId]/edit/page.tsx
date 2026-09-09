@@ -2,7 +2,6 @@ import {
   AdminEventForm,
   type EditableEventValues,
 } from "@/components/admin-event-form";
-import { TeamAppHeader } from "@/components/team-app-header";
 import { EventWhatsAppReminders } from "@/components/event-whatsapp-reminders";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
@@ -35,14 +34,11 @@ export default async function EditEventPage({
   const user = await requireUser();
   const { teamSlug, eventId } = await params;
   const supabase = await createClient();
-  const [{ data: team }, { data: teams }] = await Promise.all([
-    supabase
-      .from("teams")
-      .select("id, name, slug, timezone, default_sport_format")
-      .eq("slug", teamSlug)
-      .maybeSingle(),
-    supabase.from("teams").select("name, slug").order("name"),
-  ]);
+  const { data: team } = await supabase
+    .from("teams")
+    .select("id, name, slug, timezone, default_sport_format")
+    .eq("slug", teamSlug)
+    .maybeSingle();
   if (!team) notFound();
 
   const [{ data: membership }, { data: event }] = await Promise.all([
@@ -132,7 +128,6 @@ export default async function EditEventPage({
 
   return (
     <main className="app-canvas">
-      <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
       <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10">
         <Link
           href={`/app/${team.slug}/events/${event.id}`}

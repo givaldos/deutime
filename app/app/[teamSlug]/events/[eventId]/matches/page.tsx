@@ -9,7 +9,6 @@ import { getEventMatches } from "@/lib/data/matches";
 import { CreateMatchForm, FinalizeMatchForm, ParticipationForm, PublicModeForm, RecordEventForm, VoidMatchForm } from "@/components/match-forms";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { AppContainer } from "@/components/ui/app-shell";
-import { TeamAppHeader } from "@/components/team-app-header";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -50,14 +49,11 @@ export default async function MatchReportPage({
     searchParams,
   ]);
   const supabase = await createClient();
-  const [{ data: team }, { data: teams }] = await Promise.all([
-    supabase
-      .from("teams")
-      .select("id, name, slug, timezone")
-      .eq("slug", teamSlug)
-      .maybeSingle(),
-    supabase.from("teams").select("name, slug").order("name"),
-  ]);
+  const { data: team } = await supabase
+    .from("teams")
+    .select("id, name, slug, timezone")
+    .eq("slug", teamSlug)
+    .maybeSingle();
   if (!team) notFound();
 
   const [{ data: membership }, { data: event }] = await Promise.all([
@@ -156,7 +152,6 @@ export default async function MatchReportPage({
 
   return (
     <main className="app-canvas pb-24">
-      <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
       <AppContainer>
         {query.incident === "deleted" ? (
           <div role="status" className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950">
