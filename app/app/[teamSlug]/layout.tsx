@@ -1,5 +1,8 @@
 import { TeamAppHeader } from "@/components/team-app-header";
-import { TeamBottomNav } from "@/components/team-bottom-nav";
+import {
+  TeamBottomNav,
+  TeamLegacyBottomNavigation,
+} from "@/components/team-bottom-nav";
 import { requireUser } from "@/lib/auth/dal";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { createClient } from "@/lib/supabase/server";
@@ -36,7 +39,32 @@ export default async function TeamLayout({
   if (!membership) return children;
 
   const navigationEnabled = await isTeamFeatureEnabled(team.id, "team_navigation_shell");
-  if (!navigationEnabled) return children;
+  if (!navigationEnabled) {
+    const { data: nextEvent } = await supabase
+      .from("events")
+      .select("id")
+      .eq("team_id", team.id)
+      .eq("status", "scheduled")
+      .gte("starts_at", new Date().toISOString())
+      .order("starts_at")
+      .limit(1)
+      .maybeSingle();
+
+    return (
+      <>
+        <TeamAppHeader
+          currentName={team.name}
+          currentSlug={team.slug}
+          teams={teams ?? []}
+        />
+        {children}
+        <TeamLegacyBottomNavigation
+          teamSlug={team.slug}
+          nextEventId={nextEvent?.id ?? null}
+        />
+      </>
+    );
+  }
 
   const [{ data: logo }, championshipsEnabled] = await Promise.all([
     supabase
@@ -52,7 +80,7 @@ export default async function TeamLayout({
     : { data: null };
 
   return (
-    <div className="[&_.legacy-team-bottom-nav]:hidden [&_.legacy-team-header]:hidden">
+    <div>
       <TeamAppHeader
         currentName={team.name}
         currentSlug={team.slug}

@@ -1,5 +1,4 @@
 import { CreateChampionshipForm } from "@/components/championship-forms";
-import { TeamAppHeader } from "@/components/team-app-header";
 import { AppContainer } from "@/components/ui/app-shell";
 import { getChampionships } from "@/lib/data/championships";
 import { getInternalSquadConfiguration } from "@/lib/data/internal-squads";
@@ -29,10 +28,11 @@ export default async function ChampionshipsPage({
   const user = await requireUser();
   const [{ teamSlug }, query] = await Promise.all([params, searchParams]);
   const supabase = await createClient();
-  const [{ data: team }, { data: teams }] = await Promise.all([
-    supabase.from("teams").select("id, name, slug").eq("slug", teamSlug).maybeSingle(),
-    supabase.from("teams").select("name, slug").order("name"),
-  ]);
+  const { data: team } = await supabase
+    .from("teams")
+    .select("id, name, slug")
+    .eq("slug", teamSlug)
+    .maybeSingle();
   if (!team) notFound();
   const [
     { data: membership },
@@ -64,7 +64,6 @@ export default async function ChampionshipsPage({
 
   return (
     <main className="app-canvas min-h-screen pb-16">
-      <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
       <AppContainer className="space-y-6 pb-12">
         <Link href={`/app/${team.slug}`} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-600 hover:text-emerald-800">
           <ArrowLeft className="size-4" aria-hidden /> Voltar à visão geral

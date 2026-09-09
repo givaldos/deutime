@@ -6,8 +6,6 @@ import { EventLineupEditor } from "@/components/event-lineup-editor";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { Button } from "@/components/ui/button";
 import { AppContainer } from "@/components/ui/app-shell";
-import { TeamAppHeader } from "@/components/team-app-header";
-import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { requireUser } from "@/lib/auth/dal";
 import { getInternalSquads } from "@/lib/data/internal-squads";
 import { getAppUrl } from "@/lib/env/server";
@@ -66,10 +64,11 @@ export default async function EventDetailPage({
   const { teamSlug, eventId } = await params;
   const query = await searchParams;
   const supabase = await createClient();
-  const [{ data: team }, { data: teams }] = await Promise.all([
-    supabase.from("teams").select("id, name, slug, timezone").eq("slug", teamSlug).maybeSingle(),
-    supabase.from("teams").select("name, slug").order("name"),
-  ]);
+  const { data: team } = await supabase
+    .from("teams")
+    .select("id, name, slug, timezone")
+    .eq("slug", teamSlug)
+    .maybeSingle();
   if (!team) notFound();
 
   const [{ data: membership }, { data: event }] = await Promise.all([
@@ -304,7 +303,6 @@ export default async function EventDetailPage({
 
   return (
     <main className="app-canvas pb-24">
-      <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
       <AppContainer>
         {query.created === "1" && (
           <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950">
@@ -554,7 +552,6 @@ export default async function EventDetailPage({
           />
         ) : null}
       </AppContainer>
-      <TeamBottomNav teamSlug={team.slug} active="events" nextEventId={event.id} />
     </main>
   );
 }

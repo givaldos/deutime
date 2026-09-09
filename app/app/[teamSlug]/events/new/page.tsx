@@ -1,5 +1,4 @@
 import { AdminEventForm } from "@/components/admin-event-form";
-import { TeamAppHeader } from "@/components/team-app-header";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
@@ -17,14 +16,11 @@ export default async function NewEventPage({
   const user = await requireUser();
   const { teamSlug } = await params;
   const supabase = await createClient();
-  const [{ data: team }, { data: teams }] = await Promise.all([
-    supabase
-      .from("teams")
-      .select("id, name, slug, timezone, default_sport_format")
-      .eq("slug", teamSlug)
-      .maybeSingle(),
-    supabase.from("teams").select("name, slug").order("name"),
-  ]);
+  const { data: team } = await supabase
+    .from("teams")
+    .select("id, name, slug, timezone, default_sport_format")
+    .eq("slug", teamSlug)
+    .maybeSingle();
   if (!team) notFound();
 
   const { data: membership } = await supabase
@@ -53,7 +49,6 @@ export default async function NewEventPage({
 
   return (
     <main className="app-canvas">
-      <TeamAppHeader currentName={team.name} currentSlug={team.slug} teams={teams ?? []} />
       <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10">
         <Link href={`/app/${team.slug}/events`} className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-slate-600 hover:text-emerald-800">
           <ArrowLeft className="size-4" aria-hidden /> Voltar à agenda

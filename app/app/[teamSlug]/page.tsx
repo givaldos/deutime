@@ -1,5 +1,3 @@
-import { TeamAppHeader } from "@/components/team-app-header";
-import { TeamBottomNav } from "@/components/team-bottom-nav";
 import { ProfessionalCreationActions } from "@/components/professional-creation-actions";
 import { AppContainer } from "@/components/ui/app-shell";
 import { Button } from "@/components/ui/button";
@@ -97,14 +95,11 @@ export default async function TeamDashboardPage({
   const user = await requireUser();
   const [{ teamSlug }, query] = await Promise.all([params, searchParams]);
   const supabase = await createClient();
-  const [{ data: currentTeam }, { data: teams }] = await Promise.all([
-    supabase
-      .from("teams")
-      .select("id, name, slug, timezone")
-      .eq("slug", teamSlug)
-      .maybeSingle(),
-    supabase.from("teams").select("name, slug").order("name"),
-  ]);
+  const { data: currentTeam } = await supabase
+    .from("teams")
+    .select("id, name, slug, timezone")
+    .eq("slug", teamSlug)
+    .maybeSingle();
   if (!currentTeam) notFound();
 
   const now = new Date();
@@ -261,12 +256,6 @@ export default async function TeamDashboardPage({
 
   return (
     <main className="app-canvas min-h-screen pb-24">
-      <TeamAppHeader
-        currentName={currentTeam.name}
-        currentSlug={currentTeam.slug}
-        teams={teams ?? []}
-      />
-
       <AppContainer className="space-y-5 pb-8 sm:space-y-7">
         {query.invite === "accepted" ? (
           <div role="status" className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950">
@@ -595,11 +584,6 @@ export default async function TeamDashboardPage({
         </section>
       </AppContainer>
 
-      <TeamBottomNav
-        teamSlug={currentTeam.slug}
-        active="home"
-        nextEventId={nextEvent?.id}
-      />
     </main>
   );
 }

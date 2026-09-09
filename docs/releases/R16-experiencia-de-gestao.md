@@ -465,7 +465,8 @@ projeção, migration e teste descobertos. Não iniciar escrita sensível sem es
 
 Execução iniciada somente no `WP-R16-01`: NAV-01 fechou o contrato de destinos e
 NAV-02 adicionou layout, menus compartilhados e a flag inerte
-`team_navigation_shell`. Os pacotes `WP-R16-02` a `09` permanecem pendentes.
+`team_navigation_shell`; NAV-03 migrou as 13 páginas sem remover suas validações
+de domínio. Os pacotes `WP-R16-02` a `09` permanecem pendentes.
 O planejamento não encerra a R15; suas evidências permanecem no pacote próprio.
 O checkpoint obsoleto de pré-merge foi reconciliado na promoção documental abaixo. Na execução,
 registrar por pacote critério, comando/ensaio, resultado, commit, ambiente e
