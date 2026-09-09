@@ -5414,6 +5414,13 @@ export type Database = {
         Args: { requested_media_id: string }
         Returns: boolean
       }
+      set_team_navigation_shell_rollout: {
+        Args: { requested_enabled: boolean; requested_team_id?: string }
+        Returns: {
+          flags_changed: number
+          teams_seen: number
+        }[]
+      }
       set_team_whatsapp_reminder_settings: {
         Args: {
           requested_first_offset_minutes: number

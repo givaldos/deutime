@@ -251,7 +251,7 @@ integridade de migrations, tipos e pgTAP positivo/negativo/cross-tenant.
 | NAV-02/03 | concluído | layout e menus compartilhados; 13 páginas migradas, guards e redirect preservados, fallback por rota validado |
 | NAV-04 | concluído | rota Mais exige sessão e vínculo ativo; destinos por papel, âncoras e retorno interno validados em 31 testes focados, suíte 133/651 e build Webpack |
 | NAV-05 | concluído | início ordenado por pendências, próximo jogo, campeonatos e resultados; estados vazio/completo/manager cobertos em 13 testes focados, suíte 134/656 e build Webpack |
-| NAV-06 | pendente | testes, piloto e recuperação ainda não executados |
+| NAV-06 | em validação | rollout inerte com piloto por time e kill switch exclusivo; 26 testes focados, reset completo, 74 arquivos/1907 testes pgTAP, suíte 134/656 e build Webpack aprovados; falta promover, exercitar produção e registrar o smoke |
 
 Não transformar esta tabela em relatório de sucesso por inferência. O modelo de
 execução não muda invariantes, critérios de aceite ou necessidade de evidência.

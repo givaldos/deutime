@@ -28,8 +28,8 @@ select ok(not has_function_privilege(
 select ok(not has_function_privilege(
   'anon', 'public.set_all_product_features(boolean)', 'execute'
 ), 'anônimo não opera o lançamento global');
-select is((select count(*) from private.product_feature_keys()), 16::bigint,
-  'catálogo contém as dezesseis capacidades validadas');
+select is((select count(*) from private.product_feature_keys()), 17::bigint,
+  'catálogo contém as dezessete capacidades validadas');
 select is((select enabled from private.product_rollout_state where singleton), false,
   'ambientes novos permanecem fail-closed até o rollout explícito');
 
@@ -48,7 +48,7 @@ select * from public.set_all_product_features(true);
 
 select is((select teams_seen from activation_result), 5,
   'lançamento observa todos os times');
-select is((select flags_changed from activation_result), 80,
+select is((select flags_changed from activation_result), 85,
   'lançamento ativa todas as flags inertes');
 select is((select controls_changed from activation_result), 6,
   'lançamento ativa todos os controles globais');
@@ -68,11 +68,11 @@ select is((select enabled from private.product_rollout_state where singleton), t
 select is((select count(*) from public.audit_logs
   where action = 'feature_flag.changed'
     and metadata ->> 'source' = 'product_rollout'
-), 80::bigint, 'ativação global é auditada sem atribuir ator humano');
+), 85::bigint, 'ativação global é auditada sem atribuir ator humano');
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','f2500000-0000-4000-8000-000000000001',true);
-select is((select count(*) from public.team_feature_flags), 16::bigint,
+select is((select count(*) from public.team_feature_flags), 17::bigint,
   'RLS limita o owner às flags do próprio time');
 reset role;
 
@@ -99,13 +99,13 @@ insert into public.teams (id, name, slug, created_by) values (
 select is((select count(*) from public.team_feature_flags
   where team_id = 'f2510000-0000-4000-8000-000000000003'
     and enabled
-), 16::bigint, 'times criados após o rollout recebem o catálogo ativo');
+), 17::bigint, 'times criados após o rollout recebem o catálogo ativo');
 
 create temporary table rollback_result as
 select * from public.set_all_product_features(false);
 select results_eq(
   $$select flags_changed, controls_changed from rollback_result$$,
-  $$values (96, 6)$$,
+  $$values (102, 6)$$,
   'rollback desativa flags e controles no mesmo comando'
 );
 select ok(not exists (
