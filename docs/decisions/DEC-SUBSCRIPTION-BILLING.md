@@ -5,6 +5,16 @@
 - Release: R11
 - Responsáveis: produto e engenharia do DeuTime
 
+## Condição de retomada
+
+O contrato financeiro abaixo continua `proposed` e está preservado para o futuro.
+Por [`DEC-ASAAS-PRIORITY`](../roadmap.md#regra-de-prioridade-asaas-sob-autorização),
+decisão do produto em 2026-09-08, a R11 foi retirada da fila e não tem prazo.
+Somente após MVP consolidado e autorização explícita para desenvolver Asaas
+retomar pesquisa, ensaios Sandbox e decisões comerciais. A conclusão da R16 ou
+disponibilidade de chave não ativa esta proposta; revalidar fontes e contratos
+quando houver autorização, sem consumir a frente atual de navegação.
+
 ## Contexto
 
 A R11 monetiza a administração de um time por assinatura mensal sem cobrar
