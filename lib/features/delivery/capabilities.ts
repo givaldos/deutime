@@ -14,6 +14,7 @@ export const featureKeys = [
   "championships",
   "recognition",
   "professional_scheduling",
+  "team_navigation_shell",
 ] as const;
 
 export type FeatureKey = (typeof featureKeys)[number];
