@@ -66,7 +66,7 @@ export default async function ChampionshipsPage({
     <main className="app-canvas min-h-screen pb-16">
       <AppContainer className="space-y-6 pb-12">
         <Link href={`/app/${team.slug}`} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-600 hover:text-emerald-800">
-          <ArrowLeft className="size-4" aria-hidden /> Voltar à visão geral
+          <ArrowLeft className="size-4" aria-hidden /> Voltar para o início
         </Link>
 
         <section className="relative overflow-hidden rounded-[2rem] bg-grass p-6 text-white shadow-float sm:p-8">
