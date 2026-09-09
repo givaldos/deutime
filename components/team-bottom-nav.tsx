@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   getTeamNavigationItems,
+  resolveLegacyBottomNavigationState,
   resolveTeamNavigationSection,
   type TeamNavigationKey,
   type TeamNavigationRole,
@@ -17,6 +18,26 @@ const items = [
   { key: "athletes", label: "Atletas", icon: UsersRound },
   { key: "match", label: "Súmula", icon: NotebookTabs },
 ] as const;
+
+export function TeamLegacyBottomNavigation({
+  teamSlug,
+  nextEventId,
+}: {
+  teamSlug: string;
+  nextEventId: string | null;
+}) {
+  const pathname = usePathname();
+  const state = resolveLegacyBottomNavigationState(pathname, teamSlug, nextEventId);
+
+  if (!state) return null;
+  return (
+    <TeamBottomNav
+      teamSlug={teamSlug}
+      active={state.active}
+      nextEventId={state.eventId}
+    />
+  );
+}
 
 export function TeamBottomNav({
   teamSlug,

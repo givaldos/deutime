@@ -19,6 +19,11 @@ export type TeamMoreNavigationItem = {
   href: string
 }
 
+export type LegacyBottomNavigationState = {
+  active: "home" | "events" | "athletes" | "settings"
+  eventId: string | null
+}
+
 function teamBasePath(teamSlug: string) {
   return `/app/${teamSlug}`
 }
@@ -99,4 +104,36 @@ export function resolveTeamNavigationSection(
     return "athletes"
   }
   return null
+}
+
+export function resolveLegacyBottomNavigationState(
+  pathname: string,
+  teamSlug: string,
+  nextEventId: string | null,
+): LegacyBottomNavigationState | null {
+  const basePath = teamBasePath(teamSlug)
+  if (pathname === basePath) return { active: "home", eventId: nextEventId }
+  if (pathname === `${basePath}/athletes`) {
+    return { active: "athletes", eventId: nextEventId }
+  }
+  if (pathname === `${basePath}/settings`) {
+    return { active: "settings", eventId: nextEventId }
+  }
+  if (pathname === `${basePath}/events`) {
+    return { active: "events", eventId: nextEventId }
+  }
+
+  const eventDetailMatch = pathname.match(
+    new RegExp(`^${escapeRegExp(basePath)}/events/([^/]+)$`),
+  )
+  const eventId = eventDetailMatch?.[1]
+  if (eventId && eventId !== "new" && eventId !== "pending") {
+    return { active: "events", eventId }
+  }
+
+  return null
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }

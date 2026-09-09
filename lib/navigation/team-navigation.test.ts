@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   getTeamMoreNavigationItems,
   getTeamNavigationItems,
+  resolveLegacyBottomNavigationState,
   resolveTeamNavigationSection,
 } from "./team-navigation"
 
@@ -78,5 +79,30 @@ describe("team navigation", () => {
     "/app/profile",
   ])("não seleciona prefixos ou outro tenant em %s", (pathname) => {
     expect(resolveTeamNavigationSection(pathname, "meu-time")).toBeNull()
+  })
+
+  it.each([
+    ["/app/meu-time", "home", "proximo"],
+    ["/app/meu-time/athletes", "athletes", "proximo"],
+    ["/app/meu-time/events", "events", "proximo"],
+    ["/app/meu-time/events/evento-a", "events", "evento-a"],
+    ["/app/meu-time/settings", "settings", "proximo"],
+  ] as const)("preserva o menu inferior legado em %s", (pathname, active, eventId) => {
+    expect(
+      resolveLegacyBottomNavigationState(pathname, "meu-time", "proximo"),
+    ).toEqual({ active, eventId })
+  })
+
+  it.each([
+    "/app/meu-time/events/new",
+    "/app/meu-time/events/pending",
+    "/app/meu-time/events/evento-a/edit",
+    "/app/meu-time/events/evento-a/matches",
+    "/app/meu-time/athletes/new",
+    "/app/meu-time/championships",
+  ])("não inventa menu inferior legado em %s", (pathname) => {
+    expect(
+      resolveLegacyBottomNavigationState(pathname, "meu-time", "proximo"),
+    ).toBeNull()
   })
 })
