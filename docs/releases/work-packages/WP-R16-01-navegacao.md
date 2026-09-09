@@ -36,13 +36,13 @@ contratos futuros para corrigir os menus existentes. Não redesenha a landing pa
 
 ### CP0 mínimo desta fatia
 
-- [ ] R15 reconciliada e sem outra implementação ativa conflitante.
-- [ ] Mapa de rotas e papéis abaixo reconferido no commit de início.
-- [ ] Esboço móvel de Início, menu e Mais conferido com o responsável do produto;
+- [x] R15 reconciliada e sem outra implementação ativa conflitante.
+- [x] Mapa de rotas e papéis abaixo reconferido no commit de início.
+- [x] Esboço móvel de Início, menu e Mais conferido com o responsável do produto;
   nomes, alvos de toque e retorno compreensíveis. Pesquisa dos demais pacotes não
   bloqueia este recorte; teste de cinco organizadores continua no gate integrado.
-- [ ] Contrato de flag/fallback e plano de testes local/produtivo definidos.
-- [ ] Nenhuma decisão de calendário, lote, foto privada ou cobrança incorporada
+- [x] Contrato de flag/fallback e plano de testes local/produtivo definidos.
+- [x] Nenhuma decisão de calendário, lote, foto privada ou cobrança incorporada
   como dependência artificial da navegação.
 
 ## Nomes, destinos e comportamento já definidos

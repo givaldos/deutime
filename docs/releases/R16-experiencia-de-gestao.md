@@ -1,7 +1,7 @@
 ---
 id: R16
 type: vertical
-status: draft
+status: active
 outcome: "Uma pessoa com pouca familiaridade digital encontra campeonatos, jogos e atletas, organiza a agenda e acompanha resultados pelo celular sem ajuda técnica."
 depends_on:
   - R12
