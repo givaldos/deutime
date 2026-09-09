@@ -3,10 +3,9 @@ import { AppContainer } from "@/components/ui/app-shell";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { requireUser } from "@/lib/auth/dal";
+import { getChampionships } from "@/lib/data/championships";
 import { getAppUrl } from "@/lib/env/server";
-import { isChampionshipsEnabled } from "@/lib/features/championships/server";
 import { isProfessionalSchedulingEnabled } from "@/lib/features/professional-scheduling/server";
-import { shouldUseProfessionalCreationActions } from "@/lib/features/professional-scheduling/presentation";
 import { getInternalSquadConfiguration } from "@/lib/data/internal-squads";
 import {
   buildTeamRegistrationWhatsAppUrl,
@@ -26,7 +25,6 @@ import {
   Sparkles,
   Trophy,
   UserPlus,
-  UsersRound,
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
@@ -85,6 +83,14 @@ const formatLabels = {
   futsal: "Futsal",
 };
 
+const championshipStatusLabels = {
+  draft: "Configuração em andamento",
+  published: "Publicado",
+  active: "Em andamento",
+  completed: "Encerrado",
+  archived: "Arquivado",
+};
+
 export default async function TeamDashboardPage({
   params,
   searchParams,
@@ -105,20 +111,14 @@ export default async function TeamDashboardPage({
   const now = new Date();
   const nowIso = now.toISOString();
   const [
-    { count: athleteCount },
-    { count: pendingAthleteCount },
-    { count: eventCount },
-    { data: nextEvent },
-    { data: membership },
+    { count: pendingAthleteCount, error: pendingAthletesError },
+    { count: eventCount, error: eventCountError },
+    { data: nextEvent, error: nextEventError },
+    { data: membership, error: membershipError },
     { data: recentAthletes, error: athletesError },
     { data: recentEvents, error: eventsError },
+    { data: recentResults, error: resultsError },
   ] = await Promise.all([
-    supabase
-      .from("athletes")
-      .select("id", { count: "exact", head: true })
-      .eq("team_id", currentTeam.id)
-      .is("removed_at", null)
-      .eq("status", "active"),
     supabase
       .from("athletes")
       .select("id", { count: "exact", head: true })
@@ -160,10 +160,29 @@ export default async function TeamDashboardPage({
       .eq("team_id", currentTeam.id)
       .order("updated_at", { ascending: false })
       .limit(8),
+    supabase
+      .from("events")
+      .select("id, title, starts_at")
+      .eq("team_id", currentTeam.id)
+      .eq("status", "completed")
+      .order("starts_at", { ascending: false })
+      .limit(3),
   ]);
+  if (membershipError) {
+    throw new Error("Não foi possível confirmar seu acesso ao time.");
+  }
   if (!membership) redirect("/me");
-  if (athletesError || eventsError) {
-    throw new Error("Não foi possível carregar as novidades do time.");
+  const canConfigureTeam =
+    membership.role === "owner" || membership.role === "admin";
+  if (
+    pendingAthletesError ||
+    eventCountError ||
+    nextEventError ||
+    athletesError ||
+    eventsError ||
+    resultsError
+  ) {
+    throw new Error("Não foi possível carregar o resumo do time.");
   }
 
   const attendanceByStatus = nextEvent
@@ -218,17 +237,18 @@ export default async function TeamDashboardPage({
     events: recentEvents ?? [],
     teamSlug: currentTeam.slug,
   }).slice(0, 8);
-  const [championshipsEnabled, professionalSchedulingEnabled] =
+  const [championships, professionalSchedulingEnabled] =
     await Promise.all([
-      isChampionshipsEnabled(currentTeam.id),
+      getChampionships(currentTeam.id),
       isProfessionalSchedulingEnabled(currentTeam.id),
     ]);
-  const professionalCreationEnabled = shouldUseProfessionalCreationActions({
-    role: membership.role,
-    professionalSchedulingEnabled,
-    championshipsEnabled,
-  });
-  const internalConfiguration = professionalSchedulingEnabled
+  const championshipsEnabled = championships !== null;
+  const highlightedChampionship =
+    championships?.find((championship) => championship.status === "active") ??
+    championships?.find((championship) => championship.status === "published") ??
+    championships?.[0] ??
+    null;
+  const internalConfiguration = professionalSchedulingEnabled && canConfigureTeam
     ? await getInternalSquadConfiguration(currentTeam.id)
     : null;
   const professionalConfigurationReady = Boolean(
@@ -238,7 +258,7 @@ export default async function TeamDashboardPage({
     internalConfiguration.defaultAwayTeamId &&
     internalConfiguration.defaultHomeTeamId !== internalConfiguration.defaultAwayTeamId,
   );
-  const activationSteps = professionalSchedulingEnabled
+  const activationSteps = professionalSchedulingEnabled && canConfigureTeam
     ? [
         ...baseActivationSteps.slice(0, 1),
         {
@@ -257,6 +277,8 @@ export default async function TeamDashboardPage({
   return (
     <main className="app-canvas min-h-screen pb-24">
       <AppContainer className="space-y-5 pb-8 sm:space-y-7">
+        <h1 className="sr-only">Início do {currentTeam.name}</h1>
+
         {query.invite === "accepted" ? (
           <div role="status" className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-950">
             <BadgeCheck className="size-5 shrink-0" aria-hidden />
@@ -276,36 +298,25 @@ export default async function TeamDashboardPage({
           </section>
         ) : null}
 
-        <section className="flex items-end justify-between gap-4 pt-1 sm:pt-2">
-          <div className="min-w-0">
-            <p className="app-kicker">Central do time</p>
-            <h1 className="mt-2 text-3xl font-black tracking-[-0.045em] text-graphite sm:text-4xl">
-              Bora pro jogo?
-            </h1>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              O que importa agora no {currentTeam.name}.
-            </p>
-          </div>
-          {!professionalCreationEnabled ? (
-            <div className="flex shrink-0 items-center gap-2">
-              {championshipsEnabled ? (
-                <Button asChild variant="outline" size="icon" className="size-11 rounded-xl" title="Campeonatos">
-                  <Link href={`/app/${currentTeam.slug}/championships`} aria-label="Campeonatos">
-                    <Trophy aria-hidden />
-                  </Link>
-                </Button>
-              ) : null}
-              <Button asChild className="h-11 rounded-xl bg-emerald-700 px-4 hover:bg-emerald-800">
-                <Link href={`/app/${currentTeam.slug}/events/new`}>
-                  <Plus aria-hidden /> <span className="hidden sm:inline">Novo jogo</span><span className="sm:hidden">Jogo</span>
-                </Link>
-              </Button>
+        {(pendingAthleteCount ?? 0) > 0 ? (
+          <section className="app-surface flex flex-col gap-4 border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-amber-200 text-amber-900">
+                <UserPlus className="size-5" aria-hidden />
+              </span>
+              <div>
+                <p className="app-kicker text-amber-800">Precisa da sua atenção</p>
+                <h2 className="mt-1 font-black text-amber-950">
+                  {pendingAthleteCount} {pendingAthleteCount === 1 ? "atleta aguardando" : "atletas aguardando"} aprovação
+                </h2>
+              </div>
             </div>
-          ) : null}
-        </section>
-
-        {professionalCreationEnabled ? (
-          <ProfessionalCreationActions teamSlug={currentTeam.slug} />
+            <Button asChild className="min-h-11 shrink-0 bg-amber-950 text-white hover:bg-grass">
+              <Link href={`/app/${currentTeam.slug}/athletes`}>
+                Revisar cadastros <ArrowRight aria-hidden />
+              </Link>
+            </Button>
+          </section>
         ) : null}
 
         <section className="relative overflow-hidden rounded-[2rem] bg-grass text-white shadow-float">
@@ -371,7 +382,7 @@ export default async function TeamDashboardPage({
 
               <Button asChild size="lg" className="mt-4 h-12 w-full rounded-xl bg-white font-bold text-graphite hover:bg-emerald-50">
                 <Link href={`/app/${currentTeam.slug}/events/${nextEvent.id}`}>
-                  Abrir chamada <ArrowRight aria-hidden />
+                  Ver jogo <ArrowRight aria-hidden />
                 </Link>
               </Button>
             </div>
@@ -381,28 +392,105 @@ export default async function TeamDashboardPage({
                 <CalendarDays className="size-6" aria-hidden />
               </span>
               <p className="mt-8 text-xs font-bold uppercase tracking-[0.14em] text-emerald-300">
-                Agenda livre
+                Próximo jogo
               </p>
               <h2 className="mt-2 text-3xl font-black tracking-[-0.04em]">
-                Qual é o próximo jogo?
+                Nenhum jogo marcado
               </h2>
               <p className="mt-3 max-w-md text-sm leading-6 text-slate-300">
-                Marque o racha e a chamada já fica pronta para o elenco responder.
+                Crie o próximo jogo para abrir a chamada do elenco.
               </p>
               <Button asChild size="lg" className="mt-6 h-12 rounded-xl bg-white text-graphite hover:bg-emerald-50">
                 <Link href={`/app/${currentTeam.slug}/events/new`}>
-                  <Plus aria-hidden /> Marcar primeiro jogo
+                  <Plus aria-hidden /> Novo jogo
                 </Link>
               </Button>
             </div>
           )}
         </section>
 
-        <section className="grid grid-cols-3 gap-2 sm:gap-3">
-          <DashboardMetric value={athleteCount ?? 0} label="no elenco" icon={UsersRound} />
-          <DashboardMetric value={pendingAthleteCount ?? 0} label="para aprovar" icon={UserPlus} highlight={(pendingAthleteCount ?? 0) > 0} />
-          <DashboardMetric value={eventCount ?? 0} label="jogos criados" icon={CalendarDays} />
+        {championshipsEnabled ? (
+          <section className="app-surface flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div className="flex items-start gap-3">
+              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-amber-50 text-amber-700">
+                <Trophy className="size-5" aria-hidden />
+              </span>
+              <div>
+                <p className="app-kicker">Campeonatos</p>
+                {highlightedChampionship ? (
+                  <>
+                    <h2 className="mt-1 font-black text-graphite">{highlightedChampionship.name}</h2>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {championshipStatusLabels[highlightedChampionship.status]}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="mt-1 font-black text-graphite">Nenhum campeonato criado</h2>
+                    <p className="mt-1 text-sm text-slate-600">Organize a primeira competição quando quiser.</p>
+                  </>
+                )}
+              </div>
+            </div>
+            <Button asChild variant="outline" className="min-h-11 shrink-0">
+              <Link href={`/app/${currentTeam.slug}/championships`}>
+                Ver campeonatos <ArrowRight aria-hidden />
+              </Link>
+            </Button>
+          </section>
+        ) : null}
+
+        <section aria-labelledby="recent-results-title">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="app-kicker">Últimos resultados</p>
+              <h2 id="recent-results-title" className="mt-1 text-xl font-black text-graphite">
+                Jogos encerrados
+              </h2>
+            </div>
+            <Link
+              href={`/app/${currentTeam.slug}/events`}
+              className="inline-flex min-h-11 shrink-0 items-center gap-1 text-sm font-black text-emerald-800 hover:text-emerald-950"
+            >
+              Ver todos os jogos <ChevronRight className="size-4" aria-hidden />
+            </Link>
+          </div>
+          {recentResults?.length ? (
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              {recentResults.map((event) => (
+                <Link
+                  key={event.id}
+                  href={`/app/${currentTeam.slug}/events/${event.id}/matches`}
+                  className="app-surface group min-h-24 p-4 transition hover:border-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
+                >
+                  <span className="block text-xs font-bold text-slate-500">
+                    {new Intl.DateTimeFormat("pt-BR", {
+                      day: "2-digit",
+                      month: "short",
+                      timeZone: currentTeam.timezone,
+                    })
+                      .format(new Date(event.starts_at))
+                      .replace(".", "")}
+                  </span>
+                  <span className="mt-2 block font-black text-graphite group-hover:text-emerald-800">
+                    {event.title}
+                  </span>
+                  <span className="mt-1 block text-xs font-bold text-emerald-800">Ver resultado</span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="app-surface mt-3 border-dashed p-5 text-sm text-slate-600">
+              Nenhum jogo encerrado ainda.
+            </p>
+          )}
         </section>
+
+        <ProfessionalCreationActions
+          teamSlug={currentTeam.slug}
+          role={membership.role}
+          championshipsEnabled={championshipsEnabled}
+        />
 
         {!activationComplete && nextActivationStep ? (
           <section className="relative overflow-hidden rounded-[1.75rem] border border-amber-200 bg-amber-50 p-5 shadow-soft sm:p-6">
@@ -585,39 +673,6 @@ export default async function TeamDashboardPage({
       </AppContainer>
 
     </main>
-  );
-}
-
-function DashboardMetric({
-  value,
-  label,
-  icon: Icon,
-  highlight = false,
-}: {
-  value: number;
-  label: string;
-  icon: typeof UsersRound;
-  highlight?: boolean;
-}) {
-  return (
-    <article
-      className={`min-w-0 rounded-2xl border p-3.5 shadow-soft sm:p-4 ${
-        highlight
-          ? "border-amber-200 bg-amber-50"
-          : "border-slate-200/80 bg-white"
-      }`}
-    >
-      <div className="flex items-center justify-between gap-2">
-        <Icon className={`size-4 ${highlight ? "text-amber-700" : "text-emerald-700"}`} aria-hidden />
-        {highlight ? <span className="size-2 rounded-full bg-amber-500" aria-label="Requer atenção" /> : null}
-      </div>
-      <p className="mt-3 text-2xl font-black tracking-[-0.04em] text-graphite sm:text-3xl">
-        {value}
-      </p>
-      <p className="mt-0.5 truncate text-[11px] font-semibold text-slate-500 sm:text-xs">
-        {label}
-      </p>
-    </article>
   );
 }
 

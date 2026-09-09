@@ -9,7 +9,11 @@ import {
 describe("entradas da agenda profissional", () => {
   it("oferece duas ações textuais grandes sem depender dos ícones", () => {
     const html = renderToStaticMarkup(
-      <ProfessionalCreationActions teamSlug="campo-fc" />,
+      <ProfessionalCreationActions
+        teamSlug="campo-fc"
+        role="owner"
+        championshipsEnabled
+      />,
     );
 
     expect(html).toContain('href="/app/campo-fc/events/new"');
@@ -19,6 +23,30 @@ describe("entradas da agenda profissional", () => {
     expect(html).toContain("Novo campeonato");
     expect(html).toContain("Tabela, grupos ou mata-mata");
     expect(html.match(/min-h-28/g)).toHaveLength(2);
+  });
+
+  it("mantém Novo jogo e não oferece criação de campeonato sem permissão", () => {
+    const managerHtml = renderToStaticMarkup(
+      <ProfessionalCreationActions
+        teamSlug="campo-fc"
+        role="manager"
+        championshipsEnabled
+      />,
+    );
+    const disabledHtml = renderToStaticMarkup(
+      <ProfessionalCreationActions
+        teamSlug="campo-fc"
+        role="owner"
+        championshipsEnabled={false}
+      />,
+    );
+
+    for (const html of [managerHtml, disabledHtml]) {
+      expect(html).toContain("Novo jogo");
+      expect(html).not.toContain("Novo campeonato");
+      expect(html).not.toContain("championships?new=1");
+      expect(html.match(/min-h-28/g)).toHaveLength(1);
+    }
   });
 
   it("explica as cinco etapas e torna a primeira corrente", () => {
