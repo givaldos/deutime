@@ -53,6 +53,7 @@ describe("controles de entrega", () => {
         "event_capability_rsvp",
         "event_share_card",
         "professional_scheduling",
+        "team_navigation_shell",
       ]),
     );
   });

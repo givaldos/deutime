@@ -247,8 +247,8 @@ integridade de migrations, tipos e pgTAP positivo/negativo/cross-tenant.
 
 | Etapa | Estado | Evidência / próxima ação |
 |---|---|---|
-| CP0 e NAV-01 | pendente | revalidar inventário, aceitar recorte, matriz e flag |
-| NAV-02/03 | pendente | layout e páginas ainda não migrados |
+| CP0 e NAV-01 | concluído | contrato puro com 15 testes; destinos, papel, capacidade e seção ativa fechados |
+| NAV-02/03 | em andamento | NAV-02: layout, menus e flag inerte validados; NAV-03 migra as 13 páginas |
 | NAV-04/05 | pendente | Mais, retorno e início ainda não implementados |
 | NAV-06 | pendente | testes, piloto e recuperação ainda não executados |
 

@@ -5,10 +5,12 @@ export function TeamSwitcher({
   currentName,
   currentSlug,
   teams,
+  canManageSettings = true,
 }: {
   currentName: string;
   currentSlug: string;
   teams: Array<{ name: string; slug: string }>;
+  canManageSettings?: boolean;
 }) {
   return (
     <details className="group relative min-w-0">
@@ -30,12 +32,14 @@ export function TeamSwitcher({
           </Link>
         ))}
         <div className="mt-2 border-t border-slate-100 pt-2">
-          <Link
-            href={`/app/${currentSlug}/settings`}
-            className="flex min-h-10 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            <Settings className="size-4" aria-hidden /> Configurar este time
-          </Link>
+          {canManageSettings ? (
+            <Link
+              href={`/app/${currentSlug}/settings`}
+              className="flex min-h-10 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              <Settings className="size-4" aria-hidden /> Configurar este time
+            </Link>
+          ) : null}
           <Link
             href="/app/new-team"
             className="flex min-h-10 items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"

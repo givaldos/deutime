@@ -463,8 +463,9 @@ projeção, migration e teste descobertos. Não iniciar escrita sensível sem es
 
 ## Evidências e checkpoint
 
-Planejamento documental apenas: `DP-R16-01` e `WP-R16-01` a `09` pendentes.
-Nenhuma feature, migração, flag, envio, teste de usuário ou deploy executado aqui.
+Execução iniciada somente no `WP-R16-01`: NAV-01 fechou o contrato de destinos e
+NAV-02 adicionou layout, menus compartilhados e a flag inerte
+`team_navigation_shell`. Os pacotes `WP-R16-02` a `09` permanecem pendentes.
 O planejamento não encerra a R15; suas evidências permanecem no pacote próprio.
 O checkpoint obsoleto de pré-merge foi reconciliado na promoção documental abaixo. Na execução,
 registrar por pacote critério, comando/ensaio, resultado, commit, ambiente e
