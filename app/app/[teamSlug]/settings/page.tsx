@@ -271,14 +271,16 @@ export default async function TeamSettingsPage({
         </section>
 
         {(teamDivisionEnabled || professionalSchedulingEnabled) && internalSquads.length >= 2 ? (
-          <InternalSquadManager
-            teamId={team.id}
-            teamSlug={team.slug}
-            initialSquads={internalSquads}
-            professionalSchedulingEnabled={professionalSchedulingEnabled}
-            initialDefaultHomeTeamId={professionalConfiguration?.defaultHomeTeamId}
-            initialDefaultAwayTeamId={professionalConfiguration?.defaultAwayTeamId}
-          />
+          <div id="internal-teams" className="scroll-mt-24">
+            <InternalSquadManager
+              teamId={team.id}
+              teamSlug={team.slug}
+              initialSquads={internalSquads}
+              professionalSchedulingEnabled={professionalSchedulingEnabled}
+              initialDefaultHomeTeamId={professionalConfiguration?.defaultHomeTeamId}
+              initialDefaultAwayTeamId={professionalConfiguration?.defaultAwayTeamId}
+            />
+          </div>
         ) : null}
 
         {whatsappRemindersEnabled && reminderSettings ? (
@@ -360,7 +362,7 @@ export default async function TeamSettingsPage({
           />
         </section>
 
-        <section className="app-surface p-5 sm:p-7">
+        <section id="team-access" className="app-surface scroll-mt-24 p-5 sm:p-7">
           <div className="flex items-center gap-3">
             <span className="grid size-10 place-items-center rounded-2xl bg-emerald-50 text-emerald-700">
               <UserPlus className="size-5" aria-hidden />
