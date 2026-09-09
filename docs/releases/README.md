@@ -32,9 +32,19 @@ Cada arquivo desta pasta é o contexto operacional autossuficiente de uma releas
 | [R10 — Reconhecimento positivo](R10-reconhecimento-positivo.md) | `done` | Visão privada, resumo consentido, piloto, smokes e rollback concluídos em CP6 |
 | [R12 — Confiança e autonomia](R12-confianca-e-autonomia.md) | `done` | 17 critérios, compatibilidade, mobile, SES, piloto, fallback e rollback concluídos em CP6 |
 | [R13 — Agenda e competições profissionais](R13-agenda-e-competicoes-profissionais.md) | `done` | 16ª capacidade ativa nos 5 times, herança para novos times, smoke e rollback/restauração concluídos em CP6 |
-| [R11 — Assinatura pelo Asaas](R11-assinatura-asaas.md) | `blocked` | Descoberta iniciada; aguarda chave Sandbox e decisões comerciais antes do CP1 |
+| [R11 — Assinatura pelo Asaas](R11-assinatura-asaas.md) | `blocked` / adiada | Fora da fila, sem prazo; MVP consolidado e autorização explícita para desenvolver são exigidos antes de retomar descoberta/CP0 |
 | [R14 — Acesso por convite](R14-acesso-por-convite.md) | `done` | Criação de equipes protegida por código individual, com emissão, revogação, smoke e rollback concluídos em CP6 |
 | [R15 — Campeonato guiado](R15-campeonato-guiado.md) | `active` | Cinco passos simples até agenda, partidas, convocados e publicação |
+| [R16 — Experiência de gestão simples](R16-experiencia-de-gestao.md) | `draft` | Próxima frente após R15: navegação, listas, fotos, calendário, lote, campeões, estatísticas e validação com organizadores pouco experientes; nenhum pacote iniciado |
+
+A R16 detalha a frente imediatamente seguinte, preservando os contratos da R15.
+Sua primeira fatia é [WP-R16-01 — navegação](work-packages/WP-R16-01-navegacao.md),
+com `NAV-01` a `NAV-06` para a execução prevista com GPT Sol. Fechar primeiro o
+CP0 desse recorte; não esperar contratos de fotos/calendário/lote para corrigir
+os menus. Este planejamento não encerra a R15 nem autoriza uma segunda release
+ativa; a promoção documental apenas reconcilia seu checkpoint obsoleto de pré-merge.
+R11/Asaas não sucede automaticamente a R16:
+fica fora da fila até MVP consolidado e sinal explícito para desenvolver.
 
 Uma release só recebe arquivo próprio quando a anterior estabilizar seus contratos. Ao promovê-la, adicione-a também ao dropdown do template de issue. Isso evita abrir trabalho sem pacote, reduz especificação prematura e limita o contexto mantido.
 

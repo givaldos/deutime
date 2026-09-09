@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 5 de setembro de 2026.
+> Atualizado em 8 de setembro de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -22,10 +22,20 @@ e a configuração profissional enquanto o rollout global estiver ativo. A R14
 restringe temporariamente a criação de novas equipes a códigos individuais e
 encerrou CP6 com ativação, smoke e rollback/restauração comprovados.
 
-A descoberta `DP-R11-01` registrou os contratos propostos da assinatura Asaas,
-porém está **bloqueada** antes do CP1 por ausência de chave exclusiva do Sandbox
-e decisões comerciais pendentes. Marketplace, cobrança de atletas, split e
-repasse permanecem fora da proposta atual.
+A descoberta `DP-R11-01` registrou contratos propostos da assinatura Asaas, mas
+a R11 está **adiada por decisão do produto, fora da fila e sem prazo**. Só pode
+ser retomada após o MVP consolidado e autorização explícita do responsável para
+desenvolver Asaas. Chave Sandbox, decisões comerciais ou conclusão da R16 não
+substituem essa autorização. Marketplace, cobrança de atletas, split e repasse
+permanecem fora da proposta atual.
+
+**Prioridade de experiência antes de ampliar a monetização:** a R15 está
+registrada como ativa para criação guiada de campeonatos; seu fechamento
+operacional ainda precisa ser reconciliado com evidências de produção. A próxima
+frente é a **R16 — Experiência de gestão simples**, planejada para tornar jogos,
+campeonatos, atletas e resultados fáceis de encontrar e administrar. Capacidade
+funcional concluída não comprova usabilidade: a R16 tem aceite próprio com
+organizadores pouco familiarizados com tecnologia, sem reabrir releases encerradas.
 
 ## Estado executivo
 
@@ -47,7 +57,33 @@ repasse permanecem fora da proposta atual.
 | **R12 — Confiança e autonomia** | ✅ `done / CP6` | Privacidade, vínculos, encerramento, aviso SES, opções do evento, compatibilidade, mobile, piloto e rollback comprovados. | [Abrir](releases/R12-confianca-e-autonomia.md) |
 | **R13 — Agenda e competições profissionais** | ✅ `done / CP6` | Agenda profissional ativa nos cinco times e herdada por novos times, com smoke e rollback/restauração comprovados. | [Abrir](releases/R13-agenda-e-competicoes-profissionais.md) |
 | **R14 — Acesso por convite** | ✅ `done / CP6` | Novas equipes exigem código individual com hash, validade e revogação; ativação e rollback foram comprovados em produção. | [Abrir](releases/R14-acesso-por-convite.md) |
-| **R11 — Assinatura pelo Asaas** | 🛑 `blocked / CP0` | Contrato proposto e entrypoints localizados; Sandbox, preço, benefícios, carência, cancelamento, grandfathering e suporte ainda impedem CP1. | [Abrir](releases/R11-assinatura-asaas.md) |
+| **R15 — Campeonato guiado** | 🟡 `active` — fechamento a reconciliar | Assistente de cinco passos e finalização transacional implementados, com evidências de testes; validação móvel/produtiva e CP6 ainda não registrados como concluídos no pacote. | [Abrir](releases/R15-campeonato-guiado.md) |
+| **R16 — Experiência de gestão simples** | ⬜ `draft` — próxima frente | Plano detalhado de navegação, listas, fotos, calendário, lote, campeonatos, estatísticas e pós-jogo; implementação e validação ainda pendentes. | [Abrir](releases/R16-experiencia-de-gestao.md) |
+| **R11 — Assinatura pelo Asaas** | ⚪ adiada / `blocked` | Fora da fila, sem prazo e sem retomada automática; exige MVP consolidado e sinal explícito do produto para desenvolver, além do CP0 financeiro. | [Abrir](releases/R11-assinatura-asaas.md) |
+
+## Regra de prioridade: Asaas sob autorização
+
+`DEC-ASAAS-PRIORITY` — decisão do responsável pelo produto em 8 de setembro de
+2026: **agora a prioridade é navegação e consolidação da experiência do MVP**.
+
+- Asaas não é a próxima entrega automática após a R16; fica fora do caminho
+  crítico, sem data e sem reserva de capacidade de desenvolvimento.
+- Não iniciar nem retomar descoberta operacional, ensaios Sandbox, pedido de
+  credenciais, schema, adapter, checkout, webhook, flag ou piloto financeiro
+  enquanto não houver sinal explícito para desenvolver Asaas.
+- Preservar o levantamento existente como referência histórica. Ter chaves,
+  concluir uma release ou ficar sem outra tarefa não libera a R11.
+- A retomada exige os três gates abaixo, nesta ordem; autorização financeira
+  não remove requisitos de segurança, negócio ou validação técnica.
+
+| Gate de retomada | Evidência necessária |
+|---|---|
+| MVP consolidado | jornadas principais e melhorias priorizadas de navegação/gestão validadas, liberadas em produção, sem bloqueios críticos e com aceite do responsável pelo produto |
+| Autorização explícita | mensagem ou decisão registrada do responsável pedindo o desenvolvimento do Asaas; não inferir de interesse comercial ou de um pedido genérico de próxima tarefa |
+| CP0 financeiro revalidado | somente após os gates anteriores: documentação vigente, Sandbox, decisões comerciais, riscos e sete ensaios com evidência |
+
+O MVP funcional histórico continua concluído. Consolidar sua experiência é a
+prioridade atual e não equivale, por si só, a autorizar monetização.
 
 ## Política temporária de ambientes
 
@@ -117,8 +153,14 @@ ativação global própria descrita abaixo.
 | 11. Confiança e autonomia | ✅ R12 concluída | Rotas, privacidade, vínculos, encerramento, aviso de cadastro e opções do evento ativos em produção. |
 | 12. Agenda profissional | ✅ R13 concluída | Ativação global, herança para novos times, smoke e rollback/restauração concluídos em CP6. |
 | 13. Acesso pré-lançamento | ✅ R14 concluída | Criação de novas equipes restrita a códigos individuais, com kill switch para o lançamento comercial. |
-| 14. Monetização do DeuTime | 🛑 R11 bloqueada no CP0 | Retomar o Sandbox Asaas somente com chave exclusiva e políticas comerciais aceitas. |
-| 15. Consolidação e escala | ⬜ decisão pendente | Priorizar somente melhorias com risco, uso real ou retorno mensurável. |
+| 14. Campeonato guiado | 🟡 R15 ativa no registro | Reconciliar evidências atuais, concluir validação móvel/produtiva e documentar CP6; preservar o assistente já implementado. |
+| 15. Gestão simples — acesso | ⬜ R16, descoberta + pacotes 01–02 | Validar jornadas, manter navegação em todas as telas e entregar listas completas de jogos/campeonatos, sem truncar histórico. |
+| 16. Gestão simples — pessoas e competição | ⬜ R16, pacotes 03–04 | Fotos, lista/cartões, busca do elenco e área de campeonato com resumo, jogos e classificação. |
+| 17. Gestão simples — planejamento | ⬜ R16, pacotes 05–06 | Calendário, pendências e alterações em lote com prévia, autorização, proteção de histórico e recuperação. |
+| 18. Gestão simples — histórico e liberação | ⬜ R16, pacotes 07–09 | Equipes, campeões, estatísticas, link por fase, testes com público pouco experiente e liberação integral em produção. |
+| 19. Consolidação do MVP | ⬜ prioridade de produto | Corrigir lacunas restantes comprovadas e obter aceite da experiência em produção; não promove cobrança automaticamente. |
+| 20. Escala | ⬜ decisão futura | Priorizar demais melhorias com risco, uso real ou retorno mensurável. |
+| Fora da fila — Asaas | ⚪ adiada pelo produto | Sem prazo; somente MVP consolidado + autorização explícita para desenvolver + CP0 financeiro revalidado. |
 | Opcional — troca de provedor | ⚪ sem posição no cronograma | Avaliar a WhatsApp Cloud API direta da Meta somente se custo, escala ou requisito operacional justificarem; a Twilio permanece como provedora de produção. |
 
 ## Entregas do MVP concluídas
@@ -170,15 +212,22 @@ ativação global própria descrita abaixo.
 
 ## Ordem recomendada para uma única frente
 
-1. obter uma chave exclusiva do Sandbox Asaas e aprovar preço, benefícios,
-   limites, carência, cancelamento, grandfathering e suporte financeiro;
-2. executar os sete ensaios de `DEC-SUBSCRIPTION-BILLING` e aceitar ou rejeitar
-   a decisão da R11;
-3. somente com CP0 aceito promover `WP-R11-01`; marketplace e cobrança de
-   atletas continuam fora da frente.
+1. reconciliar a situação operacional da R15 e concluir seu CP6 com evidências;
+2. fechar somente o CP0 da navegação e executar
+   [WP-R16-01 — navegação e início](releases/work-packages/WP-R16-01-navegacao.md),
+   subdividido em `NAV-01` a `NAV-06`; fotos, calendário, lote e cobrança não são
+   dependências artificiais desta primeira entrega;
+3. seguir com `WP-R16-02` a `WP-R16-09`, um por vez, fechando os contratos de
+   cada fatia no momento necessário; piloto e recuperação fazem parte de cada uma;
+4. encerrar a R16 somente após os testes com organizadores pouco experientes e
+   a liberação para todos os times elegíveis em produção;
+5. consolidar o MVP com aceite do responsável e tratar lacunas reais restantes.
+   Asaas só volta ao planejamento por `DEC-ASAAS-PRIORITY`; marketplace e cobrança
+   de atletas continuam fora da frente.
 
-Enquanto a R11 estiver bloqueada, nenhuma implementação de cobrança está
-autorizada. Uma única release fica ativa por vez.
+Não gastar a frente atual preparando Asaas. Uma única release fica ativa por vez;
+a R16 está planejada, não em implementação. A execução prevista com GPT Sol usa
+escopos pequenos e critérios explícitos, sem reduzir validação ou invariantes.
 
 ## Próximas entregas e entrada de melhorias
 
@@ -198,13 +247,32 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 | 10 | ~~Promover e executar R12~~ | ✅ CP6, sonda agregada, piloto SES, fallback e rollback concluídos em produção |
 | 11 | ~~Implementar e pilotar R13~~ | ✅ código, banco, mobile, produção, smoke, sonda agregada, fallback e rollback comprovados |
 | 12 | ~~Liberar R13 globalmente em produção~~ | ✅ cinco times prontos e ativos, novos times herdando a capacidade, smoke produtivo e rollback/restauração comprovados |
-| 13 | Concluir `DP-R11-01` no Sandbox Asaas | chave exclusiva disponível, sete ensaios executados e políticas comerciais aceitas; R13 já em `done` |
-| 14 | Promover e executar R11 | somente depois do CP0, como única release ativa, com adapter, piloto produtivo e fallback manual |
-| 15 | Descobrir marketplace e cobrança dos atletas | densidade real de oferta e demanda, regulação, contabilidade, confiança e viabilidade transacional |
-| 16 | Implementar melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
+| 13 | ~~Concluir R14 — acesso por convite~~ | ✅ CP6 e recuperação registrados no pacote |
+| 14 | Reconciliar e concluir R15 — campeonato guiado | aproveitar implementação existente; registrar validação móvel, produção, recuperação e CP6 sem inferir conclusão pelo merge |
+| 15 | Validar CP0 da navegação e promover `WP-R16-01` | guia `NAV-01` a `NAV-06`, rotas, papéis, protótipo e fallback aceitos; R15 reconciliada, sem esperar contratos de pacotes futuros |
+| 16 | Executar R16 — gestão simples | sequência 01–09 do pacote, CP0 aceito por fatia e uma frente ativa; rollout global antes de `done` |
+| 17 | Consolidar a experiência do MVP | jornadas validadas em produção, ausência de bloqueios críticos e aceite do responsável pelo produto |
+| Sob autorização, fora da fila | Retomar R11/Asaas | MVP consolidado e sinal explícito para desenvolver; depois revalidar CP0 financeiro, sem promoção automática |
+| 18 | Descobrir marketplace e cobrança dos atletas | densidade real de oferta e demanda, regulação, contabilidade, confiança e viabilidade transacional |
+| 19 | Implementar demais melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
 | Opcional | Avaliar migração da Twilio para a Meta | fora do caminho crítico; somente com ponto de equilíbrio ou necessidade operacional comprovados e requisitos revalidados antes do CP0 |
 
 Levantar requisitos agora não autoriza implementação. Exceções à sequência existem somente para segurança, indisponibilidade, obrigação legal, perda de dados ou custo operacional que ameace a continuidade do produto.
+
+### Atualização de experiência em 8 de setembro de 2026
+
+- [x] Registrar lacunas de navegação, listas, fotos, calendário e gestão relatadas
+  pelo organizador e conferir os pontos de entrada da implementação atual.
+- [x] Consolidar a R16 em pacotes com dependências, ações em linguagem simples,
+  critérios de aceite, privacidade, validação, fallback e rollout.
+- [x] Retirar Asaas da fila automática e registrar `DEC-ASAAS-PRIORITY`;
+  detalhar navegação em seis subtarefas para a execução prevista com GPT Sol.
+- [ ] Reconciliar o fechamento operacional da R15, preservando evidências no
+  pacote e sem repetir promoção já realizada; PR #403 já confirmado em dev/main.
+- [ ] Validar protótipo e fechar `DP-R16-01`; o documento não é evidência de
+  usabilidade, implementação ou disponibilização em produção.
+- [ ] Entregar navegação/listas → atletas/campeonatos → calendário/lote →
+  equipes/estatísticas/pós-jogo → validação integrada e liberação global da R16.
 
 ### Situação das entregas em 3 de setembro de 2026
 
@@ -230,6 +298,9 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
   operacionais — chave exclusiva e políticas do plano ainda pendentes;
 - [ ] promover R11 como única release ativa somente se a Definition of Ready for satisfeita;
 - [ ] manter marketplace condicionado à densidade e a migração para a Meta como tarefa opcional, sem bloquear a implantação pela Twilio.
+
+As tarefas financeiras desse snapshot histórico foram suspensas pela decisão
+de prioridade de 8 de setembro; não são próximas ações vigentes.
 
 ### Entregas incrementais em 24–25 de agosto de 2026
 
@@ -273,9 +344,64 @@ reavaliar reconhecimento sem autorizar pontos ou ranking.
 
 As novas pendências não alteram o que foi comprovado nas releases encerradas.
 R12 recuperou confiança, privacidade e autonomia. R13 implementou a agenda e as
-competições profissionais, concluiu o piloto e agora precisa ser liberada para
-todos em produção. O pacote detalhado da R11 já registra a descoberta, mas não
-autoriza implementação antes do CP0.
+competições profissionais e já foi liberada globalmente. R15 entrega a criação
+guiada; R16 será a próxima frente para encontrar, gerir e acompanhar o que foi
+cadastrado. A R11 está adiada por decisão do produto, sem retomada automática.
+
+### R16 — navegação e gestão simples, prioridade atual
+
+**Resultado:** uma pessoa com pouca familiaridade digital organiza o time pelo
+celular, entende o que falta fazer e consulta passado, presente e próximos jogos.
+Especificação executável por fatia, ainda em `draft`:
+[`R16-experiencia-de-gestao.md`](releases/R16-experiencia-de-gestao.md).
+
+**Navegação proposta:** Início, Jogos, Campeonatos, Atletas e Mais. Nome e escudo
+mantêm o contexto do time; Equipes, Estatísticas, Diretoria e acessos e Ajustes
+ficam em Mais. O menu não desaparece nos detalhes e “Súmula” pertence ao jogo.
+Destinos novos só aparecem quando sua tela estiver funcional e autorizada.
+
+| Pacote | Entrega ao organizador | Aceite principal |
+|---|---|---|
+| `DP-R16-01` | Protótipo móvel e contratos fechados | nomes compreensíveis, permissões, dados e riscos definidos antes da implementação dependente |
+| `WP-R16-01` | Menu permanente e início com pendências/próxima ação | encontrar seções em até dois toques; voltar sem perder contexto |
+| `WP-R16-02` | Jogos e campeonatos com busca, filtros e paginação | nenhum jogo futuro omitido por histórico grande; resultados no passado, confirmações no futuro |
+| `WP-R16-03` | Atletas em lista/cartões, com foto ou iniciais | encontrar pessoa sem expor contato, imagem ou perfil indevidamente |
+| `WP-R16-04` | Campeonato com resumo, jogos, classificação e regulamento | acompanhar os três formatos e continuar configuração pela R15, sem duplicar agenda |
+| `WP-R16-05` | Calendário, agenda diária e jogos a reagendar | mesma fonte da lista, fuso correto e conflitos com ação manual clara |
+| `WP-R16-06` | Alterações em lote com prévia e confirmação | escopo explícito, escrita atômica, retry seguro e nenhuma mensagem paga silenciosa |
+| `WP-R16-07` | Equipes, campanhas, campeões e estatísticas | resultado derivado de fatos encerrados; líder não é campeão; evento não é partida |
+| `WP-R16-08` | Link do jogo com conteúdo antes/durante/depois | mesma URL, identificação duradoura e proteção de mídia, votos e dados pessoais |
+| `WP-R16-09` | Teste de uso e liberação integral | pelo menos 4 de 5 organizadores concluem cada tarefa sem ajuda; produção, rollback e restauração comprovados |
+
+**Regras de simplicidade:** uma ação principal por contexto; verbos claros;
+**Configuração em andamento**, nunca jargão técnico; detalhes avançados separados;
+prévia antes de alterar vários registros; foto/escudo para reconhecimento;
+estados vazio/erro/carregamento distintos e preservação de dados ao corrigir.
+
+**Ainda falta para esta frente estar completa:** todos os pacotes da R16,
+validação com o público e rollout. Critérios funcionais antigos não são desmarcados
+por estas lacunas de experiência. Sem prazos fictícios: a próxima fatia só começa
+quando sua dependência e CP0 estiverem aceitos, mantendo mudanças pequenas.
+
+#### Primeira entrega detalhada — navegação com GPT Sol
+
+O [guia WP-R16-01](releases/work-packages/WP-R16-01-navegacao.md) é o contexto
+curto de execução, junto aos invariantes e aceites aplicáveis da R16. Não pedir
+ao executor para implementar a R16 inteira de uma vez.
+
+| Subtarefa | Entrega verificável |
+|---|---|
+| `NAV-01` | mapa único de destinos, nomes, seção selecionada, papéis e disponibilidade |
+| `NAV-02` | layout compartilhado por time, menu móvel/desktop sem intervalo oculto e fallback |
+| `NAV-03` | migração das 13 páginas de conteúdo, preservando guards e redirect legado da súmula |
+| `NAV-04` | página Mais, âncoras de Equipes/Diretoria e retorno seguro com contexto preservado |
+| `NAV-05` | início compacto com próxima ação e criação clara, sem duplicar o assistente R15 |
+| `NAV-06` | testes de rotas/papéis, matriz visual, piloto, smoke e recuperação |
+
+O guia define rotas existentes versus propostas, arquivos de entrada, alterações
+permitidas, casos negativos e comandos. Desktop mantém navegação horizontal nesta
+fatia; calendário, fotos do elenco, estatísticas e lote aguardam seus pacotes.
+Nenhum modelo pode declarar conclusão sem evidência ou liberar Asaas por conta própria.
 
 ### R12 — confiança, privacidade e autonomia
 
@@ -487,10 +613,12 @@ sem perder histórico nem alterar o calendário automaticamente.
 | **R08 — Divisão automática** | ↪️ `incorporado à R07` | Sugestão reproduzível, ajustável e explicável foi incorporada à jornada de divisão para não entregar uma experiência fragmentada. | R03, R07 | `DEC-BALANCE-OBJECTIVE` | Ajuste manual |
 | **R09 — Campeonatos e tabela** | ✅ `completed / CP6` | Campeonato configurável, partidas vinculadas, classificação ou chaveamento, página compartilhável e piloto com rollback. | R04, R07, R08M | concluída | Histórico por partida |
 | **R10 — Reconhecimento positivo** | ✅ `done / CP6` | Catálogo factual, visão privada, resumo consentido, revogação e piloto isolado concluídos sem ranking constrangedor. | R04, R05, R07 | concluída | Estatísticas básicas |
-| **R11 — Assinatura pelo Asaas** | 🛑 `blocked / CP0` | Contratos propostos e entrypoints localizados; nenhum schema, cobrança ou efeito externo criado. | R00, R03, R03R, R08M, R12, R13 | fornecer chave Sandbox e decidir preço, benefícios, carência, cancelamento e suporte | Operação e compartilhamento manual |
+| **R11 — Assinatura pelo Asaas** | ⚪ adiada / `blocked` | Levantamento preservado, fora da fila; nenhum schema, cobrança ou efeito externo criado. | MVP consolidado + autorização do produto | `DEC-ASAAS-PRIORITY`, depois CP0 financeiro revalidado | Operação e compartilhamento manual |
 | **R12 — Confiança e autonomia** | ✅ [`done / CP6`](releases/R12-confianca-e-autonomia.md) | Corrige inconsistências, reforça consentimento, entrega saída e encerramento da conta, aviso de cadastro e opções ampliadas do evento. | R00, R01, R02, R10 | concluída | rotas antigas, dashboard e suporte manual |
 | **R13 — Agenda e competições profissionais** | ✅ [`done / CP6`](releases/R13-agenda-e-competicoes-profissionais.md) | Criação clara, equipes padrão, regulamento e conflitos ativos globalmente, com herança e recuperação comprovadas. | R01, R07, R09, R12 | concluída | criação e remarcação atuais |
 | **R14 — Acesso por convite** | ✅ [`done / CP6`](releases/R14-acesso-por-convite.md) | Criação de novas equipes autorizada por código individual durante o pré-lançamento, com operação e rollback. | R00, R12 | concluída | desligar o controle global |
+| **R15 — Campeonato guiado** | 🟡 [`active`](releases/R15-campeonato-guiado.md) | Assistente de cinco passos com agenda, partidas e convocados; fechamento produtivo ainda a reconciliar. | R09, R13 | registrar validação e CP6 | fluxo detalhado anterior |
+| **R16 — Experiência de gestão simples** | ⬜ [`draft`](releases/R16-experiencia-de-gestao.md) | Navegação contínua, listas, fotos, calendário, lote, campeões, estatísticas e link por fase para um organizador pouco experiente. | R12, R13, R15 | validar protótipo, contratos e CP0 por fatia | listas e edição individual existentes, rotas e links preservados |
 
 ### R09 — campeonatos configuráveis
 
@@ -546,12 +674,14 @@ permitir trocar o provedor sem reescrever onboarding, regras de assinatura ou
 WhatsApp.
 
 O pacote [R11 — Assinatura pelo Asaas](releases/R11-assinatura-asaas.md) está
-bloqueado em descoberta. CP0 deve validar no sandbox mudanças de preço, novas e antigas
+adiado, fora da fila, por `DEC-ASAAS-PRIORITY`. Após autorização explícita para
+retomada, CP0 deve revalidar no sandbox mudanças de preço, novas e antigas
 assinaturas, checkout, autenticidade dos webhooks, cancelamento e reativação, e
 fechar política de carência, benefícios, grandfathering e suporte. Nenhuma
 implementação, credencial, tabela, webhook, cobrança ou time piloto foi ativado.
-A promoção aguarda uma chave exclusiva do Sandbox e as decisões comerciais para
-não desenhar schema sobre comportamento financeiro não comprovado.
+A prioridade só volta após MVP consolidado e sinal explícito para desenvolver
+Asaas. Chave exclusiva, decisões comerciais e conclusão da R16 são insuficientes
+sem esse sinal. Até lá, preservar a proposta sem executar descoberta ou implementação.
 
 ## Fora do MVP entregue
 
@@ -632,9 +762,17 @@ flowchart LR
     R10 --> PROD
     PROD --> R12["R12 Confiança e autonomia"]
     R12 --> R13["R13 Agenda profissional"]
-    R13 --> R11["R11 CP0 Asaas"]
-    R11 --> MARKET["Marketplace e pagamentos"]
-    MARKET --> SCALE["Melhorias comprovadas de escala"]
+    R13 --> R15["R15 Campeonato guiado"]
+    R15 --> UX0["R16 Validar jornadas simples"]
+    UX0 --> UX1["R16 Navegação e listas"]
+    UX1 --> UX2["R16 Atletas e campeonatos"]
+    UX2 --> UX3["R16 Calendário e lote"]
+    UX3 --> UX4["R16 Histórico e rollout"]
+    UX4 --> CONS["MVP consolidado e aceito"]
+    CONS --> SCALE["Melhorias comprovadas de escala"]
+    CONS -. "somente sinal explícito para desenvolver" .-> AUTH["Autorizar retomada do Asaas"]
+    AUTH -. "fora da fila até autorização" .-> R11["R11 Revalidar CP0 financeiro"]
+    CONS -. "descoberta futura independente" .-> MARKET["Marketplace e pagamentos"]
     SCALE -. "opcional se custo/escala justificarem" .-> META["API direta da Meta"]
 ```
 
