@@ -2,7 +2,7 @@
 release: R16
 work_package: WP-R16-01
 scope: navegacao_permanente_e_inicio_acionavel
-branch_or_commit: "codex/r16-navigation-more"
+branch_or_commit: "codex/r16-home-priorities"
 checkpoint: CP1
 status: active
 completed_ac:
@@ -18,12 +18,14 @@ completed_ac:
   - "NAV-04 entrega a rota Mais com destinos filtrados pelo papel administrativo ativo"
   - "âncoras Equipes e Diretoria e acessos apontam para as seções autorizadas de Ajustes"
   - "retornos usam rotas internas canônicas sem aceitar destino arbitrário por query string"
+  - "NAV-05 ordena o início por pendências, próximo jogo, campeonatos e resultados recentes"
+  - "estados vazios oferecem próxima ação sem inventar dados ou esconder falha de consulta"
+  - "manager não recebe criação de campeonato nem missão que exige Ajustes"
 dirty_files:
-  - "app/app/[teamSlug]/more/page.tsx"
-  - "app/app/[teamSlug]/settings/page.tsx"
-  - "app/app/[teamSlug]/championships/page.tsx"
-  - "components/team-more-navigation.tsx"
-  - "components/team-more-navigation.test.tsx"
+  - "app/app/[teamSlug]/page.tsx"
+  - "app/app/[teamSlug]/page.test.tsx"
+  - "components/professional-creation-actions.tsx"
+  - "components/professional-creation-actions.test.tsx"
   - "docs/releases/work-packages/WP-R16-01-navegacao.md"
   - "docs/work/current.md"
 tests:
@@ -37,13 +39,17 @@ tests:
   - "PASS: 31 testes focados de navegação, Mais, papéis e destinos"
   - "PASS: suíte completa com 133 arquivos/651 testes e 4 testes de contexto"
   - "PASS: build de produção Webpack e auditoria sem vulnerabilidades"
+  - "PASS: 13 testes focados de início, criação, estados e permissões"
+  - "PASS: suíte completa com 134 arquivos/656 testes e 4 testes de contexto"
+  - "PASS: build de produção Webpack e auditoria sem vulnerabilidades no NAV-05"
 blocker: null
-next_action: "Simplificar o início e suas ações prioritárias no NAV-05."
+next_action: "Fechar regressões, acessibilidade, piloto e rollout no NAV-06."
 ---
 
 # Trabalho atual
 
-A R16 segue ativa somente para o WP-R16-01. NAV-01 a NAV-04 estão implementados:
+A R16 segue ativa somente para o WP-R16-01. NAV-01 a NAV-05 estão implementados:
 o contrato alimenta os menus, o layout compartilhado envolve as páginas por time e
-a área Mais respeita o papel do vínculo ativo. A interface anterior continua como
-fallback e a flag permanece inerte até o fechamento integrado no NAV-06.
+a área Mais respeita o papel do vínculo ativo. O início agora destaca ações do dia
+antes de conteúdo secundário. A interface anterior continua como fallback e a flag
+permanece inerte até o fechamento integrado no NAV-06.

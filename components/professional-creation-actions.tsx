@@ -3,9 +3,16 @@ import Link from "next/link";
 
 export function ProfessionalCreationActions({
   teamSlug,
+  role,
+  championshipsEnabled,
 }: {
   teamSlug: string;
+  role: string;
+  championshipsEnabled: boolean;
 }) {
+  const canCreateChampionship =
+    championshipsEnabled && (role === "owner" || role === "admin");
+
   return (
     <section aria-labelledby="creation-actions-title">
       <div>
@@ -17,7 +24,7 @@ export function ProfessionalCreationActions({
           O que você vai organizar?
         </h2>
       </div>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      <div className={`mt-3 grid gap-3 ${canCreateChampionship ? "sm:grid-cols-2" : ""}`}>
         <Link
           href={`/app/${teamSlug}/events/new`}
           className="app-surface group flex min-h-28 items-center gap-4 p-4 transition hover:border-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
@@ -37,26 +44,28 @@ export function ProfessionalCreationActions({
           />
         </Link>
 
-        <Link
-          href={`/app/${teamSlug}/championships?new=1`}
-          className="app-surface group flex min-h-28 items-center gap-4 p-4 transition hover:border-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
-        >
-          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-amber-50 text-amber-700">
-            <Trophy className="size-6" aria-hidden />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block font-black text-graphite">
-              Novo campeonato
+        {canCreateChampionship ? (
+          <Link
+            href={`/app/${teamSlug}/championships?new=1`}
+            className="app-surface group flex min-h-28 items-center gap-4 p-4 transition hover:border-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
+          >
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-amber-50 text-amber-700">
+              <Trophy className="size-6" aria-hidden />
             </span>
-            <span className="mt-1 block text-sm leading-5 text-slate-600">
-              Tabela, grupos ou mata-mata
+            <span className="min-w-0 flex-1">
+              <span className="block font-black text-graphite">
+                Novo campeonato
+              </span>
+              <span className="mt-1 block text-sm leading-5 text-slate-600">
+                Tabela, grupos ou mata-mata
+              </span>
             </span>
-          </span>
-          <ChevronRight
-            className="size-5 shrink-0 text-slate-400 transition group-hover:translate-x-0.5"
-            aria-hidden
-          />
-        </Link>
+            <ChevronRight
+              className="size-5 shrink-0 text-slate-400 transition group-hover:translate-x-0.5"
+              aria-hidden
+            />
+          </Link>
+        ) : null}
       </div>
     </section>
   );
