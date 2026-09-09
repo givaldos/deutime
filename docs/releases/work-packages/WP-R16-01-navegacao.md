@@ -249,7 +249,8 @@ integridade de migrations, tipos e pgTAP positivo/negativo/cross-tenant.
 |---|---|---|
 | CP0 e NAV-01 | concluído | contrato puro com 15 testes; destinos, papel, capacidade e seção ativa fechados |
 | NAV-02/03 | concluído | layout e menus compartilhados; 13 páginas migradas, guards e redirect preservados, fallback por rota validado |
-| NAV-04/05 | pendente | Mais, retorno e início ainda não implementados |
+| NAV-04 | concluído | rota Mais exige sessão e vínculo ativo; destinos por papel, âncoras e retorno interno validados em 31 testes focados, suíte 133/651 e build Webpack |
+| NAV-05 | pendente | simplificação do início ainda não implementada |
 | NAV-06 | pendente | testes, piloto e recuperação ainda não executados |
 
 Não transformar esta tabela em relatório de sucesso por inferência. O modelo de
