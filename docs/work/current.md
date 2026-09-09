@@ -18,6 +18,7 @@ dirty_files:
 tests:
   - "PASS: 15 testes focados do contrato de navegação"
   - "PASS: TypeScript, lint e git diff --check"
+  - "PASS: auditoria de produção sem vulnerabilidades e build Webpack"
 blocker: null
 next_action: "Validar NAV-01 e adaptar os dois menus ao contrato compartilhado no NAV-02."
 ---
