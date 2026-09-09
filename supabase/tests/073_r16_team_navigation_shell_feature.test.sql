@@ -9,10 +9,10 @@ select ok(
   'flag do invólucro de navegação existe no catálogo tipado'
 );
 select ok(
-  not ('team_navigation_shell' = any(array(
+  'team_navigation_shell' = any(array(
     select feature::text from private.product_feature_keys() feature
-  ))),
-  'expansão permanece fora do rollout global'
+  )),
+  'capacidade validada integra o catálogo global'
 );
 select is(
   (select count(*) from public.team_feature_flags
@@ -34,8 +34,8 @@ select ok(
 );
 select is(
   (select count(*) from private.product_feature_keys()),
-  16::bigint,
-  'catálogo produtivo permanece sem ativação implícita'
+  17::bigint,
+  'catálogo produtivo inclui a navegação sem ativação implícita'
 );
 
 select * from finish();
