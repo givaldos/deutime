@@ -1,6 +1,6 @@
 # WP-R16-02 — Listas completas de Jogos e Campeonatos
 
-> Estado: CP0 concluído em 9 de setembro de 2026; implementação ainda não iniciada.
+> Estado: CP1 concluído em 10 de setembro de 2026; LIST-02 é a próxima fatia.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-04` a `06`.
 > Base inspecionada: `18adc380dd2868808a33a5f40540e97178e4f97f`.
 
@@ -177,3 +177,29 @@ o resumo existente.
 - [x] subtarefas e gates pequenos definidos; calendário/lote/fotos continuam fora.
 
 Próxima ação: `LIST-01`, começando pela expansão inerte e seus testes de banco.
+
+## LIST-01 concluída — contrato e expansão inerte
+
+- `complete_management_lists` foi adicionada ao enum tipado, sem entrar em
+  `private.product_feature_keys()` e sem materializar flags para times existentes;
+- `list_management_events` e `list_management_championships` devolvem em uma RPC
+  itens prontos, total filtrado, próximo cursor composto e filtros efetivos;
+- as RPCs revalidam sessão, vínculo administrativo ativo, `team_id`, flag, limites,
+  períodos, texto e cursor. Anônimo, atleta e staff de outro time falham fechado;
+- busca normaliza acentos, caixa, controles e espaços, preservando `%` e `_` como
+  caracteres literais. Períodos são convertidos pelo fuso IANA do time;
+- índices parciais por visão/ordenação, busca trigram, equipe interna e vínculo de
+  campeonato foram instalados sem remover a consulta anterior;
+- fixture pgTAP com 230 encerrados, 31 futuros, datas empatáveis, virada de dia,
+  reagendamento, cinco estados e três formatos passou em 46 testes. As duas RPCs
+  ficaram abaixo do limite bloqueante local de 500 ms;
+- `EXPLAIN (ANALYZE, BUFFERS)` confirmou `Index Only Scan` por `team_id` em
+  `events_management_upcoming_idx` (0,079 ms) e
+  `championships_management_list_idx` (0,048 ms), sem varredura global.
+
+Compatibilidade: app N ignora a expansão; banco N+1 mantém todas as leituras
+anteriores. A flag desligada retorna indisponibilidade explícita para o consumidor
+N+1 acionar o fallback. Nenhum rollout faz parte desta fatia.
+
+Próxima ação: `LIST-02`, consumindo o read model na página de Jogos com fallback
+para banco N−1 e para a flag desligada.

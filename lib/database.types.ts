@@ -4805,6 +4805,34 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      list_management_championships: {
+        Args: {
+          requested_created_end?: string
+          requested_created_start?: string
+          requested_cursor?: Json
+          requested_format?: Database["public"]["Enums"]["championship_format"]
+          requested_limit?: number
+          requested_search?: string
+          requested_status?: Database["public"]["Enums"]["championship_status"]
+          requested_team_id: string
+        }
+        Returns: Json
+      }
+      list_management_events: {
+        Args: {
+          requested_championship_id?: string
+          requested_cursor?: Json
+          requested_internal_team_id?: string
+          requested_kind?: Database["public"]["Enums"]["event_kind"]
+          requested_limit?: number
+          requested_period_end?: string
+          requested_period_start?: string
+          requested_search?: string
+          requested_team_id: string
+          requested_view: Database["public"]["Enums"]["management_event_view"]
+        }
+        Returns: Json
+      }
       list_my_account_relationships: {
         Args: never
         Returns: {
@@ -5776,6 +5804,7 @@ export type Database = {
         | "recognition"
         | "professional_scheduling"
         | "team_navigation_shell"
+        | "complete_management_lists"
       internal_squad_badge_key:
         | "shield"
         | "stripes"
@@ -5785,6 +5814,11 @@ export type Database = {
         | "diamond"
       lifecycle_authorization_purpose: "close_team" | "close_account"
       lineup_slot_kind: "starter" | "substitute"
+      management_event_view:
+        | "upcoming"
+        | "reschedule"
+        | "completed"
+        | "cancelled"
       match_comment_report_status: "open" | "resolved" | "dismissed"
       match_comment_status: "active" | "author_deleted" | "moderated"
       match_event_kind:
@@ -6106,6 +6140,7 @@ export const Constants = {
         "recognition",
         "professional_scheduling",
         "team_navigation_shell",
+        "complete_management_lists",
       ],
       internal_squad_badge_key: [
         "shield",
@@ -6117,6 +6152,12 @@ export const Constants = {
       ],
       lifecycle_authorization_purpose: ["close_team", "close_account"],
       lineup_slot_kind: ["starter", "substitute"],
+      management_event_view: [
+        "upcoming",
+        "reschedule",
+        "completed",
+        "cancelled",
+      ],
       match_comment_report_status: ["open", "resolved", "dismissed"],
       match_comment_status: ["active", "author_deleted", "moderated"],
       match_event_kind: [
