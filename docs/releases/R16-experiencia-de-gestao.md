@@ -12,7 +12,7 @@ baseline:
   - BASE-SERIES
   - BASE-MATCH-REPORT
   - BASE-PUBLIC
-verified_at: "147dc11f57941a821e395804e3832fbdbb657b53"
+verified_at: "1ae2d0ce158252a133314e6897e5d3039d93fba8"
 invariants:
   - INV-MOBILE-WHATSAPP-FIRST
   - INV-RLS-MULTI-TIME
@@ -26,9 +26,9 @@ invariants:
 
 # R16 — Experiência de gestão simples
 
-> Planejada em 8 de setembro de 2026. Nenhum pacote implementado ou ativado por
-> este documento. Próxima frente após a estabilização e o CP6 documentado da R15;
-> não abre uma segunda implementação ativa nem declara prontidão para lançamento.
+> Planejada em 8 de setembro de 2026. Em execução incremental: o `WP-R16-01`
+> está validado e ativo em produção; os demais pacotes continuam pendentes e a
+> release completa ainda não está pronta para lançamento.
 
 ## Resultado demonstrável
 
@@ -39,11 +39,11 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Agora: navegação**, por `WP-R16-01`. O guia específico
-[Navegação e início sem dificuldade](work-packages/WP-R16-01-navegacao.md) fecha
-seis subtarefas (`NAV-01` a `06`), destinos, papéis, arquivos e matriz de testes
-para a execução prevista com GPT Sol. Ler esse recorte e os invariantes/aceites
-aplicáveis; não executar os nove pacotes numa única tarefa aberta.
+**Próximo: listas completas**, por `WP-R16-02`. O pacote anterior,
+[Navegação e início sem dificuldade](work-packages/WP-R16-01-navegacao.md),
+fechou `NAV-01` a `06`, foi promovido pelo fluxo `dev → main` e está ativo para
+todos os times com fallback operacional comprovado. Ler somente o próximo recorte
+e os invariantes/aceites aplicáveis; não executar os pacotes restantes de uma vez.
 
 `DP-R16-01` é incremental: fechar primeiro CP0 de navegação. Os contratos de
 fotos, estatísticas e lote só bloqueiam seus consumidores, não o menu. Asaas
@@ -177,13 +177,13 @@ acionáveis, próximo jogo, campeonato atual e resultados recentes, com **Ver
 todos**. Missão de estreia aparece enquanto necessária e não bloqueia o restante.
 “Súmula” sai do menu global e fica no jogo; links antigos continuam válidos.
 
-- [ ] `AC-R16-01` — Todas as seções existentes autorizadas são alcançáveis em até
+- [x] `AC-R16-01` — Todas as seções existentes autorizadas são alcançáveis em até
   dois toques a partir de qualquer tela administrativa; menu não some em larguras
   intermediárias. Destinos novos só aparecem quando houver tela funcional.
-- [ ] `AC-R16-02` — Trocar de time limpa seleção e contexto incompatíveis;
+- [x] `AC-R16-02` — Trocar de time limpa seleção e contexto incompatíveis;
   voltar preserva filtros, período e posição. Ação negada tem explicação adequada
   sem revelar dados; links diretos também validam o papel no servidor.
-- [ ] `AC-R16-03` — Em time novo e time com histórico, o início mostra a próxima
+- [x] `AC-R16-03` — Em time novo e time com histórico, o início mostra a próxima
   ação sem jargão, cards vazios decorativos ou tarefas concluídas obrigatórias.
 
 ### WP-R16-02 — listas completas de jogos e campeonatos
