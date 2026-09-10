@@ -39,7 +39,9 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Próximo: listas completas**, por `WP-R16-02`. O pacote anterior,
+**Próximo: listas completas**, pelo guia
+[Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md).
+O pacote anterior,
 [Navegação e início sem dificuldade](work-packages/WP-R16-01-navegacao.md),
 fechou `NAV-01` a `06`, foi promovido pelo fluxo `dev → main` e está ativo para
 todos os times com fallback operacional comprovado. Ler somente o próximo recorte
@@ -192,6 +194,9 @@ todos**. Missão de estreia aparece enquanto necessária e não bloqueia o resta
 filtros, ordenação e paginação. Contagem corresponde ao conjunto filtrado, não
 somente à página. Filtros não sensíveis ficam na URL; preferência de apresentação
 é lembrada sem armazenar lista de pessoas ou segredos no navegador.
+
+Contratos, orçamento, fixtures, rollout e subtarefas estão detalhados no guia
+`WP-R16-02`.
 
 Jogos: **Próximos · A reagendar · Encerrados · Cancelados**, filtráveis por
 período, tipo, equipe e campeonato. Campeonato: filtros **Configuração em
