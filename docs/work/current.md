@@ -2,15 +2,18 @@
 release: R16
 work_package: WP-R16-02
 scope: listas_completas_de_jogos_e_campeonatos
-branch_or_commit: "main@1ae2d0ce158252a133314e6897e5d3039d93fba8"
-checkpoint: CP0
-status: idle
+branch_or_commit: "codex/r16-lists-cp0"
+checkpoint: CP1
+status: active
 completed_ac:
   - "AC-R16-01: seções autorizadas alcançáveis com menu persistente em 360–1280 px"
   - "AC-R16-02: troca de time, retorno, recarga, rotas diretas e isolamento preservados"
   - "AC-R16-03: início prioriza ação real para times vazios e com histórico"
   - "WP-R16-01 ativo nos 5 times de produção, com piloto e rollback/restauração comprovados"
-dirty_files: []
+  - "CP0 do WP-R16-02 fecha estados, filtros, paginação, fuso, tenancy, desempenho e fallback"
+dirty_files:
+  - "docs/releases/work-packages/WP-R16-02-listas.md"
+  - "docs/work/current.md"
 tests:
   - "PASS: 26 testes focados de rollout, autorização, tenancy e recuperação"
   - "PASS: 74 arquivos/1908 testes pgTAP na dev consolidada"
@@ -19,12 +22,12 @@ tests:
   - "PASS: matriz responsiva 360, 390, 639, 640, 767, 768, 1023, 1024 e 1280 px"
   - "PASS: piloto produtivo, rollback/restauração, expansão global idempotente e smoke read-only"
 blocker: null
-next_action: "Abrir o CP0 do WP-R16-02 e fechar contratos de consulta, filtros, paginação, fuso e desempenho antes de implementar."
+next_action: "Executar LIST-01: expansão inerte da flag, read models e índices com pgTAP e plano de consulta."
 ---
 
 # Trabalho atual
 
-O `WP-R16-01` está encerrado em produção. O próximo pacote é o `WP-R16-02`:
-listas completas de Jogos e Campeonatos, com busca, filtros, ordenação e paginação
-no servidor. O checkpoint está limpo e nenhuma implementação do pacote 02 começou;
-a próxima tarefa deve fechar seu CP0 e a matriz de leitura antes de alterar código.
+O `WP-R16-01` está encerrado em produção. O CP0 do `WP-R16-02` está fechado:
+listas completas de Jogos e Campeonatos usarão busca, filtros, contagem e cursor
+no servidor, com fixture acima de 200 eventos, fuso do time, RLS e fallback.
+A implementação começa por `LIST-01`, como expansão inerte do banco.
