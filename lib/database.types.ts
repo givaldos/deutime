@@ -4519,6 +4519,21 @@ export type Database = {
           triggered_manually: boolean
         }[]
       }
+      get_management_event_page: {
+        Args: {
+          requested_championship_id?: string
+          requested_cursor?: Json
+          requested_internal_team_id?: string
+          requested_kind?: Database["public"]["Enums"]["event_kind"]
+          requested_limit?: number
+          requested_period_end?: string
+          requested_period_start?: string
+          requested_search?: string
+          requested_team_id: string
+          requested_view: Database["public"]["Enums"]["management_event_view"]
+        }
+        Returns: Json
+      }
       get_match_conversation: {
         Args: { requested_match_id: string }
         Returns: {

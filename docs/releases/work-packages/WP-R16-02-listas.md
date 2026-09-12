@@ -1,6 +1,6 @@
 # WP-R16-02 — Listas completas de Jogos e Campeonatos
 
-> Estado: CP1 concluído em 10 de setembro de 2026; LIST-02 é a próxima fatia.
+> Estado: LIST-02 concluída em 11 de setembro de 2026; LIST-03 é a próxima fatia.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-04` a `06`.
 > Base inspecionada: `18adc380dd2868808a33a5f40540e97178e4f97f`.
 
@@ -203,3 +203,27 @@ N+1 acionar o fallback. Nenhum rollout faz parte desta fatia.
 
 Próxima ação: `LIST-02`, consumindo o read model na página de Jogos com fallback
 para banco N−1 e para a flag desligada.
+
+## LIST-02 concluída — página completa de Jogos
+
+- a página administrativa passou a oferecer as visões **Próximos**, **A
+  reagendar**, **Encerrados** e **Cancelados**, com busca e filtros combináveis
+  por período, tipo, equipe interna e campeonato;
+- lista, total real, próximo cursor e opções de filtro são entregues por uma única
+  projeção autenticada. A DAL valida a resposta e não aceita parâmetros, UUIDs ou
+  cursores ambíguos vindos da URL;
+- o detalhe recebe um retorno relativo para a página e os filtros atuais. O
+  destino é aceito somente quando aponta para a lista do mesmo time, evitando
+  redirecionamento externo ou troca de tenant;
+- cartões de itens a reagendar não apresentam a data antiga como compromisso
+  válido. Estados vazio filtrado, erro e total com anúncio acessível foram
+  diferenciados;
+- banco N−1, ausência da RPC e flag desligada mantêm a Agenda anterior. A feature
+  segue desligada e fora do catálogo global nesta fatia;
+- 16 testes focados de DAL/interface e 49 testes pgTAP cobriram combinação de
+  filtros, cursor, total acima de 200, fuso, retorno, autorização, cross-tenant e
+  fallback. A regressão completa passou em 136 arquivos/672 testes Vitest e 75
+  arquivos/1.957 testes pgTAP.
+
+Próxima ação: `LIST-03`, conectando o read model existente à página de
+Campeonatos com os cinco estados, três formatos, cursor, total e fallback.
