@@ -210,12 +210,12 @@ resultado. Evento com múltiplas partidas mostra seus resultados separadamente.
 Campeonato mostra formato, participantes, progresso e próximo confronto;
 campeão vem do contrato do pacote 07, nunca da posição provisória na tabela.
 
-- [ ] `AC-R16-04` — Consultas filtram no servidor antes da paginação e não
+- [x] `AC-R16-04` — Consultas filtram no servidor antes da paginação e não
   truncam silenciosamente o histórico; teste local com mais de 200 eventos
   comprova jogos futuros acessíveis e ordenação estável entre páginas.
-- [ ] `AC-R16-05` — Busca e filtros funcionam combinados, têm **Limpar filtros**
+- [x] `AC-R16-05` — Busca e filtros funcionam combinados, têm **Limpar filtros**
   e sobrevivem à ida ao detalhe; datas usam o fuso do time, inclusive virada do dia.
-- [ ] `AC-R16-06` — Lista vazia, erro, carregamento e indisponibilidade têm
+- [x] `AC-R16-06` — Lista vazia, erro, carregamento e indisponibilidade têm
   tratamento distinto. Dados resumidos mantêm isolamento entre times e não fazem
   uma consulta adicional por cartão; orçamento de desempenho fechado no CP0.
 
@@ -468,10 +468,11 @@ projeção, migration e teste descobertos. Não iniciar escrita sensível sem es
 
 ## Evidências e checkpoint
 
-Execução iniciada somente no `WP-R16-01`: NAV-01 fechou o contrato de destinos e
-NAV-02 adicionou layout, menus compartilhados e a flag inerte
-`team_navigation_shell`; NAV-03 migrou as 13 páginas sem remover suas validações
-de domínio. Os pacotes `WP-R16-02` a `09` permanecem pendentes.
+`WP-R16-01` e `WP-R16-02` estão encerrados no CP6. As listas completas de Jogos
+e Campeonatos filtram e paginam no banco, preservam contexto e fallback e estão
+ativas nos 5 times de produção. O piloto da segunda entrega comprovou ativação,
+rollback e restauração; o rollout global foi idempotente e o smoke final passou.
+Os pacotes `WP-R16-03` a `09` permanecem pendentes.
 O planejamento não encerra a R15; suas evidências permanecem no pacote próprio.
 O checkpoint obsoleto de pré-merge foi reconciliado na promoção documental abaixo. Na execução,
 registrar por pacote critério, comando/ensaio, resultado, commit, ambiente e
