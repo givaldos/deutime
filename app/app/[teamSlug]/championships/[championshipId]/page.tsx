@@ -16,6 +16,7 @@ import { InternalSquadBadge } from "@/components/internal-squad-badge";
 import { AppContainer } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
 import { getChampionshipWorkspace } from "@/lib/data/championships";
+import { safeManagementChampionshipReturnTo } from "@/lib/data/management-championships";
 import { championshipFormatLabels, championshipTiebreakLabels } from "@/lib/features/championships/rules";
 import { isProfessionalSchedulingEnabled } from "@/lib/features/professional-scheduling/server";
 import { getAppUrl } from "@/lib/env/server";
@@ -68,11 +69,13 @@ function nextEveningLocal(timeZone: string) {
 
 export default async function ChampionshipPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ teamSlug: string; championshipId: string }>;
+  searchParams: Promise<{ returnTo?: string | string[] }>;
 }) {
   const user = await requireUser();
-  const { teamSlug, championshipId } = await params;
+  const [{ teamSlug, championshipId }, query] = await Promise.all([params, searchParams]);
   const supabase = await createClient();
   const { data: team } = await supabase
     .from("teams")
@@ -86,6 +89,10 @@ export default async function ChampionshipPage({
     isProfessionalSchedulingEnabled(team.id),
   ]);
   if (!membership || !workspace) notFound();
+  const championshipListReturnTo = safeManagementChampionshipReturnTo(
+    team.slug,
+    query.returnTo,
+  );
 
   const {
     championship,
@@ -190,7 +197,7 @@ export default async function ChampionshipPage({
     return (
       <main className="app-canvas min-h-screen pb-16">
         <AppContainer className="space-y-6 pb-12">
-          <Link href={`/app/${team.slug}/championships`} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-600 hover:text-emerald-800">
+          <Link href={championshipListReturnTo ?? `/app/${team.slug}/championships`} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-600 hover:text-emerald-800">
             <ArrowLeft className="size-4" aria-hidden /> Campeonatos
           </Link>
           <section className="relative overflow-hidden rounded-[2rem] bg-grass p-6 text-white shadow-float sm:p-8">
@@ -265,7 +272,7 @@ export default async function ChampionshipPage({
   return (
     <main className="app-canvas min-h-screen pb-16">
       <AppContainer className="space-y-6 pb-12">
-        <Link href={`/app/${team.slug}/championships`} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-600 hover:text-emerald-800">
+        <Link href={championshipListReturnTo ?? `/app/${team.slug}/championships`} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-600 hover:text-emerald-800">
           <ArrowLeft className="size-4" aria-hidden /> Campeonatos
         </Link>
 

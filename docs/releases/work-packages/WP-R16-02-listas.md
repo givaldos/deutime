@@ -1,6 +1,6 @@
 # WP-R16-02 — Listas completas de Jogos e Campeonatos
 
-> Estado: LIST-02 concluída em 11 de setembro de 2026; LIST-03 é a próxima fatia.
+> Estado: LIST-03 concluída em 11 de setembro de 2026; LIST-04 é a próxima fatia.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-04` a `06`.
 > Base inspecionada: `18adc380dd2868808a33a5f40540e97178e4f97f`.
 
@@ -227,3 +227,26 @@ para banco N−1 e para a flag desligada.
 
 Próxima ação: `LIST-03`, conectando o read model existente à página de
 Campeonatos com os cinco estados, três formatos, cursor, total e fallback.
+
+## LIST-03 concluída — página completa de Campeonatos
+
+- a página administrativa ganhou busca e filtros combináveis por situação,
+  formato e período de criação, com total real e paginação por cursor;
+- os cinco estados e os três formatos aparecem em linguagem de produto. Cada
+  cartão informa participantes, confrontos encerrados/previstos, andamento e a
+  próxima ação, sem calcular campeão provisório;
+- a DAL valida parâmetros repetidos ou desconhecidos, período, enums, cursor e
+  resposta do read model antes de apresentar dados;
+- owner/admin mantêm a criação e publicação; manager encontra e opera
+  campeonatos existentes sem receber a ação de criação. Atleta, anônimo e outro
+  tenant continuam bloqueados pelo contrato;
+- a ida ao detalhe preserva busca, filtros e página por um retorno relativo
+  aceito somente para a lista do mesmo time;
+- banco N−1, ausência da RPC e flag desligada mantêm a página anterior. A feature
+  segue desligada e fora do catálogo global nesta fatia;
+- 19 testes focados de DAL/interface e 50 testes pgTAP cobriram os cinco estados,
+  três formatos, manager, combinação de filtros, cursor, próxima ação, retorno,
+  autorização e fallback.
+
+Próxima ação: `LIST-04`, validando estados integrados, acessibilidade, URL,
+teclado, zoom, desempenho e a matriz responsiva das duas listas.
