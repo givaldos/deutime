@@ -69,7 +69,7 @@ select is(
 select is(
   (select count(*) from public.team_feature_flags
    where team_id = 'fa131000-0000-4000-8000-000000000001' and enabled),
-  17::bigint,
+  18::bigint,
   'catálogo completo é aplicado sem regressão'
 );
 
