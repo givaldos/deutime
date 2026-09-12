@@ -39,13 +39,13 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Próximo: listas completas**, pelo guia
-[Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md).
-O pacote anterior,
+**Próximo: elenco reconhecível**, pelo guia
+[Elenco reconhecível](work-packages/WP-R16-03-elenco.md). Os pacotes anteriores,
+[Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md) e
 [Navegação e início sem dificuldade](work-packages/WP-R16-01-navegacao.md),
-fechou `NAV-01` a `06`, foi promovido pelo fluxo `dev → main` e está ativo para
-todos os times com fallback operacional comprovado. Ler somente o próximo recorte
-e os invariantes/aceites aplicáveis; não executar os pacotes restantes de uma vez.
+foram promovidos pelo fluxo `dev → main` e estão ativos para todos os times com
+fallback operacional comprovado. Ler somente o próximo recorte e os
+invariantes/aceites aplicáveis; não executar os pacotes restantes de uma vez.
 
 `DP-R16-01` é incremental: fechar primeiro CP0 de navegação. Os contratos de
 fotos, estatísticas e lote só bloqueiam seus consumidores, não o menu. Asaas
@@ -220,6 +220,9 @@ campeão vem do contrato do pacote 07, nunca da posição provisória na tabela.
   uma consulta adicional por cartão; orçamento de desempenho fechado no CP0.
 
 ### WP-R16-03 — atletas em lista e cartões, com fotos
+
+Contrato, orçamento, privacidade da foto, rollout e subtarefas estão detalhados
+no guia `WP-R16-03`.
 
 **Entrega:** alternância **Lista / Cartões**, busca por nome/apelido e filtros
 de posição e situação. Cada pessoa tem foto permitida, nome, posição e estado;
