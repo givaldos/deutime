@@ -2,7 +2,7 @@
 release: R16
 work_package: WP-R16-03
 scope: elenco_reconhecivel
-branch_or_commit: "codex/r16-lists-rollout-evidence"
+branch_or_commit: "codex/r16-athlete-roster-contract"
 checkpoint: CP0
 status: idle
 completed_ac:
@@ -17,6 +17,7 @@ completed_ac:
   - "LIST-04: loading, vazio, erro, URL, teclado, reflow e matriz responsiva das duas listas"
   - "LIST-05: mecanismo transacional, kill switch, sonda agregada e testes completos prontos para promoção"
   - "WP-R16-02 ativo nos 5 times de produção, com piloto, rollback/restauração e replay idempotente"
+  - "CP0 do WP-R16-03 fecha identidade, foto privada, filtros, paginação, papéis, desempenho e fallback"
 dirty_files: []
 tests:
   - "PASS: 26 testes focados de rollout, autorização, tenancy e recuperação"
@@ -39,7 +40,7 @@ tests:
   - "PASS: piloto produtivo ativo/desligado/restaurado preservou 17 jogos e 2 campeonatos"
   - "PASS: rollout global 5/5, replay com zero alterações e smoke pós-ativação 34725053598"
 blocker: null
-next_action: "Executar o CP0 do WP-R16-03: fechar contrato privado de foto, estados, papéis, fallback, desempenho, rollout e subtarefas do elenco reconhecível."
+next_action: "Executar ATH-01: expansão inerte com flag, read model, índice e autorização privada da foto, coberta por pgTAP e plano de consulta."
 ---
 
 # Trabalho atual
@@ -47,5 +48,6 @@ next_action: "Executar o CP0 do WP-R16-03: fechar contrato privado de foto, esta
 `WP-R16-01` e `WP-R16-02` estão encerrados em produção. As listas completas de
 Jogos e Campeonatos estão ativas nos 5 times, com rollback disponível, sonda
 agregada saudável e smoke pós-ativação aprovado. O checkpoint está limpo e passa
-ao CP0 do `WP-R16-03`, que precisa fechar o contrato privado de foto e o escopo da
-visão de elenco antes de qualquer implementação.
+ao `WP-R16-03`. Seu CP0 definiu o contrato privado da foto, o read model paginado,
+papéis, estados, desempenho, fallback e cinco fatias. A próxima ação é `ATH-01`,
+expansão inerte com testes de autorização e isolamento de mídia.
