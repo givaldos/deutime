@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
-select plan(49);
+select plan(50);
 
 insert into auth.users (
   instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,
@@ -315,6 +315,9 @@ select set_config('request.jwt.claim.sub','fd160000-0000-4000-8000-000000000002'
 select lives_ok($$select public.list_management_events(
   'fd161000-0000-4000-8000-000000000001','upcoming'
 )$$, 'manager ativo lê a lista administrativa');
+select lives_ok($$select public.list_management_championships(
+  'fd161000-0000-4000-8000-000000000001'
+)$$, 'manager ativo lê a lista administrativa de campeonatos');
 reset role;
 
 set local role authenticated;
