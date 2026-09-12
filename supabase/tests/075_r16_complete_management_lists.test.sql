@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
-select plan(46);
+select plan(49);
 
 insert into auth.users (
   instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,
@@ -44,6 +44,10 @@ select has_function('public','list_management_events',array[
 select has_function('public','list_management_championships',array[
   'uuid','championship_status','text','championship_format','date','date','integer','jsonb'
 ], 'read model de campeonatos existe');
+select has_function('public','get_management_event_page',array[
+  'uuid','management_event_view','text','date','date','event_kind','uuid','uuid',
+  'integer','jsonb'
+], 'projeção única da página de jogos existe');
 select ok(has_function_privilege('authenticated',
   'public.list_management_events(uuid,public.management_event_view,text,date,date,public.event_kind,uuid,uuid,integer,jsonb)',
   'execute'), 'authenticated pode chamar a RPC protegida de jogos');
@@ -56,6 +60,9 @@ select ok(not has_function_privilege('anon',
 select ok(not has_function_privilege('anon',
   'public.list_management_championships(uuid,public.championship_status,text,public.championship_format,date,date,integer,jsonb)',
   'execute'), 'anônimo não chama a lista de campeonatos');
+select ok(not has_function_privilege('anon',
+  'public.get_management_event_page(uuid,public.management_event_view,text,date,date,public.event_kind,uuid,uuid,integer,jsonb)',
+  'execute'), 'anônimo não chama a projeção da página de jogos');
 select is(private.normalize_management_search(E'  Coração\n   SÃO  '), 'coracao sao',
   'busca remove acentos, controles e espaços excedentes');
 
@@ -246,6 +253,10 @@ select is((public.list_management_events(
   'fd161000-0000-4000-8000-000000000001','completed'
 )->>'filtered_count')::integer,230,
   'histórico completo permanece pesquisável');
+select is(jsonb_array_length(public.get_management_event_page(
+  'fd161000-0000-4000-8000-000000000001','upcoming'
+)->'filter_options'->'championships'),35,
+  'projeção entrega todas as opções de campeonato do próprio time');
 create temporary table first_championship_page as
 select public.list_management_championships(
   'fd161000-0000-4000-8000-000000000001'
