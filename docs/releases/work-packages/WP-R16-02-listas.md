@@ -1,6 +1,6 @@
 # WP-R16-02 — Listas completas de Jogos e Campeonatos
 
-> Estado: LIST-03 concluída em 11 de setembro de 2026; LIST-04 é a próxima fatia.
+> Estado: LIST-04 concluída em 12 de setembro de 2026; LIST-05 é a próxima fatia.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-04` a `06`.
 > Base inspecionada: `18adc380dd2868808a33a5f40540e97178e4f97f`.
 
@@ -250,3 +250,29 @@ Campeonatos com os cinco estados, três formatos, cursor, total e fallback.
 
 Próxima ação: `LIST-04`, validando estados integrados, acessibilidade, URL,
 teclado, zoom, desempenho e a matriz responsiva das duas listas.
+
+## LIST-04 concluída — estados e validação integrada
+
+- Jogos e Campeonatos agora têm estrutura de carregamento equivalente à lista,
+  nome acessível e `aria-busy`, sem anunciar uma contagem zero antes da leitura;
+- vazios sem filtro, vazios filtrados, erro, nova tentativa e fallback foram
+  diferenciados. A nova tentativa preserva filtros e cursor válidos; parâmetros
+  inválidos continuam voltando para uma URL limpa;
+- total usa região viva atômica. Cabeçalhos e andamento dos cartões passam a
+  reorganizar texto e ação em telas estreitas, sem depender de hover;
+- falhas de RPC e respostas incompatíveis registram somente código ou caminhos
+  do contrato, sem busca, nomes, IDs ou conteúdo esportivo;
+- navegador local confirmou as duas páginas em 360, 390, 639, 640, 767, 768,
+  1023, 1024 e 1280 px, sem rolagem horizontal e sem controles interativos
+  menores que 44 px. A largura efetiva de 640 px cobriu o reflow equivalente a
+  200% sobre 1280 px;
+- a sequência por teclado percorreu navegação, ações e filtros com foco visível.
+  URLs filtradas e o destino de **Limpar filtros** foram conferidos nas duas
+  páginas;
+- 41 testes focados cobriram DAL, interface, carregamento, vazio, erro e URL. A
+  regressão passou em 139 arquivos/697 testes Vitest e 75 arquivos/1.958 testes
+  pgTAP; as duas RPCs continuaram abaixo do limite bloqueante de 500 ms no gate
+  focado.
+
+A flag permanece inerte e fora do catálogo global. Próxima ação: `LIST-05`, com
+piloto produtivo, rollback/restauração, expansão global e encerramento CP6.

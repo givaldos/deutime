@@ -184,9 +184,15 @@ export async function getManagementChampionshipPage(
 
   if (error) {
     if (unavailableCodes.has(error.code)) return { mode: "unavailable" };
+    console.warn("[management-lists] championships_rpc_error", { code: error.code });
     return { mode: "error" };
   }
   const parsed = pageSchema.safeParse(data);
+  if (!parsed.success) {
+    console.warn("[management-lists] championships_invalid_response", {
+      paths: parsed.error.issues.map((issue) => issue.path.join(".")),
+    });
+  }
   return parsed.success
     ? { mode: "enhanced", page: parsed.data }
     : { mode: "error" };
