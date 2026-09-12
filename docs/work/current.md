@@ -1,9 +1,9 @@
 ---
 release: R16
-work_package: WP-R16-02
-scope: listas_completas_de_jogos_e_campeonatos
-branch_or_commit: "codex/r16-lists-rollout"
-checkpoint: CP5
+work_package: WP-R16-03
+scope: elenco_reconhecivel
+branch_or_commit: "codex/r16-lists-rollout-evidence"
+checkpoint: CP0
 status: idle
 completed_ac:
   - "AC-R16-01: seções autorizadas alcançáveis com menu persistente em 360–1280 px"
@@ -16,6 +16,7 @@ completed_ac:
   - "LIST-03: página de Campeonatos com estados, formatos, busca, cursor, total e próxima ação"
   - "LIST-04: loading, vazio, erro, URL, teclado, reflow e matriz responsiva das duas listas"
   - "LIST-05: mecanismo transacional, kill switch, sonda agregada e testes completos prontos para promoção"
+  - "WP-R16-02 ativo nos 5 times de produção, com piloto, rollback/restauração e replay idempotente"
 dirty_files: []
 tests:
   - "PASS: 26 testes focados de rollout, autorização, tenancy e recuperação"
@@ -34,17 +35,17 @@ tests:
   - "PASS: LIST-04 no navegador em 360–1280 px, teclado, foco, URL, limpar e reflow equivalente a 200%"
   - "PASS: 140 arquivos/702 testes Vitest e 76 arquivos/1.988 testes pgTAP"
   - "PASS: lint, typecheck, build Webpack, db lint, integridade de migrations, contexto e auditoria sem vulnerabilidades"
+  - "PASS: Deploy Supabase 34724811533, CI 34724811539, Database 34724811545, Terraform 34724811550 e CodeQL 34724811537"
+  - "PASS: piloto produtivo ativo/desligado/restaurado preservou 17 jogos e 2 campeonatos"
+  - "PASS: rollout global 5/5, replay com zero alterações e smoke pós-ativação 34725053598"
 blocker: null
-next_action: "Promover LIST-05 e executar piloto, rollback/restauração, rollout global, smoke e encerramento CP6 do WP-R16-02."
+next_action: "Executar o CP0 do WP-R16-03: fechar contrato privado de foto, estados, papéis, fallback, desempenho, rollout e subtarefas do elenco reconhecível."
 ---
 
 # Trabalho atual
 
-O `WP-R16-01` está encerrado em produção. `LIST-01` a `LIST-04` do
-`WP-R16-02` estão fechadas: Jogos e Campeonatos usam read models completos com
-autorização, tenancy, filtros, total, cursor e retorno ao detalhe, mantendo as
-páginas anteriores quando a flag ou o schema estão indisponíveis. A flag continua
-desligada nos times existentes. Estados de carregamento, vazio e erro, teclado,
-reflow e matriz responsiva foram validados. O mecanismo transacional da
-`LIST-05`, sua sonda agregada e o kill switch passaram nos gates locais; a próxima
-ação é promover a expansão e executar o rollout produtivo controlado.
+`WP-R16-01` e `WP-R16-02` estão encerrados em produção. As listas completas de
+Jogos e Campeonatos estão ativas nos 5 times, com rollback disponível, sonda
+agregada saudável e smoke pós-ativação aprovado. O checkpoint está limpo e passa
+ao CP0 do `WP-R16-03`, que precisa fechar o contrato privado de foto e o escopo da
+visão de elenco antes de qualquer implementação.
