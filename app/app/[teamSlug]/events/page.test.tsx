@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   managementMode: "enhanced" as "enhanced" | "unavailable" | "error",
   professionalSchedulingEnabled: false,
+  empty: false,
 }));
 
 const eventId = "22222222-2222-4222-8222-222222222222";
@@ -50,7 +51,7 @@ vi.mock("@/lib/data/management-events", async (importOriginal) => {
   return {
     ...actual,
     getManagementEventPage: vi.fn(async () => state.managementMode === "enhanced"
-      ? { mode: "enhanced", page: enhancedPage }
+      ? { mode: "enhanced", page: state.empty ? { ...enhancedPage, list: { ...enhancedPage.list, items: [], filtered_count: 0, next_cursor: null } } : enhancedPage }
       : { mode: state.managementMode }),
     getLegacyManagementEventPage: vi.fn(async () => ({
       events: [{
@@ -103,6 +104,7 @@ function props(searchParams: Record<string, string | string[]> = {}) {
 beforeEach(() => {
   state.managementMode = "enhanced";
   state.professionalSchedulingEnabled = false;
+  state.empty = false;
 });
 
 describe("lista de jogos", () => {
@@ -133,6 +135,23 @@ describe("lista de jogos", () => {
 
     expect(html).toContain("Não foi possível carregar");
     expect(html).toContain("mais de uma vez");
+  });
+
+  it("diferencia o vazio filtrado por período e oferece limpar filtros", async () => {
+    state.empty = true;
+    const html = renderToStaticMarkup(await EventsPage(props({ from: "2026-09-01", to: "2026-09-30" })));
+
+    expect(html).toContain("Nenhum resultado com estes filtros");
+    expect(html).toContain("Limpar filtros");
+    expect(html).not.toContain("Criar primeiro jogo");
+  });
+
+  it("preserva filtros válidos ao tentar novamente após erro", async () => {
+    state.managementMode = "error";
+    const html = renderToStaticMarkup(await EventsPage(props({ q: "Final regional", view: "completed" })));
+
+    expect(html).toContain("Não foi possível carregar");
+    expect(html).toContain('href="/app/campo-fc/events?view=completed&amp;q=Final+regional"');
   });
 
   it("mostra as pendências profissionais somente quando habilitadas", async () => {

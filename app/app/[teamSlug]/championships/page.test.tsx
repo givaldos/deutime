@@ -5,6 +5,7 @@ const state = vi.hoisted(() => ({
   role: "owner" as "owner" | "admin" | "manager",
   managementMode: "enhanced" as "enhanced" | "unavailable" | "error",
   professionalSchedulingEnabled: false,
+  empty: false,
 }));
 
 const championshipId = "22222222-2222-4222-8222-222222222222";
@@ -53,7 +54,7 @@ vi.mock("@/lib/data/management-championships", async (importOriginal) => {
   return {
     ...actual,
     getManagementChampionshipPage: vi.fn(async () => state.managementMode === "enhanced"
-      ? { mode: "enhanced", page: enhancedPage }
+      ? { mode: "enhanced", page: state.empty ? { ...enhancedPage, items: [], filtered_count: 0, next_cursor: null } : enhancedPage }
       : { mode: state.managementMode }),
   };
 });
@@ -87,6 +88,7 @@ beforeEach(() => {
   state.role = "owner";
   state.managementMode = "enhanced";
   state.professionalSchedulingEnabled = false;
+  state.empty = false;
 });
 
 describe("lista de campeonatos", () => {
@@ -126,5 +128,22 @@ describe("lista de campeonatos", () => {
 
     expect(html).toContain("Não foi possível carregar");
     expect(html).toContain("mais de uma vez");
+  });
+
+  it("diferencia o vazio filtrado por período sem abrir a criação", async () => {
+    state.empty = true;
+    const html = renderToStaticMarkup(await ChampionshipsPage(props({ from: "2026-09-01", to: "2026-09-30" })));
+
+    expect(html).toContain("Nenhum resultado com estes filtros");
+    expect(html).toContain("Limpar filtros");
+    expect(html).not.toContain('<details class="app-surface group p-5 sm:p-7" open=""');
+  });
+
+  it("preserva filtros válidos ao tentar novamente após erro", async () => {
+    state.managementMode = "error";
+    const html = renderToStaticMarkup(await ChampionshipsPage(props({ q: "Copa", format: "league" })));
+
+    expect(html).toContain("Não foi possível carregar");
+    expect(html).toContain('href="/app/campo-fc/championships?q=Copa&amp;format=league"');
   });
 });

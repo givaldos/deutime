@@ -148,9 +148,9 @@ function ChampionshipCard({ championship, teamSlug, timeZone, returnTo }: {
             <span className="flex items-center gap-1.5"><Trophy className="size-3.5" aria-hidden />{championship.completed_fixtures}/{championship.total_fixtures} confrontos encerrados</span>
             <span className="flex items-center gap-1.5"><CalendarDays className="size-3.5" aria-hidden />Criado em {formatDate(championship.created_at, timeZone)}</span>
           </div>
-          <div className="mt-4 flex items-center gap-3">
+          <div className="mt-4 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3">
             <Progress className="h-1.5 flex-1" label={`Andamento de ${championship.name}`} value={progress} />
-            <span className="text-[10px] font-bold text-slate-500">{championship.next_action}</span>
+            <span className="text-right text-[10px] font-bold text-slate-500">{championship.next_action}</span>
           </div>
         </div>
       </div>
@@ -183,14 +183,14 @@ function EnhancedChampionshipList({ teamSlug, timeZone, filters, page, canConfig
 }) {
   const base = filterBase(filters);
   const returnTo = buildManagementChampionshipListUrl(teamSlug, base, filters.cursor);
-  const hasFilters = Boolean(filters.status || filters.search || filters.format || filters.createdStart);
+  const hasFilters = Boolean(filters.status || filters.search || filters.format || filters.createdStart || filters.createdEnd);
   const clearUrl = buildManagementChampionshipListUrl(teamSlug, { status: null, search: null, format: null, createdStart: null, createdEnd: null });
   return (
     <section aria-labelledby="championship-list-title" className="space-y-4">
       <ChampionshipFilters teamSlug={teamSlug} filters={filters} />
-      <div className="flex items-end justify-between gap-3">
+      <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
         <div><p className="app-kicker">Área do time</p><h2 id="championship-list-title" className="mt-1 text-xl font-black text-graphite">Campeonatos encontrados</h2></div>
-        <p aria-live="polite" className="text-sm font-bold text-slate-600">{page.filtered_count} {page.filtered_count === 1 ? "campeonato" : "campeonatos"}</p>
+        <p aria-live="polite" aria-atomic="true" className="text-sm font-bold text-slate-600">{page.filtered_count} {page.filtered_count === 1 ? "campeonato" : "campeonatos"}</p>
       </div>
       {page.items.length ? (
         <div className="grid gap-3 lg:grid-cols-2">{page.items.map((championship) => <ChampionshipCard key={championship.id} championship={championship} teamSlug={teamSlug} timeZone={timeZone} returnTo={returnTo} />)}</div>
@@ -272,7 +272,7 @@ export default async function ChampionshipsPage({ params, searchParams }: {
         {managementResult.mode === "enhanced" && parsedFilters.ok ? (
           <EnhancedChampionshipList teamSlug={team.slug} timeZone={team.timezone} filters={parsedFilters.filters} page={managementResult.page} canConfigure={canConfigure} />
         ) : managementResult.mode === "error" ? (
-          <section aria-labelledby="championship-list-title"><h2 id="championship-list-title" className="sr-only">Campeonatos</h2><div role="alert" className="app-surface border-red-200 bg-red-50 p-8 text-center"><p className="font-black text-red-900">Não foi possível carregar</p><p className="mt-1 text-sm text-red-700">{parsedFilters.ok ? "Atualize a página e tente novamente." : parsedFilters.message}</p><Button asChild variant="outline" className="mt-5"><Link href={`/app/${team.slug}/championships`}>Tentar novamente</Link></Button></div></section>
+          <section aria-labelledby="championship-list-title"><h2 id="championship-list-title" className="sr-only">Campeonatos</h2><div role="alert" className="app-surface border-red-200 bg-red-50 p-8 text-center"><p className="font-black text-red-900">Não foi possível carregar</p><p className="mt-1 text-sm text-red-700">{parsedFilters.ok ? "Atualize a página e tente novamente." : parsedFilters.message}</p><Button asChild variant="outline" className="mt-5"><Link href={parsedFilters.ok ? buildManagementChampionshipListUrl(team.slug, filterBase(parsedFilters.filters), parsedFilters.filters.cursor) : `/app/${team.slug}/championships`}>Tentar novamente</Link></Button></div></section>
         ) : (
           <section aria-labelledby="championship-list-title">
             <div className="flex items-end justify-between gap-3"><div><p className="app-kicker">Área do time</p><h2 id="championship-list-title" className="mt-1 text-xl font-black text-graphite">Competições</h2></div><span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-500">{legacyChampionships?.length ?? 0}</span></div>
