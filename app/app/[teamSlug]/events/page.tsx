@@ -96,9 +96,9 @@ function EnhancedEventCard({ event, teamSlug, timeZone, returnTo }: {
               {event.internal_teams.map((item) => <span key={item.id} className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold text-slate-700">{item.name}</span>)}
             </div>
           ) : null}
-          <div className="mt-4 flex items-center gap-3">
+          <div className="mt-4 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3">
             <Progress className="h-1.5 flex-1" label={`Confirmações para ${event.title}`} value={progress} />
-            <span className="text-[10px] font-bold text-slate-400">{event.next_action}</span>
+            <span className="text-right text-[10px] font-bold text-slate-500">{event.next_action}</span>
           </div>
         </div>
       </div>
@@ -155,7 +155,7 @@ function EnhancedEventList({ teamSlug, timeZone, filters, page }: {
 }) {
   const filterBase = withoutCursor(filters);
   const listUrl = buildManagementEventListUrl(teamSlug, filterBase, filters.cursor);
-  const hasFilters = Boolean(filters.search || filters.periodStart || filters.kind || filters.internalTeamId || filters.championshipId);
+  const hasFilters = Boolean(filters.search || filters.periodStart || filters.periodEnd || filters.kind || filters.internalTeamId || filters.championshipId);
   const clearUrl = buildManagementEventListUrl(teamSlug, { view: filters.view, search: null, periodStart: null, periodEnd: null, kind: null, internalTeamId: null, championshipId: null });
   return <>
     <nav aria-label="Visões de jogos" className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -165,7 +165,7 @@ function EnhancedEventList({ teamSlug, timeZone, filters, page }: {
       })}
     </nav>
     <EventFilters teamSlug={teamSlug} filters={filters} options={page.filter_options} />
-    <div className="mb-3 flex items-end justify-between gap-3"><div><p className="app-kicker">{viewLabels[filters.view]}</p><h2 className="mt-1 text-xl font-black tracking-tight">Jogos encontrados</h2></div><p aria-live="polite" className="text-sm font-bold text-slate-600">{page.list.filtered_count} {page.list.filtered_count === 1 ? "jogo" : "jogos"}</p></div>
+    <div className="mb-3 flex flex-col items-start gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3"><div><p className="app-kicker">{viewLabels[filters.view]}</p><h2 className="mt-1 text-xl font-black tracking-tight">Jogos encontrados</h2></div><p aria-live="polite" aria-atomic="true" className="text-sm font-bold text-slate-600">{page.list.filtered_count} {page.list.filtered_count === 1 ? "jogo" : "jogos"}</p></div>
     {page.list.items.length ? <div className="grid gap-3 lg:grid-cols-2">{page.list.items.map((event) => <EnhancedEventCard key={event.id} event={event} teamSlug={teamSlug} timeZone={timeZone} returnTo={listUrl} />)}</div> : (
       <div className="app-surface border-dashed p-8 text-center"><CalendarDays className="mx-auto size-8 text-slate-400" aria-hidden /><p className="mt-3 font-semibold">{hasFilters ? "Nenhum resultado com estes filtros" : `Nenhum jogo em ${viewLabels[filters.view].toLowerCase()}`}</p><p className="mt-1 text-sm text-slate-500">{hasFilters ? "Ajuste a busca ou limpe os filtros para tentar novamente." : "Os jogos aparecerão aqui quando estiverem disponíveis."}</p>{hasFilters ? <Button asChild variant="outline" className="mt-5"><Link href={clearUrl}>Limpar filtros</Link></Button> : filters.view === "upcoming" ? <Button asChild className="mt-5"><Link href={`/app/${teamSlug}/events/new`}>Criar primeiro jogo</Link></Button> : null}</div>
     )}
@@ -211,7 +211,10 @@ export default async function EventsPage({ params, searchParams }: {
     return <main className="app-canvas pb-24"><AppContainer><PageHeader eyebrow="Organização" title="Jogos" description="Encontre compromissos, pendências e resultados sem perder o contexto." action={newEventAction} />{professionalSchedulingEnabled ? <Link href={`/app/${team.slug}/events/pending`} className="-mt-3 mb-6 flex min-h-12 items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 px-4 text-sm font-black text-amber-950"><span>Pendências e decisões da agenda</span><span className="rounded-full bg-amber-200 px-2.5 py-1 text-xs">{pendingConflictCount ?? 0}</span></Link> : null}<EnhancedEventList teamSlug={team.slug} timeZone={team.timezone} filters={parsedFilters.filters} page={managementResult.page} /></AppContainer></main>;
   }
   if (managementResult.mode === "error") {
-    return <main className="app-canvas pb-24"><AppContainer><PageHeader eyebrow="Organização" title="Jogos" description="Encontre compromissos, pendências e resultados sem perder o contexto." action={newEventAction} /><div role="alert" className="app-surface border-red-200 bg-red-50 p-8 text-center"><p className="font-black text-red-900">Não foi possível carregar</p><p className="mt-1 text-sm text-red-700">{parsedFilters.ok ? "Atualize a página e tente novamente." : parsedFilters.message}</p><Button asChild variant="outline" className="mt-5"><Link href={`/app/${team.slug}/events`}>Tentar novamente</Link></Button></div></AppContainer></main>;
+    const retryUrl = parsedFilters.ok
+      ? buildManagementEventListUrl(team.slug, withoutCursor(parsedFilters.filters), parsedFilters.filters.cursor)
+      : `/app/${team.slug}/events`;
+    return <main className="app-canvas pb-24"><AppContainer><PageHeader eyebrow="Organização" title="Jogos" description="Encontre compromissos, pendências e resultados sem perder o contexto." action={newEventAction} /><div role="alert" className="app-surface border-red-200 bg-red-50 p-8 text-center"><p className="font-black text-red-900">Não foi possível carregar</p><p className="mt-1 text-sm text-red-700">{parsedFilters.ok ? "Atualize a página e tente novamente." : parsedFilters.message}</p><Button asChild variant="outline" className="mt-5"><Link href={retryUrl}>Tentar novamente</Link></Button></div></AppContainer></main>;
   }
 
   const events = legacyPage?.events ?? [];

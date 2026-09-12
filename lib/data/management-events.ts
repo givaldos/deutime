@@ -224,10 +224,16 @@ export async function getManagementEventPage(
 
   if (error) {
     if (unavailableCodes.has(error.code)) return { mode: "unavailable" };
+    console.warn("[management-lists] events_rpc_error", { code: error.code });
     return { mode: "error" };
   }
 
   const parsed = managementEventPageSchema.safeParse(data);
+  if (!parsed.success) {
+    console.warn("[management-lists] events_invalid_response", {
+      paths: parsed.error.issues.map((issue) => issue.path.join(".")),
+    });
+  }
   return parsed.success
     ? { mode: "enhanced", page: parsed.data }
     : { mode: "error" };
