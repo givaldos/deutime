@@ -31,9 +31,9 @@ insert into public.athletes(
 
 select ok('complete_management_lists' = any(enum_range(null::public.feature_key)::text[]),
   'flag tipada das listas existe');
-select ok(not ('complete_management_lists' = any(array(
+select ok('complete_management_lists' = any(array(
   select feature::text from private.product_feature_keys() feature
-))), 'flag permanece fora do catálogo global');
+)), 'flag integra o catálogo global após a validação');
 select is((select count(*) from public.team_feature_flags
   where feature = 'complete_management_lists'), 0::bigint,
   'expansão não materializa a flag em nenhum time');

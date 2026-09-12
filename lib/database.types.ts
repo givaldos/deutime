@@ -4432,6 +4432,19 @@ export type Database = {
           wins: number
         }[]
       }
+      get_complete_management_lists_health: {
+        Args: { requested_team_id: string }
+        Returns: {
+          complete_management_lists_enabled: boolean
+          last_flag_change_at: string
+          observed_at: string
+          reschedule_events: number
+          team_open: boolean
+          total_championships: number
+          total_events: number
+          upcoming_events: number
+        }[]
+      }
       get_craque_vote_result: {
         Args: { requested_match_id: string }
         Returns: {
@@ -5292,6 +5305,13 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      set_complete_management_lists_rollout: {
+        Args: { requested_enabled: boolean; requested_team_id?: string }
+        Returns: {
+          flags_changed: number
+          teams_seen: number
+        }[]
       }
       set_event_attendance_as_staff: {
         Args: {

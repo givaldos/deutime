@@ -1,6 +1,6 @@
 # WP-R16-02 — Listas completas de Jogos e Campeonatos
 
-> Estado: LIST-04 concluída em 12 de setembro de 2026; LIST-05 é a próxima fatia.
+> Estado: LIST-05 pronta para promoção em 12 de setembro de 2026; rollout produtivo pendente.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-04` a `06`.
 > Base inspecionada: `18adc380dd2868808a33a5f40540e97178e4f97f`.
 
@@ -276,3 +276,23 @@ teclado, zoom, desempenho e a matriz responsiva das duas listas.
 
 A flag permanece inerte e fora do catálogo global. Próxima ação: `LIST-05`, com
 piloto produtivo, rollback/restauração, expansão global e encerramento CP6.
+
+## LIST-05 — mecanismo pronto para produção
+
+- a flag entrou no catálogo global tipado de 18 funcionalidades sem alterar as
+  flags já materializadas durante a migration;
+- a ativação específica aceita uma coorte ou todos os times elegíveis, usa lock
+  transacional, é idempotente e registra escopo e alteração na auditoria;
+- a sonda operacional expõe somente estado agregado do time, flag, agenda,
+  reagendamentos, campeonatos e marco da última alteração, sem nomes ou IDs de
+  pessoas;
+- o kill switch usa a mesma operação para desligar e restaurar a coorte ou o
+  catálogo global. Novos times herdam o catálogo somente enquanto o rollout
+  global estiver ativo;
+- 30 testes pgTAP cobrem autorização, coorte, expansão global, repetição,
+  rollback, restauração, auditoria e herança. A regressão passou em 140
+  arquivos/702 testes Vitest e 76 arquivos/1.988 testes pgTAP, além de lint,
+  tipos, build Webpack, integridade de migrations e auditoria sem vulnerabilidades.
+
+Próxima ação: promover a expansão, executar piloto produtivo, desligar, confirmar
+fallback, restaurar, ativar globalmente e fechar o smoke antes do CP6.

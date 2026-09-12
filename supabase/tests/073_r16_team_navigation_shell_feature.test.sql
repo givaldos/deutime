@@ -34,7 +34,7 @@ select ok(
 );
 select is(
   (select count(*) from private.product_feature_keys()),
-  17::bigint,
+  18::bigint,
   'catálogo produtivo inclui a navegação sem ativação implícita'
 );
 
