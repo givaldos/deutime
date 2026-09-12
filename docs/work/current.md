@@ -2,7 +2,7 @@
 release: R16
 work_package: WP-R16-02
 scope: listas_completas_de_jogos_e_campeonatos
-branch_or_commit: "WP-R16-02/LIST-01"
+branch_or_commit: "codex/r16-events-list"
 checkpoint: CP2
 status: idle
 completed_ac:
@@ -12,6 +12,7 @@ completed_ac:
   - "WP-R16-01 ativo nos 5 times de produção, com piloto e rollback/restauração comprovados"
   - "CP0 do WP-R16-02 fecha estados, filtros, paginação, fuso, tenancy, desempenho e fallback"
   - "LIST-01: flag inerte, dois read models paginados e índices por tenant concluídos"
+  - "LIST-02: página de Jogos com visões, busca, filtros, cursor, total e retorno ao detalhe"
 dirty_files: []
 tests:
   - "PASS: 26 testes focados de rollout, autorização, tenancy e recuperação"
@@ -22,14 +23,17 @@ tests:
   - "PASS: piloto produtivo, rollback/restauração, expansão global idempotente e smoke read-only"
   - "PASS: 46 testes pgTAP focados com 230 encerrados, 31 futuros, validação e cross-tenant"
   - "PASS: planos indexados por team_id em 0,079 ms (Jogos) e 0,048 ms (Campeonatos)"
+  - "PASS: 16 testes focados de DAL/interface e 49 pgTAP de Jogos"
+  - "PASS: regressão de 136 arquivos/672 testes Vitest e 75 arquivos/1.957 testes pgTAP"
 blocker: null
-next_action: "Executar LIST-02: DAL e página de Jogos com busca, filtros, cursor, total e fallback N−1/flag."
+next_action: "Executar LIST-03: página de Campeonatos com cinco estados, três formatos, busca, cursor, total e fallback."
 ---
 
 # Trabalho atual
 
-O `WP-R16-01` está encerrado em produção. O CP1 do `WP-R16-02` está fechado: a
-expansão inerte adicionou flag, dois read models, paginação por cursor e índices
-por tenant, com autorização e fixture acima de 200 eventos validadas. A flag
-continua desligada e fora do catálogo global. O checkpoint está limpo; a próxima
-fatia é `LIST-02`, que conecta a página de Jogos mantendo os fallbacks.
+O `WP-R16-01` está encerrado em produção. `LIST-01` e `LIST-02` do `WP-R16-02`
+estão fechadas: a expansão inerte e a página completa de Jogos preservam
+autorização, tenancy, paginação, fuso e o retorno ao detalhe, mantendo a Agenda
+anterior quando a flag ou o schema estão indisponíveis. A flag continua desligada
+e fora do catálogo global. O checkpoint está limpo; a próxima fatia é `LIST-03`,
+que conecta a página de Campeonatos ao read model já disponível.

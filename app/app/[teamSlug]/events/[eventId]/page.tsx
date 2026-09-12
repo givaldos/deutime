@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AppContainer } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
 import { getInternalSquads } from "@/lib/data/internal-squads";
+import { safeManagementEventReturnTo } from "@/lib/data/management-events";
 import { getAppUrl } from "@/lib/env/server";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import type { InternalSquadBadgeKey } from "@/lib/features/team-division/internal-squads";
@@ -58,6 +59,7 @@ export default async function EventDetailPage({
     attendance?: string;
     cancelled?: string;
     extended?: string;
+    returnTo?: string | string[];
   }>;
 }) {
   const user = await requireUser();
@@ -87,6 +89,8 @@ export default async function EventDetailPage({
       .maybeSingle(),
   ]);
   if (!membership || !event) notFound();
+
+  const eventListReturnTo = safeManagementEventReturnTo(team.slug, query.returnTo);
 
   const [{ data: series }, { count: seriesOccurrenceCount }] =
     event.series_id
@@ -368,8 +372,8 @@ export default async function EventDetailPage({
         )}
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link href={`/app/${team.slug}/events`} className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-slate-600 hover:text-emerald-800">
-            <ArrowLeft className="size-4" aria-hidden /> Voltar à agenda
+          <Link href={eventListReturnTo ?? `/app/${team.slug}/events`} className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-slate-600 hover:text-emerald-800">
+            <ArrowLeft className="size-4" aria-hidden /> Voltar aos jogos
           </Link>
           <div className="flex items-center gap-2">
             {isScheduled || event.status === "completed" ? (
