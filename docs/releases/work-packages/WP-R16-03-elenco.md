@@ -1,6 +1,6 @@
 # WP-R16-03 — Elenco reconhecível
 
-> Estado: CP2 aceito em 13 de setembro de 2026; `ATH-03` é a próxima fatia.
+> Estado: CP3 aceito em 13 de setembro de 2026; `ATH-04` é a próxima fatia.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-07` a `09`.
 > Base inspecionada: `bdbbc5ac3d7dec9331f54196043eb78ea922f1a1`.
 
@@ -174,3 +174,43 @@ lista de atletas do mesmo slug.
 
 Próxima ação: `ATH-03`, criando o detalhe privado com projeção estreita,
 autorização por papel e retorno seguro para a lista filtrada.
+
+## Contrato da ATH-03 — detalhe privado
+
+- `get_management_athlete_detail(team_id, athlete_id)` revalida sessão, time
+  aberto, flag e vínculo ativo de owner, admin ou manager antes de consultar o
+  atleta; ausência, outro tenant, atleta, anônimo e vínculo suspenso falham com
+  a mesma resposta sem confirmar a existência do registro;
+- a projeção devolve cadastro, contato privado já autorizado, posições da fonte
+  correta, ações permitidas e até dez participações factuais recentes. Não cria
+  pontuação, ranking nem agrega uma estatística esportiva inexistente;
+- a foto segue o contrato privado do CP1: caminho canônico assinado no servidor
+  por 15 minutos, removido antes de chegar ao componente e substituído por
+  iniciais em qualquer falha de mídia;
+- o detalhe é somente leitura para manager. Aprovação, edição, disponibilidade
+  e remoção continuam restritas às ações já autorizadas para owner/admin;
+- `returnTo` aceita somente uma URL relativa da lista de atletas do mesmo slug,
+  com filtros reconhecidos e cursor válido. Qualquer host, barra invertida,
+  fragmento, rota ou parâmetro inesperado retorna à lista padrão.
+
+## CP3 aceito — ATH-03
+
+- [x] `get_management_athlete_detail` revalida sessão, staff ativo, time aberto,
+  flag e vínculo vigente antes de devolver qualquer dado do atleta;
+- [x] owner/admin preservam as ações existentes e manager recebe detalhe somente
+  leitura; atleta, anônimo, outro tenant, UUID inválido e removido falham sem
+  revelar a existência do registro;
+- [x] cadastro, contato privado, posições reivindicadas/provisórias e até dez
+  participações factuais recentes vêm de uma única projeção estreita;
+- [x] estatísticas ainda inexistentes aparecem como indisponíveis, sem placar,
+  ranking ou contador inferido a partir de presença ou escalação;
+- [x] foto privada é assinada por 15 minutos e o caminho interno é removido antes
+  da renderização; falha de mídia mantém todo o detalhe com iniciais;
+- [x] abrir o detalhe e voltar preserva situação, busca, posição e cursor; retorno
+  externo, de outro slug, repetido, desconhecido ou com fragmento é descartado;
+- [x] 29 testes focados de DAL/interface e 24 pgTAP cobrem o contrato; a regressão
+  passou com 144 arquivos/745 testes Vitest e 78 arquivos/2.051 testes pgTAP,
+  além de lint, TypeScript, contexto, build Webpack, migrations e auditoria.
+
+Próxima ação: `ATH-04`, cobrindo estados integrados, teclado, reflow, matriz
+responsiva e orçamento de desempenho da lista e do detalhe.

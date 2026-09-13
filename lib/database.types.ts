@@ -4532,6 +4532,10 @@ export type Database = {
           triggered_manually: boolean
         }[]
       }
+      get_management_athlete_detail: {
+        Args: { requested_athlete_id: string; requested_team_id: string }
+        Returns: Json
+      }
       get_management_event_page: {
         Args: {
           requested_championship_id?: string

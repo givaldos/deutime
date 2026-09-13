@@ -2,8 +2,8 @@
 release: R16
 work_package: WP-R16-03
 scope: elenco_reconhecivel
-branch_or_commit: "codex/r16-athlete-roster-ui"
-checkpoint: CP2
+branch_or_commit: "codex/r16-athlete-detail"
+checkpoint: CP3
 status: idle
 completed_ac:
   - "AC-R16-01: seções autorizadas alcançáveis com menu persistente em 360–1280 px"
@@ -20,12 +20,16 @@ completed_ac:
   - "CP0 do WP-R16-03 fecha identidade, foto privada, filtros, paginação, papéis, desempenho e fallback"
   - "ATH-01: flag inerte, read model paginado, índices e autorização privada de foto concluídos"
   - "ATH-02: Lista/Cartões, filtros em URL, cursor, assinatura em lote e fallback concluídos"
+  - "ATH-03: detalhe privado, autorização por papel, PII restrita, participações factuais e retorno seguro concluídos"
 dirty_files: []
 tests:
   - "PASS: 26 testes focados de rollout, autorização, tenancy e recuperação"
   - "PASS: 74 arquivos/1908 testes pgTAP na dev consolidada"
   - "PASS: 134 arquivos/656 testes Vitest e 4 testes de contexto"
   - "PASS: lint, typecheck, build Webpack, integridade de migrations e auditoria sem vulnerabilidades"
+  - "PASS: 29 testes focados de DAL/interface e 24 pgTAP do detalhe privado"
+  - "PASS: 144 arquivos/745 testes Vitest e 78 arquivos/2.051 testes pgTAP"
+  - "PASS: db reset, db lint sem novos avisos, tipos gerados sem deriva e migration forward-only"
   - "PASS: matriz responsiva 360, 390, 639, 640, 767, 768, 1023, 1024 e 1280 px"
   - "PASS: piloto produtivo, rollback/restauração, expansão global idempotente e smoke read-only"
   - "PASS: 46 testes pgTAP focados com 230 encerrados, 31 futuros, validação e cross-tenant"
@@ -47,7 +51,7 @@ tests:
   - "PASS: 142 arquivos/721 testes Vitest e 77 arquivos/2.027 testes pgTAP"
   - "PASS: lint, typecheck, build Webpack, integridade de migrations e auditoria sem vulnerabilidades"
 blocker: null
-next_action: "Executar ATH-03: criar o detalhe privado com autorização por papel, PII restrita e retorno seguro para a lista filtrada."
+next_action: "Executar ATH-04: validar estados integrados, teclado, reflow, matriz responsiva e desempenho da lista e do detalhe."
 ---
 
 # Trabalho atual
@@ -59,5 +63,7 @@ ao `WP-R16-03`. O CP1 entregou a expansão inerte: flag desligada, read model
 paginado, índices e autorização privada de foto com isolamento por time. A
 ATH-02 passou a consumir esse contrato na página de Atletas com Lista/Cartões,
 filtros em URL, cursor, assinatura deduplicada e fallback atual. O CP2 está
-aceito; a próxima ação é `ATH-03`, com detalhe privado, autorização por papel,
-PII restrita e retorno seguro para a lista filtrada.
+aceito. A ATH-03 adicionou detalhe privado por papel, PII restrita,
+participações factuais e retorno seguro para a lista filtrada. O CP3 está
+aceito; a próxima ação é `ATH-04`, com robustez visual, acessibilidade e
+desempenho integrados.
