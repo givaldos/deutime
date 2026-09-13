@@ -1,6 +1,6 @@
 # WP-R16-03 — Elenco reconhecível
 
-> Estado: CP0 aceito em 12 de setembro de 2026; `ATH-01` é a próxima fatia.
+> Estado: CP1 aceito em 12 de setembro de 2026; `ATH-02` é a próxima fatia.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-07` a `09`.
 > Base inspecionada: `bdbbc5ac3d7dec9331f54196043eb78ea922f1a1`.
 
@@ -135,5 +135,23 @@ lista de atletas do mesmo slug.
 - [x] fixture, orçamento, fallback, rollback e rollout definidos;
 - [x] cinco fatias pequenas e seus gates definidos.
 
-Próxima ação: `ATH-01`, começando pela expansão inerte e pelos testes de
-autorização da projeção e do bucket privado.
+## CP1 aceito — ATH-01
+
+- [x] `recognizable_roster` adicionada ao enum tipado, desligada, sem linhas
+  materializadas e fora do catálogo de ativação global;
+- [x] `list_management_athletes` revalida sessão, papel administrativo ativo,
+  time aberto e flag antes de devolver página, total filtrado, pendências,
+  cursor e filtros efetivos;
+- [x] busca normalizada, posição válida da modalidade, situação e cursor são
+  aplicados no banco; página padrão tem 24 itens e limite máximo de 50;
+- [x] itens não contêm telefone, e-mail, nascimento ou observações; posições de
+  perfil reivindicado e cadastro provisório mantêm suas fontes de verdade;
+- [x] foto reivindicada exige vínculo vigente, staff do mesmo time, flag ligada
+  e caminho global canônico exato; foto provisória permanece restrita a staff;
+- [x] índices de situação/nome, busca e posição cobrem o plano da consulta;
+- [x] 39 testes pgTAP cobrem flag inerte, mais de 220 vínculos, paginação com
+  nomes empatados, busca com acento, papéis, PII, storage, caminho inválido,
+  negações e cross-tenant; read model ficou abaixo do alvo local de 300 ms.
+
+Próxima ação: `ATH-02`, consumindo o read model na página de Atletas com
+Lista/Cartões, filtros em URL, assinatura deduplicada em lote e fallback atual.

@@ -4833,6 +4833,17 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      list_management_athletes: {
+        Args: {
+          requested_cursor?: Json
+          requested_limit?: number
+          requested_position_code?: string
+          requested_search?: string
+          requested_status?: Database["public"]["Enums"]["athlete_status"]
+          requested_team_id: string
+        }
+        Returns: Json
+      }
       list_management_championships: {
         Args: {
           requested_created_end?: string
@@ -5840,6 +5851,7 @@ export type Database = {
         | "professional_scheduling"
         | "team_navigation_shell"
         | "complete_management_lists"
+        | "recognizable_roster"
       internal_squad_badge_key:
         | "shield"
         | "stripes"
@@ -6176,6 +6188,7 @@ export const Constants = {
         "professional_scheduling",
         "team_navigation_shell",
         "complete_management_lists",
+        "recognizable_roster",
       ],
       internal_squad_badge_key: [
         "shield",
