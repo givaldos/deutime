@@ -12,6 +12,7 @@ import {
   Ban,
   Check,
   Edit3,
+  Eye,
   LayoutGrid,
   List,
   RotateCcw,
@@ -124,13 +125,16 @@ function AthleteSummary({ athlete }: { athlete: ManagementAthleteItem }) {
   );
 }
 
-function AthleteActions({ athlete, teamSlug }: {
+function AthleteActions({ athlete, teamSlug, returnUrl }: {
   athlete: ManagementAthleteItem;
   teamSlug: string;
+  returnUrl: string;
 }) {
+  const detailHref = `/app/${teamSlug}/athletes/${athlete.id}?${new URLSearchParams({ returnTo: returnUrl }).toString()}`;
   if (athlete.allowed_actions.can_review) {
     return (
       <div className="grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
+        <Button asChild size="sm" variant="outline" className="col-span-2 min-h-11 rounded-xl"><Link href={detailHref}><Eye aria-hidden />Ver detalhes</Link></Button>
         <form action={reviewAthlete}>
           <input type="hidden" name="athleteId" value={athlete.id} />
           <input type="hidden" name="teamSlug" value={teamSlug} />
@@ -152,12 +156,13 @@ function AthleteActions({ athlete, teamSlug }: {
   }
 
   if (!athlete.allowed_actions.can_edit && !athlete.allowed_actions.can_remove) {
-    return null;
+    return <div className="border-t border-slate-100 pt-4"><Button asChild size="sm" variant="outline" className="min-h-11 w-full rounded-xl"><Link href={detailHref}><Eye aria-hidden />Ver detalhes</Link></Button></div>;
   }
 
   const canToggle = athlete.status === "active" || athlete.status === "inactive";
   return (
     <div className="space-y-2 border-t border-slate-100 pt-4">
+      <Button asChild size="sm" variant="outline" className="min-h-11 w-full rounded-xl"><Link href={detailHref}><Eye aria-hidden />Ver detalhes</Link></Button>
       <div className="grid grid-cols-2 gap-2">
         {athlete.allowed_actions.can_edit ? (
           <Button asChild size="sm" variant="outline" className="min-h-11 rounded-xl">
@@ -184,9 +189,10 @@ function AthleteActions({ athlete, teamSlug }: {
   );
 }
 
-export function ManagementAthleteList({ athletes, teamSlug }: {
+export function ManagementAthleteList({ athletes, teamSlug, returnUrl }: {
   athletes: ManagementAthleteItem[];
   teamSlug: string;
+  returnUrl: string;
 }) {
   const [view, setView] = useRosterView();
   return (
@@ -210,7 +216,7 @@ export function ManagementAthleteList({ athletes, teamSlug }: {
                 <AthletePhoto athlete={athlete} />
                 <div className="space-y-4 p-4">
                   <AthleteSummary athlete={athlete} />
-                  <AthleteActions athlete={athlete} teamSlug={teamSlug} />
+                  <AthleteActions athlete={athlete} teamSlug={teamSlug} returnUrl={returnUrl} />
                 </div>
               </>
             ) : (
@@ -219,7 +225,7 @@ export function ManagementAthleteList({ athletes, teamSlug }: {
                   <AthletePhoto athlete={athlete} compact />
                   <AthleteSummary athlete={athlete} />
                 </div>
-                <AthleteActions athlete={athlete} teamSlug={teamSlug} />
+                <AthleteActions athlete={athlete} teamSlug={teamSlug} returnUrl={returnUrl} />
               </div>
             )}
           </article>

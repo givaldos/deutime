@@ -111,6 +111,8 @@ describe("elenco reconhecível", () => {
     expect(html).toContain("Cartões");
     expect(html).toContain("João Jota");
     expect(html).toContain("Foto de João Jota");
+    expect(html).toContain("Ver detalhes");
+    expect(html).toContain("returnTo=%2Fapp%2Fcampo-fc%2Fathletes%3Fq%3DJo%25C3%25A3o");
     expect(html).toContain("Próxima página");
     expect(html).not.toContain("photo_path");
   });
