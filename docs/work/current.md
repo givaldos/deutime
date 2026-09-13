@@ -2,8 +2,8 @@
 release: R16
 work_package: WP-R16-03
 scope: elenco_reconhecivel
-branch_or_commit: "codex/r16-athlete-roster-contract-impl"
-checkpoint: CP1
+branch_or_commit: "codex/r16-athlete-roster-ui"
+checkpoint: CP2
 status: idle
 completed_ac:
   - "AC-R16-01: seções autorizadas alcançáveis com menu persistente em 360–1280 px"
@@ -19,6 +19,7 @@ completed_ac:
   - "WP-R16-02 ativo nos 5 times de produção, com piloto, rollback/restauração e replay idempotente"
   - "CP0 do WP-R16-03 fecha identidade, foto privada, filtros, paginação, papéis, desempenho e fallback"
   - "ATH-01: flag inerte, read model paginado, índices e autorização privada de foto concluídos"
+  - "ATH-02: Lista/Cartões, filtros em URL, cursor, assinatura em lote e fallback concluídos"
 dirty_files: []
 tests:
   - "PASS: 26 testes focados de rollout, autorização, tenancy e recuperação"
@@ -42,8 +43,11 @@ tests:
   - "PASS: rollout global 5/5, replay com zero alterações e smoke pós-ativação 34725053598"
   - "PASS: 39 testes pgTAP de elenco com >220 vínculos, paginação, papéis, storage e cross-tenant"
   - "PASS: db reset, db lint sem novos avisos e read model abaixo do alvo local de 300 ms"
+  - "PASS: 19 testes focados de DAL/interface, incluindo filtros, cursor, uma RPC e assinatura deduplicada"
+  - "PASS: 142 arquivos/721 testes Vitest e 77 arquivos/2.027 testes pgTAP"
+  - "PASS: lint, typecheck, build Webpack, integridade de migrations e auditoria sem vulnerabilidades"
 blocker: null
-next_action: "Executar ATH-02: consumir o read model em Lista/Cartões com busca, posição, situação, cursor, assinatura em lote e fallback."
+next_action: "Executar ATH-03: criar o detalhe privado com autorização por papel, PII restrita e retorno seguro para a lista filtrada."
 ---
 
 # Trabalho atual
@@ -53,5 +57,7 @@ Jogos e Campeonatos estão ativas nos 5 times, com rollback disponível, sonda
 agregada saudável e smoke pós-ativação aprovado. O checkpoint está limpo e passa
 ao `WP-R16-03`. O CP1 entregou a expansão inerte: flag desligada, read model
 paginado, índices e autorização privada de foto com isolamento por time. A
-próxima ação é `ATH-02`, consumindo esse contrato na página de Atletas com
-Lista/Cartões, filtros, cursor, assinatura em lote e fallback atual.
+ATH-02 passou a consumir esse contrato na página de Atletas com Lista/Cartões,
+filtros em URL, cursor, assinatura deduplicada e fallback atual. O CP2 está
+aceito; a próxima ação é `ATH-03`, com detalhe privado, autorização por papel,
+PII restrita e retorno seguro para a lista filtrada.
