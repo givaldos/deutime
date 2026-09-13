@@ -1,6 +1,6 @@
 # WP-R16-03 — Elenco reconhecível
 
-> Estado: CP1 aceito em 12 de setembro de 2026; `ATH-02` é a próxima fatia.
+> Estado: CP2 aceito em 13 de setembro de 2026; `ATH-03` é a próxima fatia.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-07` a `09`.
 > Base inspecionada: `bdbbc5ac3d7dec9331f54196043eb78ea922f1a1`.
 
@@ -153,5 +153,24 @@ lista de atletas do mesmo slug.
   nomes empatados, busca com acento, papéis, PII, storage, caminho inválido,
   negações e cross-tenant; read model ficou abaixo do alvo local de 300 ms.
 
-Próxima ação: `ATH-02`, consumindo o read model na página de Atletas com
-Lista/Cartões, filtros em URL, assinatura deduplicada em lote e fallback atual.
+## CP2 aceito — ATH-02
+
+- [x] a página de Atletas consome o read model paginado e mantém o fluxo legado
+  quando a flag, RPC ou schema ainda não estão disponíveis;
+- [x] situação, busca, posição e cursor ficam na URL, com validação estrita e
+  visão padrão **Em atividade**;
+- [x] Lista e Cartões exibem exatamente o mesmo conjunto e total, preservando a
+  preferência de apresentação apenas no armazenamento local;
+- [x] fotos autorizadas são assinadas no servidor em um único lote deduplicado
+  por página, com validade de 15 minutos; caminhos internos não chegam ao
+  componente cliente e falhas de mídia exibem iniciais sem bloquear o elenco;
+- [x] contato, nascimento e observações não aparecem na varredura principal;
+  situação, posições, BID e ações compatíveis permanecem reconhecíveis;
+- [x] o aviso de pendências leva ao filtro correspondente, estados vazios e de
+  erro oferecem recuperação, e **Removidos** preserva sua visão histórica;
+- [x] 19 testes focados cobrem filtros, cursor, um RPC, assinatura deduplicada,
+  ausência de caminho/PII, fallback e estados; a regressão passou com 142
+  arquivos/721 testes Vitest e 77 arquivos/2.027 testes pgTAP.
+
+Próxima ação: `ATH-03`, criando o detalhe privado com projeção estreita,
+autorização por papel e retorno seguro para a lista filtrada.
