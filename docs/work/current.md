@@ -2,8 +2,8 @@
 release: R16
 work_package: WP-R16-03
 scope: elenco_reconhecivel
-branch_or_commit: "codex/r16-athlete-roster-contract"
-checkpoint: CP0
+branch_or_commit: "codex/r16-athlete-roster-contract-impl"
+checkpoint: CP1
 status: idle
 completed_ac:
   - "AC-R16-01: seções autorizadas alcançáveis com menu persistente em 360–1280 px"
@@ -18,6 +18,7 @@ completed_ac:
   - "LIST-05: mecanismo transacional, kill switch, sonda agregada e testes completos prontos para promoção"
   - "WP-R16-02 ativo nos 5 times de produção, com piloto, rollback/restauração e replay idempotente"
   - "CP0 do WP-R16-03 fecha identidade, foto privada, filtros, paginação, papéis, desempenho e fallback"
+  - "ATH-01: flag inerte, read model paginado, índices e autorização privada de foto concluídos"
 dirty_files: []
 tests:
   - "PASS: 26 testes focados de rollout, autorização, tenancy e recuperação"
@@ -39,8 +40,10 @@ tests:
   - "PASS: Deploy Supabase 34724811533, CI 34724811539, Database 34724811545, Terraform 34724811550 e CodeQL 34724811537"
   - "PASS: piloto produtivo ativo/desligado/restaurado preservou 17 jogos e 2 campeonatos"
   - "PASS: rollout global 5/5, replay com zero alterações e smoke pós-ativação 34725053598"
+  - "PASS: 39 testes pgTAP de elenco com >220 vínculos, paginação, papéis, storage e cross-tenant"
+  - "PASS: db reset, db lint sem novos avisos e read model abaixo do alvo local de 300 ms"
 blocker: null
-next_action: "Executar ATH-01: expansão inerte com flag, read model, índice e autorização privada da foto, coberta por pgTAP e plano de consulta."
+next_action: "Executar ATH-02: consumir o read model em Lista/Cartões com busca, posição, situação, cursor, assinatura em lote e fallback."
 ---
 
 # Trabalho atual
@@ -48,6 +51,7 @@ next_action: "Executar ATH-01: expansão inerte com flag, read model, índice e 
 `WP-R16-01` e `WP-R16-02` estão encerrados em produção. As listas completas de
 Jogos e Campeonatos estão ativas nos 5 times, com rollback disponível, sonda
 agregada saudável e smoke pós-ativação aprovado. O checkpoint está limpo e passa
-ao `WP-R16-03`. Seu CP0 definiu o contrato privado da foto, o read model paginado,
-papéis, estados, desempenho, fallback e cinco fatias. A próxima ação é `ATH-01`,
-expansão inerte com testes de autorização e isolamento de mídia.
+ao `WP-R16-03`. O CP1 entregou a expansão inerte: flag desligada, read model
+paginado, índices e autorização privada de foto com isolamento por time. A
+próxima ação é `ATH-02`, consumindo esse contrato na página de Atletas com
+Lista/Cartões, filtros, cursor, assinatura em lote e fallback atual.
