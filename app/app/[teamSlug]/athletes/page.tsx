@@ -123,7 +123,7 @@ function EnhancedAthletePage({
 
         <div className="mb-3 flex items-end justify-between gap-3"><div><p className="app-kicker">{enhancedStatusLabels[filters.status]}</p><h2 className="mt-1 text-xl font-black tracking-tight">Elenco encontrado</h2></div><p aria-live="polite" aria-atomic="true" className="text-sm font-bold text-slate-600">{page.filteredCount} {page.filteredCount === 1 ? "atleta" : "atletas"}</p></div>
 
-        {page.items.length ? <ManagementAthleteList athletes={page.items} teamSlug={team.slug} /> : (
+        {page.items.length ? <ManagementAthleteList athletes={page.items} teamSlug={team.slug} returnUrl={buildManagementAthleteListUrl(team.slug, baseFilters, filters.cursor)} /> : (
           <div className="app-surface border-dashed p-8 text-center"><UserRound className="mx-auto size-8 text-slate-400" aria-hidden /><p className="mt-3 font-semibold">{hasFilters ? "Nenhum atleta com estes filtros" : `Nenhum atleta em ${enhancedStatusLabels[filters.status].toLowerCase()}`}</p><p className="mt-1 text-sm text-slate-500">{hasFilters ? "Ajuste a busca ou limpe os filtros para tentar novamente." : "Os atletas aparecerão aqui quando estiverem disponíveis."}</p>{hasFilters ? <Button asChild variant="outline" className="mt-5"><Link href={clearUrl}>Limpar filtros</Link></Button> : filters.status === "active" ? <Button asChild className="mt-5"><Link href={`/app/${team.slug}/athletes/new`}>Cadastrar primeiro atleta</Link></Button> : null}</div>
         )}
 
