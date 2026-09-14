@@ -2,8 +2,8 @@
 release: R16
 work_package: WP-R16-03
 scope: elenco_reconhecivel
-branch_or_commit: "codex/r16-athlete-detail"
-checkpoint: CP3
+branch_or_commit: "codex/r16-athlete-experience"
+checkpoint: CP4
 status: idle
 completed_ac:
   - "AC-R16-01: seções autorizadas alcançáveis com menu persistente em 360–1280 px"
@@ -21,6 +21,7 @@ completed_ac:
   - "ATH-01: flag inerte, read model paginado, índices e autorização privada de foto concluídos"
   - "ATH-02: Lista/Cartões, filtros em URL, cursor, assinatura em lote e fallback concluídos"
   - "ATH-03: detalhe privado, autorização por papel, PII restrita, participações factuais e retorno seguro concluídos"
+  - "ATH-04: loading, estados, teclado, reflow, matriz responsiva e desempenho integrado concluídos"
 dirty_files: []
 tests:
   - "PASS: 26 testes focados de rollout, autorização, tenancy e recuperação"
@@ -32,6 +33,8 @@ tests:
   - "PASS: db reset, db lint sem novos avisos, tipos gerados sem deriva e migration forward-only"
   - "PASS: matriz responsiva 360, 390, 639, 640, 767, 768, 1023, 1024 e 1280 px"
   - "PASS: piloto produtivo, rollback/restauração, expansão global idempotente e smoke read-only"
+  - "PASS: 48 testes focados de interface/DAL e 64 pgTAP de lista/detalhe abaixo de 300 ms"
+  - "PASS: 146 arquivos/748 testes Vitest e 78 arquivos/2.052 testes pgTAP"
   - "PASS: 46 testes pgTAP focados com 230 encerrados, 31 futuros, validação e cross-tenant"
   - "PASS: planos indexados por team_id em 0,079 ms (Jogos) e 0,048 ms (Campeonatos)"
   - "PASS: 16 testes focados de DAL/interface e 49 pgTAP de Jogos"
@@ -51,7 +54,7 @@ tests:
   - "PASS: 142 arquivos/721 testes Vitest e 77 arquivos/2.027 testes pgTAP"
   - "PASS: lint, typecheck, build Webpack, integridade de migrations e auditoria sem vulnerabilidades"
 blocker: null
-next_action: "Executar ATH-04: validar estados integrados, teclado, reflow, matriz responsiva e desempenho da lista e do detalhe."
+next_action: "Executar ATH-05: piloto produtivo, sonda sem PII, rollback/restauração, rollout global idempotente e CP6."
 ---
 
 # Trabalho atual
@@ -65,5 +68,7 @@ ATH-02 passou a consumir esse contrato na página de Atletas com Lista/Cartões,
 filtros em URL, cursor, assinatura deduplicada e fallback atual. O CP2 está
 aceito. A ATH-03 adicionou detalhe privado por papel, PII restrita,
 participações factuais e retorno seguro para a lista filtrada. O CP3 está
-aceito; a próxima ação é `ATH-04`, com robustez visual, acessibilidade e
-desempenho integrados.
+aceito. A ATH-04 adicionou carregamentos acessíveis, corrigiu foco e reflow,
+validou a matriz 360–1280 e comprovou lista/detalhe abaixo de 300 ms. O CP4 está
+aceito; a próxima ação é `ATH-05`, com piloto, rollback/restauração, rollout
+global e encerramento CP6.

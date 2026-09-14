@@ -109,12 +109,19 @@ describe("elenco reconhecível", () => {
     expect(html).toContain("3 vínculos aguardam aprovação");
     expect(html).toContain("Lista");
     expect(html).toContain("Cartões");
+    expect(html).toContain('aria-controls="management-athlete-results"');
+    expect(html).toContain('aria-label="Atletas encontrados"');
     expect(html).toContain("João Jota");
     expect(html).toContain("Foto de João Jota");
     expect(html).toContain("Ver detalhes");
     expect(html).toContain("returnTo=%2Fapp%2Fcampo-fc%2Fathletes%3Fq%3DJo%25C3%25A3o");
     expect(html).toContain("Próxima página");
     expect(html).not.toContain("photo_path");
+    expect(html).not.toContain("truncate");
+    expect(html).toContain("focus-visible:outline-emerald-700");
+    expect(html).toContain("min-\[360px\]:grid-cols-2");
+    expect(html).toContain("max-\[359px\]:flex-col");
+    expect(html).toContain("min-h-11 w-full rounded-xl text-red-700");
   });
 
   it("mantém a página anterior quando a capacidade está desligada", async () => {

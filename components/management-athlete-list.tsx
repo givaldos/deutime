@@ -84,6 +84,8 @@ function AthletePhoto({ athlete, compact = false }: {
           fill
           sizes={compact ? "56px" : "(min-width: 1280px) 30vw, (min-width: 640px) 50vw, 100vw"}
           unoptimized
+          loading="lazy"
+          decoding="async"
           className="size-full object-cover"
         />
       ) : (
@@ -99,15 +101,15 @@ function AthleteSummary({ athlete }: { athlete: ManagementAthleteItem }) {
   return (
     <div className="min-w-0 flex-1">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="truncate font-black text-graphite">{athlete.display_name}</h3>
-        <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${athlete.status === "active" ? "bg-emerald-50 text-emerald-800" : athlete.status === "pending" ? "bg-amber-100 text-amber-900" : "bg-slate-100 text-slate-600"}`}>
+        <h3 className="min-w-0 break-words font-black text-graphite">{athlete.display_name}</h3>
+        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${athlete.status === "active" ? "bg-emerald-50 text-emerald-800" : athlete.status === "pending" ? "bg-amber-100 text-amber-900" : "bg-slate-100 text-slate-600"}`}>
           {statusLabels[athlete.status]}
         </span>
       </div>
       {athlete.full_name !== athlete.display_name ? (
-        <p className="mt-1 truncate text-xs text-slate-500">{athlete.full_name}</p>
+        <p className="mt-1 break-words text-xs text-slate-500">{athlete.full_name}</p>
       ) : null}
-      <p className="mt-2 text-xs font-semibold text-slate-500">
+      <p className="mt-2 break-words text-xs font-semibold text-slate-500">
         BID #{athlete.registration_number}
         {athlete.shirt_number ? ` · camisa ${athlete.shirt_number}` : ""}
         {athlete.claimed ? " · perfil confirmado" : ""}
@@ -133,8 +135,8 @@ function AthleteActions({ athlete, teamSlug, returnUrl }: {
   const detailHref = `/app/${teamSlug}/athletes/${athlete.id}?${new URLSearchParams({ returnTo: returnUrl }).toString()}`;
   if (athlete.allowed_actions.can_review) {
     return (
-      <div className="grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
-        <Button asChild size="sm" variant="outline" className="col-span-2 min-h-11 rounded-xl"><Link href={detailHref}><Eye aria-hidden />Ver detalhes</Link></Button>
+      <div className="grid grid-cols-1 gap-2 border-t border-slate-100 pt-4 min-[360px]:grid-cols-2">
+        <Button asChild size="sm" variant="outline" className="min-h-11 rounded-xl min-[360px]:col-span-2"><Link href={detailHref}><Eye aria-hidden />Ver detalhes</Link></Button>
         <form action={reviewAthlete}>
           <input type="hidden" name="athleteId" value={athlete.id} />
           <input type="hidden" name="teamSlug" value={teamSlug} />
@@ -163,7 +165,7 @@ function AthleteActions({ athlete, teamSlug, returnUrl }: {
   return (
     <div className="space-y-2 border-t border-slate-100 pt-4">
       <Button asChild size="sm" variant="outline" className="min-h-11 w-full rounded-xl"><Link href={detailHref}><Eye aria-hidden />Ver detalhes</Link></Button>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 min-[360px]:grid-cols-2">
         {athlete.allowed_actions.can_edit ? (
           <Button asChild size="sm" variant="outline" className="min-h-11 rounded-xl">
             <Link href={`/app/${teamSlug}/athletes/${athlete.id}/edit`}>
@@ -199,18 +201,18 @@ export function ManagementAthleteList({ athletes, teamSlug, returnUrl }: {
     <>
       <div className="mb-4 flex justify-end">
         <div role="group" aria-label="Apresentação do elenco" className="inline-flex rounded-xl border border-slate-200 bg-white p-1">
-          <button type="button" aria-pressed={view === "list"} onClick={() => setView("list")} className={`flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-black transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 ${view === "list" ? "bg-grass text-white" : "text-slate-600 hover:text-emerald-800"}`}>
+          <button type="button" aria-controls="management-athlete-results" aria-pressed={view === "list"} onClick={() => setView("list")} className={`flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-black transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 ${view === "list" ? "bg-grass text-white" : "text-slate-600 hover:text-emerald-800"}`}>
             <List className="size-4" aria-hidden /> Lista
           </button>
-          <button type="button" aria-pressed={view === "cards"} onClick={() => setView("cards")} className={`flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-black transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 ${view === "cards" ? "bg-grass text-white" : "text-slate-600 hover:text-emerald-800"}`}>
+          <button type="button" aria-controls="management-athlete-results" aria-pressed={view === "cards"} onClick={() => setView("cards")} className={`flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-black transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 ${view === "cards" ? "bg-grass text-white" : "text-slate-600 hover:text-emerald-800"}`}>
             <LayoutGrid className="size-4" aria-hidden /> Cartões
           </button>
         </div>
       </div>
 
-      <div data-roster-view={view} className={view === "cards" ? "grid gap-4 sm:grid-cols-2 xl:grid-cols-3" : "space-y-3"}>
+      <ul id="management-athlete-results" aria-label="Atletas encontrados" data-roster-view={view} className={view === "cards" ? "grid list-none gap-4 sm:grid-cols-2 xl:grid-cols-3" : "list-none space-y-3"}>
         {athletes.map((athlete) => (
-          <article key={athlete.id} className="app-surface overflow-hidden">
+          <li key={athlete.id} className="app-surface overflow-hidden">
             {view === "cards" ? (
               <>
                 <AthletePhoto athlete={athlete} />
@@ -228,9 +230,9 @@ export function ManagementAthleteList({ athletes, teamSlug, returnUrl }: {
                 <AthleteActions athlete={athlete} teamSlug={teamSlug} returnUrl={returnUrl} />
               </div>
             )}
-          </article>
+          </li>
         ))}
-      </div>
+      </ul>
     </>
   );
 }

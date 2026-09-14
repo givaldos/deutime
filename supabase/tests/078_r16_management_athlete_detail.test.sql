@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
-select plan(24);
+select plan(25);
 
 insert into auth.users (
   instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,
@@ -104,6 +104,9 @@ select is(jsonb_array_length(payload->'recent_participations'),1,'participaçõe
 select is((payload->'recent_participations'->0->>'in_lineup')::boolean,true,'participação informa convocação factual') from claimed_detail;
 select is((payload->>'sports_statistics_available')::boolean,false,'estatística indisponível não é improvisada') from claimed_detail;
 select is((payload->'allowed_actions'->>'can_edit')::boolean,true,'owner preserva ação de edição') from claimed_detail;
+select performs_ok($$select public.get_management_athlete_detail(
+  'fb161000-0000-4000-8000-000000000001','fb162000-0000-4000-8000-000000000001'
+)$$,300,'detalhe privado responde abaixo do alvo local de 300 ms');
 
 create temporary table provisional_detail as select public.get_management_athlete_detail(
   'fb161000-0000-4000-8000-000000000001','fb162000-0000-4000-8000-000000000002'
