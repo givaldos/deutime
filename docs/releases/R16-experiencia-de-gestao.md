@@ -234,12 +234,12 @@ ações autorizadas. Estatísticas novas dependem do pacote 07. **Meu perfil**
 continua sendo o lugar onde o atleta altera foto e identidade reivindicada;
 diretoria não publica nem troca a foto de outra pessoa por conveniência.
 
-- [ ] `AC-R16-07` — Lista e cartões mostram o mesmo conjunto filtrado. Foto
+- [x] `AC-R16-07` — Lista e cartões mostram o mesmo conjunto filtrado. Foto
   ausente, removida, expirada ou sem autorização usa iniciais; não impede navegar.
-- [ ] `AC-R16-08` — Foto vem de projeção privada autorizada do perfil existente;
+- [x] `AC-R16-08` — Foto vem de projeção privada autorizada do perfil existente;
   cadastro sem perfil reivindicado também funciona. Testes cobrem anônimo, atleta
   sem permissão para terceiros, staff autorizado e cross-tenant, inclusive mídia.
-- [ ] `AC-R16-09` — Encontrar atleta e abrir seu detalhe preserva a lista;
+- [x] `AC-R16-09` — Encontrar atleta e abrir seu detalhe preserva a lista;
   interface separa elenco de Diretoria e acessos. Nenhuma foto, telefone ou e-mail
   privado aparece em Open Graph, resposta anônima, cache público ou telemetria.
 
@@ -497,7 +497,8 @@ das jornadas, piloto e rollout continuam pendentes.
   o CI deve comprovar o build padrão antes de qualquer merge.
 - O PR R15 `#403` consta mesclado em dev e seu commit está em origin/main. O
   checkpoint obsoleto foi substituído por `idle`, preservando no pacote R15 os
-  critérios operacionais ainda não comprovados. Nenhum aceite R16 foi marcado feito.
+  critérios operacionais ainda não comprovados àquela época. Esta preparação é
+  histórica; os aceites 01–09 foram comprovados depois nos pacotes R16-01 a 03.
 - IDs de PR, resultados de checks da integração, promoção e smoke serão
   evidenciados nos próprios PRs; não inferir produção validada deste registro local.
 
