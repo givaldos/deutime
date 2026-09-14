@@ -67,9 +67,9 @@ insert into storage.objects(bucket_id,name) values
 
 select ok('recognizable_roster' = any(enum_range(null::public.feature_key)::text[]),
   'flag tipada do elenco reconhecível existe');
-select ok(not ('recognizable_roster' = any(array(
+select ok('recognizable_roster' = any(array(
   select feature::text from private.product_feature_keys() feature
-))), 'flag permanece fora do catálogo global');
+)), 'flag integra o catálogo global após o contrato de rollout');
 select is((select count(*) from public.team_feature_flags
   where feature = 'recognizable_roster'),0::bigint,
   'expansão não materializa a flag em nenhum time');
