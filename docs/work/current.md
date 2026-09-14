@@ -2,9 +2,9 @@
 release: R16
 work_package: WP-R16-03
 scope: elenco_reconhecivel
-branch_or_commit: "codex/r16-athlete-rollout"
-checkpoint: CP4
-status: active
+branch_or_commit: "codex/r16-athlete-rollout-evidence"
+checkpoint: CP6
+status: idle
 completed_ac:
   - "AC-R16-01: seções autorizadas alcançáveis com menu persistente em 360–1280 px"
   - "AC-R16-02: troca de time, retorno, recarga, rotas diretas e isolamento preservados"
@@ -22,6 +22,8 @@ completed_ac:
   - "ATH-02: Lista/Cartões, filtros em URL, cursor, assinatura em lote e fallback concluídos"
   - "ATH-03: detalhe privado, autorização por papel, PII restrita, participações factuais e retorno seguro concluídos"
   - "ATH-04: loading, estados, teclado, reflow, matriz responsiva e desempenho integrado concluídos"
+  - "ATH-05: rollout específico, sonda agregada sem PII, piloto, recuperação e expansão global concluídos"
+  - "WP-R16-03 ativo nos 5 times de produção, com replay idempotente e smoke pós-ativação"
 dirty_files: []
 tests:
   - "PASS: 26 testes focados de rollout, autorização, tenancy e recuperação"
@@ -56,8 +58,10 @@ tests:
   - "PASS: 5 testes da sonda e 210 pgTAP focados no catálogo, rollout, autorização, preservação e herança"
   - "PASS: 147 arquivos/753 testes Vitest e 79 arquivos/2.083 testes pgTAP"
   - "PASS: lint, typecheck, build de produção, db lint sem novos avisos, tipos gerados, migration forward-only e auditoria sem vulnerabilidades"
+  - "PASS: produção b2dca245 com Deploy Supabase 34850262396, Database 34850262256, CI 34850262290, CodeQL 34850262348, Terraform 34850262258 e smoke 34850330276"
+  - "PASS: piloto ativo/desligado/restaurado preservou as cinco contagens agregadas; rollout 5/5, replay zero e smoke pós-ativação 34850848169"
 blocker: null
-next_action: "Promover a expansão inerte da ATH-05; após smoke, executar piloto, rollback/restauração e rollout global."
+next_action: "Iniciar o CP0 do WP-R16-04 para simplificar a experiência de acompanhamento de campeonatos."
 ---
 
 # Trabalho atual
@@ -73,7 +77,8 @@ aceito. A ATH-03 adicionou detalhe privado por papel, PII restrita,
 participações factuais e retorno seguro para a lista filtrada. O CP3 está
 aceito. A ATH-04 adicionou carregamentos acessíveis, corrigiu foco e reflow,
 validou a matriz 360–1280 e comprovou lista/detalhe abaixo de 300 ms. O CP4 está
-aceito. A ATH-05 possui contrato, migration inerte, rollout transacional, sonda
-sem PII e recuperação automatizada em validação. A próxima ação é promover a
-expansão sem ativar flags e, após o smoke, executar piloto, rollback/restauração
-e rollout global antes do CP6.
+aceito. A ATH-05 chegou a produção de forma inerte, passou pelos gates, executou
+piloto com rollback/restauração preservando as contagens do elenco e concluiu o
+rollout global em 5/5 times com replay sem alterações. O smoke pós-ativação
+passou; o CP6 e o `WP-R16-03` estão encerrados. A próxima ação é iniciar o CP0 do
+`WP-R16-04`, voltado ao acompanhamento claro de campeonatos.

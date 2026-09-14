@@ -1,6 +1,6 @@
 # WP-R16-03 — Elenco reconhecível
 
-> Estado: CP3 aceito em 13 de setembro de 2026; `ATH-04` é a próxima fatia.
+> Estado: CP6 aceito em 14 de setembro de 2026; pacote encerrado em produção.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-07` a `09`.
 > Base inspecionada: `bdbbc5ac3d7dec9331f54196043eb78ea922f1a1`.
 
@@ -97,9 +97,10 @@ lista de atletas do mesmo slug.
   falham fechados sem revelar item, total, foto ou diferença de tempo útil;
 - telefone, e-mail, nascimento e observações ficam no detalhe e somente para os
   papéis já autorizados pela RLS/RPC; nunca são critério de busca deste pacote;
-- a feature tipada `recognizable_roster` nasce desligada e fora do catálogo
-  global. Flag ou schema indisponível mantém a página atual; falha isolada de
-  mídia mantém a lista nova com iniciais;
+- a feature tipada `recognizable_roster` nasceu desligada e fora do catálogo
+  global, entrou nele somente no rollout final e continua com kill switch
+  específico. Flag ou schema indisponível mantém a página atual; falha isolada
+  de mídia mantém a lista nova com iniciais;
 - rollback desliga apenas a flag e preserva fotos, vínculos e fatos esportivos.
 
 ## Desempenho, interface e acessibilidade
@@ -282,3 +283,25 @@ rollback/restauração, rollout global idempotente e encerramento CP6.
 - qualquer divergência de contagem, ausência de marco, time fechado, falha de
   smoke ou exposição de campo pessoal interrompe a expansão. Rollback desliga a
   flag sem apagar atletas, fotos, PII privada ou fatos esportivos.
+
+## CP5 e CP6 aceitos — ATH-05
+
+- [x] a expansão inerte chegou a produção no commit
+  `b2dca2456564da571dc958f69c66e4ac5257d862`; Deploy Supabase
+  `34850262396`, Database `34850262256`, CI `34850262290`, CodeQL
+  `34850262348`, Terraform `34850262258` e smoke inerte `34850330276`
+  passaram antes da primeira ativação;
+- [x] o piloto começou desligado, ativou uma flag, confirmou marco operacional
+  e contagens agregadas, desligou uma flag e restaurou uma flag. As cinco
+  contagens do elenco permaneceram idênticas nas quatro leituras, sem emitir ID
+  de time ou dado pessoal;
+- [x] o rollout global observou 5 times, alterou os 4 ainda desligados e terminou
+  com 5/5 times ativos. O replay observou os mesmos 5 e alterou zero flags;
+- [x] rollback e restauração específicos permaneceram disponíveis e preservaram
+  vínculos, fotos, dados privados e fatos esportivos; a auditoria usa origem e
+  escopo operacionais sem atribuir ator humano;
+- [x] o smoke público somente leitura pós-ativação `34850848169` passou e a
+  reconciliação `main → dev` foi concluída no PR `#475` sem reescrever histórico.
+
+Próxima ação: iniciar o `WP-R16-04`, definindo o CP0 da experiência clara para
+acompanhar campeonatos.

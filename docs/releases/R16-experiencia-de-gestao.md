@@ -26,9 +26,9 @@ invariants:
 
 # R16 — Experiência de gestão simples
 
-> Planejada em 8 de setembro de 2026. Em execução incremental: o `WP-R16-01`
-> está validado e ativo em produção; os demais pacotes continuam pendentes e a
-> release completa ainda não está pronta para lançamento.
+> Planejada em 8 de setembro de 2026. Em execução incremental: `WP-R16-01` a
+> `WP-R16-03` estão validados e ativos em produção; os demais pacotes continuam
+> pendentes e a release completa ainda não está pronta para lançamento.
 
 ## Resultado demonstrável
 
@@ -39,10 +39,10 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Próximo: elenco reconhecível**, pelo guia
-[Elenco reconhecível](work-packages/WP-R16-03-elenco.md). Os pacotes anteriores,
+**Próximo: acompanhamento claro de campeonatos**, iniciando o CP0 do
+`WP-R16-04`. Os pacotes [Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
 [Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md) e
-[Navegação e início sem dificuldade](work-packages/WP-R16-01-navegacao.md),
+[Navegação e início sem dificuldade](work-packages/WP-R16-01-navegacao.md)
 foram promovidos pelo fluxo `dev → main` e estão ativos para todos os times com
 fallback operacional comprovado. Ler somente o próximo recorte e os
 invariantes/aceites aplicáveis; não executar os pacotes restantes de uma vez.
@@ -471,11 +471,11 @@ projeção, migration e teste descobertos. Não iniciar escrita sensível sem es
 
 ## Evidências e checkpoint
 
-`WP-R16-01` e `WP-R16-02` estão encerrados no CP6. As listas completas de Jogos
-e Campeonatos filtram e paginam no banco, preservam contexto e fallback e estão
-ativas nos 5 times de produção. O piloto da segunda entrega comprovou ativação,
-rollback e restauração; o rollout global foi idempotente e o smoke final passou.
-Os pacotes `WP-R16-03` a `09` permanecem pendentes.
+`WP-R16-01` a `WP-R16-03` estão encerrados no CP6. Navegação, listas completas e
+elenco reconhecível estão ativos nos 5 times de produção. O terceiro pacote
+comprovou piloto, rollback/restauração sem alterar contagens do elenco, rollout
+global idempotente e smoke pós-ativação. Os pacotes `WP-R16-04` a `09`
+permanecem pendentes.
 O planejamento não encerra a R15; suas evidências permanecem no pacote próprio.
 O checkpoint obsoleto de pré-merge foi reconciliado na promoção documental abaixo. Na execução,
 registrar por pacote critério, comando/ensaio, resultado, commit, ambiente e
