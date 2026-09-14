@@ -32,7 +32,7 @@ export function AthleteRemoveButton({
         pendingLabel="Removendo..."
         size="sm"
         variant="ghost"
-        className="h-10 w-full rounded-xl text-red-700 hover:bg-red-50 hover:text-red-800"
+        className="min-h-11 w-full rounded-xl text-red-700 hover:bg-red-50 hover:text-red-800"
       >
         <Trash2 aria-hidden /> Remover
       </AsyncSubmitButton>
