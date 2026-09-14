@@ -4,8 +4,9 @@ function SkeletonLine({ className }: { className: string }) {
   return <span className={`block animate-pulse rounded-full bg-slate-200 ${className}`} />;
 }
 
-export function ManagementListLoading({ resource }: { resource: "jogos" | "campeonatos" }) {
-  const title = resource === "jogos" ? "Jogos" : "Campeonatos";
+export function ManagementListLoading({ resource }: { resource: "jogos" | "campeonatos" | "atletas" }) {
+  const title = resource === "jogos" ? "Jogos" : resource === "campeonatos" ? "Campeonatos" : "Atletas";
+  const athleteCards = resource === "atletas";
 
   return (
     <main className="app-canvas pb-24">
@@ -37,13 +38,16 @@ export function ManagementListLoading({ resource }: { resource: "jogos" | "campe
               <h1 className="sr-only">{title}</h1>
               <div className="space-y-3">
                 <SkeletonLine className="h-6 w-52" />
-                <div className="grid gap-3 lg:grid-cols-2">
+                <div className={athleteCards ? "grid gap-4 sm:grid-cols-2 xl:grid-cols-3" : "grid gap-3 lg:grid-cols-2"}>
                   {Array.from({ length: 4 }, (_, index) => (
-                    <div key={index} className="app-surface space-y-4 p-4 sm:p-5">
-                      <SkeletonLine className="h-4 w-28" />
-                      <SkeletonLine className="h-6 w-3/4" />
-                      <SkeletonLine className="h-4 w-full" />
-                      <SkeletonLine className="h-2 w-full" />
+                    <div key={index} className="app-surface overflow-hidden">
+                      {athleteCards ? <SkeletonLine className="aspect-[4/3] w-full rounded-none" /> : null}
+                      <div className="space-y-4 p-4 sm:p-5">
+                        <SkeletonLine className="h-4 w-28" />
+                        <SkeletonLine className="h-6 w-3/4" />
+                        <SkeletonLine className="h-4 w-full" />
+                        <SkeletonLine className={athleteCards ? "h-11 w-full rounded-xl" : "h-2 w-full"} />
+                      </div>
                     </div>
                   ))}
                 </div>

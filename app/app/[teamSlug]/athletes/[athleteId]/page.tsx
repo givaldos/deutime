@@ -187,13 +187,13 @@ export default async function ManagementAthleteDetailPage({
       <AppContainer><div className="mx-auto max-w-3xl py-6 sm:py-10">
         <Link href={returnTo} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-600 hover:text-emerald-800"><ArrowLeft className="size-4" aria-hidden />Voltar aos atletas</Link>
 
-        <header className="mt-4 flex items-center gap-4 sm:gap-5">
+        <header className="mt-4 flex flex-col items-start gap-4 min-[360px]:flex-row min-[360px]:items-center sm:gap-5">
           <div className="relative grid size-20 shrink-0 place-items-center overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-100 to-slate-200 sm:size-24">
-            {detail.photo_url ? <Image src={detail.photo_url} alt={`Foto de ${detail.display_name}`} fill sizes="96px" unoptimized className="object-cover" /> : <span aria-hidden className="text-2xl font-black text-emerald-900/35">{initials(detail.display_name) || <UserRound className="size-8" />}</span>}
+            {detail.photo_url ? <Image src={detail.photo_url} alt={`Foto de ${detail.display_name}`} fill sizes="96px" unoptimized decoding="async" className="object-cover" /> : <span aria-hidden className="text-2xl font-black text-emerald-900/35">{initials(detail.display_name) || <UserRound className="size-8" />}</span>}
           </div>
           <div className="min-w-0">
             <p className="app-kicker">BID #{detail.registration_number}</p>
-            <h1 className="app-title mt-1 truncate">{detail.display_name}</h1>
+            <h1 className="app-title mt-1 break-words">{detail.display_name}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-sm font-bold text-slate-600"><span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-800">{statusLabels[detail.status]}</span>{detail.claimed ? <span className="inline-flex items-center gap-1 text-sky-800"><BadgeCheck className="size-4" aria-hidden />Perfil confirmado</span> : <span>Cadastro do time</span>}</div>
           </div>
         </header>
@@ -217,13 +217,13 @@ export default async function ManagementAthleteDetailPage({
               {detail.contact.phone_e164 ? <div><dt className="font-bold text-slate-500">Telefone</dt><dd className="mt-1"><a href={`tel:${detail.contact.phone_e164}`} className="inline-flex min-h-11 items-center gap-2 font-semibold text-emerald-800"><Phone className="size-4" aria-hidden />{detail.contact.phone_e164}</a></dd></div> : null}
               {detail.contact.email ? <div><dt className="font-bold text-slate-500">E-mail</dt><dd className="mt-1"><a href={`mailto:${detail.contact.email}`} className="inline-flex min-h-11 items-center gap-2 break-all font-semibold text-emerald-800"><Mail className="size-4" aria-hidden />{detail.contact.email}</a></dd></div> : null}
               {detail.contact.birth_date ? <div><dt className="font-bold text-slate-500">Nascimento</dt><dd className="mt-1 font-semibold text-graphite">{formatDate(detail.contact.birth_date, team.timezone)}</dd></div> : null}
-              {detail.contact.notes ? <div className="sm:col-span-2"><dt className="font-bold text-slate-500">Observações</dt><dd className="mt-1 whitespace-pre-wrap font-semibold text-graphite">{detail.contact.notes}</dd></div> : null}
+              {detail.contact.notes ? <div className="min-w-0 sm:col-span-2"><dt className="font-bold text-slate-500">Observações</dt><dd className="mt-1 whitespace-pre-wrap break-words font-semibold text-graphite">{detail.contact.notes}</dd></div> : null}
             </dl> : <p className="mt-4 text-sm font-semibold text-slate-600">Nenhum contato privado informado.</p>}
           </section>
 
           <section className="app-surface p-5 sm:p-6" aria-labelledby="participation-heading">
             <div className="flex items-center gap-2"><CalendarDays className="size-5 text-emerald-700" aria-hidden /><h2 id="participation-heading" className="text-lg font-black">Participações recentes</h2></div>
-            {detail.recent_participations.length ? <ul className="mt-4 divide-y divide-slate-100">{detail.recent_participations.map((participation) => <li key={participation.event_id} className="py-3 first:pt-0 last:pb-0"><Link href={`/app/${team.slug}/events/${participation.event_id}`} className="flex min-h-11 items-center justify-between gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"><span><span className="block font-black text-graphite">{participation.title}</span><span className="mt-1 block text-xs font-semibold text-slate-500">{eventKindLabels[participation.kind]} · {formatDate(participation.starts_at, team.timezone, true)}</span></span><span className="text-right text-xs font-bold text-emerald-800">{attendanceLabels[participation.attendance_status]}{participation.in_lineup ? <span className="mt-1 block text-slate-500">Na escalação</span> : null}</span></Link></li>)}</ul> : <p className="mt-4 text-sm font-semibold text-slate-600">Nenhuma participação registrada.</p>}
+            {detail.recent_participations.length ? <ul className="mt-4 divide-y divide-slate-100">{detail.recent_participations.map((participation) => <li key={participation.event_id} className="py-3 first:pt-0 last:pb-0"><Link href={`/app/${team.slug}/events/${participation.event_id}`} className="flex min-h-11 flex-col items-start justify-between gap-2 rounded-xl py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 sm:flex-row sm:items-center sm:gap-3"><span className="min-w-0"><span className="block break-words font-black text-graphite">{participation.title}</span><span className="mt-1 block text-xs font-semibold text-slate-500">{eventKindLabels[participation.kind]} · {formatDate(participation.starts_at, team.timezone, true)}</span></span><span className="text-left text-xs font-bold text-emerald-800 sm:shrink-0 sm:text-right">{attendanceLabels[participation.attendance_status]}{participation.in_lineup ? <span className="mt-1 block text-slate-500">Na escalação</span> : null}</span></Link></li>)}</ul> : <p className="mt-4 text-sm font-semibold text-slate-600">Nenhuma participação registrada.</p>}
           </section>
 
           <section className="app-surface p-5 sm:p-6" aria-labelledby="statistics-heading">

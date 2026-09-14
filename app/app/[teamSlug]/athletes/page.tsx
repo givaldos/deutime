@@ -94,7 +94,7 @@ function EnhancedAthletePage({
     <main className="app-canvas pb-24">
       <AppContainer>
         <AthleteFeedback query={query} />
-        <PageHeader eyebrow="BID do time" title="Atletas" description="Encontre e reconheça o elenco sem expor dados pessoais." action={newAthleteAction} />
+        <PageHeader eyebrow="BID do time" title="Atletas" description="Encontre e reconheça o elenco sem expor dados pessoais." action={newAthleteAction} className="max-[359px]:flex-col max-[359px]:items-start" />
 
         {page.pendingCount > 0 && filters.status !== "pending" ? (
           <Link href={buildManagementAthleteListUrl(team.slug, { status: "pending", search: null, positionCode: null })} className="-mt-3 mb-5 flex min-h-12 items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 px-4 text-sm font-black text-amber-950">
@@ -103,10 +103,10 @@ function EnhancedAthletePage({
           </Link>
         ) : null}
 
-        <nav aria-label="Situação dos atletas" className="mb-4 flex gap-2 overflow-x-auto pb-1">
+        <nav aria-label="Situação dos atletas" className="mb-4 flex flex-wrap gap-2 pb-1">
           {(Object.keys(enhancedStatusLabels) as ManagementAthleteStatus[]).map((status) => {
             const active = filters.status === status;
-            return <Link key={status} href={buildManagementAthleteListUrl(team.slug, { ...baseFilters, status })} aria-current={active ? "page" : undefined} className={`flex min-h-11 shrink-0 items-center justify-center rounded-xl px-3 text-sm font-black transition ${active ? "bg-grass text-white shadow-sm" : "border border-slate-200 bg-white text-slate-600 hover:border-emerald-300 hover:text-emerald-800"}`}>{enhancedStatusLabels[status]}</Link>;
+            return <Link key={status} href={buildManagementAthleteListUrl(team.slug, { ...baseFilters, status })} aria-current={active ? "page" : undefined} className={`flex min-h-11 shrink-0 items-center justify-center rounded-xl px-3 text-sm font-black transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 ${active ? "bg-grass text-white shadow-sm" : "border border-slate-200 bg-white text-slate-600 hover:border-emerald-300 hover:text-emerald-800"}`}>{enhancedStatusLabels[status]}</Link>;
           })}
           <Link href={`/app/${team.slug}/athletes?view=removed`} className="flex min-h-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-slate-600 hover:border-emerald-300 hover:text-emerald-800">Removidos</Link>
         </nav>
@@ -121,7 +121,7 @@ function EnhancedAthletePage({
           <div className="mt-4 flex flex-col gap-2 sm:flex-row"><Button type="submit"><Search aria-hidden />Aplicar filtros</Button>{hasFilters ? <Button asChild variant="outline"><Link href={clearUrl}>Limpar filtros</Link></Button> : null}</div>
         </form>
 
-        <div className="mb-3 flex items-end justify-between gap-3"><div><p className="app-kicker">{enhancedStatusLabels[filters.status]}</p><h2 className="mt-1 text-xl font-black tracking-tight">Elenco encontrado</h2></div><p aria-live="polite" aria-atomic="true" className="text-sm font-bold text-slate-600">{page.filteredCount} {page.filteredCount === 1 ? "atleta" : "atletas"}</p></div>
+        <div className="mb-3 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-end"><div><p className="app-kicker">{enhancedStatusLabels[filters.status]}</p><h2 className="mt-1 text-xl font-black tracking-tight">Elenco encontrado</h2></div><p aria-live="polite" aria-atomic="true" className="text-sm font-bold text-slate-600">{page.filteredCount} {page.filteredCount === 1 ? "atleta" : "atletas"}</p></div>
 
         {page.items.length ? <ManagementAthleteList athletes={page.items} teamSlug={team.slug} returnUrl={buildManagementAthleteListUrl(team.slug, baseFilters, filters.cursor)} /> : (
           <div className="app-surface border-dashed p-8 text-center"><UserRound className="mx-auto size-8 text-slate-400" aria-hidden /><p className="mt-3 font-semibold">{hasFilters ? "Nenhum atleta com estes filtros" : `Nenhum atleta em ${enhancedStatusLabels[filters.status].toLowerCase()}`}</p><p className="mt-1 text-sm text-slate-500">{hasFilters ? "Ajuste a busca ou limpe os filtros para tentar novamente." : "Os atletas aparecerão aqui quando estiverem disponíveis."}</p>{hasFilters ? <Button asChild variant="outline" className="mt-5"><Link href={clearUrl}>Limpar filtros</Link></Button> : filters.status === "active" ? <Button asChild className="mt-5"><Link href={`/app/${team.slug}/athletes/new`}>Cadastrar primeiro atleta</Link></Button> : null}</div>
@@ -183,7 +183,7 @@ export default async function AthletesPage({
           parsedFilters.filters.cursor,
         )
       : `/app/${team.slug}/athletes`;
-    return <main className="app-canvas pb-24"><AppContainer><PageHeader eyebrow="BID do time" title="Atletas" description="Encontre e reconheça o elenco sem expor dados pessoais." action={<Button asChild><Link href={`/app/${team.slug}/athletes/new`}><Plus aria-hidden />Novo</Link></Button>} /><div role="alert" className="app-surface border-red-200 bg-red-50 p-8 text-center"><p className="font-black text-red-900">Não foi possível carregar</p><p className="mt-1 text-sm text-red-700">{parsedFilters.ok ? "Atualize a página e tente novamente." : parsedFilters.message}</p><Button asChild variant="outline" className="mt-5"><Link href={retryUrl}>Tentar novamente</Link></Button></div></AppContainer></main>;
+    return <main className="app-canvas pb-24"><AppContainer><PageHeader eyebrow="BID do time" title="Atletas" description="Encontre e reconheça o elenco sem expor dados pessoais." action={<Button asChild><Link href={`/app/${team.slug}/athletes/new`}><Plus aria-hidden />Novo</Link></Button>} className="max-[359px]:flex-col max-[359px]:items-start" /><div role="alert" className="app-surface border-red-200 bg-red-50 p-8 text-center"><p className="font-black text-red-900">Não foi possível carregar</p><p className="mt-1 text-sm text-red-700">{parsedFilters.ok ? "Atualize a página e tente novamente." : parsedFilters.message}</p><Button asChild variant="outline" className="mt-5"><Link href={retryUrl}>Tentar novamente</Link></Button></div></AppContainer></main>;
   }
 
   const { data: athletes } = await supabase

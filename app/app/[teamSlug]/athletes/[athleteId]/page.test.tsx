@@ -115,6 +115,10 @@ describe("detalhe privado do atleta", () => {
     expect(html).toContain("Editar cadastro");
     expect(html).toContain("status=inactive&amp;q=Jo%C3%A3o&amp;position=ALA");
     expect(html).not.toContain("photo_path");
+    expect(html).not.toContain("truncate");
+    expect(html).toContain("break-words");
+    expect(html).toContain("min-\[360px\]:flex-row");
+    expect(html).toContain("sm:flex-row");
   });
 
   it("mantém manager em modo somente leitura", async () => {

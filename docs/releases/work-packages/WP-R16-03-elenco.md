@@ -214,3 +214,49 @@ autorização por papel e retorno seguro para a lista filtrada.
 
 Próxima ação: `ATH-04`, cobrindo estados integrados, teclado, reflow, matriz
 responsiva e orçamento de desempenho da lista e do detalhe.
+
+## Contrato da ATH-04 — experiência integrada
+
+- lista e detalhe possuem estados de carregamento próprios, anunciados uma única
+  vez por tecnologia assistiva e com esqueletos decorativos que respeitam a
+  preferência de movimento reduzido já aplicada globalmente;
+- vazio, filtro sem resultado, contrato indisponível e erro inesperado preservam
+  uma ação de recuperação com alvo mínimo de 44 px, sem transformar fallback em
+  autorização ou consulta adicional;
+- navegação por situação, alternância Lista/Cartões e ações dos atletas funcionam
+  por teclado, expõem estado e relacionamento aos leitores de tela e mantêm foco
+  visível;
+- em 360, 390, 639, 640, 767, 768, 1023, 1024 e 1280 px, além do reflow
+  equivalente a 200%, nome, situação e ação primária permanecem legíveis sem
+  corte; cabeçalho e participações empilham quando a largura não comporta duas
+  colunas;
+- o limite de uma RPC por lista e uma RPC por detalhe permanece invariável. Fotos
+  dos cartões usam carregamento tardio e assíncrono; a lista mantém assinatura em
+  lote deduplicada e paginação de 24 itens;
+- lista e detalhe devem ficar abaixo de 300 ms no fixture local; resultado acima
+  de 500 ms bloqueia a ATH-05 e o rollout.
+
+## CP4 aceito — ATH-04
+
+- [x] lista e detalhe possuem carregamentos próprios com `role=status`,
+  `aria-busy`, anúncio único e esqueleto decorativo, sem anunciar um vazio falso;
+- [x] vazio, filtros sem resultado, contrato indisponível e erro preservam ação
+  de recuperação e os filtros válidos da URL;
+- [x] alternância Lista/Cartões usa botões nativos com estado pressionado,
+  controle associado à lista e foco visível; navegação por situação e todas as
+  ações permanecem alcançáveis por teclado;
+- [x] nomes, contato e participações quebram sem corte; cabeçalhos, ações e fatos
+  empilham abaixo de 360 px, cobrindo reflow equivalente a 200%, e a grade mantém
+  os marcos de 640 e 1280 px da matriz 360–1280;
+- [x] controles possuem ao menos 44 px, situação não depende apenas de cor,
+  fotos têm alternativa textual ou iniciais decorativas e movimento reduzido é
+  respeitado globalmente;
+- [x] lista preserva uma RPC, página de 24 e assinatura deduplicada; detalhe
+  preserva uma RPC e uma assinatura. Os 64 pgTAP focados comprovaram lista e
+  detalhe abaixo de 300 ms;
+- [x] 48 testes focados de interface/DAL e a regressão com 146 arquivos/748
+  testes Vitest e 78 arquivos/2.052 pgTAP passaram, além de lint, TypeScript,
+  contexto, build Webpack, migrations e auditoria sem vulnerabilidades.
+
+Próxima ação: `ATH-05`, executando piloto produtivo, sonda agregada sem PII,
+rollback/restauração, rollout global idempotente e encerramento CP6.
