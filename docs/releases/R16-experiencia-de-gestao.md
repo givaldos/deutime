@@ -39,8 +39,9 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Próximo: acompanhamento claro de campeonatos**, iniciando o CP0 do
-`WP-R16-04`. Os pacotes [Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
+**Próximo: acompanhamento claro de campeonatos**, iniciando `CMP-01` após o CP0
+aceito no guia [Acompanhar campeonato sem se perder](work-packages/WP-R16-04-acompanhar-campeonato.md).
+Os pacotes [Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
 [Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md) e
 [Navegação e início sem dificuldade](work-packages/WP-R16-01-navegacao.md)
 foram promovidos pelo fluxo `dev → main` e estão ativos para todos os times com
