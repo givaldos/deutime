@@ -1,6 +1,6 @@
 # DeuTime — Catálogo detalhado de capacidades
 
-> Preservado em 27 de julho de 2026 e reconciliado em 8 de setembro de 2026.
+> Preservado em 27 de julho de 2026 e reconciliado em 14 de setembro de 2026.
 
 Este documento guarda o detalhamento funcional levantado no roadmap anterior. Seus checkboxes representam capacidades e critérios — não são, isoladamente, issues nem ordem de execução.
 
@@ -31,9 +31,11 @@ comercial sem apagar times ou resgates.
 publicação e imagem compartilhável estão disponíveis. A experiência profissional
 que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos está ativa.
 
-**Prioridade atual:** reconciliar o fechamento produtivo da R15, de criação
-guiada de campeonatos, e preparar a R16 para navegação e gestão simples. As listas
-existentes ainda precisam ser fáceis de encontrar, filtrar e administrar.
+**Prioridade atual:** iniciar `WP-R16-04`, tornando o acompanhamento de
+campeonatos claro. Navegação/início, listas de jogos/campeonatos e elenco
+reconhecível (`WP-R16-01` a `03`) encerraram CP6 e estão ativos nos cinco times.
+R15 ainda possui um aceite móvel/produtivo aberto e não deve ser encerrada por
+inferência a partir das entregas da R16.
 A R11/Asaas está adiada e fora da fila, sem prazo: exige MVP consolidado e sinal
 explícito para desenvolver, antes de retomar qualquer descoberta ou implementação.
 
@@ -47,11 +49,10 @@ explícito para desenvolver, antes de retomar qualquer descoberta ou implementa�
   operacional da R13.
 - [ ] Reconciliar evidências produtivas e encerrar a R15 sem repetir trabalho
   já implementado ou inferir CP6 pelo estado do Git.
-- [ ] Validar `DP-R16-01` e executar a sequência de gestão simples abaixo,
-  antes de ampliar monetização; uma única frente ativa.
-- [ ] Começar pelo [guia de navegação](releases/work-packages/WP-R16-01-navegacao.md),
-  com seis subtarefas e CP0 restrito à fatia; calendário/lote/fotos não bloqueiam
-  a correção dos menus. Execução prevista com GPT Sol, sem reduzir os gates.
+- [x] Concluir `WP-R16-01` a `03` e liberar navegação, listas e elenco
+  reconhecível nos cinco times, com fallback e recuperação comprovados.
+- [ ] Iniciar CP0 de `WP-R16-04` para acompanhamento de campeonatos; executar
+  uma única fatia por vez com GPT Sol, sem reduzir os gates.
 - [ ] Manter marketplace, split, repasse e cobrança de atletas fora da execução
   até validação própria de densidade, regulação e viabilidade.
 
@@ -61,11 +62,11 @@ Fonte dos contratos, critérios `AC-R16-*`, riscos e rollout:
 [R16 — Experiência de gestão simples](releases/R16-experiencia-de-gestao.md).
 Esta lista é índice de capacidades, não um segundo controle de execução.
 
-- [ ] `WP-R16-01`: manter Início, Jogos, Campeonatos, Atletas e Mais acessíveis
+- [x] `WP-R16-01`: manter Início, Jogos, Campeonatos, Atletas e Mais acessíveis
   no celular e nos detalhes; início com pendências e próxima ação compreensível.
-- [ ] `WP-R16-02`: listar todos os jogos e campeonatos com busca, filtros,
+- [x] `WP-R16-02`: listar todos os jogos e campeonatos com busca, filtros,
   ordenação e paginação; corrigir limite que pode ocultar futuros após 200 eventos.
-- [ ] `WP-R16-03`: elenco em lista/cartões, fotos privadas autorizadas ou
+- [x] `WP-R16-03`: elenco em lista/cartões, fotos privadas autorizadas ou
   iniciais, posições e situação; distinguir atletas de Diretoria e acessos.
 - [ ] `WP-R16-04`: campeonato com resumo, jogos, classificação por formato,
   equipes e regulamento; continuar configuração pelo assistente da R15.
