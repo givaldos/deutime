@@ -260,3 +260,25 @@ responsiva e orçamento de desempenho da lista e do detalhe.
 
 Próxima ação: `ATH-05`, executando piloto produtivo, sonda agregada sem PII,
 rollback/restauração, rollout global idempotente e encerramento CP6.
+
+## Contrato da ATH-05 — rollout e recuperação
+
+- `set_recognizable_roster_rollout(enabled, team_id)` é exclusiva de
+  `service_role`, serializa operações concorrentes, exige owner/admin ativo por
+  time e altera somente `recognizable_roster`, com auditoria agregada por piloto
+  ou escopo global;
+- `get_recognizable_roster_health(team_id)` é exclusiva de `service_role` e
+  devolve somente estado do time/flag, contagens de vínculos atuais, ativos,
+  pendentes, reivindicados e com fonte de foto, além do marco da flag; não devolve
+  UUID, nome, telefone, e-mail, caminho de mídia ou busca;
+- a migration inclui a capacidade no catálogo global, mas não ativa nenhuma flag
+  existente. O efeito só começa após deploy, smoke inerte e chamada operacional
+  explícita;
+- piloto usa um time aberto com owner/admin, confirma flag desligada, ativa,
+  consulta a sonda, desliga, comprova contagens preservadas e restaura antes do
+  rollout global;
+- rollout global deve observar todos os times, ter replay com zero alterações e
+  fazer novos times herdarem as 19 capacidades validadas;
+- qualquer divergência de contagem, ausência de marco, time fechado, falha de
+  smoke ou exposição de campo pessoal interrompe a expansão. Rollback desliga a
+  flag sem apagar atletas, fotos, PII privada ou fatos esportivos.

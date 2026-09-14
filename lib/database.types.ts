@@ -4743,6 +4743,20 @@ export type Database = {
           source_goal_cards: number
         }[]
       }
+      get_recognizable_roster_health: {
+        Args: { requested_team_id: string }
+        Returns: {
+          active_athletes: number
+          athletes_with_photo_source: number
+          claimed_athletes: number
+          current_athletes: number
+          last_flag_change_at: string
+          observed_at: string
+          pending_athletes: number
+          recognizable_roster_enabled: boolean
+          team_open: boolean
+        }[]
+      }
       get_registration_email_health: {
         Args: never
         Returns: {
@@ -5449,6 +5463,13 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      set_recognizable_roster_rollout: {
+        Args: { requested_enabled: boolean; requested_team_id?: string }
+        Returns: {
+          flags_changed: number
+          teams_seen: number
+        }[]
       }
       set_runtime_control: {
         Args: {
