@@ -2,9 +2,9 @@
 release: R16
 work_package: WP-R16-03
 scope: elenco_reconhecivel
-branch_or_commit: "codex/r16-athlete-experience"
+branch_or_commit: "codex/r16-athlete-rollout"
 checkpoint: CP4
-status: idle
+status: active
 completed_ac:
   - "AC-R16-01: seções autorizadas alcançáveis com menu persistente em 360–1280 px"
   - "AC-R16-02: troca de time, retorno, recarga, rotas diretas e isolamento preservados"
@@ -53,8 +53,11 @@ tests:
   - "PASS: 19 testes focados de DAL/interface, incluindo filtros, cursor, uma RPC e assinatura deduplicada"
   - "PASS: 142 arquivos/721 testes Vitest e 77 arquivos/2.027 testes pgTAP"
   - "PASS: lint, typecheck, build Webpack, integridade de migrations e auditoria sem vulnerabilidades"
+  - "PASS: 5 testes da sonda e 210 pgTAP focados no catálogo, rollout, autorização, preservação e herança"
+  - "PASS: 147 arquivos/753 testes Vitest e 79 arquivos/2.083 testes pgTAP"
+  - "PASS: lint, typecheck, build de produção, db lint sem novos avisos, tipos gerados, migration forward-only e auditoria sem vulnerabilidades"
 blocker: null
-next_action: "Executar ATH-05: piloto produtivo, sonda sem PII, rollback/restauração, rollout global idempotente e CP6."
+next_action: "Promover a expansão inerte da ATH-05; após smoke, executar piloto, rollback/restauração e rollout global."
 ---
 
 # Trabalho atual
@@ -70,5 +73,7 @@ aceito. A ATH-03 adicionou detalhe privado por papel, PII restrita,
 participações factuais e retorno seguro para a lista filtrada. O CP3 está
 aceito. A ATH-04 adicionou carregamentos acessíveis, corrigiu foco e reflow,
 validou a matriz 360–1280 e comprovou lista/detalhe abaixo de 300 ms. O CP4 está
-aceito; a próxima ação é `ATH-05`, com piloto, rollback/restauração, rollout
-global e encerramento CP6.
+aceito. A ATH-05 possui contrato, migration inerte, rollout transacional, sonda
+sem PII e recuperação automatizada em validação. A próxima ação é promover a
+expansão sem ativar flags e, após o smoke, executar piloto, rollback/restauração
+e rollout global antes do CP6.

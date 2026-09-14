@@ -42,7 +42,7 @@ select is((select count(*) from public.team_squad_presets
 create temporary table first_activation as
 select * from public.set_all_product_features(true);
 
-select is((select count(*) from private.product_feature_keys()), 18::bigint,
+select is((select count(*) from private.product_feature_keys()), 19::bigint,
   'catálogo global possui dezoito capacidades');
 select is((select count(*) from public.runtime_controls where enabled), 6::bigint,
   'seis controles operacionais ficam ativos');
@@ -109,7 +109,7 @@ insert into public.teams(id, name, slug, created_by) values (
 );
 select is((select count(*) from public.team_feature_flags
   where team_id = 'fb131000-0000-4000-8000-000000000003' and enabled),
-  18::bigint, 'novo time herda todo o catálogo ativo');
+  19::bigint, 'novo time herda todo o catálogo ativo');
 select is((select count(*) from public.team_squad_presets
   where team_id = 'fb131000-0000-4000-8000-000000000003' and is_active),
   2::bigint, 'novo time herda duas equipes internas editáveis');
