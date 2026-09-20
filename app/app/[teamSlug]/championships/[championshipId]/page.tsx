@@ -11,15 +11,24 @@ import {
   WithdrawParticipantForm,
 } from "@/components/championship-forms";
 import { ChampionshipPublicControls } from "@/components/championship-public-controls";
+import {
+  ChampionshipFollowupSummaryError,
+  ChampionshipFollowupSummaryView,
+} from "@/components/championship-followup-summary";
 import { ChampionshipSetupWizard } from "@/components/championship-setup-wizard";
 import { InternalSquadBadge } from "@/components/internal-squad-badge";
 import { AppContainer } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
+import { getChampionshipFollowupSummary } from "@/lib/data/championship-followup";
 import { getChampionshipWorkspace } from "@/lib/data/championships";
 import { safeManagementChampionshipReturnTo } from "@/lib/data/management-championships";
 import { championshipFormatLabels, championshipTiebreakLabels } from "@/lib/features/championships/rules";
 import { isProfessionalSchedulingEnabled } from "@/lib/features/professional-scheduling/server";
 import { getAppUrl } from "@/lib/env/server";
+import {
+  parseChampionshipFollowupSection,
+  type RawChampionshipFollowupSearchParams,
+} from "@/lib/navigation/championship-followup";
 import { createClient } from "@/lib/supabase/server";
 import {
   ArrowLeft,
@@ -72,7 +81,7 @@ export default async function ChampionshipPage({
   searchParams,
 }: {
   params: Promise<{ teamSlug: string; championshipId: string }>;
-  searchParams: Promise<{ returnTo?: string | string[] }>;
+  searchParams: Promise<RawChampionshipFollowupSearchParams>;
 }) {
   const user = await requireUser();
   const [{ teamSlug, championshipId }, query] = await Promise.all([params, searchParams]);
@@ -83,16 +92,35 @@ export default async function ChampionshipPage({
     .eq("slug", teamSlug)
     .maybeSingle();
   if (!team) notFound();
-  const [{ data: membership }, workspace, professionalSchedulingEnabled] = await Promise.all([
+  const [{ data: membership }, followupSummary, professionalSchedulingEnabled] = await Promise.all([
     supabase.from("team_memberships").select("role").eq("team_id", team.id).eq("user_id", user.id).eq("status", "active").maybeSingle(),
-    getChampionshipWorkspace(team.id, championshipId),
+    getChampionshipFollowupSummary(team.id, championshipId),
     isProfessionalSchedulingEnabled(team.id),
   ]);
-  if (!membership || !workspace) notFound();
+  if (!membership) notFound();
   const championshipListReturnTo = safeManagementChampionshipReturnTo(
     team.slug,
     query.returnTo,
   );
+  const requestedSection = parseChampionshipFollowupSection(query.section);
+
+  if (
+    requestedSection === "summary" &&
+    followupSummary.mode === "enhanced" &&
+    followupSummary.data.championship.status !== "draft"
+  ) {
+    return (
+      <ChampionshipFollowupSummaryView
+        teamSlug={team.slug}
+        timeZone={team.timezone}
+        returnTo={championshipListReturnTo}
+        summary={followupSummary.data}
+      />
+    );
+  }
+
+  const workspace = await getChampionshipWorkspace(team.id, championshipId);
+  if (!workspace) notFound();
 
   const {
     championship,
@@ -104,6 +132,26 @@ export default async function ChampionshipPage({
     qualificationDecisions,
     regulationVersions,
   } = workspace;
+  if (
+    requestedSection === "summary" &&
+    followupSummary.mode === "error" &&
+    championship.status !== "draft"
+  ) {
+    return (
+      <ChampionshipFollowupSummaryError
+        teamSlug={team.slug}
+        returnTo={championshipListReturnTo}
+        championship={{
+          id: championship.id,
+          name: championship.name,
+          format: championship.format,
+          status: championship.status,
+          status_label: statusLabels[championship.status],
+          public_mode: championship.public_mode,
+        }}
+      />
+    );
+  }
   const canConfigure = membership.role === "owner" || membership.role === "admin";
   const canOperate = canConfigure || membership.role === "manager";
   const currentRegulationVersion = regulationVersions.find(
