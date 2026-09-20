@@ -4359,6 +4359,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_championship_followup_summary: {
+        Args: { requested_championship_id: string; requested_team_id: string }
+        Returns: Json
+      }
       get_championship_group_standings: {
         Args: { requested_championship_id: string }
         Returns: {
@@ -4850,6 +4854,19 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      list_championship_followup_fixtures: {
+        Args: {
+          requested_championship_id: string
+          requested_cursor?: Json
+          requested_group_number?: number
+          requested_limit?: number
+          requested_round_number?: number
+          requested_stage?: Database["public"]["Enums"]["championship_fixture_stage"]
+          requested_team_id: string
+          requested_view?: Database["public"]["Enums"]["championship_fixture_view"]
+        }
+        Returns: Json
       }
       list_management_athletes: {
         Args: {
@@ -5805,6 +5822,11 @@ export type Database = {
       championship_fixture_slot_kind: "participant" | "winner" | "loser" | "bye"
       championship_fixture_stage: "league" | "group" | "knockout"
       championship_fixture_status: "draft" | "scheduled" | "finalized" | "void"
+      championship_fixture_view:
+        | "upcoming"
+        | "completed"
+        | "unscheduled"
+        | "all"
       championship_format: "league" | "groups_knockout" | "knockout"
       championship_participant_kind: "internal" | "external"
       championship_participant_status: "active" | "withdrawn"
@@ -5877,6 +5899,7 @@ export type Database = {
         | "team_navigation_shell"
         | "complete_management_lists"
         | "recognizable_roster"
+        | "clear_championship_workspace"
       internal_squad_badge_key:
         | "shield"
         | "stripes"
@@ -6135,6 +6158,12 @@ export const Constants = {
       championship_fixture_slot_kind: ["participant", "winner", "loser", "bye"],
       championship_fixture_stage: ["league", "group", "knockout"],
       championship_fixture_status: ["draft", "scheduled", "finalized", "void"],
+      championship_fixture_view: [
+        "upcoming",
+        "completed",
+        "unscheduled",
+        "all",
+      ],
       championship_format: ["league", "groups_knockout", "knockout"],
       championship_participant_kind: ["internal", "external"],
       championship_participant_status: ["active", "withdrawn"],
@@ -6214,6 +6243,7 @@ export const Constants = {
         "team_navigation_shell",
         "complete_management_lists",
         "recognizable_roster",
+        "clear_championship_workspace",
       ],
       internal_squad_badge_key: [
         "shield",

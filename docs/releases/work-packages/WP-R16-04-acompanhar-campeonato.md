@@ -1,6 +1,6 @@
 # WP-R16-04 — Acompanhar campeonato sem se perder
 
-> Estado: CP0 aceito em 14 de setembro de 2026; `CMP-01` é a próxima fatia.
+> Estado: CP1 aceito em 20 de setembro de 2026; `CMP-02` é a próxima fatia.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-10` a `12`.
 > Base inspecionada: `9b0f0c11f5d7333696b7a2bd3e96c0dd37670407`.
 
@@ -259,5 +259,22 @@ Flag não concede permissão. ID de campeonato, participante, confronto, partida
 - [x] entrypoints iniciais e fontes esportivas foram mapeados sem alterar schema
   ou autorização nesta fatia documental.
 
-Próxima ação: `CMP-01`, adicionando expansão inerte para a flag, o resumo privado
-e a lista paginada de jogos, mantendo a tela atual como fallback.
+## CP1 aceito
+
+- [x] `clear_championship_workspace` existe como flag tipada, desligada e fora
+  do catálogo global;
+- [x] `get_championship_followup_summary` deriva fase, progresso, três próximos
+  jogos e ação prioritária sem PII;
+- [x] `list_championship_followup_fixtures` pagina por cursor esportivo e filtra
+  fase, grupo, rodada e situação, com limite de 24 e máximo de 50;
+- [x] as duas RPCs derivam autorização da sessão, exigem staff ativo e falham
+  fechado para atleta, anônimo, outro time, ID ausente ou flag desligada;
+- [x] a expansão mantém a página longa atual como fallback e não altera o
+  catálogo global, a página pública nem os fatos esportivos;
+- [x] 42 testes pgTAP cobrem o contrato, incluindo 32 equipes, 496 confrontos,
+  paginação, desempenho abaixo de 300 ms e isolamento entre times;
+- [x] o boundary TypeScript valida respostas e diferencia contrato indisponível
+  de falha inesperada sem registrar identificadores ou conteúdo esportivo.
+
+Próxima ação: `CMP-02`, conectando cabeçalho, navegação responsiva e Resumo aos
+read models, atrás da flag e com a tela atual como fallback.
