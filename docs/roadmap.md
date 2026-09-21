@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 14 de setembro de 2026.
+> Atualizado em 21 de setembro de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -155,8 +155,8 @@ ativação global própria descrita abaixo.
 | 13. Acesso pré-lançamento | ✅ R14 concluída | Criação de novas equipes restrita a códigos individuais, com kill switch para o lançamento comercial. |
 | 14. Campeonato guiado | 🟡 R15 ativa no registro | Reconciliar evidências atuais, concluir validação móvel/produtiva e documentar CP6; preservar o assistente já implementado. |
 | 15. Gestão simples — acesso | ✅ R16, pacotes 01–02 em CP6 | Navegação persistente e listas completas de jogos/campeonatos ativas nos cinco times, com rollback/restauração comprovados. |
-| 16. Gestão simples — pessoas e competição | 🟡 R16, pacote 03 em CP6; 04 é o próximo | Elenco com foto/lista/cartões ativo; falta simplificar a área de campeonato com resumo, jogos e classificação. |
-| 17. Gestão simples — planejamento | ⬜ R16, pacotes 05–06 | Calendário, pendências e alterações em lote com prévia, autorização, proteção de histórico e recuperação. |
+| 16. Gestão simples — pessoas e competição | ✅ R16, pacotes 03–04 em CP6 | Elenco reconhecível e acompanhamento de campeonatos ativos nos cinco times, com recuperação comprovada. |
+| 17. Gestão simples — planejamento | 🟡 R16, pacote 05 é o próximo | Calendário e pendências primeiro; alterações em lote ficam no pacote 06, com prévia, autorização, proteção de histórico e recuperação. |
 | 18. Gestão simples — histórico e liberação | ⬜ R16, pacotes 07–09 | Equipes, campeões, estatísticas, link por fase, testes com público pouco experiente e liberação integral em produção. |
 | 19. Consolidação do MVP | ⬜ prioridade de produto | Corrigir lacunas restantes comprovadas e obter aceite da experiência em produção; não promove cobrança automaticamente. |
 | 20. Escala | ⬜ decisão futura | Priorizar demais melhorias com risco, uso real ou retorno mensurável. |
@@ -286,8 +286,14 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
 - [x] `WP-R16-03` — elenco reconhecível encerrado em CP6, com lista/cartões,
   foto privada autorizada, detalhe, piloto, rollback/restauração, rollout 5/5 e
   smoke produtivo; replay não alterou flags nem contagens.
+- [ ] `WP-R16-04` — acompanhamento claro de campeonatos era a próxima fatia,
+  ainda sem conclusão comprovada nessa data.
+
+### Atualização de experiência em 21 de setembro de 2026
+
 - [x] `WP-R16-04` — acompanhamento claro de campeonatos encerrado em CP6, ativo
-  nos cinco times, com recuperação e replay comprovados.
+  nos cinco times, com piloto, rollback/restauração, replay e smokes produtivos
+  comprovados sem alteração dos fatos esportivos.
 - [ ] `WP-R16-05` a `09` — calendário, lote, estatísticas, link por fase e
   validação integrada permanecem pendentes.
 - [ ] R15 — permanece com validação móvel/produtiva aberta no pacote próprio;
@@ -364,15 +370,15 @@ reavaliar reconhecimento sem autorizar pontos ou ranking.
 As novas pendências não alteram o que foi comprovado nas releases encerradas.
 R12 recuperou confiança, privacidade e autonomia. R13 implementou a agenda e as
 competições profissionais e já foi liberada globalmente. R15 entrega a criação
-guiada, ainda com validação final pendente. A R16 já entregou navegação, listas e
-elenco reconhecível; agora avança para acompanhamento de campeonatos. A R11 está
-adiada por decisão do produto, sem retomada automática.
+guiada, ainda com validação final pendente. A R16 já entregou navegação, listas,
+elenco reconhecível e acompanhamento de campeonatos; agora avança para calendário
+e pendências. A R11 está adiada por decisão do produto, sem retomada automática.
 
 ### R16 — navegação e gestão simples, prioridade atual
 
 **Resultado:** uma pessoa com pouca familiaridade digital organiza o time pelo
 celular, entende o que falta fazer e consulta passado, presente e próximos jogos.
-Execução incremental por fatia, com `WP-R16-01` a `03` em CP6:
+Execução incremental por fatia, com `WP-R16-01` a `04` em CP6:
 [`R16-experiencia-de-gestao.md`](releases/R16-experiencia-de-gestao.md).
 
 **Navegação proposta:** Início, Jogos, Campeonatos, Atletas e Mais. Nome e escudo

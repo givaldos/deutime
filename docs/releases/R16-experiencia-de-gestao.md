@@ -257,12 +257,12 @@ Regulamento e ações sensíveis são secundários, com permissões e versioname
 existentes. Configuração incompleta abre **Continuar configuração**, reutilizando
 o assistente R15 e a etapa persistida, sem recomeçar ou duplicar campeonato.
 
-- [ ] `AC-R16-10` — Os três formatos têm resumo e classificação compreensíveis;
+- [x] `AC-R16-10` — Os três formatos têm resumo e classificação compreensíveis;
   vaga ainda indefinida mostra **A definir**, não equipe inventada ou confronto
   indevidamente confirmado. Jogos gerados pela R15 aparecem na agenda única.
-- [ ] `AC-R16-11` — Alterar regulamento, resolver empate e avançar dependências
+- [x] `AC-R16-11` — Alterar regulamento, resolver empate e avançar dependências
   mantém travas/auditoria existentes; edição de data não altera resultado ou campeão.
-- [ ] `AC-R16-12` — Usuário abre confronto, equipe ou rodada e retorna ao mesmo
+- [x] `AC-R16-12` — Usuário abre confronto, equipe ou rodada e retorna ao mesmo
   campeonato/aba; configurações não ocupam a primeira tela de uma competição ativa.
 
 ### WP-R16-05 — calendário e conflitos compreensíveis
@@ -477,8 +477,7 @@ projeção, migration e teste descobertos. Não iniciar escrita sensível sem es
 elenco reconhecível e acompanhamento de campeonatos estão ativos nos 5 times de
 produção. O quarto pacote comprovou piloto, rollback/restauração sem alterar
 contagens esportivas, rollout global idempotente e smoke pós-ativação. Os pacotes
-`WP-R16-05` a `09`
-permanecem pendentes.
+`WP-R16-05` a `09` permanecem pendentes.
 O planejamento não encerra a R15; suas evidências permanecem no pacote próprio.
 O checkpoint obsoleto de pré-merge foi reconciliado na promoção documental abaixo. Na execução,
 registrar por pacote critério, comando/ensaio, resultado, commit, ambiente e
