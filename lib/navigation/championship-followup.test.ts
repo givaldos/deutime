@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildChampionshipFollowupUrl,
   parseChampionshipFollowupSection,
+  safeChampionshipFollowupReturnTo,
 } from "./championship-followup";
 
 describe("navegação do acompanhamento de campeonato", () => {
@@ -34,5 +35,13 @@ describe("navegação do acompanhamento de campeonato", () => {
       championshipId: "championship-a",
       section: "matches",
     })).toBe("/app/campo-fc/championships/championship-a?section=matches");
+  });
+
+  it("aceita retorno somente para Jogos do mesmo time e rejeita endereço externo", () => {
+    const valid = "/app/campo-fc/championships/22222222-2222-4222-8222-222222222222?section=matches&round=2";
+    expect(safeChampionshipFollowupReturnTo("campo-fc", valid)).toBe(valid);
+    expect(safeChampionshipFollowupReturnTo("campo-fc", valid.replace("campo-fc", "outro"))).toBeNull();
+    expect(safeChampionshipFollowupReturnTo("campo-fc", `https://malicioso.example${valid}`)).toBeNull();
+    expect(safeChampionshipFollowupReturnTo("campo-fc", valid.replace("matches", "teams"))).toBeNull();
   });
 });

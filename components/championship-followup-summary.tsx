@@ -25,7 +25,7 @@ const sectionLabels: Record<ChampionshipFollowupSection, string> = {
   regulation: "Regulamento",
 };
 
-type ChampionshipIdentity = ChampionshipFollowupSummary["championship"];
+export type ChampionshipIdentity = ChampionshipFollowupSummary["championship"];
 
 function formatGameDate(value: string, timeZone: string) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -35,7 +35,7 @@ function formatGameDate(value: string, timeZone: string) {
   }).format(new Date(value));
 }
 
-function ChampionshipFollowupShell({
+export function ChampionshipFollowupShell({
   teamSlug,
   returnTo,
   championship,

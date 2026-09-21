@@ -13,6 +13,7 @@ const championshipStatuses = [
   "archived",
 ] as const;
 const fixtureStages = ["league", "group", "knockout"] as const;
+const badgeKeys = ["shield", "stripes", "sash", "quarters", "circle", "diamond"] as const;
 
 const cursorSchema = z.object({
   stage_rank: z.number().int().min(1).max(3),
@@ -122,10 +123,42 @@ export type ChampionshipFollowupFilters = {
   cursor: ChampionshipFollowupCursor | null;
 };
 
-type FollowupResult<T> =
+export type FollowupResult<T> =
   | { mode: "enhanced"; data: T }
   | { mode: "unavailable" }
   | { mode: "error" };
+
+const standingSchema = z.object({
+  rank_position: z.number().int().positive(),
+  participant_id: z.uuid(),
+  participant_name: z.string(),
+  participant_color: z.string(),
+  participant_badge_key: z.enum(badgeKeys),
+  played: z.number().int().nonnegative(),
+  wins: z.number().int().nonnegative(),
+  draws: z.number().int().nonnegative(),
+  losses: z.number().int().nonnegative(),
+  goals_for: z.number().int().nonnegative(),
+  goals_against: z.number().int().nonnegative(),
+  goal_difference: z.number().int(),
+  points: z.number().int(),
+  head_to_head_points: z.number().int(),
+  group_number: z.number().int().min(1).max(8).optional(),
+  participant_seed: z.number().int().positive().optional(),
+});
+
+const participantSchema = z.object({
+  id: z.uuid(),
+  snapshot_name: z.string(),
+  snapshot_color: z.string(),
+  snapshot_badge_key: z.enum(badgeKeys),
+  seed: z.number().int().positive(),
+  group_number: z.number().int().min(1).max(8).nullable(),
+  status: z.enum(["active", "withdrawn"]),
+});
+
+export type ChampionshipFollowupStanding = z.infer<typeof standingSchema>;
+export type ChampionshipFollowupParticipant = z.infer<typeof participantSchema>;
 
 const unavailableCodes = new Set(["P0001", "42883", "PGRST202"]);
 
@@ -215,6 +248,58 @@ export async function getChampionshipFollowupFixturePage(
   const parsed = pageSchema.safeParse(data);
   if (!parsed.success) {
     console.warn("[championship-followup] fixtures_invalid_response", {
+      paths: parsed.error.issues.map((issue) => issue.path.join(".")),
+    });
+    return { mode: "error" };
+  }
+  return { mode: "enhanced", data: parsed.data };
+}
+
+export async function getChampionshipFollowupStandings(
+  championshipId: string,
+  format: "league" | "groups_knockout",
+): Promise<FollowupResult<ChampionshipFollowupStanding[]>> {
+  const supabase = await createClient();
+  const rpc = format === "league"
+    ? "get_championship_standings"
+    : "get_championship_group_standings";
+  const { data, error } = await supabase.rpc(rpc, {
+    requested_championship_id: championshipId,
+  });
+  if (error) {
+    console.warn("[championship-followup] standings_rpc_error", { code: error.code });
+    return { mode: "error" };
+  }
+  const parsed = z.array(standingSchema).safeParse(data);
+  if (!parsed.success) {
+    console.warn("[championship-followup] standings_invalid_response", {
+      paths: parsed.error.issues.map((issue) => issue.path.join(".")),
+    });
+    return { mode: "error" };
+  }
+  return { mode: "enhanced", data: parsed.data };
+}
+
+export async function getChampionshipFollowupParticipants(
+  teamId: string,
+  championshipId: string,
+): Promise<FollowupResult<ChampionshipFollowupParticipant[]>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("championship_participants")
+    .select("id, snapshot_name, snapshot_color, snapshot_badge_key, seed, group_number, status")
+    .eq("team_id", teamId)
+    .eq("championship_id", championshipId)
+    .order("status")
+    .order("seed")
+    .limit(32);
+  if (error) {
+    console.warn("[championship-followup] participants_query_error", { code: error.code });
+    return { mode: "error" };
+  }
+  const parsed = z.array(participantSchema).safeParse(data);
+  if (!parsed.success) {
+    console.warn("[championship-followup] participants_invalid_response", {
       paths: parsed.error.issues.map((issue) => issue.path.join(".")),
     });
     return { mode: "error" };
