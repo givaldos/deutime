@@ -157,8 +157,31 @@ const participantSchema = z.object({
   status: z.enum(["active", "withdrawn"]),
 });
 
+const regulationSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  format: z.enum(championshipFormats),
+  status: z.enum(championshipStatuses),
+  public_id: z.uuid(),
+  public_mode: z.enum(["private", "public"]),
+  win_points: z.number().int(),
+  draw_points: z.number().int(),
+  loss_points: z.number().int(),
+  tiebreak_order: z.array(z.enum([
+    "wins",
+    "goal_difference",
+    "goals_for",
+    "head_to_head",
+  ])).length(4),
+  group_count: z.number().int().min(2).max(8).nullable(),
+  qualifiers_per_group: z.number().int().min(1).max(8).nullable(),
+  current_version_number: z.number().int().positive().nullable(),
+  version_count: z.number().int().nonnegative(),
+});
+
 export type ChampionshipFollowupStanding = z.infer<typeof standingSchema>;
 export type ChampionshipFollowupParticipant = z.infer<typeof participantSchema>;
+export type ChampionshipFollowupRegulation = z.infer<typeof regulationSchema>;
 
 const unavailableCodes = new Set(["P0001", "42883", "PGRST202"]);
 
@@ -300,6 +323,49 @@ export async function getChampionshipFollowupParticipants(
   const parsed = z.array(participantSchema).safeParse(data);
   if (!parsed.success) {
     console.warn("[championship-followup] participants_invalid_response", {
+      paths: parsed.error.issues.map((issue) => issue.path.join(".")),
+    });
+    return { mode: "error" };
+  }
+  return { mode: "enhanced", data: parsed.data };
+}
+
+export async function getChampionshipFollowupRegulation(
+  teamId: string,
+  championshipId: string,
+): Promise<FollowupResult<ChampionshipFollowupRegulation>> {
+  const supabase = await createClient();
+  const [championshipResult, versionsResult] = await Promise.all([
+    supabase
+      .from("championships")
+      .select("id, name, format, status, public_id, public_mode, win_points, draw_points, loss_points, tiebreak_order, group_count, qualifiers_per_group, regulation_version_id")
+      .eq("team_id", teamId)
+      .eq("id", championshipId)
+      .maybeSingle(),
+    supabase
+      .from("championship_regulation_versions")
+      .select("id, version_number")
+      .eq("team_id", teamId)
+      .eq("championship_id", championshipId)
+      .order("version_number", { ascending: false }),
+  ]);
+  if (championshipResult.error || versionsResult.error || !championshipResult.data) {
+    console.warn("[championship-followup] regulation_query_error", {
+      code: championshipResult.error?.code ?? versionsResult.error?.code,
+    });
+    return { mode: "error" };
+  }
+  const championship = championshipResult.data;
+  const currentVersion = versionsResult.data?.find(
+    (version) => version.id === championship.regulation_version_id,
+  );
+  const parsed = regulationSchema.safeParse({
+    ...championship,
+    current_version_number: currentVersion?.version_number ?? null,
+    version_count: versionsResult.data?.length ?? 0,
+  });
+  if (!parsed.success) {
+    console.warn("[championship-followup] regulation_invalid_response", {
       paths: parsed.error.issues.map((issue) => issue.path.join(".")),
     });
     return { mode: "error" };
