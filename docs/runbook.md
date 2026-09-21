@@ -1210,6 +1210,30 @@ esperado, perder contagens ou não apresentar `last_flag_change_at`. O rollback
 global usa a mesma RPC com `false` e preserva vínculos, fotos, dados privados e
 histórico esportivo. Não reverta a migration; qualquer correção é forward-only.
 
+### Piloto e rollout do acompanhamento de campeonatos — R16
+
+A expansão chega inerte. Use somente `service_role`; a sonda devolve contagens
+agregadas e não inclui nomes, placares, URLs ou identificadores esportivos.
+Defina localmente o UUID do time piloto sem registrá-lo em logs ou evidências:
+
+```bash
+CHAMPIONSHIP_FOLLOWUP_PILOT_TEAM_ID='<UUID_DO_TIME_PILOTO>' \
+npm run pilot:championship-followup:health
+```
+
+Ative somente o piloto pela RPC
+`set_championship_followup_rollout(true, team_id)` e repita a sonda com
+`EXPECT_CHAMPIONSHIP_FOLLOWUP_ENABLED=true`. Registre apenas as contagens. Antes
+de ampliar, execute a mesma RPC com `false`, confirme que campeonatos e
+confrontos foram preservados e restaure o piloto. O rollout global usa
+`team_id = null`; uma segunda execução deve retornar `flags_changed = 0`.
+
+Interrompa se a sonda não encontrar uma única coorte aberta, divergir do estado
+esperado, perder contagens, exceder os limites do pacote ou não apresentar
+`last_flag_change_at`. O rollback global usa a mesma RPC com `false` e preserva
+campeonatos, regulamentos, participantes, agenda, partidas, súmulas e auditoria.
+Não reverta a migration; qualquer correção é forward-only.
+
 ## Primeira ativação do repositório
 
 O ruleset referencia checks que só existem depois que os workflows executarem ao menos uma vez. Para o primeiro bootstrap:

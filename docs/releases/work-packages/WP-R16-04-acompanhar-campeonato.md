@@ -334,5 +334,38 @@ Flag não concede permissão. ID de campeonato, participante, confronto, partida
 - [x] reset, lint, 80 arquivos com 2.125 testes pgTAP e geração de tipos passaram
   sem mudança de schema ou diff nos tipos.
 
-Próxima ação: `CMP-05`, fechando estados, acessibilidade, desempenho, rollout,
-rollback, smoke e promoção do pacote.
+## Contrato da CMP-05 — qualidade, rollout e recuperação
+
+- o segmento possui carregamento imediato com anúncio único, esqueleto
+  decorativo e movimento reduzido; estados vazios e erros mantêm campeonato,
+  navegação e retorno disponíveis;
+- classificação conserva lista móvel equivalente e tabela ampla com caption,
+  cabeçalhos de coluna e cabeçalho de linha; ações esportivas não aparecem em
+  campeonatos encerrados ou arquivados;
+- `set_championship_followup_rollout(enabled, team_id)` é exclusiva de
+  `service_role`, serializa operações concorrentes, exige owner/admin ativo e
+  altera somente `clear_championship_workspace`, com auditoria de piloto ou
+  escopo global;
+- `get_championship_followup_health(team_id)` é exclusiva de `service_role` e
+  devolve somente estado do time/flag e contagens de campeonatos e confrontos.
+  Não devolve nomes, placares, URLs, IDs esportivos ou dados pessoais;
+- a migration inclui a capacidade no catálogo global, sem ativar flags
+  existentes. Piloto, rollback, restauração e rollout global só começam após o
+  deploy e o smoke inerte;
+- rollback desliga a flag e retorna à página anterior sem apagar regulamento,
+  participantes, confrontos, agenda, partidas, súmulas ou auditoria.
+
+## CP4 aceito — CMP-05
+
+- [x] carregamento, vazio de equipes, falha por seção e leitura de campeonatos
+  encerrados foram fechados sem bloquear a navegação;
+- [x] alvos de toque, foco, texto além de cor, reflow e semântica da tabela foram
+  reforçados; o esqueleto respeita redução de movimento;
+- [x] rollout específico, sonda agregada, kill switch, auditoria e herança para
+  novos times foram implementados sem ativação automática;
+- [x] 16 testes focados de interface e sonda passaram; 31 pgTAP comprovaram
+  permissão, piloto isolado, idempotência, rollback, restauração, preservação de
+  fatos e catálogo com 20 capacidades.
+
+Próxima ação: promover a expansão inerte, executar piloto produtivo,
+rollback/restauração, rollout global, replay, smoke e fechar CP5/CP6.

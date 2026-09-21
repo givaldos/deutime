@@ -34,8 +34,8 @@ select ok(
   )),
   'navegação integra a herança do produto'
 );
-select is((select count(*) from private.product_feature_keys()), 19::bigint,
-  'catálogo possui dezoito capacidades');
+select is((select count(*) from private.product_feature_keys()), 20::bigint,
+  'catálogo possui vinte capacidades');
 
 insert into public.teams(id, name, slug, created_by) values
   ('fc161000-0000-4000-8000-000000000001','Navegação A','navegacao-a','fc160000-0000-4000-8000-000000000001'),
@@ -176,7 +176,7 @@ select is((
 select is((
   select count(*) from public.team_feature_flags
   where team_id = 'fc161000-0000-4000-8000-000000000003' and enabled
-), 19::bigint, 'novo time herda o catálogo completo');
+), 20::bigint, 'novo time herda o catálogo completo');
 
 select * from finish();
 rollback;

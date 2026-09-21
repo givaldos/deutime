@@ -4359,6 +4359,20 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_championship_followup_health: {
+        Args: { requested_team_id: string }
+        Returns: {
+          clear_championship_workspace_enabled: boolean
+          configuration_championships: number
+          followup_championships: number
+          last_flag_change_at: string
+          linked_fixtures: number
+          observed_at: string
+          team_open: boolean
+          total_championships: number
+          total_fixtures: number
+        }[]
+      }
       get_championship_followup_summary: {
         Args: { requested_championship_id: string; requested_team_id: string }
         Returns: Json
@@ -5337,6 +5351,13 @@ export type Database = {
           requested_athlete_id: string
         }
         Returns: Database["public"]["Enums"]["athlete_status"]
+      }
+      set_championship_followup_rollout: {
+        Args: { requested_enabled: boolean; requested_team_id?: string }
+        Returns: {
+          flags_changed: number
+          teams_seen: number
+        }[]
       }
       set_championship_public_mode: {
         Args: {
