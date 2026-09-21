@@ -40,8 +40,8 @@ select ok(not has_function_privilege('anon',
 select ok('complete_management_lists' = any(array(
   select feature::text from private.product_feature_keys() feature
 )), 'listas integram a herança do produto');
-select is((select count(*) from private.product_feature_keys()),19::bigint,
-  'catálogo possui dezoito capacidades');
+select is((select count(*) from private.product_feature_keys()),20::bigint,
+  'catálogo possui vinte capacidades');
 
 update private.product_rollout_state set enabled = false where singleton;
 insert into public.teams(id,name,slug,created_by) values
@@ -129,7 +129,7 @@ select is((select enabled from public.team_feature_flags where
   team_id='fe161000-0000-4000-8000-000000000003' and feature='complete_management_lists'),
   true,'novo time herda as listas ativas');
 select is((select count(*) from public.team_feature_flags where
-  team_id='fe161000-0000-4000-8000-000000000003' and enabled),19::bigint,
+  team_id='fe161000-0000-4000-8000-000000000003' and enabled),20::bigint,
   'novo time herda o catálogo completo');
 select ok((select last_flag_change_at is not null from public.get_complete_management_lists_health(
   'fe161000-0000-4000-8000-000000000001')),

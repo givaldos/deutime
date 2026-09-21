@@ -63,4 +63,20 @@ describe("seções do acompanhamento", () => {
     expect(html).toContain("somente para consulta");
     expect(html).not.toContain("Registrar retirada");
   });
+
+  it("explica a ausência de equipes e oculta ações esportivas após o encerramento", () => {
+    const completed = { ...championship, status: "completed" as const, status_label: "Encerrado" };
+    const teams = renderToStaticMarkup(<ChampionshipTeamsView teamId="11111111-1111-4111-8111-111111111111" teamSlug="campo-fc" returnTo={null} championship={completed} participants={[]} canConfigure />);
+    const matches = renderToStaticMarkup(<ChampionshipMatchesView {...base} championship={completed} teamId="11111111-1111-4111-8111-111111111111" filters={{ stage: null, groupNumber: null, roundNumber: null, view: "all" }} page={{ items: [{ id: "44444444-4444-4444-8444-444444444444", stage: "league", group_number: null, round_number: 1, ordinal: 1, status: "finalized", situation: "completed", match_id: null, event_id: null, event_title: null, starts_at: null, side_a: "Verdes", side_b: "Azuis" }], filtered_count: 1, next_cursor: null, effective_filters: {} }} canOperate actionContext={null} />);
+
+    expect(teams).toContain("Nenhuma equipe inscrita");
+    expect(matches).not.toContain("Gerenciar confronto");
+  });
+
+  it("associa cabeçalhos e linhas da tabela no reflow amplo", () => {
+    const html = renderToStaticMarkup(<ChampionshipStandingsView {...base} teamId="11111111-1111-4111-8111-111111111111" standings={[standing]} knockoutPage={null} groupNumber={1} canConfigure={false} advanceContext={null} />);
+    expect(html).toContain("<caption");
+    expect(html).toContain('scope="col"');
+    expect(html).toContain('scope="row"');
+  });
 });
