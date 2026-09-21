@@ -32,9 +32,9 @@ insert into public.athletes(
 select ok('clear_championship_workspace' = any(
   enum_range(null::public.feature_key)::text[]
 ), 'flag tipada do acompanhamento existe');
-select ok(not ('clear_championship_workspace' = any(array(
+select ok('clear_championship_workspace' = any(array(
   select feature::text from private.product_feature_keys() feature
-))), 'flag permanece fora do catálogo global');
+)), 'flag integra o catálogo global após o contrato de rollout');
 select is((select count(*) from public.team_feature_flags
   where feature = 'clear_championship_workspace'), 0::bigint,
   'expansão não materializa a flag em nenhum time');
