@@ -20,8 +20,11 @@ import {
   ChampionshipSectionError,
   ChampionshipStandingsView,
   ChampionshipTeamsView,
+  type ChampionshipAdvanceContext,
+  type MatchActionContext,
   type MatchFilters,
 } from "@/components/championship-followup-sections";
+import { ChampionshipRegulationView } from "@/components/championship-followup-regulation";
 import { ChampionshipSetupWizard } from "@/components/championship-setup-wizard";
 import { InternalSquadBadge } from "@/components/internal-squad-badge";
 import { AppContainer } from "@/components/ui/app-shell";
@@ -30,6 +33,7 @@ import {
   decodeChampionshipFollowupCursor,
   getChampionshipFollowupFixturePage,
   getChampionshipFollowupParticipants,
+  getChampionshipFollowupRegulation,
   getChampionshipFollowupStandings,
   getChampionshipFollowupSummary,
 } from "@/lib/data/championship-followup";
@@ -98,6 +102,10 @@ function boundedInteger(value: string | string[] | undefined, min: number, max: 
   return Number.isInteger(parsed) && parsed >= min && parsed <= max ? parsed : null;
 }
 
+function validUuid(value: string | undefined) {
+  return Boolean(value && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value));
+}
+
 export default async function ChampionshipPage({
   params,
   searchParams,
@@ -120,6 +128,8 @@ export default async function ChampionshipPage({
     isProfessionalSchedulingEnabled(team.id),
   ]);
   if (!membership) notFound();
+  const canConfigure = membership.role === "owner" || membership.role === "admin";
+  const canOperate = canConfigure || membership.role === "manager";
   const championshipListReturnTo = safeManagementChampionshipReturnTo(
     team.slug,
     query.returnTo,
@@ -154,8 +164,54 @@ export default async function ChampionshipPage({
         view: filters.view,
         cursor: cursorValue ? decodeChampionshipFollowupCursor(cursorValue) : null,
       });
+      let actionContext: MatchActionContext | null = null;
+      const focusedFixtureId = single(query.fixture);
+      if (
+        page.mode === "enhanced"
+        && canOperate
+        && validUuid(focusedFixtureId)
+        && page.data.items.some((fixture) => fixture.id === focusedFixtureId)
+      ) {
+        const actionWorkspace = await getChampionshipWorkspace(team.id, championshipId);
+        const fixture = actionWorkspace?.fixtures.find((item) => item.id === focusedFixtureId);
+        if (actionWorkspace && fixture) {
+          const participantById = new Map(
+            actionWorkspace.participants.map((participant) => [participant.id, participant]),
+          );
+          const fixtureById = new Map(
+            actionWorkspace.fixtures.map((item) => [item.id, item]),
+          );
+          const resolveSlot = (slot: (typeof actionWorkspace.slots)[number]) => {
+            if (slot.participant_id) return participantById.get(slot.participant_id) ?? null;
+            if (slot.source_fixture_id) {
+              const source = fixtureById.get(slot.source_fixture_id);
+              return source?.winner_participant_id
+                ? participantById.get(source.winner_participant_id) ?? null
+                : null;
+            }
+            return null;
+          };
+          const sides = actionWorkspace.slots
+            .filter((slot) => slot.fixture_id === fixture.id)
+            .sort((a, b) => a.side_index - b.side_index)
+            .map(resolveSlot)
+            .filter((participant): participant is NonNullable<typeof participant> => Boolean(participant))
+            .map((participant) => ({ id: participant.id, name: participant.snapshot_name }));
+          const match = fixture.match_id ? actionWorkspace.matchById[fixture.match_id] : null;
+          actionContext = {
+            fixtureId: fixture.id,
+            stage: fixture.stage,
+            fixtureStatus: fixture.status,
+            matchStatus: match?.status ?? null,
+            canRelease: match?.status === "scheduled",
+            currentWinnerId: fixture.winner_participant_id,
+            sides,
+            matches: actionWorkspace.candidateMatches,
+          };
+        }
+      }
       return page.mode === "enhanced"
-        ? <ChampionshipMatchesView teamSlug={team.slug} timeZone={team.timezone} returnTo={championshipListReturnTo} championship={summary.championship} page={page.data} filters={filters} />
+        ? <ChampionshipMatchesView teamId={team.id} teamSlug={team.slug} timeZone={team.timezone} returnTo={championshipListReturnTo} championship={summary.championship} page={page.data} filters={filters} canOperate={canOperate} actionContext={actionContext} />
         : <ChampionshipSectionError teamSlug={team.slug} returnTo={championshipListReturnTo} championship={summary.championship} section="matches" />;
     }
     if (requestedSection === "standings") {
@@ -165,19 +221,89 @@ export default async function ChampionshipPage({
           stage: "knockout", groupNumber: null, roundNumber: null, view: "all", cursor: single(query.cursor) ? decodeChampionshipFollowupCursor(single(query.cursor)!) : null,
         });
         return page.mode === "enhanced"
-          ? <ChampionshipStandingsView teamSlug={team.slug} timeZone={team.timezone} returnTo={championshipListReturnTo} championship={summary.championship} standings={[]} knockoutPage={page.data} groupNumber={groupNumber} />
+          ? <ChampionshipStandingsView teamId={team.id} teamSlug={team.slug} timeZone={team.timezone} returnTo={championshipListReturnTo} championship={summary.championship} standings={[]} knockoutPage={page.data} groupNumber={groupNumber} canConfigure={canConfigure} advanceContext={null} />
           : <ChampionshipSectionError teamSlug={team.slug} returnTo={championshipListReturnTo} championship={summary.championship} section="standings" />;
       }
       const standings = await getChampionshipFollowupStandings(championshipId, summary.championship.format);
+      let advanceContext: ChampionshipAdvanceContext | null = null;
+      if (
+        standings.mode === "enhanced"
+        && canConfigure
+        && summary.championship.format === "groups_knockout"
+        && ["resolve_qualification", "build_knockout"].includes(summary.next_action.kind)
+      ) {
+        const actionWorkspace = await getChampionshipWorkspace(team.id, championshipId);
+        if (actionWorkspace) {
+          const groupFixtures = actionWorkspace.fixtures.filter((fixture) => fixture.stage === "group");
+          const knockoutFixtures = actionWorkspace.fixtures.filter((fixture) => fixture.stage === "knockout");
+          const groupsClosed = groupFixtures.length > 0 && groupFixtures.every((fixture) => {
+            const status = fixture.match_id ? actionWorkspace.matchById[fixture.match_id]?.status : null;
+            return status === "finalized" || status === "void";
+          });
+          const pendingDecisions: ChampionshipAdvanceContext["pendingDecisions"] = [];
+          if (groupsClosed && !knockoutFixtures.length) {
+            for (let currentGroup = 1; currentGroup <= (actionWorkspace.championship.group_count ?? 0); currentGroup += 1) {
+              const ordered = actionWorkspace.groupStandings.filter(
+                (standing) => standing.group_number === currentGroup,
+              );
+              for (let position = 1; position <= (actionWorkspace.championship.qualifiers_per_group ?? 0); position += 1) {
+                const target = ordered[position - 1];
+                if (!target) continue;
+                const tied = ordered.filter(
+                  (standing) => standing.rank_position === target.rank_position,
+                );
+                const decided = actionWorkspace.qualificationDecisions.some(
+                  (decision) => decision.group_number === currentGroup
+                    && decision.qualifier_position === position
+                    && tied.some((standing) => standing.participant_id === decision.participant_id),
+                );
+                if (tied.length > 1 && !decided) {
+                  const chosen = new Set(
+                    actionWorkspace.qualificationDecisions
+                      .filter((decision) => decision.group_number === currentGroup)
+                      .map((decision) => decision.participant_id),
+                  );
+                  pendingDecisions.push({
+                    groupNumber: currentGroup,
+                    qualifierPosition: position,
+                    candidates: tied
+                      .filter((standing) => !chosen.has(standing.participant_id))
+                      .map((standing) => ({
+                        id: standing.participant_id,
+                        name: standing.participant_name,
+                      })),
+                  });
+                }
+              }
+            }
+          }
+          advanceContext = { groupsClosed, pendingDecisions };
+        }
+      }
       return standings.mode === "enhanced"
-        ? <ChampionshipStandingsView teamSlug={team.slug} timeZone={team.timezone} returnTo={championshipListReturnTo} championship={summary.championship} standings={standings.data} knockoutPage={null} groupNumber={groupNumber} />
+        ? <ChampionshipStandingsView teamId={team.id} teamSlug={team.slug} timeZone={team.timezone} returnTo={championshipListReturnTo} championship={summary.championship} standings={standings.data} knockoutPage={null} groupNumber={groupNumber} canConfigure={canConfigure} advanceContext={advanceContext} />
         : <ChampionshipSectionError teamSlug={team.slug} returnTo={championshipListReturnTo} championship={summary.championship} section="standings" />;
     }
     if (requestedSection === "teams") {
       const participants = await getChampionshipFollowupParticipants(team.id, championshipId);
       return participants.mode === "enhanced"
-        ? <ChampionshipTeamsView teamSlug={team.slug} returnTo={championshipListReturnTo} championship={summary.championship} participants={participants.data} />
+        ? <ChampionshipTeamsView teamId={team.id} teamSlug={team.slug} returnTo={championshipListReturnTo} championship={summary.championship} participants={participants.data} canConfigure={canConfigure} />
         : <ChampionshipSectionError teamSlug={team.slug} returnTo={championshipListReturnTo} championship={summary.championship} section="teams" />;
+    }
+    if (requestedSection === "regulation") {
+      const regulation = await getChampionshipFollowupRegulation(team.id, championshipId);
+      return regulation.mode === "enhanced"
+        ? <ChampionshipRegulationView
+            teamId={team.id}
+            teamSlug={team.slug}
+            returnTo={championshipListReturnTo}
+            championship={summary.championship}
+            regulation={regulation.data}
+            canConfigure={canConfigure}
+            professionalSchedulingEnabled={professionalSchedulingEnabled}
+            publicUrl={new URL(`/c/${regulation.data.public_id}`, getAppUrl()).toString()}
+          />
+        : <ChampionshipSectionError teamSlug={team.slug} returnTo={championshipListReturnTo} championship={summary.championship} section="regulation" />;
     }
   }
 
@@ -214,8 +340,6 @@ export default async function ChampionshipPage({
       />
     );
   }
-  const canConfigure = membership.role === "owner" || membership.role === "admin";
-  const canOperate = canConfigure || membership.role === "manager";
   const currentRegulationVersion = regulationVersions.find(
     (version) => version.id === championship.regulation_version_id,
   ) ?? null;

@@ -1,6 +1,6 @@
 # WP-R16-04 — Acompanhar campeonato sem se perder
 
-> Estado: CP3 aceito em 21 de setembro de 2026; `CMP-04` é a próxima fatia.
+> Estado: CP3 aceito em 21 de setembro de 2026; `CMP-04` concluída e `CMP-05` é a próxima fatia.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-10` a `12`.
 > Base inspecionada: `9b0f0c11f5d7333696b7a2bd3e96c0dd37670407`.
 
@@ -314,5 +314,25 @@ Flag não concede permissão. ID de campeonato, participante, confronto, partida
   fallback; 152 arquivos com 779 testes, lint, typecheck, contexto, build
   Webpack e auditoria sem vulnerabilidades passaram.
 
-Próxima ação: `CMP-04`, movendo Regulamento e ações sensíveis para as seções
-corretas, preservando papéis, locks, auditoria e idempotência.
+## CMP-04 concluída
+
+- [x] **Regulamento** usa consulta privada estreita, apresenta formato,
+  pontuação, desempates e versão antes de qualquer controle;
+- [x] owner/admin preservam reabertura versionada e publicação manual; manager
+  lê a mesma regra sem receber controles que falhariam por autorização;
+- [x] retirada fica em **Equipes**, desempate e avanço ficam em
+  **Classificação**, e vínculo, remarcação e decisão ficam em **Jogos**;
+- [x] o workspace completo não entra na leitura comum. Ele só é carregado ao
+  selecionar um confronto visível ou quando a próxima ação exige montar a fase;
+- [x] Actions continuam delegando às RPCs transacionais existentes, com os
+  mesmos request IDs, locks, auditoria e bloqueios por fatos esportivos;
+- [x] mudança de agenda continua restrita ao evento e não altera placar,
+  vencedor ou classificação;
+- [x] 46 testes focados cobrem projeção, papéis, seção e comandos; 153 arquivos
+  com 787 testes Vitest, lint, typecheck, contexto, build Webpack e auditoria
+  sem vulnerabilidades passaram;
+- [x] reset, lint, 80 arquivos com 2.125 testes pgTAP e geração de tipos passaram
+  sem mudança de schema ou diff nos tipos.
+
+Próxima ação: `CMP-05`, fechando estados, acessibilidade, desempenho, rollout,
+rollback, smoke e promoção do pacote.

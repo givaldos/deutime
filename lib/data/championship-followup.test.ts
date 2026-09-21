@@ -6,7 +6,26 @@ const mocks = vi.hoisted(() => {
   query.select.mockReturnValue(query);
   query.eq.mockReturnValue(query);
   query.order.mockReturnValue(query);
-  return { rpc, query, createClient: vi.fn(async () => ({ rpc, from: () => query })) };
+  const championshipQuery = { select: vi.fn(), eq: vi.fn(), maybeSingle: vi.fn() };
+  championshipQuery.select.mockReturnValue(championshipQuery);
+  championshipQuery.eq.mockReturnValue(championshipQuery);
+  const versionsQuery = { select: vi.fn(), eq: vi.fn(), order: vi.fn() };
+  versionsQuery.select.mockReturnValue(versionsQuery);
+  versionsQuery.eq.mockReturnValue(versionsQuery);
+  return {
+    rpc,
+    query,
+    championshipQuery,
+    versionsQuery,
+    createClient: vi.fn(async () => ({
+      rpc,
+      from: (table: string) => table === "championships"
+        ? championshipQuery
+        : table === "championship_regulation_versions"
+          ? versionsQuery
+          : query,
+    })),
+  };
 });
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/supabase/server", () => ({ createClient: mocks.createClient }));
@@ -16,6 +35,7 @@ import {
   encodeChampionshipFollowupCursor,
   getChampionshipFollowupFixturePage,
   getChampionshipFollowupParticipants,
+  getChampionshipFollowupRegulation,
   getChampionshipFollowupStandings,
   getChampionshipFollowupSummary,
   type ChampionshipFollowupCursor,
@@ -149,6 +169,35 @@ describe("championship follow-up data boundary", () => {
     await expect(getChampionshipFollowupStandings(championshipId, "league")).resolves.toEqual({ mode: "enhanced", data: [standing] });
     mocks.query.limit.mockResolvedValue({ data: [{ id: fixtureId, snapshot_name: "Azul", snapshot_color: "#0000ff", snapshot_badge_key: "shield", seed: 1, group_number: null, status: "active" }], error: null });
     await expect(getChampionshipFollowupParticipants(teamId, championshipId)).resolves.toMatchObject({ mode: "enhanced", data: [{ snapshot_name: "Azul" }] });
+  });
+
+  it("carrega apenas o regulamento e seu histórico versionado", async () => {
+    mocks.championshipQuery.maybeSingle.mockResolvedValue({
+      data: {
+        id: championshipId,
+        name: "Liga do bairro",
+        format: "groups_knockout",
+        status: "active",
+        public_id: eventId,
+        public_mode: "private",
+        win_points: 3,
+        draw_points: 1,
+        loss_points: 0,
+        tiebreak_order: ["wins", "goal_difference", "goals_for", "head_to_head"],
+        group_count: 4,
+        qualifiers_per_group: 2,
+        regulation_version_id: fixtureId,
+      },
+      error: null,
+    });
+    mocks.versionsQuery.order.mockResolvedValue({
+      data: [{ id: fixtureId, version_number: 2 }, { id: matchId, version_number: 1 }],
+      error: null,
+    });
+    await expect(getChampionshipFollowupRegulation(teamId, championshipId)).resolves.toMatchObject({
+      mode: "enhanced",
+      data: { current_version_number: 2, version_count: 2 },
+    });
   });
 
   it.each(["P0001", "42883", "PGRST202"])(
