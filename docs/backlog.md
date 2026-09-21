@@ -31,9 +31,9 @@ comercial sem apagar times ou resgates.
 publicação e imagem compartilhável estão disponíveis. A experiência profissional
 que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos está ativa.
 
-**Prioridade atual:** iniciar `WP-R16-04`, tornando o acompanhamento de
-campeonatos claro. Navegação/início, listas de jogos/campeonatos e elenco
-reconhecível (`WP-R16-01` a `03`) encerraram CP6 e estão ativos nos cinco times.
+**Prioridade atual:** iniciar `WP-R16-05`, tornando calendário e pendências
+compreensíveis. Navegação/início, listas, elenco reconhecível e acompanhamento
+de campeonatos (`WP-R16-01` a `04`) encerraram CP6 e estão ativos nos cinco times.
 R15 ainda possui um aceite móvel/produtivo aberto e não deve ser encerrada por
 inferência a partir das entregas da R16.
 A R11/Asaas está adiada e fora da fila, sem prazo: exige MVP consolidado e sinal
@@ -51,8 +51,10 @@ explícito para desenvolver, antes de retomar qualquer descoberta ou implementa�
   já implementado ou inferir CP6 pelo estado do Git.
 - [x] Concluir `WP-R16-01` a `03` e liberar navegação, listas e elenco
   reconhecível nos cinco times, com fallback e recuperação comprovados.
-- [ ] Iniciar CP0 de `WP-R16-04` para acompanhamento de campeonatos; executar
+- [x] Concluir `WP-R16-04` para acompanhamento de campeonatos; executar
   uma única fatia por vez com GPT Sol, sem reduzir os gates.
+- [ ] Iniciar CP0 de `WP-R16-05` para calendário e pendências, usando a agenda
+  autoritativa e mantendo o fallback atual.
 - [ ] Manter marketplace, split, repasse e cobrança de atletas fora da execução
   até validação própria de densidade, regulação e viabilidade.
 
@@ -68,7 +70,7 @@ Esta lista é índice de capacidades, não um segundo controle de execução.
   ordenação e paginação; corrigir limite que pode ocultar futuros após 200 eventos.
 - [x] `WP-R16-03`: elenco em lista/cartões, fotos privadas autorizadas ou
   iniciais, posições e situação; distinguir atletas de Diretoria e acessos.
-- [ ] `WP-R16-04`: campeonato com resumo, jogos, classificação por formato,
+- [x] `WP-R16-04`: campeonato com resumo, jogos, classificação por formato,
   equipes e regulamento; continuar configuração pelo assistente da R15.
 - [ ] `WP-R16-05`: agenda diária, calendário mensal/semanal, filtros,
   conflitos e jogos a reagendar, mantendo a fonte autoritativa dos eventos.
