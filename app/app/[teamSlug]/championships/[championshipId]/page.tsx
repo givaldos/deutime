@@ -15,11 +15,24 @@ import {
   ChampionshipFollowupSummaryError,
   ChampionshipFollowupSummaryView,
 } from "@/components/championship-followup-summary";
+import {
+  ChampionshipMatchesView,
+  ChampionshipSectionError,
+  ChampionshipStandingsView,
+  ChampionshipTeamsView,
+  type MatchFilters,
+} from "@/components/championship-followup-sections";
 import { ChampionshipSetupWizard } from "@/components/championship-setup-wizard";
 import { InternalSquadBadge } from "@/components/internal-squad-badge";
 import { AppContainer } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
-import { getChampionshipFollowupSummary } from "@/lib/data/championship-followup";
+import {
+  decodeChampionshipFollowupCursor,
+  getChampionshipFollowupFixturePage,
+  getChampionshipFollowupParticipants,
+  getChampionshipFollowupStandings,
+  getChampionshipFollowupSummary,
+} from "@/lib/data/championship-followup";
 import { getChampionshipWorkspace } from "@/lib/data/championships";
 import { safeManagementChampionshipReturnTo } from "@/lib/data/management-championships";
 import { championshipFormatLabels, championshipTiebreakLabels } from "@/lib/features/championships/rules";
@@ -76,6 +89,15 @@ function nextEveningLocal(timeZone: string) {
   return date.toISOString().slice(0, 16);
 }
 
+function single(value: string | string[] | undefined) {
+  return typeof value === "string" ? value : undefined;
+}
+
+function boundedInteger(value: string | string[] | undefined, min: number, max: number) {
+  const parsed = Number(single(value));
+  return Number.isInteger(parsed) && parsed >= min && parsed <= max ? parsed : null;
+}
+
 export default async function ChampionshipPage({
   params,
   searchParams,
@@ -104,19 +126,59 @@ export default async function ChampionshipPage({
   );
   const requestedSection = parseChampionshipFollowupSection(query.section);
 
-  if (
-    requestedSection === "summary" &&
-    followupSummary.mode === "enhanced" &&
-    followupSummary.data.championship.status !== "draft"
-  ) {
-    return (
-      <ChampionshipFollowupSummaryView
-        teamSlug={team.slug}
-        timeZone={team.timezone}
-        returnTo={championshipListReturnTo}
-        summary={followupSummary.data}
-      />
-    );
+  if (followupSummary.mode === "enhanced" && followupSummary.data.championship.status !== "draft") {
+    const summary = followupSummary.data;
+    if (requestedSection === "summary") {
+      return <ChampionshipFollowupSummaryView teamSlug={team.slug} timeZone={team.timezone} returnTo={championshipListReturnTo} summary={summary} />;
+    }
+    if (requestedSection === "matches") {
+      const requestedStage = single(query.stage);
+      const stage = ["league", "group", "knockout"].includes(requestedStage ?? "")
+        ? requestedStage as MatchFilters["stage"]
+        : null;
+      const requestedView = single(query.view);
+      const view = ["upcoming", "completed", "unscheduled", "all"].includes(requestedView ?? "")
+        ? requestedView as MatchFilters["view"]
+        : "all";
+      const filters: MatchFilters = {
+        stage,
+        groupNumber: stage === "group" ? boundedInteger(query.group, 1, 8) : null,
+        roundNumber: boundedInteger(query.round, 1, 32),
+        view,
+      };
+      const cursorValue = single(query.cursor);
+      const page = await getChampionshipFollowupFixturePage(team.id, championshipId, {
+        stage: filters.stage,
+        groupNumber: filters.groupNumber,
+        roundNumber: filters.roundNumber,
+        view: filters.view,
+        cursor: cursorValue ? decodeChampionshipFollowupCursor(cursorValue) : null,
+      });
+      return page.mode === "enhanced"
+        ? <ChampionshipMatchesView teamSlug={team.slug} timeZone={team.timezone} returnTo={championshipListReturnTo} championship={summary.championship} page={page.data} filters={filters} />
+        : <ChampionshipSectionError teamSlug={team.slug} returnTo={championshipListReturnTo} championship={summary.championship} section="matches" />;
+    }
+    if (requestedSection === "standings") {
+      const groupNumber = boundedInteger(query.group, 1, 8) ?? 1;
+      if (summary.championship.format === "knockout") {
+        const page = await getChampionshipFollowupFixturePage(team.id, championshipId, {
+          stage: "knockout", groupNumber: null, roundNumber: null, view: "all", cursor: single(query.cursor) ? decodeChampionshipFollowupCursor(single(query.cursor)!) : null,
+        });
+        return page.mode === "enhanced"
+          ? <ChampionshipStandingsView teamSlug={team.slug} timeZone={team.timezone} returnTo={championshipListReturnTo} championship={summary.championship} standings={[]} knockoutPage={page.data} groupNumber={groupNumber} />
+          : <ChampionshipSectionError teamSlug={team.slug} returnTo={championshipListReturnTo} championship={summary.championship} section="standings" />;
+      }
+      const standings = await getChampionshipFollowupStandings(championshipId, summary.championship.format);
+      return standings.mode === "enhanced"
+        ? <ChampionshipStandingsView teamSlug={team.slug} timeZone={team.timezone} returnTo={championshipListReturnTo} championship={summary.championship} standings={standings.data} knockoutPage={null} groupNumber={groupNumber} />
+        : <ChampionshipSectionError teamSlug={team.slug} returnTo={championshipListReturnTo} championship={summary.championship} section="standings" />;
+    }
+    if (requestedSection === "teams") {
+      const participants = await getChampionshipFollowupParticipants(team.id, championshipId);
+      return participants.mode === "enhanced"
+        ? <ChampionshipTeamsView teamSlug={team.slug} returnTo={championshipListReturnTo} championship={summary.championship} participants={participants.data} />
+        : <ChampionshipSectionError teamSlug={team.slug} returnTo={championshipListReturnTo} championship={summary.championship} section="teams" />;
+    }
   }
 
   const workspace = await getChampionshipWorkspace(team.id, championshipId);

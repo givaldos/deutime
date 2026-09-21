@@ -39,7 +39,7 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Próximo: acompanhamento claro de campeonatos**, iniciando `CMP-03` após o CP2
+**Próximo: acompanhamento claro de campeonatos**, iniciando `CMP-04` após o CP3
 aceito no guia [Acompanhar campeonato sem se perder](work-packages/WP-R16-04-acompanhar-campeonato.md).
 Os pacotes [Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
 [Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md) e

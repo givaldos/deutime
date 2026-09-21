@@ -1,6 +1,6 @@
 # WP-R16-04 — Acompanhar campeonato sem se perder
 
-> Estado: CP2 aceito em 20 de setembro de 2026; `CMP-03` é a próxima fatia.
+> Estado: CP3 aceito em 21 de setembro de 2026; `CMP-04` é a próxima fatia.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-10` a `12`.
 > Base inspecionada: `9b0f0c11f5d7333696b7a2bd3e96c0dd37670407`.
 
@@ -295,5 +295,24 @@ Flag não concede permissão. ID de campeonato, participante, confronto, partida
   estados vazios, erro, configuração retomável e fallback; 151 arquivos com 773
   testes, lint, typecheck, contexto, build Webpack e auditoria também passaram.
 
-Próxima ação: `CMP-03`, conectando Jogos, Classificação e Equipes aos contratos
-paginados e às projeções esportivas existentes.
+## CP3 aceito
+
+- [x] **Jogos** usa a projeção paginada de 24 itens, com cursor estável e filtros
+  por fase, grupo, rodada e situação, incluindo vazio filtrado e limpeza;
+- [x] **Classificação** usa os fatos finalizados em pontos corridos e grupos,
+  mostra um grupo por vez no celular e apresenta o mata-mata em listas com
+  **A definir** e **Avança sem jogo**;
+- [x] a tabela possui cabeçalhos associados e uma lista textual equivalente no
+  reflow móvel, preservando posições compartilhadas por empate esportivo;
+- [x] **Equipes** limita a leitura a 32 snapshots esportivos, sem elenco,
+  contato, perfil ou dado atual da equipe de origem;
+- [x] abrir uma súmula leva `returnTo` validado para Jogos do mesmo `teamSlug` e
+  campeonato; endereço externo, outra seção ou outro time falha fechado;
+- [x] Resumo continua sendo o gate da flag, e as três seções não carregam o
+  workspace legado quando o contrato está disponível;
+- [x] 26 testes focados cobrem filtros, cursor, grupos, snapshots, retorno e
+  fallback; 152 arquivos com 779 testes, lint, typecheck, contexto, build
+  Webpack e auditoria sem vulnerabilidades passaram.
+
+Próxima ação: `CMP-04`, movendo Regulamento e ações sensíveis para as seções
+corretas, preservando papéis, locks, auditoria e idempotência.
