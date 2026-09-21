@@ -1,6 +1,6 @@
 # DeuTime — Catálogo detalhado de capacidades
 
-> Preservado em 27 de julho de 2026 e reconciliado em 14 de setembro de 2026.
+> Preservado em 27 de julho de 2026 e reconciliado em 21 de setembro de 2026.
 
 Este documento guarda o detalhamento funcional levantado no roadmap anterior. Seus checkboxes representam capacidades e critérios — não são, isoladamente, issues nem ordem de execução.
 
