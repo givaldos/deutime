@@ -11,6 +11,7 @@ import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { AppContainer } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
+import { safeChampionshipFollowupReturnTo } from "@/lib/navigation/championship-followup";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -41,7 +42,7 @@ export default async function MatchReportPage({
   searchParams,
 }: {
   params: Promise<{ teamSlug: string; eventId: string }>;
-  searchParams: Promise<{ incident?: string; incidentError?: string }>;
+  searchParams: Promise<{ incident?: string; incidentError?: string; returnTo?: string | string[] }>;
 }) {
   const user = await requireUser();
   const [{ teamSlug, eventId }, query] = await Promise.all([
@@ -55,6 +56,7 @@ export default async function MatchReportPage({
     .eq("slug", teamSlug)
     .maybeSingle();
   if (!team) notFound();
+  const championshipReturnTo = safeChampionshipFollowupReturnTo(team.slug, query.returnTo);
 
   const [{ data: membership }, { data: event }] = await Promise.all([
     supabase
@@ -169,10 +171,10 @@ export default async function MatchReportPage({
 
         <div className="flex items-center justify-between gap-3">
           <Link
-            href={`/app/${team.slug}/events/${event.id}`}
+            href={championshipReturnTo ?? `/app/${team.slug}/events/${event.id}`}
             className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-slate-600 hover:text-emerald-800"
           >
-            <ArrowLeft className="size-4" aria-hidden /> Voltar ao evento
+            <ArrowLeft className="size-4" aria-hidden /> {championshipReturnTo ? "Voltar ao campeonato" : "Voltar ao evento"}
           </Link>
           {finalized && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">

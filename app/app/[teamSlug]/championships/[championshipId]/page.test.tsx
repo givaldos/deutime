@@ -5,12 +5,19 @@ const mocks = vi.hoisted(() => ({
   summaryMode: "enhanced" as "enhanced" | "unavailable" | "error",
   status: "active" as "draft" | "active",
   getWorkspace: vi.fn(async () => null),
+  getFixturePage: vi.fn(async () => ({ mode: "enhanced", data: { items: [], filtered_count: 0, next_cursor: null, effective_filters: {} } })),
+  getStandings: vi.fn(async () => ({ mode: "enhanced", data: [] })),
+  getParticipants: vi.fn(async () => ({ mode: "enhanced", data: [] })),
 }));
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/auth/dal", () => ({ requireUser: vi.fn(async () => ({ id: "user-a" })) }));
 vi.mock("@/lib/data/championships", () => ({ getChampionshipWorkspace: mocks.getWorkspace }));
 vi.mock("@/lib/data/championship-followup", () => ({
+  decodeChampionshipFollowupCursor: vi.fn(() => null),
+  getChampionshipFollowupFixturePage: mocks.getFixturePage,
+  getChampionshipFollowupStandings: mocks.getStandings,
+  getChampionshipFollowupParticipants: mocks.getParticipants,
   getChampionshipFollowupSummary: vi.fn(async () => mocks.summaryMode === "enhanced"
     ? {
         mode: "enhanced",
@@ -106,6 +113,9 @@ beforeEach(() => {
   mocks.summaryMode = "enhanced";
   mocks.status = "active";
   mocks.getWorkspace.mockClear();
+  mocks.getFixturePage.mockClear();
+  mocks.getStandings.mockClear();
+  mocks.getParticipants.mockClear();
   vi.spyOn(console, "info").mockImplementation(() => undefined);
 });
 
@@ -143,8 +153,18 @@ describe("detalhe do campeonato", () => {
     expect(mocks.getWorkspace).toHaveBeenCalledOnce();
   });
 
-  it("mantém seções futuras na tela atual até suas próprias fatias", async () => {
-    await expect(ChampionshipPage(props({ section: "matches" }))).rejects.toThrow("NEXT_NOT_FOUND");
-    expect(mocks.getWorkspace).toHaveBeenCalledOnce();
+  it("carrega Jogos sem abrir o workspace legado e normaliza filtros", async () => {
+    const html = renderToStaticMarkup(await ChampionshipPage(props({ section: "matches", stage: "group", group: "2", round: "3", view: "upcoming" })));
+    expect(html).toContain("Jogos");
+    expect(mocks.getWorkspace).not.toHaveBeenCalled();
+    expect(mocks.getFixturePage).toHaveBeenCalledWith("team-a", expect.any(String), expect.objectContaining({ stage: "group", groupNumber: 2, roundNumber: 3, view: "upcoming" }));
+  });
+
+  it("carrega Classificação e Equipes sem abrir o workspace legado", async () => {
+    renderToStaticMarkup(await ChampionshipPage(props({ section: "standings" })));
+    expect(mocks.getStandings).toHaveBeenCalled();
+    renderToStaticMarkup(await ChampionshipPage(props({ section: "teams" })));
+    expect(mocks.getParticipants).toHaveBeenCalled();
+    expect(mocks.getWorkspace).not.toHaveBeenCalled();
   });
 });

@@ -2,7 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
   const rpc = vi.fn();
-  return { rpc, createClient: vi.fn(async () => ({ rpc })) };
+  const query = { select: vi.fn(), eq: vi.fn(), order: vi.fn(), limit: vi.fn() };
+  query.select.mockReturnValue(query);
+  query.eq.mockReturnValue(query);
+  query.order.mockReturnValue(query);
+  return { rpc, query, createClient: vi.fn(async () => ({ rpc, from: () => query })) };
 });
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/supabase/server", () => ({ createClient: mocks.createClient }));
@@ -11,6 +15,8 @@ import {
   decodeChampionshipFollowupCursor,
   encodeChampionshipFollowupCursor,
   getChampionshipFollowupFixturePage,
+  getChampionshipFollowupParticipants,
+  getChampionshipFollowupStandings,
   getChampionshipFollowupSummary,
   type ChampionshipFollowupCursor,
   type ChampionshipFollowupFilters,
@@ -135,6 +141,14 @@ describe("championship follow-up data boundary", () => {
       requested_limit: 24,
       requested_cursor: cursor,
     });
+  });
+
+  it("valida classificação e snapshots de participantes", async () => {
+    const standing = { rank_position: 1, participant_id: fixtureId, participant_name: "Azul", participant_color: "#0000ff", participant_badge_key: "shield", played: 1, wins: 1, draws: 0, losses: 0, goals_for: 2, goals_against: 0, goal_difference: 2, points: 3, head_to_head_points: 0 };
+    mocks.rpc.mockResolvedValue({ data: [standing], error: null });
+    await expect(getChampionshipFollowupStandings(championshipId, "league")).resolves.toEqual({ mode: "enhanced", data: [standing] });
+    mocks.query.limit.mockResolvedValue({ data: [{ id: fixtureId, snapshot_name: "Azul", snapshot_color: "#0000ff", snapshot_badge_key: "shield", seed: 1, group_number: null, status: "active" }], error: null });
+    await expect(getChampionshipFollowupParticipants(teamId, championshipId)).resolves.toMatchObject({ mode: "enhanced", data: [{ snapshot_name: "Azul" }] });
   });
 
   it.each(["P0001", "42883", "PGRST202"])(
