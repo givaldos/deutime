@@ -1,6 +1,6 @@
 # WP-R16-04 — Acompanhar campeonato sem se perder
 
-> Estado: CP1 aceito em 20 de setembro de 2026; `CMP-02` é a próxima fatia.
+> Estado: CP2 aceito em 20 de setembro de 2026; `CMP-03` é a próxima fatia.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-10` a `12`.
 > Base inspecionada: `9b0f0c11f5d7333696b7a2bd3e96c0dd37670407`.
 
@@ -276,5 +276,24 @@ Flag não concede permissão. ID de campeonato, participante, confronto, partida
 - [x] o boundary TypeScript valida respostas e diferencia contrato indisponível
   de falha inesperada sem registrar identificadores ou conteúdo esportivo.
 
-Próxima ação: `CMP-02`, conectando cabeçalho, navegação responsiva e Resumo aos
-read models, atrás da flag e com a tela atual como fallback.
+## CP2 aceito
+
+- [x] competição publicada, ativa, encerrada ou arquivada abre no **Resumo**
+  usando somente a projeção estreita, sem carregar o workspace legado;
+- [x] cabeçalho preserva identidade, formato e estado, com retorno validado para
+  a lista de campeonatos;
+- [x] navegação por links expõe as cinco seções, mantém a seção na URL, marca o
+  item atual e oferece alvos de 44 px no seletor móvel e na barra responsiva;
+- [x] Resumo mostra fase, progresso, participantes, agenda, versão do
+  regulamento, até três próximos jogos e a ação prioritária permitida ao papel;
+- [x] configuração continua no assistente R15; flag desligada, contrato ausente
+  e seções das próximas fatias preservam a tela atual como fallback;
+- [x] erro inesperado mantém cabeçalho e navegação, oferece nova tentativa e não
+  revela identificadores; telemetria agrega seção, formato, estado, resultado e
+  latência sem PII;
+- [x] 20 testes focados cobrem URL, responsividade semântica, ação por papel,
+  estados vazios, erro, configuração retomável e fallback; 151 arquivos com 773
+  testes, lint, typecheck, contexto, build Webpack e auditoria também passaram.
+
+Próxima ação: `CMP-03`, conectando Jogos, Classificação e Equipes aos contratos
+paginados e às projeções esportivas existentes.

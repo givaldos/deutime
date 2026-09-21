@@ -151,6 +151,7 @@ export async function getChampionshipFollowupSummary(
   teamId: string,
   championshipId: string,
 ): Promise<FollowupResult<ChampionshipFollowupSummary>> {
+  const startedAt = performance.now();
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("get_championship_followup_summary", {
     requested_team_id: teamId,
@@ -160,7 +161,10 @@ export async function getChampionshipFollowupSummary(
   if (error) {
     const mode = classifyRpcError(error.code);
     if (mode === "error") {
-      console.warn("[championship-followup] summary_rpc_error", { code: error.code });
+      console.warn("[championship-followup] summary_rpc_error", {
+        code: error.code,
+        latency_ms: Math.round(performance.now() - startedAt),
+      });
     }
     return { mode };
   }
@@ -169,9 +173,17 @@ export async function getChampionshipFollowupSummary(
   if (!parsed.success) {
     console.warn("[championship-followup] summary_invalid_response", {
       paths: parsed.error.issues.map((issue) => issue.path.join(".")),
+      latency_ms: Math.round(performance.now() - startedAt),
     });
     return { mode: "error" };
   }
+  console.info("[championship-followup] section_view", {
+    section: "summary",
+    format: parsed.data.championship.format,
+    status: parsed.data.championship.status,
+    result: "success",
+    latency_ms: Math.round(performance.now() - startedAt),
+  });
   return { mode: "enhanced", data: parsed.data };
 }
 
