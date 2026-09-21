@@ -1,6 +1,7 @@
 # WP-R16-04 — Acompanhar campeonato sem se perder
 
-> Estado: CP3 aceito em 21 de setembro de 2026; `CMP-04` concluída e `CMP-05` é a próxima fatia.
+> Estado: concluído em CP6 em 21 de setembro de 2026; acompanhamento de
+> campeonatos ativo nos cinco times de produção.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-10` a `12`.
 > Base inspecionada: `9b0f0c11f5d7333696b7a2bd3e96c0dd37670407`.
 
@@ -367,5 +368,24 @@ Flag não concede permissão. ID de campeonato, participante, confronto, partida
   permissão, piloto isolado, idempotência, rollback, restauração, preservação de
   fatos e catálogo com 20 capacidades.
 
-Próxima ação: promover a expansão inerte, executar piloto produtivo,
-rollback/restauração, rollout global, replay, smoke e fechar CP5/CP6.
+## CP5 e CP6 aceitos — CMP-05
+
+- [x] o commit produtivo `e16cde86a0eb4e9f6ae6c6032b39f496bd806e71`
+  passou por CI (`35633866752`), banco (`35633866793`), CodeQL
+  (`35633866765`), Terraform (`35633866782`) e deploy Supabase
+  (`35633866865`);
+- [x] o smoke inerte por SHA (`35633951801`) confirmou 0 de 5 times ativos
+  antes da expansão, com 2 campeonatos, 2 confrontos e 2 vínculos preservados;
+- [x] um time piloto foi ativado, desligado e restaurado. Rollback e restauração
+  conservaram as mesmas contagens de campeonatos, confrontos e vínculos;
+- [x] o rollout global observou 5 times, alterou os 4 restantes e encerrou com
+  5 de 5 ativos. O replay observou os mesmos 5 times e alterou 0 flags;
+- [x] os smokes pós-ativação automáticos (`35634579059`) e explícitos
+  (`35634726249`) passaram, sem expor dados pessoais ou identificadores
+  esportivos;
+- [x] a promoção `dev` para `main` ocorreu no PR #505 e a reconciliação
+  `main` para `dev` no PR #506, sem diferença de conteúdo e com `main` ancestral de
+  `dev`.
+
+O `WP-R16-04` está encerrado em CP6. Próxima ação: iniciar o CP0 do
+`WP-R16-05`, preservando a agenda autoritativa e o fallback já comprovado.

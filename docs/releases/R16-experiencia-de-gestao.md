@@ -12,7 +12,7 @@ baseline:
   - BASE-SERIES
   - BASE-MATCH-REPORT
   - BASE-PUBLIC
-verified_at: "1ae2d0ce158252a133314e6897e5d3039d93fba8"
+verified_at: "e16cde86a0eb4e9f6ae6c6032b39f496bd806e71"
 invariants:
   - INV-MOBILE-WHATSAPP-FIRST
   - INV-RLS-MULTI-TIME
@@ -27,7 +27,7 @@ invariants:
 # R16 — Experiência de gestão simples
 
 > Planejada em 8 de setembro de 2026. Em execução incremental: `WP-R16-01` a
-> `WP-R16-03` estão validados e ativos em produção; os demais pacotes continuam
+> `WP-R16-04` estão validados e ativos em produção; os demais pacotes continuam
 > pendentes e a release completa ainda não está pronta para lançamento.
 
 ## Resultado demonstrável
@@ -39,8 +39,8 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Próximo: acompanhamento claro de campeonatos**, promovendo a expansão inerte
-da `CMP-05` após o CP4 aceito no guia
+**Próximo: calendário e pendências**, iniciando o CP0 do `WP-R16-05` depois do
+fechamento produtivo do guia
 [Acompanhar campeonato sem se perder](work-packages/WP-R16-04-acompanhar-campeonato.md).
 Os pacotes [Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
 [Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md) e
@@ -473,10 +473,11 @@ projeção, migration e teste descobertos. Não iniciar escrita sensível sem es
 
 ## Evidências e checkpoint
 
-`WP-R16-01` a `WP-R16-03` estão encerrados no CP6. Navegação, listas completas e
-elenco reconhecível estão ativos nos 5 times de produção. O terceiro pacote
-comprovou piloto, rollback/restauração sem alterar contagens do elenco, rollout
-global idempotente e smoke pós-ativação. Os pacotes `WP-R16-04` a `09`
+`WP-R16-01` a `WP-R16-04` estão encerrados no CP6. Navegação, listas completas,
+elenco reconhecível e acompanhamento de campeonatos estão ativos nos 5 times de
+produção. O quarto pacote comprovou piloto, rollback/restauração sem alterar
+contagens esportivas, rollout global idempotente e smoke pós-ativação. Os pacotes
+`WP-R16-05` a `09`
 permanecem pendentes.
 O planejamento não encerra a R15; suas evidências permanecem no pacote próprio.
 O checkpoint obsoleto de pré-merge foi reconciliado na promoção documental abaixo. Na execução,
