@@ -20,16 +20,16 @@ export type ManagementEventKind = (typeof eventKinds)[number];
 const cursorSchema = z.object({
   rank: z.number().int().min(0).max(1),
   sort_at: z.string().min(1),
-  id: z.uuid(),
+  id: z.guid(),
 }).strict();
 
 const linkedOptionSchema = z.object({
-  id: z.uuid(),
+  id: z.guid(),
   name: z.string(),
 });
 
 const managementEventItemSchema = z.object({
-  id: z.uuid(),
+  id: z.guid(),
   title: z.string(),
   kind: z.enum(eventKinds),
   sport_format: z.enum(["field", "society", "futsal"]),
@@ -109,7 +109,7 @@ function isIsoDate(value: string) {
 }
 
 function isUuid(value: string) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  return /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(value);
 }
 
 export function encodeManagementEventCursor(cursor: ManagementEventCursor) {
@@ -130,6 +130,7 @@ export function parseManagementEventSearchParams(
 ): ManagementEventFilterParseResult {
   const allowedKeys = new Set([
     "view", "q", "from", "to", "kind", "team", "championship", "cursor",
+    "mode", "date",
   ]);
   if (Object.keys(query).some((key) => !allowedKeys.has(key))) {
     return { ok: false, message: "Há um filtro desconhecido neste endereço." };

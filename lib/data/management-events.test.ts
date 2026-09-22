@@ -83,7 +83,16 @@ describe("management events data boundary", () => {
       team: internalTeamId,
       championship: championshipId,
       cursor: encodedCursor,
+      mode: "month",
+      date: "2026-09-22",
     })).toEqual({ ok: true, filters });
+  });
+
+  it("aceita UUID canônico do PostgreSQL mesmo sem versão RFC", () => {
+    expect(parseManagementEventSearchParams({
+      team: "11000000-0000-0000-0000-000000000001",
+      championship: "12000000-0000-0000-0000-000000000001",
+    })).toMatchObject({ ok: true });
   });
 
   it.each([
