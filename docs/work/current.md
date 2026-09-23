@@ -2,32 +2,31 @@
 release: R16
 work_package: WP-R16-05
 scope: calendario_e_pendencias
-branch_or_commit: "codex/r16-calendar-workspace"
-checkpoint: CP4
-status: active
+branch_or_commit: "9b7c54b6f78c4cde699c9b95e4d1b201f7985fb0"
+checkpoint: CP6
+status: idle
 completed_ac:
-  - "CAL-01: flag inerte, URL canônica e períodos civis no fuso do time"
-  - "CAL-02: projeção protegida, fallback Lista e agenda diária mobile"
-  - "CAL-03: Semana, Mês, filtros, conflitos e A reagendar"
-  - "CAL-04: responsividade, acessibilidade, limites, telemetria agregada e recuperação operacional"
-dirty_files: []
+  - "AC-R16-13: Lista, Semana e Mês preservam filtros, período e retorno"
+  - "AC-R16-14: períodos civis, sobreposição, densidade, cancelamento e A reagendar cobertos"
+  - "AC-R16-15: conflitos agregados e isolamento multi-time comprovados"
 tests:
-  - "PASS: 40 testes Vitest focados de período, fronteira, interface, UUID do PostgreSQL e sonda"
-  - "PASS: 56 testes pgTAP de contrato e rollout do calendário"
-  - "PASS: lint, typecheck, 158 arquivos/808 testes Vitest, 4 testes de contexto, build Webpack e auditoria sem vulnerabilidades"
-  - "PASS: db reset, db lint sem novos avisos e 83 arquivos/2.212 testes pgTAP"
-  - "PASS: navegador local em desktop e 360 px; Lista e Mês preservaram filtros e retorno; leitura mensal em 20 ms"
+  - "PASS: 158 arquivos/808 testes Vitest; lint, typecheck, contexto, build Webpack e auditoria sem vulnerabilidades"
+  - "PASS: 83 arquivos/2.212 testes pgTAP; db reset, lint, tipos e integridade de migrations"
+  - "PASS: CI 35860700439, banco 35860700442, CodeQL 35860700331, Terraform 35860700624 e deploy Supabase 35860700292"
+  - "PASS: smoke da implantação 35860772496 e smoke pós-ativação somente leitura"
+  - "PASS: navegador local em desktop e 360 px; leitura mensal em 20 ms"
+  - "PASS: piloto, rollback e restauração preservaram 9 eventos; rollout 5/5; replay alterou 0 flags"
 blocker: null
-next_action: "Executar CAL-05: suíte pgTAP completa, PR para dev, promoção para main, piloto, rollback/restauração, rollout global, replay, smoke e CP6."
+next_action: "Iniciar WP-R16-06 em nova tarefa: fechar CP0 de operações em lote antes de implementar."
 ---
 
 # Trabalho atual
 
-O `WP-R16-05` adiciona Lista, Semana e Mês à agenda de gestão, preservando os
-filtros, o contexto de retorno e o fuso do time. No celular, cada dia continua
-como lista acessível. Datas indefinidas e adiadas ficam em **A reagendar**.
+O `WP-R16-05` está encerrado em CP6. Lista, Semana e Mês estão ativos nos cinco
+times de produção, com agenda diária no celular, filtros, conflitos agregados e
+**A reagendar**. O fallback para Lista e o kill switch permanecem disponíveis.
 
-`calendar_workspace` continua desligada até o rollout. A projeção não expõe
-atletas ou outro time, limita o período a 42 dias e mantém a Lista como fallback.
+`dev` e `main` foram reconciliadas pelo PR #515 sem diferença de conteúdo.
 
-A próxima ação é concluir `CAL-05` e registrar evidências reais de produção.
+A próxima tarefa é o CP0 de `WP-R16-06`, operações em lote com seleção explícita,
+prévia, autorização, atomicidade, replay e recuperação.

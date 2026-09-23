@@ -1,6 +1,6 @@
 # WP-R16-05 — Calendário e pendências compreensíveis
 
-> Estado: CP4 aceito em 22 de setembro de 2026; `CAL-05` aguarda promoção e rollout.
+> Estado: CP6 encerrado em 23 de setembro de 2026; ativo nos 5 times de produção.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-13` a `15`.
 > Base inspecionada: `b46cf71`.
 
@@ -141,7 +141,27 @@ testes cobrem papel, cross-tenant, intervalo, flag, duplicação e desempenho.
 
 Evidência local: 40 testes Vitest focados e 56 testes pgTAP específicos do
 calendário/rollout passaram. A suíte completa de aplicação passou com 808
-testes; banco, build e promoção serão registrados no CP5/CP6.
+testes. Essas evidências sustentaram a promoção e o rollout registrados abaixo.
 
-Próxima ação: concluir `CAL-05`, promover para `dev` e `main`, executar piloto,
-rollback/restauração, rollout global, replay e smoke de produção.
+## CP6 encerrado
+
+- [x] PR [#513](https://github.com/givaldos/deutime/pull/513) integrou a branch
+  temporária em `dev`; PR [#514](https://github.com/givaldos/deutime/pull/514)
+  promoveu `dev` para `main` no commit `9b7c54b6f78c4cde699c9b95e4d1b201f7985fb0`;
+- [x] CI, Database, CodeQL e Terraform passaram em `main`; o deploy Supabase
+  [35860700292](https://github.com/givaldos/deutime/actions/runs/35860700292)
+  aplicou e confirmou as três migrations;
+- [x] o smoke somente leitura da implantação
+  [35860772496](https://github.com/givaldos/deutime/actions/runs/35860772496)
+  passou, seguido por smoke pós-ativação executado contra `deutime.app`;
+- [x] estado inerte confirmou 0/5 flags ativas antes do piloto;
+- [x] piloto ativado, desligado e restaurado preservou 9 eventos agendados,
+  0 itens a reagendar e 0 conflitos pendentes;
+- [x] rollout global observou 5 times, alterou os 4 restantes e encerrou com
+  5/5 ativos; replay observou 5 times e alterou 0 flags;
+- [x] PR [#515](https://github.com/givaldos/deutime/pull/515) reconciliou o
+  commit de promoção de `main` em `dev`, sem diferença de conteúdo.
+
+`CAL-01` a `CAL-05` e `AC-R16-13` a `AC-R16-15` estão encerrados. O rollback
+permanece disponível por `set_calendar_workspace_rollout(false, null)` e retorna
+à Lista sem apagar eventos, conflitos, convocações ou histórico esportivo.

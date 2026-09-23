@@ -31,10 +31,10 @@ permanecem fora da proposta atual.
 
 **Prioridade atual:** a **R16 — Experiência de gestão simples** está em execução
 incremental. Navegação e início (`WP-R16-01`), listas de jogos/campeonatos
-(`WP-R16-02`), elenco reconhecível (`WP-R16-03`) e acompanhamento de campeonatos
-(`WP-R16-04`) encerraram CP6 e estão ativos nos cinco times de produção. O
-próximo pacote é `WP-R16-05`, para tornar calendário e pendências
-compreensíveis. A R15 mantém um aceite móvel/produtivo aberto
+(`WP-R16-02`), elenco reconhecível (`WP-R16-03`), acompanhamento de campeonatos
+(`WP-R16-04`) e calendário (`WP-R16-05`) encerraram CP6 e estão ativos nos cinco
+times de produção. O próximo pacote é `WP-R16-06`, para operações em lote com
+prévia e recuperação. A R15 mantém um aceite móvel/produtivo aberto
 no pacote próprio e não será declarada concluída sem essa evidência.
 
 ## Estado executivo
@@ -58,7 +58,7 @@ no pacote próprio e não será declarada concluída sem essa evidência.
 | **R13 — Agenda e competições profissionais** | ✅ `done / CP6` | Agenda profissional ativa nos cinco times e herdada por novos times, com smoke e rollback/restauração comprovados. | [Abrir](releases/R13-agenda-e-competicoes-profissionais.md) |
 | **R14 — Acesso por convite** | ✅ `done / CP6` | Novas equipes exigem código individual com hash, validade e revogação; ativação e rollback foram comprovados em produção. | [Abrir](releases/R14-acesso-por-convite.md) |
 | **R15 — Campeonato guiado** | 🟡 `active` — fechamento a reconciliar | Assistente de cinco passos e finalização transacional implementados, com evidências de testes; validação móvel/produtiva e CP6 ainda não registrados como concluídos no pacote. | [Abrir](releases/R15-campeonato-guiado.md) |
-| **R16 — Experiência de gestão simples** | 🟡 `active` — 4/9 pacotes em CP6 | Navegação, listas, elenco reconhecível e acompanhamento de campeonatos ativos nos cinco times; calendário e pendências são a próxima entrega. | [Abrir](releases/R16-experiencia-de-gestao.md) |
+| **R16 — Experiência de gestão simples** | 🟡 `active` — 5/9 pacotes em CP6 | Navegação, listas, elenco reconhecível, campeonatos e calendário ativos nos cinco times; operações em lote são a próxima entrega. | [Abrir](releases/R16-experiencia-de-gestao.md) |
 | **R11 — Assinatura pelo Asaas** | ⚪ adiada / `blocked` | Fora da fila, sem prazo e sem retomada automática; exige MVP consolidado e sinal explícito do produto para desenvolver, além do CP0 financeiro. | [Abrir](releases/R11-assinatura-asaas.md) |
 
 ## Regra de prioridade: Asaas sob autorização
@@ -156,7 +156,7 @@ ativação global própria descrita abaixo.
 | 14. Campeonato guiado | 🟡 R15 ativa no registro | Reconciliar evidências atuais, concluir validação móvel/produtiva e documentar CP6; preservar o assistente já implementado. |
 | 15. Gestão simples — acesso | ✅ R16, pacotes 01–02 em CP6 | Navegação persistente e listas completas de jogos/campeonatos ativas nos cinco times, com rollback/restauração comprovados. |
 | 16. Gestão simples — pessoas e competição | ✅ R16, pacotes 03–04 em CP6 | Elenco reconhecível e acompanhamento de campeonatos ativos nos cinco times, com recuperação comprovada. |
-| 17. Gestão simples — planejamento | 🟡 R16, pacote 05 é o próximo | Calendário e pendências primeiro; alterações em lote ficam no pacote 06, com prévia, autorização, proteção de histórico e recuperação. |
+| 17. Gestão simples — planejamento | 🟡 R16, pacote 05 em CP6 | Calendário e pendências estão ativos nos cinco times; alterações em lote seguem no pacote 06, com prévia, autorização, proteção de histórico e recuperação. |
 | 18. Gestão simples — histórico e liberação | ⬜ R16, pacotes 07–09 | Equipes, campeões, estatísticas, link por fase, testes com público pouco experiente e liberação integral em produção. |
 | 19. Consolidação do MVP | ⬜ prioridade de produto | Corrigir lacunas restantes comprovadas e obter aceite da experiência em produção; não promove cobrança automaticamente. |
 | 20. Escala | ⬜ decisão futura | Priorizar demais melhorias com risco, uso real ou retorno mensurável. |
@@ -212,11 +212,11 @@ ativação global própria descrita abaixo.
 
 ## Ordem recomendada para uma única frente
 
-1. preservar `WP-R16-01` a `04` ativos, com os fallbacks e evidências já
+1. preservar `WP-R16-01` a `05` ativos, com os fallbacks e evidências já
    comprovados; não repetir rollout nem reabrir migrations aplicadas;
-2. iniciar o CP0 do `WP-R16-05`, delimitando calendário, agenda diária,
-   conflitos e jogos a reagendar sobre a fonte autoritativa existente;
-3. seguir com `WP-R16-06` a `WP-R16-09`, um por vez, fechando os contratos de
+2. iniciar o CP0 do `WP-R16-06`, delimitando seleção, prévia, autorização,
+   atomicidade e recuperação sobre as operações existentes;
+3. seguir com `WP-R16-07` a `WP-R16-09`, um por vez, fechando os contratos de
    cada fatia no momento necessário; piloto e recuperação fazem parte de cada uma;
 4. encerrar a R16 somente após os testes com organizadores pouco experientes e
    a liberação para todos os times elegíveis em produção;
@@ -253,11 +253,12 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 | 15 | ~~Entregar `WP-R16-01` e `02`~~ | ✅ navegação/início e listas completas em CP6, ativas nos cinco times |
 | 16 | ~~Entregar `WP-R16-03` — elenco reconhecível~~ | ✅ CP6, rollout global idempotente e smoke produtivo registrados em 14 de setembro |
 | 17 | ~~Executar `WP-R16-04` — acompanhar campeonatos~~ | ✅ CP6, rollout 5/5, rollback/restauração, replay e smokes produtivos concluídos |
-| 18 | Continuar R16 — gestão simples | sequência 05–09, um pacote por vez; rollout global antes de `done` |
-| 19 | Consolidar a experiência do MVP | jornadas validadas em produção, ausência de bloqueios críticos e aceite do responsável pelo produto |
+| 18 | ~~Executar `WP-R16-05` — calendário e pendências~~ | ✅ CP6, rollout 5/5, rollback/restauração, replay e smokes produtivos concluídos |
+| 19 | Continuar R16 — gestão simples | sequência 06–09, um pacote por vez; rollout global antes de `done` |
+| 20 | Consolidar a experiência do MVP | jornadas validadas em produção, ausência de bloqueios críticos e aceite do responsável pelo produto |
 | Sob autorização, fora da fila | Retomar R11/Asaas | MVP consolidado e sinal explícito para desenvolver; depois revalidar CP0 financeiro, sem promoção automática |
-| 20 | Descobrir marketplace e cobrança dos atletas | densidade real de oferta e demanda, regulação, contabilidade, confiança e viabilidade transacional |
-| 21 | Implementar demais melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
+| 21 | Descobrir marketplace e cobrança dos atletas | densidade real de oferta e demanda, regulação, contabilidade, confiança e viabilidade transacional |
+| 22 | Implementar demais melhorias adiadas que comprovem risco ou retorno | requisitos consolidados e métricas que justifiquem o custo |
 | Opcional | Avaliar migração da Twilio para a Meta | fora do caminho crítico; somente com ponto de equilíbrio ou necessidade operacional comprovados e requisitos revalidados antes do CP0 |
 
 Levantar requisitos agora não autoriza implementação. Exceções à sequência existem somente para segurança, indisponibilidade, obrigação legal, perda de dados ou custo operacional que ameace a continuidade do produto.
