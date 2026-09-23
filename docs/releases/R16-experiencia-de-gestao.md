@@ -27,7 +27,7 @@ invariants:
 # R16 — Experiência de gestão simples
 
 > Planejada em 8 de setembro de 2026. Em execução incremental: `WP-R16-01` a
-> `WP-R16-04` estão validados e ativos em produção; os demais pacotes continuam
+> `WP-R16-05` estão validados e ativos em produção; os demais pacotes continuam
 > pendentes e a release completa ainda não está pronta para lançamento.
 
 ## Resultado demonstrável
@@ -39,10 +39,10 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Próximo: calendário e pendências**, executando o guia
-[Calendário e pendências compreensíveis](work-packages/WP-R16-05-calendario.md)
-depois do fechamento produtivo de `WP-R16-04`.
-Os pacotes [Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
+**Próximo: operações em lote**, executando `WP-R16-06` depois do fechamento
+produtivo de [Calendário e pendências compreensíveis](work-packages/WP-R16-05-calendario.md).
+Os pacotes [Calendário e pendências compreensíveis](work-packages/WP-R16-05-calendario.md),
+[Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
 [Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md) e
 [Navegação e início sem dificuldade](work-packages/WP-R16-01-navegacao.md)
 foram promovidos pelo fluxo `dev → main` e estão ativos para todos os times com
@@ -277,12 +277,12 @@ Datas e intervalos respeitam o fuso do time e duração atravessando meia-noite.
 Conflitos aparecem no início e na agenda, com motivo autorizado e **Reagendar**.
 Resolver é manual; não movimentar outras partidas automaticamente.
 
-- [ ] `AC-R16-13` — Trocar lista/calendário preserva período e filtros; o mesmo
+- [x] `AC-R16-13` — Trocar lista/calendário preserva período e filtros; o mesmo
   evento aparece uma vez por ocorrência, sem duplicação por série ou campeonato.
-- [ ] `AC-R16-14` — Testes cobrem meses, ano, sobreposição, vários jogos no dia,
+- [x] `AC-R16-14` — Testes cobrem meses, ano, sobreposição, vários jogos no dia,
   evento longo, cancelamento e data indefinida. Sem data antiga apresentada como
   agendamento válido; conteúdo denso possui lista acessível equivalente.
-- [ ] `AC-R16-15` — Conflito resolvido desaparece após revalidação; conflito
+- [x] `AC-R16-15` — Conflito resolvido desaparece após revalidação; conflito
   novo aparece com orientação, sem expor agenda ou atletas de outro time. Calendário
   não exige nova integração, worker próprio ou gesto de arrastar para funcionar.
 
@@ -473,11 +473,11 @@ projeção, migration e teste descobertos. Não iniciar escrita sensível sem es
 
 ## Evidências e checkpoint
 
-`WP-R16-01` a `WP-R16-04` estão encerrados no CP6. Navegação, listas completas,
-elenco reconhecível e acompanhamento de campeonatos estão ativos nos 5 times de
-produção. O quarto pacote comprovou piloto, rollback/restauração sem alterar
-contagens esportivas, rollout global idempotente e smoke pós-ativação. Os pacotes
-`WP-R16-05` a `09` permanecem pendentes.
+`WP-R16-01` a `WP-R16-05` estão encerrados no CP6. Navegação, listas completas,
+elenco reconhecível, acompanhamento de campeonatos e calendário estão ativos nos
+5 times de produção. O quinto pacote comprovou piloto, rollback/restauração sem
+alterar 9 eventos, rollout global idempotente e smoke pós-ativação. Os pacotes
+`WP-R16-06` a `09` permanecem pendentes.
 O planejamento não encerra a R15; suas evidências permanecem no pacote próprio.
 O checkpoint obsoleto de pré-merge foi reconciliado na promoção documental abaixo. Na execução,
 registrar por pacote critério, comando/ensaio, resultado, commit, ambiente e
