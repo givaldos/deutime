@@ -1,4 +1,8 @@
 import { Button } from "@/components/ui/button";
+import {
+  CalendarModeNavigation,
+  ManagementCalendarView,
+} from "@/components/management-calendar";
 import { AppContainer, PageHeader } from "@/components/ui/app-shell";
 import { Progress } from "@/components/ui/progress";
 import { requireUser } from "@/lib/auth/dal";
@@ -15,7 +19,14 @@ import {
   type ManagementEventView,
   type RawManagementEventSearchParams,
 } from "@/lib/data/management-events";
+import { getManagementCalendar } from "@/lib/data/management-calendar";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
+import {
+  getCalendarPeriod,
+  parseCalendarSelection,
+  todayInTimeZone,
+  type CalendarMode,
+} from "@/lib/features/calendar-workspace/presentation";
 import { createClient } from "@/lib/supabase/server";
 import {
   CalendarDays, CheckCircle2, ChevronRight, Clock3, Filter, MapPin,
@@ -118,26 +129,38 @@ function withoutCursor(filters: ManagementEventFilters) {
   };
 }
 
-function EventFilters({ teamSlug, filters, options }: {
+function EventFilters({ teamSlug, filters, options, calendarMode, anchorDate }: {
   teamSlug: string;
   filters: ManagementEventFilters;
   options: ManagementEventPage["filter_options"];
+  calendarMode: CalendarMode;
+  anchorDate: string;
 }) {
-  const clearUrl = buildManagementEventListUrl(teamSlug, {
+  const clearListUrl = buildManagementEventListUrl(teamSlug, {
     view: filters.view, search: null, periodStart: null, periodEnd: null,
     kind: null, internalTeamId: null, championshipId: null,
   });
+  const clearTarget = new URL(clearListUrl, "https://deutime.invalid");
+  if (calendarMode !== "list") {
+    clearTarget.searchParams.set("mode", calendarMode);
+    clearTarget.searchParams.set("date", anchorDate);
+  }
+  const clearUrl = `${clearTarget.pathname}${clearTarget.search}`;
   return (
     <form action={`/app/${teamSlug}/events`} method="get" className="app-surface mb-6 p-4 sm:p-5">
       <input type="hidden" name="view" value={filters.view} />
+      {calendarMode !== "list" ? <input type="hidden" name="mode" value={calendarMode} /> : null}
+      {calendarMode !== "list" ? <input type="hidden" name="date" value={anchorDate} /> : null}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2"><Filter className="size-4 text-emerald-700" aria-hidden /><h2 className="text-sm font-black text-graphite">Encontrar jogos</h2></div>
         <Link href={clearUrl} className="inline-flex min-h-11 items-center gap-1.5 px-2 text-xs font-bold text-slate-600 hover:text-emerald-800"><RotateCcw className="size-3.5" aria-hidden />Limpar filtros</Link>
       </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <label className="sm:col-span-2"><span className="text-xs font-bold text-slate-600">Título ou adversário</span><span className="relative mt-1 block"><Search className="pointer-events-none absolute left-3 top-3.5 size-4 text-slate-400" aria-hidden /><input name="q" type="search" minLength={2} maxLength={80} defaultValue={filters.search ?? ""} placeholder="Ex.: final ou nome do adversário" className="min-h-11 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20" /></span></label>
-        <label><span className="text-xs font-bold text-slate-600">De</span><input name="from" type="date" defaultValue={filters.periodStart ?? ""} className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20" /></label>
-        <label><span className="text-xs font-bold text-slate-600">Até</span><input name="to" type="date" defaultValue={filters.periodEnd ?? ""} className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20" /></label>
+        {calendarMode === "list" ? <>
+          <label><span className="text-xs font-bold text-slate-600">De</span><input name="from" type="date" defaultValue={filters.periodStart ?? ""} className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20" /></label>
+          <label><span className="text-xs font-bold text-slate-600">Até</span><input name="to" type="date" defaultValue={filters.periodEnd ?? ""} className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20" /></label>
+        </> : null}
         <label><span className="text-xs font-bold text-slate-600">Tipo</span><select name="kind" defaultValue={filters.kind ?? ""} className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"><option value="">Todos</option>{Object.entries(kindLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label><span className="text-xs font-bold text-slate-600">Equipe</span><select name="team" defaultValue={filters.internalTeamId ?? ""} className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"><option value="">Todas</option>{options.internal_teams.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
         <label className="sm:col-span-2"><span className="text-xs font-bold text-slate-600">Campeonato</span><select name="championship" defaultValue={filters.championshipId ?? ""} className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"><option value="">Todos</option>{options.championships.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
@@ -147,11 +170,13 @@ function EventFilters({ teamSlug, filters, options }: {
   );
 }
 
-function EnhancedEventList({ teamSlug, timeZone, filters, page }: {
+function EnhancedEventList({ teamSlug, timeZone, filters, page, calendarMode, anchorDate }: {
   teamSlug: string;
   timeZone: string;
   filters: ManagementEventFilters;
   page: ManagementEventPage;
+  calendarMode: CalendarMode;
+  anchorDate: string;
 }) {
   const filterBase = withoutCursor(filters);
   const listUrl = buildManagementEventListUrl(teamSlug, filterBase, filters.cursor);
@@ -164,7 +189,7 @@ function EnhancedEventList({ teamSlug, timeZone, filters, page }: {
         return <Link key={view} href={buildManagementEventListUrl(teamSlug, { ...filterBase, view })} aria-current={active ? "page" : undefined} className={`flex min-h-11 items-center justify-center rounded-xl px-3 text-center text-sm font-black transition ${active ? "bg-grass text-white shadow-sm" : "border border-slate-200 bg-white text-slate-600 hover:border-emerald-300 hover:text-emerald-800"}`}>{viewLabels[view]}</Link>;
       })}
     </nav>
-    <EventFilters teamSlug={teamSlug} filters={filters} options={page.filter_options} />
+    <EventFilters teamSlug={teamSlug} filters={filters} options={page.filter_options} calendarMode={calendarMode} anchorDate={anchorDate} />
     <div className="mb-3 flex flex-col items-start gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3"><div><p className="app-kicker">{viewLabels[filters.view]}</p><h2 className="mt-1 text-xl font-black tracking-tight">Jogos encontrados</h2></div><p aria-live="polite" aria-atomic="true" className="text-sm font-bold text-slate-600">{page.list.filtered_count} {page.list.filtered_count === 1 ? "jogo" : "jogos"}</p></div>
     {page.list.items.length ? <div className="grid gap-3 lg:grid-cols-2">{page.list.items.map((event) => <EnhancedEventCard key={event.id} event={event} teamSlug={teamSlug} timeZone={timeZone} returnTo={listUrl} />)}</div> : (
       <div className="app-surface border-dashed p-8 text-center"><CalendarDays className="mx-auto size-8 text-slate-400" aria-hidden /><p className="mt-3 font-semibold">{hasFilters ? "Nenhum resultado com estes filtros" : `Nenhum jogo em ${viewLabels[filters.view].toLowerCase()}`}</p><p className="mt-1 text-sm text-slate-500">{hasFilters ? "Ajuste a busca ou limpe os filtros para tentar novamente." : "Os jogos aparecerão aqui quando estiverem disponíveis."}</p>{hasFilters ? <Button asChild variant="outline" className="mt-5"><Link href={clearUrl}>Limpar filtros</Link></Button> : filters.view === "upcoming" ? <Button asChild className="mt-5"><Link href={`/app/${teamSlug}/events/new`}>Criar primeiro jogo</Link></Button> : null}</div>
@@ -198,8 +223,14 @@ export default async function EventsPage({ params, searchParams }: {
 
   const parsedFilters = parseManagementEventSearchParams(query);
   const managementResult = parsedFilters.ok ? await getManagementEventPage(team.id, parsedFilters.filters) : { mode: "error" as const };
-  const [professionalSchedulingEnabled, legacyPage] = await Promise.all([
+  const calendarSelection = parseCalendarSelection({
+    mode: Array.isArray(query.mode) ? "__invalid__" : query.mode ?? null,
+    date: Array.isArray(query.date) ? "__invalid__" : query.date ?? null,
+    today: todayInTimeZone(team.timezone),
+  });
+  const [professionalSchedulingEnabled, calendarWorkspaceEnabled, legacyPage] = await Promise.all([
     isTeamFeatureEnabled(team.id, "professional_scheduling"),
+    isTeamFeatureEnabled(team.id, "calendar_workspace"),
     managementResult.mode === "unavailable" ? getLegacyManagementEventPage(team.id) : Promise.resolve(null),
   ]);
   const { count: pendingConflictCount } = professionalSchedulingEnabled
@@ -207,14 +238,36 @@ export default async function EventsPage({ params, searchParams }: {
     : { count: 0 };
   const newEventAction = <Button asChild><Link href={`/app/${team.slug}/events/new`}><Plus aria-hidden /><span className="hidden sm:inline">Novo jogo</span><span className="sm:hidden">Novo</span></Link></Button>;
 
-  if (managementResult.mode === "enhanced" && parsedFilters.ok) {
-    return <main className="app-canvas pb-24"><AppContainer><PageHeader eyebrow="Organização" title="Jogos" description="Encontre compromissos, pendências e resultados sem perder o contexto." action={newEventAction} />{professionalSchedulingEnabled ? <Link href={`/app/${team.slug}/events/pending`} className="-mt-3 mb-6 flex min-h-12 items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 px-4 text-sm font-black text-amber-950"><span>Pendências e decisões da agenda</span><span className="rounded-full bg-amber-200 px-2.5 py-1 text-xs">{pendingConflictCount ?? 0}</span></Link> : null}<EnhancedEventList teamSlug={team.slug} timeZone={team.timezone} filters={parsedFilters.filters} page={managementResult.page} /></AppContainer></main>;
+  if (managementResult.mode === "enhanced" && parsedFilters.ok && calendarSelection.ok) {
+    const selectedMode = calendarWorkspaceEnabled ? calendarSelection.mode : "list";
+    const period = selectedMode === "list" ? null : getCalendarPeriod(selectedMode, calendarSelection.anchorDate);
+    const calendarResult = period ? await getManagementCalendar({
+      mode: period.mode,
+      teamId: team.id,
+      start: period.start,
+      end: period.end,
+      search: parsedFilters.filters.search,
+      kind: parsedFilters.filters.kind,
+      internalTeamId: parsedFilters.filters.internalTeamId,
+      championshipId: parsedFilters.filters.championshipId,
+    }) : null;
+    return <main className="app-canvas pb-24"><AppContainer>
+      <PageHeader eyebrow="Organização" title="Jogos" description="Encontre compromissos, pendências e resultados sem perder o contexto." action={newEventAction} />
+      {professionalSchedulingEnabled ? <Link href={`/app/${team.slug}/events/pending`} className="-mt-3 mb-6 flex min-h-12 items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 px-4 text-sm font-black text-amber-950"><span>Pendências e decisões da agenda</span><span className="rounded-full bg-amber-200 px-2.5 py-1 text-xs">{pendingConflictCount ?? 0}</span></Link> : null}
+      {calendarWorkspaceEnabled ? <CalendarModeNavigation teamSlug={team.slug} filters={parsedFilters.filters} mode={selectedMode} anchorDate={calendarSelection.anchorDate} /> : null}
+      {calendarResult?.mode === "error" ? <p role="alert" className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-800">Não foi possível carregar o calendário. A Lista continua disponível.</p> : null}
+      {period && calendarResult?.mode === "calendar" ? <>
+        <EventFilters teamSlug={team.slug} filters={parsedFilters.filters} options={managementResult.page.filter_options} calendarMode={selectedMode} anchorDate={calendarSelection.anchorDate} />
+        <ManagementCalendarView teamSlug={team.slug} timeZone={team.timezone} today={todayInTimeZone(team.timezone)} filters={parsedFilters.filters} period={period} calendar={calendarResult.calendar} />
+      </> : <EnhancedEventList teamSlug={team.slug} timeZone={team.timezone} filters={parsedFilters.filters} page={managementResult.page} calendarMode="list" anchorDate={calendarSelection.anchorDate} />}
+    </AppContainer></main>;
   }
-  if (managementResult.mode === "error") {
+  if (managementResult.mode === "error" || !calendarSelection.ok) {
     const retryUrl = parsedFilters.ok
       ? buildManagementEventListUrl(team.slug, withoutCursor(parsedFilters.filters), parsedFilters.filters.cursor)
       : `/app/${team.slug}/events`;
-    return <main className="app-canvas pb-24"><AppContainer><PageHeader eyebrow="Organização" title="Jogos" description="Encontre compromissos, pendências e resultados sem perder o contexto." action={newEventAction} /><div role="alert" className="app-surface border-red-200 bg-red-50 p-8 text-center"><p className="font-black text-red-900">Não foi possível carregar</p><p className="mt-1 text-sm text-red-700">{parsedFilters.ok ? "Atualize a página e tente novamente." : parsedFilters.message}</p><Button asChild variant="outline" className="mt-5"><Link href={retryUrl}>Tentar novamente</Link></Button></div></AppContainer></main>;
+    const message = !parsedFilters.ok ? parsedFilters.message : !calendarSelection.ok ? calendarSelection.message : "Atualize a página e tente novamente.";
+    return <main className="app-canvas pb-24"><AppContainer><PageHeader eyebrow="Organização" title="Jogos" description="Encontre compromissos, pendências e resultados sem perder o contexto." action={newEventAction} /><div role="alert" className="app-surface border-red-200 bg-red-50 p-8 text-center"><p className="font-black text-red-900">Não foi possível carregar</p><p className="mt-1 text-sm text-red-700">{message}</p><Button asChild variant="outline" className="mt-5"><Link href={retryUrl}>Tentar novamente</Link></Button></div></AppContainer></main>;
   }
 
   const events = legacyPage?.events ?? [];

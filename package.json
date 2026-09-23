@@ -37,6 +37,7 @@
     "pilot:management-lists:health": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/management-lists-pilot-health.mjs",
     "pilot:recognizable-roster:health": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/recognizable-roster-pilot-health.mjs",
     "pilot:championship-followup:health": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/championship-followup-pilot-health.mjs",
+    "pilot:calendar-workspace:health": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/calendar-workspace-pilot-health.mjs",
     "prelaunch:invite": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/prelaunch-team-invite.mjs",
     "smoke:production": "SMOKE_MODE=production-readonly node scripts/smoke.mjs",
     "security:audit": "npm audit --audit-level=moderate",

@@ -54,6 +54,7 @@ describe("controles de entrega", () => {
         "event_share_card",
         "professional_scheduling",
         "team_navigation_shell",
+        "calendar_workspace",
       ]),
     );
   });

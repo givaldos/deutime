@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   managementMode: "enhanced" as "enhanced" | "unavailable" | "error",
   professionalSchedulingEnabled: false,
+  calendarWorkspaceEnabled: false,
   empty: false,
 }));
 
@@ -43,7 +44,10 @@ const enhancedPage = {
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/auth/dal", () => ({ requireUser: vi.fn(async () => ({ id: "user-a" })) }));
 vi.mock("@/lib/features/delivery/server", () => ({
-  isTeamFeatureEnabled: vi.fn(async () => state.professionalSchedulingEnabled),
+  isTeamFeatureEnabled: vi.fn(async (_teamId: string, feature: string) =>
+    feature === "calendar_workspace"
+      ? state.calendarWorkspaceEnabled
+      : state.professionalSchedulingEnabled),
 }));
 vi.mock("next/navigation", () => ({ notFound: () => { throw new Error("NEXT_NOT_FOUND"); } }));
 vi.mock("@/lib/data/management-events", async (importOriginal) => {
@@ -75,6 +79,37 @@ vi.mock("@/lib/data/management-events", async (importOriginal) => {
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(async () => ({ from: (table: string) => createQuery(table) })),
 }));
+vi.mock("@/lib/data/management-calendar", () => ({
+  getManagementCalendar: vi.fn(async () => ({
+    mode: "calendar",
+    calendar: {
+      period: { start: "2026-08-31", end: "2026-10-11", time_zone: "America/Sao_Paulo" },
+      items: [{
+        id: eventId,
+        title: "Final regional",
+        kind: "championship",
+        sport_format: "society",
+        starts_at: "2026-09-22T22:00:00Z",
+        ends_at: "2026-09-22T23:00:00Z",
+        professional_schedule_state: "pending_review",
+        venue_name: "Arena Central",
+        championships: [],
+        internal_teams: [],
+        pending_conflict_count: 1,
+        highest_severity: "hard",
+      }],
+      truncated: false,
+      reschedule_items: [{
+        id: "33333333-3333-4333-8333-333333333333",
+        title: "Sem nova data",
+        kind: "friendly",
+        professional_schedule_state: "date_tbd",
+        reason: "Data a definir",
+      }],
+      summary: { scheduled_count: 1, reschedule_count: 1, conflict_count: 1 },
+    },
+  })),
+}));
 
 import EventsPage from "./page";
 
@@ -104,6 +139,7 @@ function props(searchParams: Record<string, string | string[]> = {}) {
 beforeEach(() => {
   state.managementMode = "enhanced";
   state.professionalSchedulingEnabled = false;
+  state.calendarWorkspaceEnabled = false;
   state.empty = false;
 });
 
@@ -160,5 +196,31 @@ describe("lista de jogos", () => {
 
     expect(html).toContain("Pendências e decisões da agenda");
     expect(html).toContain(">2<");
+  });
+
+  it("mostra mês, agenda diária, conflitos e itens a reagendar atrás da flag", async () => {
+    state.calendarWorkspaceEnabled = true;
+    const html = renderToStaticMarkup(await EventsPage(props({ mode: "month", date: "2026-09-22" })));
+
+    expect(html).toContain("Formato da agenda");
+    expect(html).toContain("setembro de 2026");
+    expect(html).toContain("Final regional");
+    expect(html).toContain("1 conflito");
+    expect(html).toContain("A reagendar");
+    expect(html).toContain("Sem nova data");
+    expect(html).toContain("returnTo=%2Fapp%2Fcampo-fc%2Fevents%3Fmode%3Dmonth%26date%3D2026-09-22");
+  });
+
+  it("mantém a Lista quando a flag do calendário está desligada", async () => {
+    const html = renderToStaticMarkup(await EventsPage(props({ mode: "month", date: "2026-09-22" })));
+    expect(html).toContain("Jogos encontrados");
+    expect(html).not.toContain("Formato da agenda");
+  });
+
+  it("rejeita modo ou data de calendário inválidos", async () => {
+    state.calendarWorkspaceEnabled = true;
+    const html = renderToStaticMarkup(await EventsPage(props({ mode: "arrastar", date: "2026-02-30" })));
+    expect(html).toContain("Não foi possível carregar");
+    expect(html).toContain("visão de calendário informada não existe");
   });
 });
