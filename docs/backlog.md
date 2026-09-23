@@ -31,9 +31,9 @@ comercial sem apagar times ou resgates.
 publicação e imagem compartilhável estão disponíveis. A experiência profissional
 que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos está ativa.
 
-**Prioridade atual:** iniciar `WP-R16-05`, tornando calendário e pendências
-compreensíveis. Navegação/início, listas, elenco reconhecível e acompanhamento
-de campeonatos (`WP-R16-01` a `04`) encerraram CP6 e estão ativos nos cinco times.
+**Prioridade atual:** iniciar `WP-R16-06`, tornando operações em lote seguras e
+compreensíveis. Navegação/início, listas, elenco, campeonatos e calendário
+(`WP-R16-01` a `05`) encerraram CP6 e estão ativos nos cinco times.
 R15 ainda possui um aceite móvel/produtivo aberto e não deve ser encerrada por
 inferência a partir das entregas da R16.
 A R11/Asaas está adiada e fora da fila, sem prazo: exige MVP consolidado e sinal
@@ -53,8 +53,10 @@ explícito para desenvolver, antes de retomar qualquer descoberta ou implementa�
   reconhecível nos cinco times, com fallback e recuperação comprovados.
 - [x] Concluir `WP-R16-04` para acompanhamento de campeonatos; executar
   uma única fatia por vez com GPT Sol, sem reduzir os gates.
-- [ ] Iniciar CP0 de `WP-R16-05` para calendário e pendências, usando a agenda
-  autoritativa e mantendo o fallback atual.
+- [x] Concluir `WP-R16-05` para calendário e pendências, com rollout 5/5,
+  rollback/restauração, replay e smoke produtivo.
+- [ ] Iniciar CP0 de `WP-R16-06` para operações em lote, preservando prévia,
+  autorização, atomicidade, histórico e recuperação.
 - [ ] Manter marketplace, split, repasse e cobrança de atletas fora da execução
   até validação própria de densidade, regulação e viabilidade.
 
@@ -72,7 +74,7 @@ Esta lista é índice de capacidades, não um segundo controle de execução.
   iniciais, posições e situação; distinguir atletas de Diretoria e acessos.
 - [x] `WP-R16-04`: campeonato com resumo, jogos, classificação por formato,
   equipes e regulamento; continuar configuração pelo assistente da R15.
-- [ ] `WP-R16-05`: agenda diária, calendário mensal/semanal, filtros,
+- [x] `WP-R16-05`: agenda diária, calendário mensal/semanal, filtros,
   conflitos e jogos a reagendar, mantendo a fonte autoritativa dos eventos.
 - [ ] `WP-R16-06`: operações em lote com seleção explícita, prévia,
   confirmação, autorização, atomicidade e replay seguro; proteger históricos e
