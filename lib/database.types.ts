@@ -4359,6 +4359,18 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_calendar_workspace_health: {
+        Args: { requested_team_id: string }
+        Returns: {
+          calendar_workspace_enabled: boolean
+          last_flag_change_at: string
+          observed_at: string
+          pending_conflicts: number
+          reschedule_events: number
+          scheduled_events: number
+          team_open: boolean
+        }[]
+      }
       get_championship_followup_health: {
         Args: { requested_team_id: string }
         Returns: {
@@ -4552,6 +4564,18 @@ export type Database = {
       }
       get_management_athlete_detail: {
         Args: { requested_athlete_id: string; requested_team_id: string }
+        Returns: Json
+      }
+      get_management_calendar: {
+        Args: {
+          requested_championship_id?: string
+          requested_end: string
+          requested_internal_team_id?: string
+          requested_kind?: Database["public"]["Enums"]["event_kind"]
+          requested_search?: string
+          requested_start: string
+          requested_team_id: string
+        }
         Returns: Json
       }
       get_management_event_page: {
@@ -5352,6 +5376,13 @@ export type Database = {
         }
         Returns: Database["public"]["Enums"]["athlete_status"]
       }
+      set_calendar_workspace_rollout: {
+        Args: { requested_enabled: boolean; requested_team_id?: string }
+        Returns: {
+          flags_changed: number
+          teams_seen: number
+        }[]
+      }
       set_championship_followup_rollout: {
         Args: { requested_enabled: boolean; requested_team_id?: string }
         Returns: {
@@ -5921,6 +5952,7 @@ export type Database = {
         | "complete_management_lists"
         | "recognizable_roster"
         | "clear_championship_workspace"
+        | "calendar_workspace"
       internal_squad_badge_key:
         | "shield"
         | "stripes"
@@ -6265,6 +6297,7 @@ export const Constants = {
         "complete_management_lists",
         "recognizable_roster",
         "clear_championship_workspace",
+        "calendar_workspace",
       ],
       internal_squad_badge_key: [
         "shield",

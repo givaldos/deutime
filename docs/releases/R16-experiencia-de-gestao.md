@@ -39,9 +39,9 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Próximo: calendário e pendências**, iniciando o CP0 do `WP-R16-05` depois do
-fechamento produtivo do guia
-[Acompanhar campeonato sem se perder](work-packages/WP-R16-04-acompanhar-campeonato.md).
+**Próximo: calendário e pendências**, executando o guia
+[Calendário e pendências compreensíveis](work-packages/WP-R16-05-calendario.md)
+depois do fechamento produtivo de `WP-R16-04`.
 Os pacotes [Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
 [Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md) e
 [Navegação e início sem dificuldade](work-packages/WP-R16-01-navegacao.md)

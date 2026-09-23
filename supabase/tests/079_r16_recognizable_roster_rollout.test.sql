@@ -41,8 +41,8 @@ select ok(not has_function_privilege('anon',
 select ok('recognizable_roster' = any(array(
   select feature::text from private.product_feature_keys() feature
 )), 'elenco integra a herança do produto');
-select is((select count(*) from private.product_feature_keys()),20::bigint,
-  'catálogo possui vinte capacidades');
+select is((select count(*) from private.product_feature_keys()),21::bigint,
+  'catálogo possui vinte e uma capacidades');
 
 update private.product_rollout_state set enabled = false where singleton;
 insert into public.teams(id,name,slug,created_by) values
@@ -141,7 +141,7 @@ select is((select enabled from public.team_feature_flags where
   team_id='fc161000-0000-4000-8000-000000000003' and feature='recognizable_roster'),
   true,'novo time herda o elenco reconhecível ativo');
 select is((select count(*) from public.team_feature_flags where
-  team_id='fc161000-0000-4000-8000-000000000003' and enabled),20::bigint,
+  team_id='fc161000-0000-4000-8000-000000000003' and enabled),21::bigint,
   'novo time herda o catálogo completo');
 select ok((select last_flag_change_at is not null from public.get_recognizable_roster_health(
   'fc161000-0000-4000-8000-000000000001')),
