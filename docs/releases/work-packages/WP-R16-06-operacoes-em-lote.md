@@ -1,6 +1,6 @@
 # WP-R16-06 — Operações em lote com prévia e recuperação
 
-> Estado: CP1 aceito em 29 de setembro de 2026; expansão inerte pronta para promoção.
+> Estado: CP2 aceito em 29 de setembro de 2026; caminho fino de jogos pronto para promoção e flag global desligada.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-16` a `18`.
 > Base inspecionada: `16886e3555c45fd451f70c50a7a06d113e6231f0`.
 
@@ -186,3 +186,24 @@ mínimos e testes positivo, negativo e cross-tenant.
 - [x] reset, lint, 2.247 testes de banco, tipos gerados, 814 testes de aplicação,
   lint, typecheck, auditoria e build Webpack passaram. O build Turbopack local
   não alcançou o Google Fonts; o CI continua obrigatório para a promoção.
+
+## CP2 aceito
+
+- [x] a agenda futura oferece seleção explícita, ação uniforme e prévia com
+  antes/depois, quantidade, impedimentos e ausência de mensagem automática;
+- [x] `apply_event_batch_operation` aceita somente deslocamento de horário,
+  horário civil comum ou duração, revalida sessão, flags, time, versões e
+  conflitos e grava o lote inteiro ou nada;
+- [x] `request_id` e hash do conteúdo impedem aplicação duplicada e rejeitam a
+  reutilização do mesmo identificador com outro pedido;
+- [x] a confirmação preserva o prazo relativo de presença, incrementa a versão,
+  registra mudanças por jogo e auditoria agregada sem PII e não cria comunicação;
+- [x] pgTAP cobre sucesso, replay, colisão, versão obsoleta, atomicidade,
+  cross-tenant e kill switch. Vitest cobre Actions, validação, página e operações;
+- [x] o fluxo foi validado em 390 x 844 px. A prévia mostrou a alteração de
+  12:33 para 13:33 e a confirmação retornou `1 jogo alterado. Nenhuma mensagem
+  foi enviada.`. A camada do modal foi corrigida para não ser interceptada pela
+  navegação inferior;
+- [x] `batch_operations` continua desligada globalmente. A edição individual
+  permanece disponível; séries, transições, cancelamento e atletas seguem em
+  `BAT-03`.

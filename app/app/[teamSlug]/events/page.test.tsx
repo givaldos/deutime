@@ -5,6 +5,7 @@ const state = vi.hoisted(() => ({
   managementMode: "enhanced" as "enhanced" | "unavailable" | "error",
   professionalSchedulingEnabled: false,
   calendarWorkspaceEnabled: false,
+  batchOperationsEnabled: false,
   empty: false,
 }));
 
@@ -47,9 +48,16 @@ vi.mock("@/lib/features/delivery/server", () => ({
   isTeamFeatureEnabled: vi.fn(async (_teamId: string, feature: string) =>
     feature === "calendar_workspace"
       ? state.calendarWorkspaceEnabled
-      : state.professionalSchedulingEnabled),
+      : feature === "batch_operations"
+        ? state.batchOperationsEnabled
+        : feature === "event_control"
+          ? true
+          : state.professionalSchedulingEnabled),
 }));
-vi.mock("next/navigation", () => ({ notFound: () => { throw new Error("NEXT_NOT_FOUND"); } }));
+vi.mock("next/navigation", () => ({
+  notFound: () => { throw new Error("NEXT_NOT_FOUND"); },
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
 vi.mock("@/lib/data/management-events", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/data/management-events")>();
   return {
@@ -140,6 +148,7 @@ beforeEach(() => {
   state.managementMode = "enhanced";
   state.professionalSchedulingEnabled = false;
   state.calendarWorkspaceEnabled = false;
+  state.batchOperationsEnabled = false;
   state.empty = false;
 });
 
@@ -196,6 +205,15 @@ describe("lista de jogos", () => {
 
     expect(html).toContain("Pendências e decisões da agenda");
     expect(html).toContain(">2<");
+  });
+
+  it("mostra seleção em lote somente com o contrato e as dependências habilitados", async () => {
+    state.professionalSchedulingEnabled = true;
+    state.batchOperationsEnabled = true;
+    const html = renderToStaticMarkup(await EventsPage(props()));
+
+    expect(html).toContain("Abra um jogo ou altere vários de uma vez");
+    expect(html).toContain("Selecionar");
   });
 
   it("mostra mês, agenda diária, conflitos e itens a reagendar atrás da flag", async () => {

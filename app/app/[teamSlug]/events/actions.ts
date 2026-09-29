@@ -4,6 +4,13 @@ import { requireUser } from "@/lib/auth/dal";
 import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import { reportEventControlFailure } from "@/lib/observability/event-control";
 import { createClient } from "@/lib/supabase/server";
+import type { Json } from "@/lib/database.types";
+import {
+  batchPreviewEnvelopeSchema,
+  eventBatchApplyRequestSchema,
+  eventBatchPreviewRequestSchema,
+  type BatchPreviewEnvelope,
+} from "@/lib/validation/batch-operations";
 import {
   attendanceUpdateSchema,
   cancelEventSchema,
@@ -57,6 +64,14 @@ export type EventReminderActionState = {
   outcome?: "success" | "error";
   message?: string;
   nextRequestId?: string;
+};
+
+export type EventBatchActionState = {
+  outcome: "idle" | "preview" | "success" | "error";
+  message?: string;
+  preview?: BatchPreviewEnvelope;
+  appliedCount?: number;
+  replayed?: boolean;
 };
 
 function isMissingEventOptionsContract(error: {
@@ -871,4 +886,118 @@ function revalidateMatchPages(teamSlug: string, eventId: string) {
   revalidatePath("/me/agenda");
   revalidatePath(`/me/agenda/${eventId}`);
   revalidatePath("/me/perfil");
+}
+
+export async function previewEventBatchOperation(
+  input: unknown,
+): Promise<EventBatchActionState> {
+  await requireUser();
+  const parsed = eventBatchPreviewRequestSchema.safeParse(input);
+  if (!parsed.success || parsed.data.selection.mode !== "explicit" || parsed.data.scope !== "selected") {
+    return { outcome: "error", message: "Selecione entre 1 e 50 jogos desta página." };
+  }
+  if (!["shift_time", "set_local_time", "set_duration"].includes(parsed.data.operation.action)) {
+    return { outcome: "error", message: "Esta alteração ainda não está disponível em lote." };
+  }
+
+  const featureStates = await Promise.all([
+    isTeamFeatureEnabled(parsed.data.teamId, "batch_operations"),
+    isTeamFeatureEnabled(parsed.data.teamId, "professional_scheduling"),
+    isTeamFeatureEnabled(parsed.data.teamId, "event_control"),
+  ]);
+  if (featureStates.some((enabled) => !enabled)) {
+    return { outcome: "error", message: "As alterações em lote ainda não estão disponíveis para este time." };
+  }
+
+  const operation = parsed.data.operation;
+  let payload: Record<string, number | string>;
+  if (operation.action === "shift_time") {
+    payload = { offset_minutes: operation.offsetMinutes };
+  } else if (operation.action === "set_local_time") {
+    payload = { local_time: operation.localTime };
+  } else if (operation.action === "set_duration") {
+    payload = { duration_minutes: operation.durationMinutes };
+  } else {
+    return { outcome: "error", message: "Esta alteração ainda não está disponível em lote." };
+  }
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("preview_event_batch_operation", {
+    requested_team_id: parsed.data.teamId,
+    requested_event_ids: parsed.data.selection.ids,
+    requested_action: operation.action,
+    requested_payload: payload,
+    requested_scope: "selected",
+  });
+  if (error || !data || typeof data !== "object" || Array.isArray(data)) {
+    return {
+      outcome: "error",
+      message: error?.code === "42501"
+        ? "Você não tem permissão para alterar estes jogos."
+        : "Não foi possível conferir as alterações agora.",
+    };
+  }
+
+  const preview = batchPreviewEnvelopeSchema.safeParse({ ...data, payload });
+  if (!preview.success) {
+    return { outcome: "error", message: "A prévia recebida não é válida. Atualize a página e tente novamente." };
+  }
+  return {
+    outcome: "preview",
+    message: preview.data.blocked_count
+      ? "Remova os jogos impedidos e confira novamente."
+      : "Confira o antes e depois antes de confirmar.",
+    preview: preview.data,
+  };
+}
+
+export async function applyEventBatchOperation(
+  input: unknown,
+): Promise<EventBatchActionState> {
+  await requireUser();
+  const parsed = eventBatchApplyRequestSchema.safeParse(input);
+  if (!parsed.success) {
+    return { outcome: "error", message: "A prévia não é mais válida. Confira as alterações novamente." };
+  }
+
+  const featureStates = await Promise.all([
+    isTeamFeatureEnabled(parsed.data.teamId, "batch_operations"),
+    isTeamFeatureEnabled(parsed.data.teamId, "professional_scheduling"),
+    isTeamFeatureEnabled(parsed.data.teamId, "event_control"),
+  ]);
+  if (featureStates.some((enabled) => !enabled)) {
+    return { outcome: "error", message: "As alterações em lote foram desativadas para este time." };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("apply_event_batch_operation", {
+    requested_team_id: parsed.data.teamId,
+    requested_preview: parsed.data.preview as Json,
+    request_id: parsed.data.requestId,
+  });
+  if (error || !data || typeof data !== "object" || Array.isArray(data)) {
+    const message = error?.code === "55000"
+      ? "A agenda mudou ou surgiu um conflito. Confira uma nova prévia."
+      : error?.code === "42501"
+        ? "Você não tem permissão para alterar estes jogos."
+        : error?.code === "22023"
+          ? "Esta confirmação não corresponde à prévia atual."
+          : "Não foi possível aplicar as alterações. Tente novamente com o mesmo pedido.";
+    return { outcome: "error", message };
+  }
+
+  const appliedCount = typeof data.applied_count === "number" ? data.applied_count : null;
+  const replayed = data.replayed === true;
+  if (appliedCount === null) {
+    return { outcome: "error", message: "O resultado da alteração não pôde ser confirmado." };
+  }
+  revalidatePath(`/app/${parsed.data.teamSlug}`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/events`);
+  return {
+    outcome: "success",
+    appliedCount,
+    replayed,
+    message: replayed
+      ? `Pedido recuperado: ${appliedCount} ${appliedCount === 1 ? "jogo alterado" : "jogos alterados"}.`
+      : `${appliedCount} ${appliedCount === 1 ? "jogo alterado" : "jogos alterados"}. Nenhuma mensagem foi enviada.`,
+  };
 }

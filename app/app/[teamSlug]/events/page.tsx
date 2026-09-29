@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { EventBatchManager } from "@/components/event-batch-manager";
 import {
   CalendarModeNavigation,
   ManagementCalendarView,
@@ -170,13 +171,15 @@ function EventFilters({ teamSlug, filters, options, calendarMode, anchorDate }: 
   );
 }
 
-function EnhancedEventList({ teamSlug, timeZone, filters, page, calendarMode, anchorDate }: {
+function EnhancedEventList({ teamId, teamSlug, timeZone, filters, page, calendarMode, anchorDate, batchEnabled }: {
+  teamId: string;
   teamSlug: string;
   timeZone: string;
   filters: ManagementEventFilters;
   page: ManagementEventPage;
   calendarMode: CalendarMode;
   anchorDate: string;
+  batchEnabled: boolean;
 }) {
   const filterBase = withoutCursor(filters);
   const listUrl = buildManagementEventListUrl(teamSlug, filterBase, filters.cursor);
@@ -191,7 +194,7 @@ function EnhancedEventList({ teamSlug, timeZone, filters, page, calendarMode, an
     </nav>
     <EventFilters teamSlug={teamSlug} filters={filters} options={page.filter_options} calendarMode={calendarMode} anchorDate={anchorDate} />
     <div className="mb-3 flex flex-col items-start gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3"><div><p className="app-kicker">{viewLabels[filters.view]}</p><h2 className="mt-1 text-xl font-black tracking-tight">Jogos encontrados</h2></div><p aria-live="polite" aria-atomic="true" className="text-sm font-bold text-slate-600">{page.list.filtered_count} {page.list.filtered_count === 1 ? "jogo" : "jogos"}</p></div>
-    {page.list.items.length ? <div className="grid gap-3 lg:grid-cols-2">{page.list.items.map((event) => <EnhancedEventCard key={event.id} event={event} teamSlug={teamSlug} timeZone={timeZone} returnTo={listUrl} />)}</div> : (
+    {page.list.items.length ? batchEnabled ? <EventBatchManager events={page.list.items} returnTo={listUrl} teamId={teamId} teamSlug={teamSlug} timeZone={timeZone} /> : <div className="grid gap-3 lg:grid-cols-2">{page.list.items.map((event) => <EnhancedEventCard key={event.id} event={event} teamSlug={teamSlug} timeZone={timeZone} returnTo={listUrl} />)}</div> : (
       <div className="app-surface border-dashed p-8 text-center"><CalendarDays className="mx-auto size-8 text-slate-400" aria-hidden /><p className="mt-3 font-semibold">{hasFilters ? "Nenhum resultado com estes filtros" : `Nenhum jogo em ${viewLabels[filters.view].toLowerCase()}`}</p><p className="mt-1 text-sm text-slate-500">{hasFilters ? "Ajuste a busca ou limpe os filtros para tentar novamente." : "Os jogos aparecerão aqui quando estiverem disponíveis."}</p>{hasFilters ? <Button asChild variant="outline" className="mt-5"><Link href={clearUrl}>Limpar filtros</Link></Button> : filters.view === "upcoming" ? <Button asChild className="mt-5"><Link href={`/app/${teamSlug}/events/new`}>Criar primeiro jogo</Link></Button> : null}</div>
     )}
     {page.list.next_cursor ? <div className="mt-6 flex justify-center"><Button asChild variant="outline"><Link href={buildManagementEventListUrl(teamSlug, filterBase, page.list.next_cursor)}>Próxima página<ChevronRight aria-hidden /></Link></Button></div> : null}
@@ -228,9 +231,11 @@ export default async function EventsPage({ params, searchParams }: {
     date: Array.isArray(query.date) ? "__invalid__" : query.date ?? null,
     today: todayInTimeZone(team.timezone),
   });
-  const [professionalSchedulingEnabled, calendarWorkspaceEnabled, legacyPage] = await Promise.all([
+  const [professionalSchedulingEnabled, calendarWorkspaceEnabled, batchOperationsEnabled, eventControlEnabled, legacyPage] = await Promise.all([
     isTeamFeatureEnabled(team.id, "professional_scheduling"),
     isTeamFeatureEnabled(team.id, "calendar_workspace"),
+    isTeamFeatureEnabled(team.id, "batch_operations"),
+    isTeamFeatureEnabled(team.id, "event_control"),
     managementResult.mode === "unavailable" ? getLegacyManagementEventPage(team.id) : Promise.resolve(null),
   ]);
   const { count: pendingConflictCount } = professionalSchedulingEnabled
@@ -259,7 +264,7 @@ export default async function EventsPage({ params, searchParams }: {
       {period && calendarResult?.mode === "calendar" ? <>
         <EventFilters teamSlug={team.slug} filters={parsedFilters.filters} options={managementResult.page.filter_options} calendarMode={selectedMode} anchorDate={calendarSelection.anchorDate} />
         <ManagementCalendarView teamSlug={team.slug} timeZone={team.timezone} today={todayInTimeZone(team.timezone)} filters={parsedFilters.filters} period={period} calendar={calendarResult.calendar} />
-      </> : <EnhancedEventList teamSlug={team.slug} timeZone={team.timezone} filters={parsedFilters.filters} page={managementResult.page} calendarMode="list" anchorDate={calendarSelection.anchorDate} />}
+      </> : <EnhancedEventList teamId={team.id} teamSlug={team.slug} timeZone={team.timezone} filters={parsedFilters.filters} page={managementResult.page} calendarMode="list" anchorDate={calendarSelection.anchorDate} batchEnabled={batchOperationsEnabled && professionalSchedulingEnabled && eventControlEnabled && parsedFilters.filters.view === "upcoming"} />}
     </AppContainer></main>;
   }
   if (managementResult.mode === "error" || !calendarSelection.ok) {

@@ -150,8 +150,8 @@ select throws_ok($$select public.apply_event_batch_operation(
   (select payload from event_batch_preview),
   'fe165000-0000-4000-8000-000000000001'
 )$$,
-  'P0001','Confirmação de jogos ainda indisponível neste checkpoint',
-  'assinatura de aplicação permanece fail-closed no CP1');
+  '22023','Prévia do lote inválida',
+  'confirmação rejeita a prévia CP1 sem payload validado');
 
 create temporary table athlete_batch_preview as select public.preview_athlete_review_batch(
   'fe161000-0000-4000-8000-000000000001',

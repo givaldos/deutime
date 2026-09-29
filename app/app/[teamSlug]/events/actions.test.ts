@@ -23,7 +23,9 @@ vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 
 import {
+  applyEventBatchOperation,
   createEvent,
+  previewEventBatchOperation,
   resolveEventScheduleConflict,
   transitionEventSchedule,
   updateEvent,
@@ -231,5 +233,67 @@ describe("ações das opções de evento", () => {
       "transition_event_schedule",
       expect.objectContaining({ requested_transition: "postpone" }),
     );
+  });
+
+  it("monta a prévia de deslocamento com IDs explícitos", async () => {
+    mocks.isTeamFeatureEnabled.mockResolvedValue(true);
+    mocks.rpc.mockResolvedValue({
+      data: {
+        domain: "events",
+        action: "shift_time",
+        scope: "selected",
+        previewed_at: "2026-09-29T12:00:00.000Z",
+        expires_at: "2026-09-29T12:15:00.000Z",
+        selection_hash: "a".repeat(64),
+        item_count: 1,
+        blocked_count: 0,
+        items: [{ id: ids.event, version: 1, eligible: true }],
+      },
+      error: null,
+    });
+
+    const result = await previewEventBatchOperation({
+      teamId: ids.team,
+      selection: { mode: "explicit", ids: [ids.event] },
+      scope: "selected",
+      operation: { action: "shift_time", offsetMinutes: 60 },
+    });
+
+    expect(result).toMatchObject({ outcome: "preview", preview: { payload: { offset_minutes: 60 } } });
+    expect(mocks.rpc).toHaveBeenCalledWith("preview_event_batch_operation", expect.objectContaining({
+      requested_event_ids: [ids.event],
+      requested_payload: { offset_minutes: 60 },
+    }));
+  });
+
+  it("confirma a mesma prévia por request id e atualiza a lista", async () => {
+    mocks.isTeamFeatureEnabled.mockResolvedValue(true);
+    mocks.rpc.mockResolvedValue({
+      data: { request_id: ids.request, applied_count: 1, replayed: false },
+      error: null,
+    });
+    const preview = {
+      domain: "events" as const,
+      action: "set_duration",
+      scope: "selected" as const,
+      previewed_at: "2026-09-29T12:00:00.000Z",
+      expires_at: "2099-09-29T12:15:00.000Z",
+      selection_hash: "b".repeat(64),
+      payload: { duration_minutes: 90 },
+      item_count: 1,
+      blocked_count: 0,
+      items: [{ id: ids.event, version: 1, eligible: true }],
+    };
+
+    const result = await applyEventBatchOperation({
+      teamId: ids.team,
+      teamSlug: "racha-do-bairro",
+      requestId: ids.request,
+      preview,
+    });
+
+    expect(result).toMatchObject({ outcome: "success", appliedCount: 1, replayed: false });
+    expect(mocks.rpc).toHaveBeenCalledWith("apply_event_batch_operation", expect.objectContaining({ request_id: ids.request }));
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/app/racha-do-bairro/events");
   });
 });
