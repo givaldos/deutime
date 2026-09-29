@@ -2,7 +2,7 @@
 release: R16
 work_package: WP-R16-06
 scope: operacoes_em_lote
-branch_or_commit: "codex/r16-batch-contract"
+branch_or_commit: "70b20a261ee455db10e47fb94893fecfb2e1cb78"
 checkpoint: CP1
 status: idle
 completed_ac: []
