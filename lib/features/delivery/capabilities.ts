@@ -16,6 +16,7 @@ export const featureKeys = [
   "professional_scheduling",
   "team_navigation_shell",
   "calendar_workspace",
+  "batch_operations",
 ] as const;
 
 export type FeatureKey = (typeof featureKeys)[number];
