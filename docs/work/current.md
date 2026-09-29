@@ -2,7 +2,7 @@
 release: R16
 work_package: WP-R16-06
 scope: operacoes_em_lote
-branch_or_commit: "70b20a261ee455db10e47fb94893fecfb2e1cb78"
+branch_or_commit: "7f3ea044206075e33e83d48ae902233f4daab40b"
 checkpoint: CP2
 status: idle
 completed_ac: []
