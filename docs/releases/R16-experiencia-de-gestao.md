@@ -27,7 +27,7 @@ invariants:
 # R16 — Experiência de gestão simples
 
 > Planejada em 8 de setembro de 2026. Em execução incremental: `WP-R16-01` a
-> `WP-R16-05` estão validados e ativos em produção; `WP-R16-06` fechou CP1 e os
+> `WP-R16-05` estão validados e ativos em produção; `WP-R16-06` fechou CP2 e os
 > demais pacotes continuam pendentes. A release completa ainda não está pronta.
 
 ## Resultado demonstrável
@@ -39,9 +39,9 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Próximo: alteração de jogos em lote**, executando `BAT-02` do
-[WP-R16-06](work-packages/WP-R16-06-operacoes-em-lote.md) sobre o contrato inerte
-aceito no CP1.
+**Próximo: ampliar as operações em lote**, executando `BAT-03` do
+[WP-R16-06](work-packages/WP-R16-06-operacoes-em-lote.md) para séries,
+transições, cancelamento avulso e análise de atletas pendentes.
 Os pacotes [Calendário e pendências compreensíveis](work-packages/WP-R16-05-calendario.md),
 [Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
 [Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md) e
@@ -481,9 +481,10 @@ projeção, migration e teste descobertos. Não iniciar escrita sensível sem es
 elenco reconhecível, acompanhamento de campeonatos e calendário estão ativos nos
 5 times de produção. O quinto pacote comprovou piloto, rollback/restauração sem
 alterar 9 eventos, rollout global idempotente e smoke pós-ativação. O
-`WP-R16-06` fechou CP1 com flag inerte, limite de 50 itens, prévias read-only,
-isolamento por time e confirmações fail-closed. O caminho de escrita e
-os pacotes `WP-R16-07` a `09` permanecem pendentes.
+`WP-R16-06` fechou CP2 com o caminho fino mobile para jogos, limite de 50 itens,
+prévia, escrita atômica e replay idempotente. A flag global permanece desligada.
+Séries, transições, cancelamento, atletas e os pacotes `WP-R16-07` a `09`
+permanecem pendentes.
 O planejamento não encerra a R15; suas evidências permanecem no pacote próprio.
 O checkpoint obsoleto de pré-merge foi reconciliado na promoção documental abaixo. Na execução,
 registrar por pacote critério, comando/ensaio, resultado, commit, ambiente e

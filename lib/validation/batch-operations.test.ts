@@ -77,6 +77,7 @@ describe("contrato das operações em lote", () => {
       previewed_at: "2026-09-29T12:00:00.000Z",
       expires_at: "2026-09-29T12:15:00.000Z",
       selection_hash: "a".repeat(64),
+      payload: {},
       item_count: 1,
       blocked_count: 0,
       items: [{ id: id(10) }],
