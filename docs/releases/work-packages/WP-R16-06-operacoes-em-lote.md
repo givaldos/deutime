@@ -157,3 +157,15 @@ mínimos e testes positivo, negativo e cross-tenant.
 - [x] `batch_operations` nasce desligada, falha fechada e mantém edição individual;
 - [x] `BAT-01` começa por expansão inerte e fecha assinaturas, tabelas, RLS,
   compatibilidade N/N-1 e tipos antes do consumidor.
+
+## Evidência do checkpoint
+
+- [x] PR [#520](https://github.com/givaldos/deutime/pull/520) integrou o CP0 em
+  `dev`; PR [#521](https://github.com/givaldos/deutime/pull/521) promoveu o
+  conteúdo para `main` no commit `20879b1246686eb29f201781cf4d3b01d27f1837`;
+- [x] CI, Database, CodeQL e Terraform passaram em `main`; o smoke de produção
+  [36509283183](https://github.com/givaldos/deutime/actions/runs/36509283183)
+  confirmou o deploy sem alteração funcional;
+- [x] PR [#522](https://github.com/givaldos/deutime/pull/522) reconciliou `main`
+  em `dev`, sem diferença de conteúdo;
+- [x] a branch temporária inicial foi removida localmente e em `origin`.
