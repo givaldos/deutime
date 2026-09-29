@@ -89,6 +89,7 @@ export const batchPreviewEnvelopeSchema = z.object({
   previewed_at: z.iso.datetime({ offset: true }),
   expires_at: z.iso.datetime({ offset: true }),
   selection_hash: z.string().regex(/^[0-9a-f]{64}$/),
+  payload: z.record(z.string(), z.unknown()),
   item_count: z.number().int().min(1).max(BATCH_OPERATION_LIMIT),
   blocked_count: z.number().int().min(0).max(BATCH_OPERATION_LIMIT),
   items: z.array(z.record(z.string(), z.unknown())).min(1).max(BATCH_OPERATION_LIMIT),
@@ -98,6 +99,20 @@ export const batchApplyRequestSchema = z.object({
   teamId: databaseUuid,
   requestId: databaseUuid,
   preview: batchPreviewEnvelopeSchema,
+});
+
+export const eventBatchApplyRequestSchema = batchApplyRequestSchema.extend({
+  teamSlug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(80),
+}).superRefine(({ preview }, context) => {
+  if (preview.domain !== "events") {
+    context.addIssue({ code: "custom", path: ["preview", "domain"], message: "Prévia de jogos inválida." });
+  }
+  if (preview.scope !== "selected") {
+    context.addIssue({ code: "custom", path: ["preview", "scope"], message: "Use somente os jogos selecionados." });
+  }
+  if (!["shift_time", "set_local_time", "set_duration"].includes(preview.action)) {
+    context.addIssue({ code: "custom", path: ["preview", "action"], message: "Esta alteração ainda não está disponível em lote." });
+  }
 });
 
 export type EventBatchPreviewRequest = z.infer<typeof eventBatchPreviewRequestSchema>;
