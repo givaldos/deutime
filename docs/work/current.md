@@ -1,32 +1,31 @@
 ---
 release: R16
-work_package: WP-R16-05
-scope: calendario_e_pendencias
-branch_or_commit: "9b7c54b6f78c4cde699c9b95e4d1b201f7985fb0"
-checkpoint: CP6
+work_package: WP-R16-06
+scope: operacoes_em_lote
+branch_or_commit: "codex/r16-batch-cp0"
+checkpoint: CP0
 status: idle
-completed_ac:
-  - "AC-R16-13: Lista, Semana e Mês preservam filtros, período e retorno"
-  - "AC-R16-14: períodos civis, sobreposição, densidade, cancelamento e A reagendar cobertos"
-  - "AC-R16-15: conflitos agregados e isolamento multi-time comprovados"
+completed_ac: []
 tests:
-  - "PASS: 158 arquivos/808 testes Vitest; lint, typecheck, contexto, build Webpack e auditoria sem vulnerabilidades"
-  - "PASS: 83 arquivos/2.212 testes pgTAP; db reset, lint, tipos e integridade de migrations"
-  - "PASS: CI 35860700439, banco 35860700442, CodeQL 35860700331, Terraform 35860700624 e deploy Supabase 35860700292"
-  - "PASS: smoke da implantação 35860772496 e smoke pós-ativação somente leitura"
-  - "PASS: navegador local em desktop e 360 px; leitura mensal em 20 ms"
-  - "PASS: piloto, rollback e restauração preservaram 9 eventos; rollout 5/5; replay alterou 0 flags"
+  - "PASS: git diff --check"
+  - "PASS: npm run test:context"
 blocker: null
-next_action: "Iniciar WP-R16-06 em nova tarefa: fechar CP0 de operações em lote antes de implementar."
+next_action: "Executar BAT-01 em nova tarefa: fechar CP1 com expansão inerte, flag batch_operations e contratos das prévias/confirmações."
 ---
 
 # Trabalho atual
 
-O `WP-R16-05` está encerrado em CP6. Lista, Semana e Mês estão ativos nos cinco
-times de produção, com agenda diária no celular, filtros, conflitos agregados e
-**A reagendar**. O fallback para Lista e o kill switch permanecem disponíveis.
+O CP0 de `WP-R16-06` está fechado no guia
+[Operações em lote com prévia e recuperação](../releases/work-packages/WP-R16-06-operacoes-em-lote.md).
+A implementação ainda não começou.
 
-`dev` e `main` foram reconciliadas pelo PR #515 sem diferença de conteúdo.
+O contrato limita cada confirmação a 50 registros de um único time, domínio e
+ação. Seleção e prévia não escrevem; confirmação revalida sessão, papel, versão,
+elegibilidade e conflitos numa transação atômica e idempotente. Mensagens ficam
+desligadas por padrão e separadas da gravação. Edição individual permanece como
+fallback.
 
-A próxima tarefa é o CP0 de `WP-R16-06`, operações em lote com seleção explícita,
-prévia, autorização, atomicidade, replay e recuperação.
+A próxima tarefa é `BAT-01`: adicionar a expansão inerte, a flag tipada
+`batch_operations`, os modelos de seleção/prévia e as assinaturas estreitas para
+eventos e atletas. Nenhum consumidor deve usar o contrato antes de RLS, grants,
+compatibilidade N/N-1, tipos e testes focados estarem fechados no CP1.

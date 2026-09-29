@@ -12,7 +12,7 @@ baseline:
   - BASE-SERIES
   - BASE-MATCH-REPORT
   - BASE-PUBLIC
-verified_at: "e16cde86a0eb4e9f6ae6c6032b39f496bd806e71"
+verified_at: "16886e3555c45fd451f70c50a7a06d113e6231f0"
 invariants:
   - INV-MOBILE-WHATSAPP-FIRST
   - INV-RLS-MULTI-TIME
@@ -27,8 +27,8 @@ invariants:
 # R16 — Experiência de gestão simples
 
 > Planejada em 8 de setembro de 2026. Em execução incremental: `WP-R16-01` a
-> `WP-R16-05` estão validados e ativos em produção; os demais pacotes continuam
-> pendentes e a release completa ainda não está pronta para lançamento.
+> `WP-R16-05` estão validados e ativos em produção; `WP-R16-06` fechou CP0 e os
+> demais pacotes continuam pendentes. A release completa ainda não está pronta.
 
 ## Resultado demonstrável
 
@@ -39,8 +39,9 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Próximo: operações em lote**, executando `WP-R16-06` depois do fechamento
-produtivo de [Calendário e pendências compreensíveis](work-packages/WP-R16-05-calendario.md).
+**Próximo: contrato de operações em lote**, executando `BAT-01` do
+[WP-R16-06](work-packages/WP-R16-06-operacoes-em-lote.md) depois do fechamento
+do CP0 e do calendário produtivo.
 Os pacotes [Calendário e pendências compreensíveis](work-packages/WP-R16-05-calendario.md),
 [Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
 [Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md) e
@@ -288,6 +289,9 @@ Resolver é manual; não movimentar outras partidas automaticamente.
 
 ### WP-R16-06 — edição em lote com prévia e recuperação
 
+Contrato detalhado e CP0:
+[Operações em lote com prévia e recuperação](work-packages/WP-R16-06-operacoes-em-lote.md).
+
 **Entrega inicial:** selecionar explicitamente jogos futuros para alterar
 horário, local ou duração e adiar/reagendar. Cancelamento coletivo fica limitado
 a avulsos elegíveis; vínculo com campeonato exige a operação esportiva existente,
@@ -477,7 +481,9 @@ projeção, migration e teste descobertos. Não iniciar escrita sensível sem es
 elenco reconhecível, acompanhamento de campeonatos e calendário estão ativos nos
 5 times de produção. O quinto pacote comprovou piloto, rollback/restauração sem
 alterar 9 eventos, rollout global idempotente e smoke pós-ativação. Os pacotes
-`WP-R16-06` a `09` permanecem pendentes.
+`WP-R16-06` fechou CP0 com limite de 50 itens, prévia expirada, escrita atômica,
+replay seguro, comunicação separada e fallback individual. Sua implementação e
+os pacotes `WP-R16-07` a `09` permanecem pendentes.
 O planejamento não encerra a R15; suas evidências permanecem no pacote próprio.
 O checkpoint obsoleto de pré-merge foi reconciliado na promoção documental abaixo. Na execução,
 registrar por pacote critério, comando/ensaio, resultado, commit, ambiente e

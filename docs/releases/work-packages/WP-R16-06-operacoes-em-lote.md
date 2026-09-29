@@ -1,0 +1,159 @@
+# WP-R16-06 — Operações em lote com prévia e recuperação
+
+> Estado: CP0 aceito em 28 de setembro de 2026; implementação ainda não iniciada.
+> Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-16` a `18`.
+> Base inspecionada: `16886e3555c45fd451f70c50a7a06d113e6231f0`.
+
+## Resultado demonstrável
+
+Uma pessoa da gestão seleciona jogos futuros ou cadastros pendentes, entende
+exatamente quais registros serão alterados, confere antes/depois e impedimentos,
+confirma uma única vez e recebe um resultado objetivo. Repetir a solicitação
+depois de perda de rede não altera novamente os dados nem duplica comunicação.
+
+## Dependências e decisões
+
+- `WP-R16-03` e `WP-R16-05` estão em CP6. O lote reutiliza as fontes atuais de
+  atletas, eventos, conflitos, séries, campeonatos e auditoria;
+- a capacidade tipada `batch_operations` nasce desligada e depende das flags do
+  domínio operado. Flag ausente, dependência desligada ou contrato indisponível
+  mantém edição e análise individuais;
+- cada confirmação pertence a um time, um domínio e uma ação. Eventos e atletas
+  não são combinados, e IDs de outro time falham fechados;
+- o limite é de 50 registros depois da resolução server-side. **Selecionar esta
+  página** usa os até 24 itens visíveis; **Selecionar todos os resultados** só
+  aparece quando o servidor resolve no máximo 50 itens. Acima disso, a pessoa
+  precisa restringir os filtros;
+- trocar time, filtros, ordenação, domínio ou ação invalida a seleção e a prévia;
+  nenhum registro novo entra por atualização silenciosa da lista;
+- a prévia expira em 15 minutos e pertence ao usuário, time, ação e conjunto
+  resolvido. Ela não concede permissão e toda regra é revalidada ao confirmar;
+- o lote inteiro é atômico. Um item alterado, finalizado, inelegível, com versão
+  diferente ou conflito bloqueante impede qualquer escrita. Remover impedidos
+  exige seleção explícita e uma nova prévia;
+- `request_id` e hash canônico do conteúdo tornam a confirmação idempotente. O
+  mesmo ID com outro conteúdo é rejeitado; replay devolve o resultado gravado;
+- não haverá botão **Desfazer** nesta fatia. Auditoria, consulta do comando e
+  correção autorizada preservam recuperação sem prometer reversão inexistente.
+
+## Escopo
+
+Incluído para jogos:
+
+- selecionar somente ocorrências futuras e ainda não finalizadas do próprio time;
+- deslocar todos pelo mesmo intervalo ou definir o mesmo horário civil mantendo
+  a data de cada ocorrência, com a diferença explicada na prévia;
+- alterar local ou duração de forma uniforme;
+- adiar ou deixar data a definir; reagendar por deslocamento explícito preserva
+  a distância relativa entre as ocorrências;
+- operar **Só os selecionados**; **Este e os próximos** existe apenas para uma
+  única série, é expandido pelo servidor e continua sujeito ao limite de 50;
+- cancelar coletivamente apenas eventos avulsos sem vínculo com confronto de
+  campeonato. Campeonato usa sua operação esportiva existente.
+
+Incluído para atletas:
+
+- selecionar cadastros `pending` do próprio time e aprovar ou rejeitar todos
+  pela mesma decisão;
+- mostrar na prévia quais vínculos deixaram de estar pendentes antes da confirmação.
+
+Fora deste pacote:
+
+- excluir conta, atleta, evento, série, súmula, resultado ou histórico;
+- publicar perfil, mudar identidade, consentimento, presença, escalação ou equipe;
+- combinar séries, ações ou domínios; corrigir conflito duro por exceção coletiva;
+- fila para superar o limite, importação, planilha, drag and drop ou edição offline;
+- WhatsApp, e-mail ou outra mensagem automática como efeito implícito do lote.
+
+## Seleção e experiência mobile
+
+- o modo **Selecionar** é explícito e começa vazio. Cada item tem caixa de seleção,
+  nome, data/estado e motivo quando não é elegível;
+- uma barra fixa no celular informa quantidade e oferece **Conferir alterações**;
+  sair, voltar ou cancelar a prévia não grava nada;
+- a prévia lista resumo antes/depois, escopo, quantidade, conflitos, impedimentos
+  e efeitos em séries. Texto, ícone e estado não dependem somente de cor;
+- a confirmação nomeia a ação e a quantidade, por exemplo **Atualizar 5 jogos**.
+  O sucesso informa aplicados, replay e comunicação separadamente;
+- carregamento bloqueia confirmação duplicada; perda de rede permite consultar o
+  mesmo `request_id` e repetir com segurança;
+- a seleção funciona em 360 px, teclado e leitor de tela, com alvo mínimo de
+  toque e retorno ao mesmo filtro depois do resultado.
+
+## Autorização, prévia e escrita
+
+As Actions validam tamanho e formato e delegam a RPCs separadas por domínio. O
+CP1 fecha assinaturas e tipos de retorno para quatro operações estreitas:
+
+- prévia e aplicação de lote de eventos;
+- prévia e aplicação de análise de atletas pendentes.
+
+As prévias são somente leitura, resolvem IDs e filtros no servidor e devolvem um
+identificador opaco, expiração, versões, antes/depois, elegíveis e impedimentos.
+Não aceitam `team_id` derivado da interface como prova de vínculo.
+
+Na confirmação, a RPC deriva `auth.uid()`, exige associação ativa de owner,
+admin ou manager pelo contrato atual, verifica `batch_operations` e as flags do
+domínio, bloqueia registros em ordem estável e compara a versão da prévia. Para
+eventos, usa `schedule_version`, estado, vínculo de série/campeonato e conflitos;
+para atletas, usa estado `pending` e `updated_at`. Regras mais restritas já
+existentes, como exceção dura exclusiva de owner/admin, não são ampliadas pelo lote.
+
+Uma transação grava todos os itens, o comando idempotente, as mudanças por item e
+um `audit_logs` agregado sem PII. `authenticated` recebe apenas `execute` nas RPCs;
+`anon` não recebe acesso. Tabelas novas serão privadas ou nascerão com RLS, grants
+mínimos e testes positivo, negativo e cross-tenant.
+
+## Comunicação, telemetria e recuperação
+
+- **Avisar as pessoas** é uma escolha separada, desligada por padrão e exibida
+  somente quando existir um produtor compatível. O primeiro caminho fino não envia;
+- uma futura escolha de aviso roda depois do comando de domínio, usa a outbox,
+  consentimento e chave idempotente própria. Falha de comunicação não reverte a
+  agenda e aparece separada do resultado da gravação;
+- telemetria registra domínio, ação, quantidade, duração, impedimentos agregados,
+  replay e categoria de erro. Não registra títulos, nomes, filtros, IDs ou PII;
+- a sonda do piloto expõe somente flag, comandos, itens, falhas, replays e latência
+  agregados. Kill switch desliga novas prévias/confirmações e preserva alterações;
+- recuperação consulta o resultado pelo `request_id`, mantém a edição individual
+  e permite correção autorizada. Rollback da flag nunca tenta apagar fatos válidos.
+
+## Subtarefas
+
+| Fatia | Entrega | Checkpoint |
+|---|---|---|
+| `BAT-01` | contrato, flag inerte, seleção explícita e modelos de prévia | CP1 |
+| `BAT-02` | caminho fino mobile para alterar jogos selecionados | CP2 |
+| `BAT-03` | séries, transições, cancelamento avulso e análise de atletas | CP3 |
+| `BAT-04` | concorrência, replay, perda de rede, acessibilidade e desempenho | CP3/CP4 |
+| `BAT-05` | piloto, rollback/restauração, rollout global, smoke e documentação | CP5/CP6 |
+
+## Aceite e validação
+
+- `AC-R16-16`: seleção e prévia não escrevem; desistência não produz efeito e o
+  resultado informa objetivamente quantos registros foram alterados;
+- `AC-R16-17`: autorização, limite, cross-tenant, atomicidade, versão, conflito,
+  finalizado e replay são impostos no banco e cobertos por pgTAP;
+- `AC-R16-18`: perda de rede consulta ou repete o mesmo comando sem nova alteração;
+  comunicação é separada e a auditoria permite investigação e correção;
+- `VAL-APP`: Vitest focado, typecheck, `npm run verify`, fluxo de 360 a 1280 px,
+  teclado e leitor de tela;
+- `VAL-DB`: pgTAP positivo, negativo, cross-tenant, limite, concorrência e replay;
+  reset, lint, suíte, tipos e integridade de migrations antes da promoção;
+- produção: expansão inerte, piloto com registros sintéticos mínimos, sonda sem
+  PII, rollback/restauração da flag, replay e smoke somente leitura.
+
+## CP0 aceito
+
+- [x] resultado, dependências, escopo incluído/excluído, papéis, limite, expiração,
+  seleção, prévia, atomicidade, concorrência e idempotência estão definidos;
+- [x] comunicação paga permanece separada e opt-in; histórico, consentimento,
+  identidade e fatos esportivos não podem ser alterados pelo lote;
+- [x] entrypoints confirmados em `events/page.tsx`, `events/actions.ts`,
+  `athletes/page.tsx`, `athletes/actions.ts`, `management-events.ts`,
+  `management-athletes.ts`, `update_event_as_staff_v4`,
+  `transition_event_schedule`, `cancel_event_as_staff` e
+  `review_athlete_registration`;
+- [x] `batch_operations` nasce desligada, falha fechada e mantém edição individual;
+- [x] `BAT-01` começa por expansão inerte e fecha assinaturas, tabelas, RLS,
+  compatibilidade N/N-1 e tipos antes do consumidor.
