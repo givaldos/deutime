@@ -2,25 +2,27 @@
 release: R16
 work_package: WP-R16-06
 scope: operacoes_em_lote
-branch_or_commit: "20879b1246686eb29f201781cf4d3b01d27f1837"
-checkpoint: CP0
+branch_or_commit: "70b20a261ee455db10e47fb94893fecfb2e1cb78"
+checkpoint: CP1
 status: idle
 completed_ac: []
 tests:
   - "PASS: git diff --check"
   - "PASS: npm run test:context"
-  - "PASS: PR #520 integrou CP0 em dev; PR #521 promoveu para main"
-  - "PASS: CI 36509279612, banco 36509279553, CodeQL 36509279560, Terraform 36509279598 e smoke 36509283183"
-  - "PASS: PR #522 reconciliou main em dev sem diferença de conteúdo"
+  - "PASS: npm run db:reset, npm run db:lint e npm run db:test (2.247 testes)"
+  - "PASS: npm run lint, npm run typecheck e npm run test (814 testes)"
+  - "PASS: npm run test:context e npm run security:audit (0 vulnerabilidades)"
+  - "PASS: build Webpack; Turbopack local bloqueado somente pelo acesso ao Google Fonts"
 blocker: null
-next_action: "Executar BAT-01 em nova tarefa: fechar CP1 com expansão inerte, flag batch_operations e contratos das prévias/confirmações."
+next_action: "Executar BAT-02: caminho fino mobile para conferir e alterar jogos selecionados, preservando escrita atômica e idempotente."
 ---
 
 # Trabalho atual
 
-O CP0 de `WP-R16-06` está fechado no guia
+O CP1 de `WP-R16-06` está fechado no guia
 [Operações em lote com prévia e recuperação](../releases/work-packages/WP-R16-06-operacoes-em-lote.md).
-A implementação ainda não começou.
+A expansão permanece inerte: nenhuma flag foi ativada e as confirmações falham
+fechado até as próximas fatias.
 
 O contrato limita cada confirmação a 50 registros de um único time, domínio e
 ação. Seleção e prévia não escrevem; confirmação revalida sessão, papel, versão,
@@ -28,7 +30,6 @@ elegibilidade e conflitos numa transação atômica e idempotente. Mensagens fic
 desligadas por padrão e separadas da gravação. Edição individual permanece como
 fallback.
 
-A próxima tarefa é `BAT-01`: adicionar a expansão inerte, a flag tipada
-`batch_operations`, os modelos de seleção/prévia e as assinaturas estreitas para
-eventos e atletas. Nenhum consumidor deve usar o contrato antes de RLS, grants,
-compatibilidade N/N-1, tipos e testes focados estarem fechados no CP1.
+A próxima tarefa é `BAT-02`: implementar o caminho fino mobile para selecionar,
+conferir e alterar jogos. A confirmação deve revalidar versões e conflitos numa
+transação atômica e idempotente; edição individual continua como fallback.

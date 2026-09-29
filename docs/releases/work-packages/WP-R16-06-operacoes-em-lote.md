@@ -1,6 +1,6 @@
 # WP-R16-06 — Operações em lote com prévia e recuperação
 
-> Estado: CP0 aceito em 28 de setembro de 2026; implementação ainda não iniciada.
+> Estado: CP1 aceito em 29 de setembro de 2026; expansão inerte pronta para promoção.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-16` a `18`.
 > Base inspecionada: `16886e3555c45fd451f70c50a7a06d113e6231f0`.
 
@@ -169,3 +169,20 @@ mínimos e testes positivo, negativo e cross-tenant.
 - [x] PR [#522](https://github.com/givaldos/deutime/pull/522) reconciliou `main`
   em `dev`, sem diferença de conteúdo;
 - [x] a branch temporária inicial foi removida localmente e em `origin`.
+
+## CP1 aceito
+
+- [x] `batch_operations` integra o tipo `feature_key`, mas permanece fora da
+  herança global e sem ativação em qualquer time;
+- [x] os modelos da aplicação limitam a seleção a 50 IDs únicos e distinguem
+  eventos, séries, horários, locais, duração, transições e análise de atletas;
+- [x] as prévias de eventos e atletas derivam a sessão, validam associação e
+  flags dependentes, isolam o time e devolvem antes/depois, versão, impedimentos,
+  hash e expiração de 15 minutos sem gravar dados;
+- [x] as assinaturas de confirmação existem com grants mínimos e permanecem
+  bloqueadas até `BAT-02` e `BAT-03`, sem consumidor ou caminho de escrita no CP1;
+- [x] pgTAP cobre sessão ausente, flag desligada, papéis, limite, repetição,
+  cross-tenant, série, local, elegibilidade, ausência de escrita e fail-closed;
+- [x] reset, lint, 2.247 testes de banco, tipos gerados, 814 testes de aplicação,
+  lint, typecheck, auditoria e build Webpack passaram. O build Turbopack local
+  não alcançou o Google Fonts; o CI continua obrigatório para a promoção.
