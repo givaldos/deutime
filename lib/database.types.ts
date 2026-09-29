@@ -3886,6 +3886,22 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      apply_athlete_review_batch: {
+        Args: {
+          request_id: string
+          requested_preview: Json
+          requested_team_id: string
+        }
+        Returns: Json
+      }
+      apply_event_batch_operation: {
+        Args: {
+          request_id: string
+          requested_preview: Json
+          requested_team_id: string
+        }
+        Returns: Json
+      }
       begin_my_account_closure: { Args: { request_id: string }; Returns: Json }
       cancel_event_as_staff: {
         Args: {
@@ -5054,6 +5070,24 @@ export type Database = {
           template_version: string
         }[]
       }
+      preview_athlete_review_batch: {
+        Args: {
+          requested_athlete_ids: string[]
+          requested_decision: string
+          requested_team_id: string
+        }
+        Returns: Json
+      }
+      preview_event_batch_operation: {
+        Args: {
+          requested_action: string
+          requested_event_ids: string[]
+          requested_payload?: Json
+          requested_scope?: string
+          requested_team_id: string
+        }
+        Returns: Json
+      }
       produce_due_event_whatsapp_reminders: {
         Args: { requested_limit?: number }
         Returns: {
@@ -5953,6 +5987,7 @@ export type Database = {
         | "recognizable_roster"
         | "clear_championship_workspace"
         | "calendar_workspace"
+        | "batch_operations"
       internal_squad_badge_key:
         | "shield"
         | "stripes"
@@ -6298,6 +6333,7 @@ export const Constants = {
         "recognizable_roster",
         "clear_championship_workspace",
         "calendar_workspace",
+        "batch_operations",
       ],
       internal_squad_badge_key: [
         "shield",

@@ -31,8 +31,9 @@ comercial sem apagar times ou resgates.
 publicação e imagem compartilhável estão disponíveis. A experiência profissional
 que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos está ativa.
 
-**Prioridade atual:** executar `BAT-01` do `WP-R16-06`, tornando operações em
-lote seguras e compreensíveis. Navegação/início, listas, elenco, campeonatos e calendário
+**Prioridade atual:** executar `BAT-02` do `WP-R16-06`, entregando o caminho fino
+mobile para alterar jogos em lote. O CP1 fechou contratos e expansão inerte.
+Navegação/início, listas, elenco, campeonatos e calendário
 (`WP-R16-01` a `05`) encerraram CP6 e estão ativos nos cinco times.
 R15 ainda possui um aceite móvel/produtivo aberto e não deve ser encerrada por
 inferência a partir das entregas da R16.
@@ -57,8 +58,10 @@ explícito para desenvolver, antes de retomar qualquer descoberta ou implementa�
   rollback/restauração, replay e smoke produtivo.
 - [x] Fechar CP0 de `WP-R16-06` para operações em lote, preservando prévia,
   autorização, atomicidade, histórico e recuperação.
-- [ ] Executar `BAT-01`: expansão inerte, flag tipada, seleção explícita e
+- [x] Executar `BAT-01`: expansão inerte, flag tipada, seleção explícita e
   assinaturas das prévias/confirmações antes do consumidor.
+- [ ] Executar `BAT-02`: seleção, prévia e confirmação atômica e idempotente de
+  alterações de jogos no caminho fino mobile.
 - [ ] Manter marketplace, split, repasse e cobrança de atletas fora da execução
   até validação própria de densidade, regulação e viabilidade.
 
@@ -78,7 +81,7 @@ Esta lista é índice de capacidades, não um segundo controle de execução.
   equipes e regulamento; continuar configuração pelo assistente da R15.
 - [x] `WP-R16-05`: agenda diária, calendário mensal/semanal, filtros,
   conflitos e jogos a reagendar, mantendo a fonte autoritativa dos eventos.
-- [ ] `WP-R16-06` (CP0 concluído): operações em lote com seleção explícita, prévia,
+- [ ] `WP-R16-06` (CP1 concluído): operações em lote com seleção explícita, prévia,
   confirmação, autorização, atomicidade e replay seguro; proteger históricos e
   não enviar mensagens pagas ou consumir cotas sem ação explícita.
 - [ ] `WP-R16-07`: equipes, campeões e estatísticas por período/campeonato,

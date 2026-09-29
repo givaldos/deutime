@@ -55,6 +55,7 @@ describe("controles de entrega", () => {
         "professional_scheduling",
         "team_navigation_shell",
         "calendar_workspace",
+        "batch_operations",
       ]),
     );
   });
