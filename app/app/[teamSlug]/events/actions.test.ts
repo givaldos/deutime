@@ -266,6 +266,39 @@ describe("ações das opções de evento", () => {
     }));
   });
 
+  it("encaminha local e alcance da série sem comunicação implícita", async () => {
+    const venueId = "44444444-4444-4444-8444-444444444444";
+    mocks.isTeamFeatureEnabled.mockResolvedValue(true);
+    mocks.rpc.mockResolvedValue({
+      data: {
+        domain: "events",
+        action: "set_venue",
+        scope: "this_and_future",
+        previewed_at: "2026-09-29T12:00:00.000Z",
+        expires_at: "2026-09-29T12:15:00.000Z",
+        selection_hash: "c".repeat(64),
+        item_count: 1,
+        blocked_count: 0,
+        items: [{ id: ids.event, version: 1, eligible: true }],
+      },
+      error: null,
+    });
+
+    const result = await previewEventBatchOperation({
+      teamId: ids.team,
+      selection: { mode: "explicit", ids: [ids.event] },
+      scope: "this_and_future",
+      operation: { action: "set_venue", venueId },
+    });
+
+    expect(result).toMatchObject({ outcome: "preview", preview: { payload: { venue_id: venueId } } });
+    expect(mocks.rpc).toHaveBeenCalledWith("preview_event_batch_operation", expect.objectContaining({
+      requested_action: "set_venue",
+      requested_payload: { venue_id: venueId },
+      requested_scope: "this_and_future",
+    }));
+  });
+
   it("confirma a mesma prévia por request id e atualiza a lista", async () => {
     mocks.isTeamFeatureEnabled.mockResolvedValue(true);
     mocks.rpc.mockResolvedValue({

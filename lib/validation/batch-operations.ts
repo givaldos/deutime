@@ -107,11 +107,19 @@ export const eventBatchApplyRequestSchema = batchApplyRequestSchema.extend({
   if (preview.domain !== "events") {
     context.addIssue({ code: "custom", path: ["preview", "domain"], message: "Prévia de jogos inválida." });
   }
-  if (preview.scope !== "selected") {
-    context.addIssue({ code: "custom", path: ["preview", "scope"], message: "Use somente os jogos selecionados." });
-  }
-  if (!["shift_time", "set_local_time", "set_duration"].includes(preview.action)) {
+  if (!["shift_time", "set_local_time", "set_venue", "set_duration", "postpone", "date_tbd", "cancel"].includes(preview.action)) {
     context.addIssue({ code: "custom", path: ["preview", "action"], message: "Esta alteração ainda não está disponível em lote." });
+  }
+});
+
+export const athleteBatchApplyRequestSchema = batchApplyRequestSchema.extend({
+  teamSlug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(80),
+}).superRefine(({ preview }, context) => {
+  if (preview.domain !== "athletes" || preview.scope !== "selected") {
+    context.addIssue({ code: "custom", path: ["preview", "domain"], message: "Prévia de atletas inválida." });
+  }
+  if (!["approve", "reject"].includes(preview.action)) {
+    context.addIssue({ code: "custom", path: ["preview", "action"], message: "Esta decisão não está disponível em lote." });
   }
 });
 

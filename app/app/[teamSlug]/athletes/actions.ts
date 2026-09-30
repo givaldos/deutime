@@ -1,7 +1,15 @@
 "use server";
 
 import { requireUser } from "@/lib/auth/dal";
+import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
+import type { Json } from "@/lib/database.types";
 import { createClient } from "@/lib/supabase/server";
+import {
+  athleteBatchApplyRequestSchema,
+  athleteBatchPreviewRequestSchema,
+  batchPreviewEnvelopeSchema,
+  type BatchPreviewEnvelope,
+} from "@/lib/validation/batch-operations";
 import {
   athleteAvailabilitySchema,
   athleteReviewSchema,
@@ -18,6 +26,79 @@ export type CreateAthleteState = {
 };
 
 export type UpdateAthleteState = CreateAthleteState;
+
+export type AthleteBatchActionState = {
+  outcome: "idle" | "preview" | "success" | "error";
+  message?: string;
+  preview?: BatchPreviewEnvelope;
+  appliedCount?: number;
+  replayed?: boolean;
+};
+
+export async function previewAthleteBatchReview(input: unknown): Promise<AthleteBatchActionState> {
+  await requireUser();
+  const parsed = athleteBatchPreviewRequestSchema.safeParse(input);
+  if (!parsed.success || parsed.data.selection.mode !== "explicit") {
+    return { outcome: "error", message: "Selecione entre 1 e 50 cadastros pendentes." };
+  }
+  const enabled = await Promise.all([
+    isTeamFeatureEnabled(parsed.data.teamId, "batch_operations"),
+    isTeamFeatureEnabled(parsed.data.teamId, "recognizable_roster"),
+  ]);
+  if (enabled.some((value) => !value)) {
+    return { outcome: "error", message: "A análise em lote ainda não está disponível para este time." };
+  }
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("preview_athlete_review_batch", {
+    requested_team_id: parsed.data.teamId,
+    requested_athlete_ids: parsed.data.selection.ids,
+    requested_decision: parsed.data.decision,
+  });
+  if (error || !data || typeof data !== "object" || Array.isArray(data)) {
+    return { outcome: "error", message: error?.code === "42501"
+      ? "Você não tem permissão para analisar estes cadastros."
+      : "Não foi possível conferir as decisões agora." };
+  }
+  const preview = batchPreviewEnvelopeSchema.safeParse({ ...data, payload: { decision: parsed.data.decision } });
+  if (!preview.success) return { outcome: "error", message: "A prévia recebida não é válida. Atualize a página." };
+  return { outcome: "preview", preview: preview.data, message: preview.data.blocked_count
+    ? "Remova os cadastros impedidos e confira novamente."
+    : "Confira as pessoas e a decisão antes de confirmar." };
+}
+
+export async function applyAthleteBatchReview(input: unknown): Promise<AthleteBatchActionState> {
+  await requireUser();
+  const parsed = athleteBatchApplyRequestSchema.safeParse(input);
+  if (!parsed.success) return { outcome: "error", message: "A prévia não é mais válida. Confira novamente." };
+  const enabled = await Promise.all([
+    isTeamFeatureEnabled(parsed.data.teamId, "batch_operations"),
+    isTeamFeatureEnabled(parsed.data.teamId, "recognizable_roster"),
+  ]);
+  if (enabled.some((value) => !value)) {
+    return { outcome: "error", message: "A análise em lote foi desativada para este time." };
+  }
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("apply_athlete_review_batch", {
+    requested_team_id: parsed.data.teamId,
+    requested_preview: parsed.data.preview as Json,
+    request_id: parsed.data.requestId,
+  });
+  if (error || !data || typeof data !== "object" || Array.isArray(data)) {
+    return { outcome: "error", message: error?.code === "55000"
+      ? "Um cadastro mudou. Confira uma nova prévia."
+      : error?.code === "42501" ? "Você não tem permissão para analisar estes cadastros."
+        : "Não foi possível concluir. Tente novamente com o mesmo pedido." };
+  }
+  const appliedCount = typeof data.applied_count === "number" ? data.applied_count : null;
+  if (appliedCount === null) return { outcome: "error", message: "O resultado não pôde ser confirmado." };
+  revalidatePath(`/app/${parsed.data.teamSlug}`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/athletes`);
+  revalidatePath(`/app/${parsed.data.teamSlug}/events`);
+  return { outcome: "success", appliedCount, replayed: data.replayed === true,
+    message: data.replayed === true
+      ? `Pedido recuperado: ${appliedCount} ${appliedCount === 1 ? "cadastro analisado" : "cadastros analisados"}.`
+      : `${appliedCount} ${appliedCount === 1 ? "cadastro analisado" : "cadastros analisados"}. Nenhuma mensagem foi enviada.` };
+}
 
 export async function createAthlete(
   _previousState: CreateAthleteState,

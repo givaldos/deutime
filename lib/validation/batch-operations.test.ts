@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  athleteBatchApplyRequestSchema,
   athleteBatchPreviewRequestSchema,
   BATCH_OPERATION_LIMIT,
   batchPreviewEnvelopeSchema,
@@ -82,5 +83,28 @@ describe("contrato das operações em lote", () => {
       blocked_count: 0,
       items: [{ id: id(10) }],
     }).success).toBe(true);
+  });
+
+  it("aceita confirmação de atletas somente para aprovar ou rejeitar", () => {
+    const base = {
+      teamId: id(1),
+      teamSlug: "campo-fc",
+      requestId: id(2),
+      preview: {
+        domain: "athletes",
+        action: "approve",
+        scope: "selected",
+        previewed_at: "2026-09-29T12:00:00.000Z",
+        expires_at: "2026-09-29T12:15:00.000Z",
+        selection_hash: "b".repeat(64),
+        payload: { decision: "approve" },
+        item_count: 1,
+        blocked_count: 0,
+        items: [{ id: id(10), eligible: true }],
+      },
+    };
+    expect(athleteBatchApplyRequestSchema.safeParse(base).success).toBe(true);
+    expect(athleteBatchApplyRequestSchema.safeParse({ ...base, preview: { ...base.preview, action: "remove" } }).success).toBe(false);
+    expect(athleteBatchApplyRequestSchema.safeParse({ ...base, preview: { ...base.preview, domain: "events" } }).success).toBe(false);
   });
 });
