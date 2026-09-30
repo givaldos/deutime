@@ -30,16 +30,22 @@ const event = {
 
 describe("seleção de jogos em lote", () => {
   it("renderiza o fallback de navegação antes de entrar no modo de seleção", () => {
-    const html = renderToStaticMarkup(<EventBatchManager events={[event]} returnTo="/app/campo-fc/events" teamId="11111111-1111-4111-8111-111111111111" teamSlug="campo-fc" timeZone="America/Sao_Paulo" />);
+    const html = renderToStaticMarkup(<EventBatchManager events={[event]} returnTo="/app/campo-fc/events" teamId="11111111-1111-4111-8111-111111111111" teamSlug="campo-fc" timeZone="America/Sao_Paulo" venues={[]} />);
     expect(html).toContain("Selecionar");
     expect(html).toContain("Jogo de terça");
     expect(html).toContain("returnTo=%2Fapp%2Fcampo-fc%2Fevents");
   });
 
-  it("valida os valores das três operações do caminho fino", () => {
+  it("valida os valores e transições disponíveis", () => {
+    const venueId = "33333333-3333-4333-8333-333333333333";
     expect(buildEventBatchOperation("shift_time", "60")).toEqual({ action: "shift_time", offsetMinutes: 60 });
     expect(buildEventBatchOperation("shift_time", "0")).toBeNull();
     expect(buildEventBatchOperation("set_local_time", "20:30")).toEqual({ action: "set_local_time", localTime: "20:30" });
+    expect(buildEventBatchOperation("set_venue", venueId)).toEqual({ action: "set_venue", venueId });
+    expect(buildEventBatchOperation("set_venue", "local-invalido")).toBeNull();
     expect(buildEventBatchOperation("set_duration", "90")).toEqual({ action: "set_duration", durationMinutes: 90 });
+    expect(buildEventBatchOperation("postpone", "")).toEqual({ action: "postpone" });
+    expect(buildEventBatchOperation("date_tbd", "")).toEqual({ action: "date_tbd" });
+    expect(buildEventBatchOperation("cancel", "")).toEqual({ action: "cancel" });
   });
 });

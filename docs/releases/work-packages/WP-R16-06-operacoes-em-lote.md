@@ -1,6 +1,6 @@
 # WP-R16-06 — Operações em lote com prévia e recuperação
 
-> Estado: CP2 aceito em 29 de setembro de 2026; caminho fino de jogos pronto para promoção e flag global desligada.
+> Estado: CP3 aceito em 30 de setembro de 2026; jogos, séries e análise de atletas implementados, com flag global desligada.
 > Contrato geral e aceites: [R16](../R16-experiencia-de-gestao.md), `AC-R16-16` a `18`.
 > Base inspecionada: `16886e3555c45fd451f70c50a7a06d113e6231f0`.
 
@@ -207,3 +207,27 @@ mínimos e testes positivo, negativo e cross-tenant.
 - [x] `batch_operations` continua desligada globalmente. A edição individual
   permanece disponível; séries, transições, cancelamento e atletas seguem em
   `BAT-03`.
+
+## CP3 aceito
+
+- [x] jogos selecionados aceitam troca de local, adiamento, data a definir e
+  cancelamento de eventos avulsos; uma ocorrência de série pode expandir
+  **Este e os próximos** no servidor;
+- [x] a confirmação revalida o conjunto exato da série, versões, elegibilidade,
+  conflitos e vínculos esportivos, bloqueia em ordem estável e grava tudo ou nada;
+- [x] cadastros pendentes podem ser aprovados ou rejeitados em lote. Aprovações
+  integram as chamadas futuras; decisões não enviam mensagens automaticamente;
+- [x] comandos de eventos e atletas têm ledger idempotente, replay seguro,
+  auditoria agregada sem PII, kill switch e falha fechada entre times;
+- [x] a interface preserva edição e análise individuais, expõe seleção explícita,
+  alcance, impedimentos e comparação anterior/posterior. A troca de local mostra
+  os nomes dos dois locais antes da confirmação;
+- [x] o navegador local confirmou a aprovação de dois vínculos pendentes e a
+  troca de `Campo Municipal` para `Arena Nova`; o resultado informou
+  `1 jogo alterado. Nenhuma mensagem foi enviada.`;
+- [x] 826 testes de aplicação e 2.285 testes de banco passaram, além de lint,
+  typecheck, reset, db lint, tipos, integridade de migrations, auditoria com zero
+  vulnerabilidades e build Webpack. O build Turbopack local parou somente ao
+  acessar o Google Fonts; CI segue obrigatório;
+- [x] `batch_operations` permanece desligada em todos os times. `BAT-04` é a
+  próxima fatia para robustez de rede, concorrência, acessibilidade e desempenho.

@@ -15,6 +15,7 @@ export const featureKeys = [
   "recognition",
   "professional_scheduling",
   "team_navigation_shell",
+  "recognizable_roster",
   "calendar_workspace",
   "batch_operations",
 ] as const;

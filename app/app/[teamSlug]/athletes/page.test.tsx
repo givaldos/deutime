@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({
   managementMode: "enhanced" as "enhanced" | "unavailable" | "error",
+  batchOperationsEnabled: false,
+  recognizableRosterEnabled: false,
   empty: false,
 }));
 
@@ -30,7 +32,14 @@ const enhancedPage = {
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/auth/dal", () => ({ requireUser: vi.fn(async () => ({ id: "user-a" })) }));
-vi.mock("next/navigation", () => ({ notFound: () => { throw new Error("NEXT_NOT_FOUND"); } }));
+vi.mock("@/lib/features/delivery/server", () => ({
+  isTeamFeatureEnabled: vi.fn(async (_teamId: string, feature: string) =>
+    feature === "batch_operations" ? state.batchOperationsEnabled : state.recognizableRosterEnabled),
+}));
+vi.mock("next/navigation", () => ({
+  notFound: () => { throw new Error("NEXT_NOT_FOUND"); },
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
 vi.mock("@/app/app/[teamSlug]/athletes/actions", () => ({
   reviewAthlete: vi.fn(),
   setAthleteAvailability: vi.fn(),
@@ -95,6 +104,8 @@ function props(searchParams: Record<string, string | string[]> = {}) {
 
 beforeEach(() => {
   state.managementMode = "enhanced";
+  state.batchOperationsEnabled = false;
+  state.recognizableRosterEnabled = false;
   state.empty = false;
 });
 
@@ -152,5 +163,15 @@ describe("elenco reconhecível", () => {
     const html = renderToStaticMarkup(await AthletesPage(props({ status: "inactive", position: "ALA" })));
     expect(html).toContain("Não foi possível carregar");
     expect(html).toContain("status=inactive&amp;position=ALA");
+  });
+
+  it("mostra análise em lote somente nos vínculos pendentes e com as duas flags", async () => {
+    state.batchOperationsEnabled = true;
+    state.recognizableRosterEnabled = true;
+
+    const html = renderToStaticMarkup(await AthletesPage(props({ status: "pending" })));
+
+    expect(html).toContain("Abra um cadastro ou analise vários de uma vez");
+    expect(html).toContain("Selecionar");
   });
 });

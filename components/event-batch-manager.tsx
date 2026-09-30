@@ -13,12 +13,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState, useTransition } from "react";
 
-type BatchAction = "shift_time" | "set_local_time" | "set_duration";
+type BatchAction = "shift_time" | "set_local_time" | "set_venue" | "set_duration" | "postpone" | "date_tbd" | "cancel";
 
 export function buildEventBatchOperation(
   action: BatchAction,
   rawValue: string,
 ): EventBatchPreviewRequest["operation"] | null {
+  if (action === "postpone" || action === "date_tbd" || action === "cancel") return { action };
+  if (action === "set_venue") {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawValue)
+      ? { action, venueId: rawValue }
+      : null;
+  }
   if (action === "set_local_time") {
     return /^([01]\d|2[0-3]):[0-5]\d$/.test(rawValue)
       ? { action, localTime: rawValue }
@@ -60,12 +66,14 @@ function PreviewDialog({
   onApply,
   onClose,
   timeZone,
+  venues,
 }: {
   actionState: EventBatchActionState;
   applying: boolean;
   onApply: (preview: BatchPreviewEnvelope) => void;
   onClose: () => void;
   timeZone: string;
+  venues: Array<{ id: string; name: string }>;
 }) {
   const preview = actionState.preview;
   return <div className="fixed inset-0 z-[60] flex items-end bg-slate-950/55 p-0 sm:items-center sm:justify-center sm:p-6">
@@ -88,12 +96,17 @@ function PreviewDialog({
             const afterStarts = readPreviewValue(item.after, "starts_at");
             const beforeEnds = readPreviewValue(item.before, "ends_at");
             const afterEnds = readPreviewValue(item.after, "ends_at");
+            const afterState = readPreviewValue(item.after, "schedule_state");
+            const afterStatus = readPreviewValue(item.after, "status");
+            const beforeVenue = readPreviewValue(item.before, "venue_name");
+            const afterVenueId = readPreviewValue(item.after, "venue_id");
+            const afterVenue = venues.find((venue) => venue.id === afterVenueId)?.name;
             const eligible = item.eligible === true;
             return <article key={id} className={`rounded-2xl border p-4 ${eligible ? "border-slate-200" : "border-red-200 bg-red-50"}`}>
               <div className="flex items-start justify-between gap-3"><h3 className="font-black">{String(item.title ?? "Jogo")}</h3><span className={`text-xs font-black ${eligible ? "text-emerald-700" : "text-red-700"}`}>{eligible ? "Pronto" : "Impedido"}</span></div>
               {eligible ? <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-                <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs font-bold text-slate-500">Antes</p><p className="mt-1 font-semibold">{typeof beforeStarts === "string" ? formatDate(beforeStarts, timeZone) : "Sem horário"}</p>{typeof beforeEnds === "string" ? <p className="text-xs text-slate-500">até {formatDate(beforeEnds, timeZone)}</p> : null}</div>
-                <div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs font-bold text-emerald-700">Depois</p><p className="mt-1 font-semibold">{typeof afterStarts === "string" ? formatDate(afterStarts, timeZone) : "Sem horário"}</p>{typeof afterEnds === "string" ? <p className="text-xs text-emerald-700">até {formatDate(afterEnds, timeZone)}</p> : null}</div>
+                <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs font-bold text-slate-500">Antes</p><p className="mt-1 font-semibold">{preview.action === "set_venue" ? typeof beforeVenue === "string" ? beforeVenue : "Sem local" : typeof beforeStarts === "string" ? formatDate(beforeStarts, timeZone) : "Sem horário"}</p>{preview.action !== "set_venue" && typeof beforeEnds === "string" ? <p className="text-xs text-slate-500">até {formatDate(beforeEnds, timeZone)}</p> : null}</div>
+                <div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs font-bold text-emerald-700">Depois</p><p className="mt-1 font-semibold">{preview.action === "set_venue" ? afterVenue ?? "Local selecionado" : afterStatus === "cancelled" ? "Cancelado" : afterState === "postponed" ? "Adiado" : afterState === "date_tbd" ? "Data a definir" : typeof afterStarts === "string" ? formatDate(afterStarts, timeZone) : "Sem horário"}</p>{preview.action !== "set_venue" && typeof afterEnds === "string" && afterStatus !== "cancelled" && !["postponed", "date_tbd"].includes(String(afterState)) ? <p className="text-xs text-emerald-700">até {formatDate(afterEnds, timeZone)}</p> : null}</div>
               </div> : <p className="mt-2 text-sm text-red-700">Este jogo mudou ou possui um impedimento. Remova-o da seleção.</p>}
             </article>;
           })}
@@ -113,18 +126,21 @@ export function EventBatchManager({
   teamId,
   teamSlug,
   timeZone,
+  venues,
 }: {
   events: ManagementEventItem[];
   returnTo: string;
   teamId: string;
   teamSlug: string;
   timeZone: string;
+  venues: Array<{ id: string; name: string }>;
 }) {
   const router = useRouter();
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [action, setAction] = useState<BatchAction>("shift_time");
   const [rawValue, setRawValue] = useState("60");
+  const [scope, setScope] = useState<"selected" | "this_and_future">("selected");
   const [actionState, setActionState] = useState<EventBatchActionState>({ outcome: "idle" });
   const [previewing, startPreview] = useTransition();
   const [applying, startApply] = useTransition();
@@ -141,6 +157,7 @@ export function EventBatchManager({
     setSelected((current) => current.includes(eventId)
       ? current.filter((id) => id !== eventId)
       : [...current, eventId]);
+    setScope("selected");
     setActionState({ outcome: "idle" });
     requestId.current = null;
   }
@@ -156,7 +173,7 @@ export function EventBatchManager({
         const result = await previewEventBatchOperation({
           teamId,
           selection: { mode: "explicit", ids: selected },
-          scope: "selected",
+          scope,
           operation,
         });
         requestId.current = result.outcome === "preview" ? crypto.randomUUID() : null;
@@ -191,10 +208,11 @@ export function EventBatchManager({
       <Button type="button" variant="outline" onClick={() => { setSelecting((value) => !value); setSelected([]); closePreview(); }}>{selecting ? "Cancelar seleção" : "Selecionar"}</Button>
     </div>
     {selecting ? <div className="app-surface mb-4 p-4">
-      <div className="flex items-center justify-between gap-3"><p className="text-sm font-black">{selected.length} selecionado{selected.length === 1 ? "" : "s"}</p><button type="button" className="min-h-11 px-2 text-xs font-bold text-emerald-800" onClick={() => setSelected(selected.length === events.length ? [] : events.map((event) => event.id))}>{selected.length === events.length ? "Limpar seleção" : "Selecionar esta página"}</button></div>
-      <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr]">
-        <label><span className="text-xs font-bold text-slate-600">Alteração</span><select className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm" value={action} onChange={(event) => { const next = event.target.value as BatchAction; setAction(next); setRawValue(next === "set_local_time" ? "20:00" : next === "set_duration" ? "90" : "60"); }}><option value="shift_time">Adiantar ou atrasar</option><option value="set_local_time">Definir o mesmo horário</option><option value="set_duration">Definir duração</option></select></label>
-        <label><span className="text-xs font-bold text-slate-600">{action === "shift_time" ? "Minutos (+ atrasa, − adianta)" : action === "set_local_time" ? "Horário" : "Duração em minutos"}</span><input className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm" type={action === "set_local_time" ? "time" : "number"} min={action === "set_duration" ? 15 : undefined} max={action === "set_duration" ? 480 : undefined} value={rawValue} onChange={(event) => setRawValue(event.target.value)} /></label>
+      <div className="flex items-center justify-between gap-3"><p className="text-sm font-black">{selected.length} selecionado{selected.length === 1 ? "" : "s"}</p><button type="button" className="min-h-11 px-2 text-xs font-bold text-emerald-800" onClick={() => { setSelected(selected.length === events.length ? [] : events.map((event) => event.id)); setScope("selected"); closePreview(); }}>{selected.length === events.length ? "Limpar seleção" : "Selecionar esta página"}</button></div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <label><span className="text-xs font-bold text-slate-600">Alteração</span><select className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm" value={action} onChange={(event) => { const next = event.target.value as BatchAction; setAction(next); setScope("selected"); setRawValue(next === "set_local_time" ? "20:00" : next === "set_duration" ? "90" : next === "set_venue" ? venues[0]?.id ?? "" : "60"); }}><option value="shift_time">Adiantar ou atrasar</option><option value="set_local_time">Definir o mesmo horário</option><option value="set_venue">Definir local</option><option value="set_duration">Definir duração</option><option value="postpone">Adiar</option><option value="date_tbd">Deixar data a definir</option><option value="cancel">Cancelar eventos avulsos</option></select></label>
+        {action === "set_venue" ? <label><span className="text-xs font-bold text-slate-600">Local</span><select className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm" value={rawValue} onChange={(event) => setRawValue(event.target.value)}><option value="">Escolha um local</option>{venues.map((venue) => <option key={venue.id} value={venue.id}>{venue.name}</option>)}</select></label> : ["postpone", "date_tbd", "cancel"].includes(action) ? <div /> : <label><span className="text-xs font-bold text-slate-600">{action === "shift_time" ? "Minutos (+ atrasa, − adianta)" : action === "set_local_time" ? "Horário" : "Duração em minutos"}</span><input className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm" type={action === "set_local_time" ? "time" : "number"} min={action === "set_duration" ? 15 : undefined} max={action === "set_duration" ? 480 : undefined} value={rawValue} onChange={(event) => setRawValue(event.target.value)} /></label>}
+        <label className="sm:col-span-2"><span className="text-xs font-bold text-slate-600">Alcance</span><select className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm" value={scope} onChange={(event) => setScope(event.target.value as "selected" | "this_and_future")}><option value="selected">Só os selecionados</option>{selected.length === 1 && action !== "cancel" ? <option value="this_and_future">Este e os próximos da série</option> : null}</select></label>
       </div>
     </div> : null}
     <div className="grid gap-3 lg:grid-cols-2">
@@ -205,6 +223,6 @@ export function EventBatchManager({
       })}
     </div>
     {selecting && selected.length ? <div className="fixed inset-x-0 bottom-20 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4 sm:w-96 sm:rounded-2xl sm:border"><Button type="button" className="w-full" disabled={previewing} onClick={handlePreview}>{previewing ? <LoaderCircle className="animate-spin" aria-hidden /> : null}Conferir alterações em {selected.length}</Button></div> : null}
-    {actionState.outcome !== "idle" ? <PreviewDialog actionState={actionState} applying={applying} onApply={handleApply} onClose={closePreview} timeZone={timeZone} /> : null}
+    {actionState.outcome !== "idle" ? <PreviewDialog actionState={actionState} applying={applying} onApply={handleApply} onClose={closePreview} timeZone={timeZone} venues={venues} /> : null}
   </>;
 }
