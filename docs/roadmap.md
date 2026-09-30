@@ -33,9 +33,9 @@ permanecem fora da proposta atual.
 incremental. Navegação e início (`WP-R16-01`), listas de jogos/campeonatos
 (`WP-R16-02`), elenco reconhecível (`WP-R16-03`), acompanhamento de campeonatos
 (`WP-R16-04`) e calendário (`WP-R16-05`) encerraram CP6 e estão ativos nos cinco
-times de produção. O `WP-R16-06` fechou CP2 com o primeiro caminho de escrita de
-jogos, ainda desligado globalmente; a próxima fatia é `BAT-03`, para séries,
-transições, cancelamento e atletas. A R15 mantém um aceite móvel/produtivo aberto
+times de produção. O `WP-R16-06` fechou CP3 com jogos, séries e análise de atletas,
+ainda desligado globalmente; a próxima fatia é `BAT-04`, para robustez,
+recuperação de rede, acessibilidade e desempenho. A R15 mantém um aceite móvel/produtivo aberto
 no pacote próprio e não será declarada concluída sem essa evidência.
 
 ## Estado executivo
@@ -215,8 +215,8 @@ ativação global própria descrita abaixo.
 
 1. preservar `WP-R16-01` a `05` ativos, com os fallbacks e evidências já
    comprovados; não repetir rollout nem reabrir migrations aplicadas;
-2. executar `BAT-03` do `WP-R16-06`, ampliando o lote para séries, transições,
-   cancelamento avulso e análise de atletas pendentes;
+2. executar `BAT-04` do `WP-R16-06`, comprovando concorrência, replay de rede,
+   acessibilidade e desempenho;
 3. seguir com `WP-R16-07` a `WP-R16-09`, um por vez, fechando os contratos de
    cada fatia no momento necessário; piloto e recuperação fazem parte de cada uma;
 4. encerrar a R16 somente após os testes com organizadores pouco experientes e
@@ -396,7 +396,7 @@ Destinos novos só aparecem quando sua tela estiver funcional e autorizada.
 | ✅ `WP-R16-03` | Atletas em lista/cartões, com foto ou iniciais | CP6; ativo nos cinco times |
 | ✅ `WP-R16-04` | Campeonato com resumo, jogos, classificação e regulamento | CP6; ativo nos cinco times, com os três formatos e continuação pela R15 |
 | ✅ `WP-R16-05` | Calendário, agenda diária e jogos a reagendar | CP6; ativo nos cinco times, com fallback e recuperação comprovados |
-| `WP-R16-06` | Alterações em lote com prévia e confirmação | CP2 fechado; `BAT-03` amplia escopos e domínios antes do piloto |
+| `WP-R16-06` | Alterações em lote com prévia e confirmação | CP3 fechado; `BAT-04` amplia robustez antes do piloto |
 | `WP-R16-07` | Equipes, campanhas, campeões e estatísticas | resultado derivado de fatos encerrados; líder não é campeão; evento não é partida |
 | `WP-R16-08` | Link do jogo com conteúdo antes/durante/depois | mesma URL, identificação duradoura e proteção de mídia, votos e dados pessoais |
 | `WP-R16-09` | Teste de uso e liberação integral | pelo menos 4 de 5 organizadores concluem cada tarefa sem ajuda; produção, rollback e restauração comprovados |
