@@ -126,11 +126,13 @@ function createQuery(table: string) {
     if (table === "teams") return { data: { id: "team-a", name: "Campo FC", slug: "campo-fc", timezone: "America/Sao_Paulo" }, error: null };
     if (table === "team_memberships") return { data: { role: "owner" }, error: null };
     if (table === "event_schedule_conflicts") return { data: null, count: 2, error: null };
+    if (table === "venues") return { data: [{ id: "44444444-4444-4444-8444-444444444444", name: "Arena Central" }], error: null };
     return { data: null, error: null };
   };
   const query = {
     select: () => query,
     eq: () => query,
+    order: () => query,
     maybeSingle: async () => result(),
     then: (onFulfilled: (value: ReturnType<typeof result>) => unknown) => Promise.resolve(result()).then(onFulfilled),
   };

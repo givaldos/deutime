@@ -893,11 +893,8 @@ export async function previewEventBatchOperation(
 ): Promise<EventBatchActionState> {
   await requireUser();
   const parsed = eventBatchPreviewRequestSchema.safeParse(input);
-  if (!parsed.success || parsed.data.selection.mode !== "explicit" || parsed.data.scope !== "selected") {
+  if (!parsed.success || parsed.data.selection.mode !== "explicit") {
     return { outcome: "error", message: "Selecione entre 1 e 50 jogos desta página." };
-  }
-  if (!["shift_time", "set_local_time", "set_duration"].includes(parsed.data.operation.action)) {
-    return { outcome: "error", message: "Esta alteração ainda não está disponível em lote." };
   }
 
   const featureStates = await Promise.all([
@@ -910,15 +907,15 @@ export async function previewEventBatchOperation(
   }
 
   const operation = parsed.data.operation;
-  let payload: Record<string, number | string>;
+  let payload: Record<string, number | string> = {};
   if (operation.action === "shift_time") {
     payload = { offset_minutes: operation.offsetMinutes };
   } else if (operation.action === "set_local_time") {
     payload = { local_time: operation.localTime };
   } else if (operation.action === "set_duration") {
     payload = { duration_minutes: operation.durationMinutes };
-  } else {
-    return { outcome: "error", message: "Esta alteração ainda não está disponível em lote." };
+  } else if (operation.action === "set_venue") {
+    payload = { venue_id: operation.venueId };
   }
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("preview_event_batch_operation", {
@@ -926,7 +923,7 @@ export async function previewEventBatchOperation(
     requested_event_ids: parsed.data.selection.ids,
     requested_action: operation.action,
     requested_payload: payload,
-    requested_scope: "selected",
+    requested_scope: parsed.data.scope,
   });
   if (error || !data || typeof data !== "object" || Array.isArray(data)) {
     return {

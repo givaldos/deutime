@@ -174,8 +174,8 @@ select throws_ok($$select public.apply_athlete_review_batch(
   (select payload from athlete_batch_preview),
   'fe165000-0000-4000-8000-000000000002'
 )$$,
-  'P0001','Confirmação de atletas ainda indisponível neste checkpoint',
-  'assinatura de aplicação de atletas permanece fail-closed');
+  '22023','Prévia do lote inválida',
+  'confirmação rejeita a prévia sem decisão validada');
 
 select set_config('request.jwt.claim.sub','fe160000-0000-4000-8000-000000000002',true);
 select is((public.preview_event_batch_operation(

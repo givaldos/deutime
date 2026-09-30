@@ -3,11 +3,13 @@ import {
   setAthleteAvailability,
 } from "@/app/app/[teamSlug]/athletes/actions";
 import { AthleteRemoveButton } from "@/components/athlete-remove-button";
+import { AthleteBatchReviewManager } from "@/components/athlete-batch-review-manager";
 import { ManagementAthleteList } from "@/components/management-athlete-list";
 import { Button } from "@/components/ui/button";
 import { AsyncSubmitButton } from "@/components/ui/async-submit-button";
 import { AppContainer, PageHeader } from "@/components/ui/app-shell";
 import { requireUser } from "@/lib/auth/dal";
+import { isTeamFeatureEnabled } from "@/lib/features/delivery/server";
 import {
   buildManagementAthleteListUrl,
   getManagementAthletePage,
@@ -75,11 +77,13 @@ function EnhancedAthletePage({
   query,
   filters,
   page,
+  batchEnabled,
 }: {
   team: { id: string; name: string; slug: string; default_sport_format: "field" | "society" | "futsal" };
   query: RawManagementAthleteSearchParams;
   filters: ManagementAthleteFilters;
   page: ManagementAthletePage;
+  batchEnabled: boolean;
 }) {
   const baseFilters = withoutCursor(filters);
   const hasFilters = Boolean(filters.search || filters.positionCode);
@@ -123,7 +127,7 @@ function EnhancedAthletePage({
 
         <div className="mb-3 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-end"><div><p className="app-kicker">{enhancedStatusLabels[filters.status]}</p><h2 className="mt-1 text-xl font-black tracking-tight">Elenco encontrado</h2></div><p aria-live="polite" aria-atomic="true" className="text-sm font-bold text-slate-600">{page.filteredCount} {page.filteredCount === 1 ? "atleta" : "atletas"}</p></div>
 
-        {page.items.length ? <ManagementAthleteList athletes={page.items} teamSlug={team.slug} returnUrl={buildManagementAthleteListUrl(team.slug, baseFilters, filters.cursor)} /> : (
+        {page.items.length ? batchEnabled ? <AthleteBatchReviewManager athletes={page.items} teamId={team.id} teamSlug={team.slug} returnUrl={buildManagementAthleteListUrl(team.slug, baseFilters, filters.cursor)} /> : <ManagementAthleteList athletes={page.items} teamSlug={team.slug} returnUrl={buildManagementAthleteListUrl(team.slug, baseFilters, filters.cursor)} /> : (
           <div className="app-surface border-dashed p-8 text-center"><UserRound className="mx-auto size-8 text-slate-400" aria-hidden /><p className="mt-3 font-semibold">{hasFilters ? "Nenhum atleta com estes filtros" : `Nenhum atleta em ${enhancedStatusLabels[filters.status].toLowerCase()}`}</p><p className="mt-1 text-sm text-slate-500">{hasFilters ? "Ajuste a busca ou limpe os filtros para tentar novamente." : "Os atletas aparecerão aqui quando estiverem disponíveis."}</p>{hasFilters ? <Button asChild variant="outline" className="mt-5"><Link href={clearUrl}>Limpar filtros</Link></Button> : filters.status === "active" ? <Button asChild className="mt-5"><Link href={`/app/${team.slug}/athletes/new`}>Cadastrar primeiro atleta</Link></Button> : null}</div>
         )}
 
@@ -172,7 +176,11 @@ export default async function AthletesPage({
       : { mode: "error" as const };
 
   if (managementResult.mode === "enhanced" && parsedFilters.ok) {
-    return <EnhancedAthletePage team={team} query={query} filters={parsedFilters.filters} page={managementResult.page} />;
+    const [batchOperationsEnabled, recognizableRosterEnabled] = await Promise.all([
+      isTeamFeatureEnabled(team.id, "batch_operations"),
+      isTeamFeatureEnabled(team.id, "recognizable_roster"),
+    ]);
+    return <EnhancedAthletePage team={team} query={query} filters={parsedFilters.filters} page={managementResult.page} batchEnabled={batchOperationsEnabled && recognizableRosterEnabled && parsedFilters.filters.status === "pending"} />;
   }
 
   if (managementResult.mode === "error") {
