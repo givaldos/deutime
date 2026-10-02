@@ -24,10 +24,10 @@ describe("runtime das actions", () => {
 
     expect(references).toHaveLength(2);
     expect(new Set(references.map((reference) => reference[1]))).toEqual(
-      new Set(["46f7f98c7f948ad727d22c1e67fab04c223a0520"]),
+      new Set(["45a513f8c64c0bc8e0e3dfe572b5c95be85f6359"]),
     );
     expect(new Set(references.map((reference) => reference[2]))).toEqual(
-      new Set(["3.0.0"]),
+      new Set(["3.0.1"]),
     );
   });
 });
