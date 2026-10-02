@@ -105,6 +105,10 @@ O checkpoint de retomada é substituído, não acumulado como diário. Ele deve 
 
 ## Unidade autossuficiente de entrega
 
+Para executar e medir tarefas delimitadas com perfis por risco, use o
+[controlador local de tarefas](development-tasks.md). A preparação não chama
+modelos; execução exige comando explícito e o aceite não substitui os gates.
+
 Uma feature só é autossuficiente quando inclui, conforme aplicável:
 
 - resultado perceptível e fluxo mobile completo;

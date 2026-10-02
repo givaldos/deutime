@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [dev, main]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -35,6 +35,8 @@ jobs:
         run: npm test
       - name: Context workflow tests
         run: npm run test:context
+      - name: Development task controller tests
+        run: npm run test:dev-tasks
       - name: Production dependency audit
         run: npm audit --omit=dev --audit-level=moderate
       - name: Production build

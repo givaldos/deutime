@@ -57,3 +57,6 @@ supabase/.branches
 supabase/.temp
 
 .env.production*
+
+# Worktrees locais; métricas ficam no Git common dir.
+/.dev-tasks/

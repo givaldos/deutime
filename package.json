@@ -12,6 +12,8 @@
   "scripts": {
     "context:brief": "node .agents/skills/executar-release-deutime/scripts/context-brief.mjs",
     "test:context": "node --test .agents/skills/executar-release-deutime/scripts/context-brief.node.mjs",
+    "task": "node scripts/dev-tasks/cli.mjs",
+    "test:dev-tasks": "node --test scripts/dev-tasks/*.node.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -41,7 +43,7 @@
     "prelaunch:invite": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/prelaunch-team-invite.mjs",
     "smoke:production": "SMOKE_MODE=production-readonly node scripts/smoke.mjs",
     "security:audit": "npm audit --audit-level=moderate",
-    "verify": "npm run lint && npm run typecheck && npm run test && npm run test:context && npm run build"
+    "verify": "npm run lint && npm run typecheck && npm run test && npm run test:context && npm run test:dev-tasks && npm run build"
   },
   "dependencies": {
     "@aws-sdk/client-sesv2": "3.1130.0",
@@ -52,7 +54,7 @@
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "lucide-react": "1.41.0",
-    "next": "16.3.4",
+    "next": "16.3.8",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "0.0.1",
@@ -66,7 +68,7 @@
     "@types/react-dom": "19.3.0",
     "autoprefixer": "10.5.4",
     "eslint": "9.39.5",
-    "eslint-config-next": "16.3.4",
+    "eslint-config-next": "16.3.8",
     "postcss": "8.5.26",
     "supabase": "2.117.0",
     "tailwindcss": "4.3.3",

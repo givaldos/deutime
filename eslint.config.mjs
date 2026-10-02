@@ -21,6 +21,7 @@ export default defineConfig([
     },
   },
   globalIgnores([
+    ".dev-tasks/**",
     ".next/**",
     "coverage/**",
     "supabase/.temp/**",

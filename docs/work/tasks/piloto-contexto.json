@@ -1,0 +1,20 @@
+{
+  "id": "piloto-contexto",
+  "objective": "Revisar o fluxo documentado de economia de contexto do DeuTime e apontar até três problemas concretos de consistência ou retomada, com arquivo e linha. Não propor refatorações ou alterações de produto.",
+  "profile": "simples",
+  "mode": "read-only",
+  "risk": "normal",
+  "scope": ["docs/development.md", "docs/work/current.md"],
+  "context": [
+    { "path": "docs/development.md", "start": 68, "end": 105 },
+    { "path": "docs/work/current.md", "start": 1, "end": 18 }
+  ],
+  "acceptance": [
+    "Apontar somente problemas sustentados pelas referências, ou informar que não encontrou problemas.",
+    "Preservar arquivos e o checkpoint de WP-R16-06.",
+    "Entregar no máximo 250 palavras em português."
+  ],
+  "validation": [
+    "Conferir cada achado contra arquivo e linha; não executar testes ou acessar produção nesta tarefa de leitura."
+  ]
+}
