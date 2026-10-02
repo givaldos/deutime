@@ -11,6 +11,9 @@ Reduzir contexto nunca reduz invariantes, validação ou critérios de aceite.
 
 ## Roteamento da tarefa
 
+- Execução medida: perfis em `config/dev-tasks.json` e fluxo em `docs/development-tasks.md`. Prefira `padrao` no trabalho cotidiano; use `critico` no escopo sensível. Contexto e validação mantêm as mesmas invariantes em todos os perfis.
+- O controlador `npm run task` só executa com `--execute`. Não o invoque recursivamente de dentro de uma tarefa controlada. STOP, revisão e gates continuam obrigatórios.
+
 - Consulta, diagnóstico ou documentação local: agente principal, sem plano formal.
 - Um domínio: hipótese e teste focados. Entre camadas, banco, integração, autorização ou rollout: plano curto e checkpoints CP0–CP6.
 - Subagentes: somente para duas ou mais frentes independentes de leitura, teste ou triagem; envie objetivo, caminhos e retorno esperado, não o histórico. Escritas sobrepostas ficam no agente principal.

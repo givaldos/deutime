@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "maxContextBytes": 24000,
+  "maxAttempts": 2,
+  "profiles": {
+    "simples": { "executor": "codex", "model": "gpt-6-luna", "reasoning": "low", "timeoutSeconds": 600 },
+    "padrao": { "executor": "codex", "model": "gpt-6.1-sol", "reasoning": "medium", "timeoutSeconds": 1200 },
+    "critico": { "executor": "codex", "model": "gpt-6-astra", "reasoning": "high", "timeoutSeconds": 1800 },
+    "muse": { "executor": "muse", "model": null, "reasoning": "medium", "timeoutSeconds": 1200, "maxModelSteps": 30, "maxToolOutputBytes": 8000 }
+  }
+}

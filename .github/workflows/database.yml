@@ -3,7 +3,7 @@ name: Database
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [dev, main]
 
 concurrency:
   group: database-${{ github.ref }}
@@ -25,7 +25,7 @@ jobs:
       - name: Protect existing migrations
         if: github.event_name == 'pull_request'
         run: node scripts/check-migration-integrity.mjs "origin/${{ github.base_ref }}" HEAD
-      - name: Protect existing migrations on main
+      - name: Protect existing migrations on permanent branches
         if: github.event_name == 'push'
         run: node scripts/check-migration-integrity.mjs "${{ github.event.before }}" HEAD
       - name: Install Supabase CLI
