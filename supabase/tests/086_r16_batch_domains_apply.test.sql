@@ -2,13 +2,18 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
-select plan(20);
+select plan(28);
 
 insert into auth.users(instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,
   raw_app_meta_data,raw_user_meta_data,created_at,updated_at,confirmation_token,email_change,email_change_token_new,recovery_token)
 values ('00000000-0000-0000-0000-000000000000','fb160000-0000-4000-8000-000000000001','authenticated','authenticated','batch-domains@example.test','',now(),'{}','{}',now(),now(),'','','','');
+insert into auth.users(instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,
+  raw_app_meta_data,raw_user_meta_data,created_at,updated_at,confirmation_token,email_change,email_change_token_new,recovery_token)
+values ('00000000-0000-0000-0000-000000000000','fb160000-0000-4000-8000-000000000002','authenticated','authenticated','batch-manager@example.test','',now(),'{}','{}',now(),now(),'','','','');
 insert into public.teams(id,name,slug,timezone,created_by)
 values ('fb161000-0000-4000-8000-000000000001','Lote Domínios','lote-dominios','America/Sao_Paulo','fb160000-0000-4000-8000-000000000001');
+insert into public.team_memberships(team_id,user_id,role,status)
+values ('fb161000-0000-4000-8000-000000000001','fb160000-0000-4000-8000-000000000002','manager','active');
 insert into public.team_feature_flags(team_id,feature,enabled,updated_by) values
   ('fb161000-0000-4000-8000-000000000001','batch_operations',true,'fb160000-0000-4000-8000-000000000001'),
   ('fb161000-0000-4000-8000-000000000001','event_control',true,'fb160000-0000-4000-8000-000000000001'),
@@ -64,6 +69,16 @@ select is((public.apply_athlete_review_batch('fb161000-0000-4000-8000-0000000000
 select is((select count(*) from public.athletes where id in ('fb166000-0000-4000-8000-000000000001','fb166000-0000-4000-8000-000000000002') and status='active'),2::bigint,'ativa os dois atletas');
 select is((select count(*) from public.event_attendance where athlete_id in ('fb166000-0000-4000-8000-000000000001','fb166000-0000-4000-8000-000000000002')),4::bigint,'inclui aprovados nos jogos futuros ainda agendados');
 select is((public.apply_athlete_review_batch('fb161000-0000-4000-8000-000000000001',(select payload from athlete_preview),'fb167000-0000-4000-8000-000000000001')->>'replayed')::boolean,true,'replay de atletas não reaplica');
+select is(public.get_batch_command_result('fb161000-0000-4000-8000-000000000001','events','fb165000-0000-4000-8000-000000000002')->>'status','applied','consulta resultado de jogos após perder resposta');
+select is((public.get_batch_command_result('fb161000-0000-4000-8000-000000000001','athletes','fb167000-0000-4000-8000-000000000001')->>'applied_count')::integer,2,'consulta resultado de atletas');
+select is(public.get_batch_command_result('fb161000-0000-4000-8000-000000000001','events','fb165000-0000-4000-8000-000000000099')->>'status','unknown','pedido ausente não afirma aplicação');
+select throws_ok($$select public.get_batch_command_result('fb161000-0000-4000-8000-000000000001','other','fb165000-0000-4000-8000-000000000002')$$,'42501','Consulta de lote indisponível','domínio inválido falha fechado');
+select set_config('request.jwt.claim.sub','fb160000-0000-4000-8000-000000000002',true);
+select is(public.get_batch_command_result('fb161000-0000-4000-8000-000000000001','events','fb165000-0000-4000-8000-000000000002')->>'status','unknown','outro gestor não vê o comando de jogos');
+select is(public.get_batch_command_result('fb161000-0000-4000-8000-000000000001','athletes','fb167000-0000-4000-8000-000000000001')->>'status','unknown','outro gestor não vê o comando de atletas');
+select set_config('request.jwt.claim.sub','fb160000-0000-4000-8000-000000000099',true);
+select throws_ok($$select public.get_batch_command_result('fb161000-0000-4000-8000-000000000001','events','fb165000-0000-4000-8000-000000000002')$$,'42501','Consulta de lote indisponível','outro usuário não consulta comando');
+select set_config('request.jwt.claim.sub','fb160000-0000-4000-8000-000000000001',true);
 reset role;
 select is((select count(*) from private.athlete_batch_commands where team_id='fb161000-0000-4000-8000-000000000001'),1::bigint,'ledger privado registra um comando');
 select is((select count(*) from public.audit_logs where team_id='fb161000-0000-4000-8000-000000000001' and action='batch.athletes.reviewed'),1::bigint,'auditoria agregada não registra nomes');
@@ -87,6 +102,7 @@ update public.team_feature_flags set enabled=false where team_id='fb161000-0000-
 set local role authenticated;
 select set_config('request.jwt.claim.sub','fb160000-0000-4000-8000-000000000001',true);
 select throws_ok($$select public.apply_athlete_review_batch('fb161000-0000-4000-8000-000000000001',(select payload from stale_athlete_preview),'fb167000-0000-4000-8000-000000000003')$$,'42501','Operações em lote indisponíveis','kill switch bloqueia atletas');
+select is(public.get_batch_command_result('fb161000-0000-4000-8000-000000000001','athletes','fb167000-0000-4000-8000-000000000001')->>'status','applied','kill switch preserva consulta de recuperação');
 select is((select count(*) from public.audit_logs where team_id='fb161000-0000-4000-8000-000000000001' and action='batch.events.applied'),3::bigint,'três operações válidas de eventos foram auditadas');
 select is((select count(*) from public.event_changes where team_id='fb161000-0000-4000-8000-000000000001'),4::bigint,'cada jogo alterado tem mudança versionada');
 

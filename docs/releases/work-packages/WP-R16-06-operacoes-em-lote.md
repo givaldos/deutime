@@ -231,3 +231,31 @@ mínimos e testes positivo, negativo e cross-tenant.
   acessar o Google Fonts; CI segue obrigatório;
 - [x] `batch_operations` permanece desligada em todos os times. `BAT-04` é a
   próxima fatia para robustez de rede, concorrência, acessibilidade e desempenho.
+
+## BAT-04 em validação
+
+- A consulta `get_batch_command_result` recupera a quantidade aplicada pelo
+  `request_id` para o autor e time do comando. Outro gestor do mesmo time não
+  recebe o resultado. A consulta funciona após desligar a flag, sem reabrir
+  prévias ou confirmações.
+- Jogos e atletas guardam na sessão do navegador somente o identificador do
+  pedido e a prévia mínima com IDs e versões. Após perda da resposta, a tela
+  consulta o resultado e pode repetir o mesmo pedido, sem gerar outro ID.
+  Prévia vencida sem resultado exige uma nova conferência.
+- Os diálogos recebem foco inicial, mantêm a navegação por Tab dentro deles,
+  aceitam Escape e devolvem o foco ao controle anterior. A seleção por teclado
+  recebeu indicação de foco visível. Falta validar com leitor de tela e em
+  aparelhos Android e iPhone.
+- O teste local de 50 jogos mediu 6,0 ms na prévia e 63,1 ms na confirmação.
+  O teste impõe limites de 5 s e 8 s, respectivamente, e confirma 50 mudanças,
+  uma auditoria e replay sem reaplicação. Os números medem somente o banco
+  local, não latência de rede ou experiência no aparelho.
+- `db:reset`, `db:lint`, 2.301 testes pgTAP, lint, typecheck, testes de
+  aplicação e build Webpack passaram. O build Turbopack local não alcançou o
+  Google Fonts. `security:audit` falhou em `braces@3.0.3`, dependência do lint;
+  o [aviso GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
+  ainda não apresenta versão corrigida em 5 de outubro de 2026.
+- Pendente antes de aceitar `BAT-04` ou CP4: concorrência com duas sessões
+  simultâneas, perda real de rede e retomada no navegador, fluxo de 360 a
+  1280 px, teclado e leitor de tela em aparelhos. CI e auditoria também são
+  gates para integrar a branch.

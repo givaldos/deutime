@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useBatchDialogFocus } from "@/components/use-batch-dialog-focus";
+import { useBatchRecovery } from "@/components/use-batch-recovery";
 import type { ManagementEventItem } from "@/lib/data/management-events";
 import type { BatchPreviewEnvelope, EventBatchPreviewRequest } from "@/lib/validation/batch-operations";
 import {
@@ -76,8 +78,9 @@ function PreviewDialog({
   venues: Array<{ id: string; name: string }>;
 }) {
   const preview = actionState.preview;
+  const dialogRef = useBatchDialogFocus(onClose);
   return <div className="fixed inset-0 z-[60] flex items-end bg-slate-950/55 p-0 sm:items-center sm:justify-center sm:p-6">
-    <section role="dialog" aria-modal="true" aria-labelledby="batch-preview-title" className="max-h-[92dvh] w-full overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:max-w-2xl sm:rounded-3xl sm:p-6">
+    <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="batch-preview-title" className="max-h-[92dvh] w-full overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:max-w-2xl sm:rounded-3xl sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div><p className="app-kicker">Antes de salvar</p><h2 id="batch-preview-title" className="mt-1 text-xl font-black">Conferir alterações</h2></div>
         <Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Fechar prévia"><X aria-hidden /></Button>
@@ -145,7 +148,10 @@ export function EventBatchManager({
   const [previewing, startPreview] = useTransition();
   const [applying, startApply] = useTransition();
   const requestId = useRef<string | null>(null);
+  const applyingRef = useRef(false);
+  const recovery = useBatchRecovery(teamId, "events");
   const selectedSet = useMemo(() => new Set(selected), [selected]);
+
 
   function closePreview() {
     if (applying) return;
@@ -154,6 +160,7 @@ export function EventBatchManager({
   }
 
   function toggleSelection(eventId: string) {
+    if (recovery.pending) return;
     setSelected((current) => current.includes(eventId)
       ? current.filter((id) => id !== eventId)
       : [...current, eventId]);
@@ -163,6 +170,7 @@ export function EventBatchManager({
   }
 
   function handlePreview() {
+    if (recovery.pending) return;
     const operation = buildEventBatchOperation(action, rawValue);
     if (!operation) {
       setActionState({ outcome: "error", message: "Informe uma alteração válida antes de conferir." });
@@ -184,28 +192,52 @@ export function EventBatchManager({
     });
   }
 
-  function handleApply(preview: BatchPreviewEnvelope) {
-    if (!requestId.current) requestId.current = crypto.randomUUID();
+  function handleApply(preview: BatchPreviewEnvelope, retryId?: string) {
+    if (applyingRef.current) return;
+    applyingRef.current = true;
+    if (!requestId.current) requestId.current = retryId ?? crypto.randomUUID();
     const stableRequestId = requestId.current;
+    recovery.remember(stableRequestId, preview);
     startApply(async () => {
       try {
         const result = await applyEventBatchOperation({ teamId, teamSlug, requestId: stableRequestId, preview });
         setActionState((current) => ({ ...result, preview: current.preview }));
         if (result.outcome === "success") {
+          recovery.complete();
           setSelected([]);
           setSelecting(false);
           router.refresh();
+        } else {
+          recovery.complete();
         }
       } catch {
         setActionState((current) => ({ ...current, outcome: "error", message: "A conexão falhou. Tente confirmar novamente; o mesmo pedido será reutilizado." }));
+        void recovery.check({ requestId: stableRequestId, preview }).then((status) => {
+          if (status === "applied") {
+            setActionState({ outcome: "idle" });
+            setSelected([]);
+            setSelecting(false);
+            router.refresh();
+          }
+        });
+      } finally {
+        applyingRef.current = false;
       }
     });
   }
 
   return <>
+    {recovery.pending ? <div role="status" className="app-surface mb-4 space-y-2 p-4 text-sm">
+      <p className="font-bold">Há uma confirmação sem resposta.</p>
+      <p>{recovery.lookupState === "checking" ? "Consultando o resultado..." : recovery.lookupState === "unknown" ? "Ainda não há resultado registrado para este pedido." : "Não foi possível consultar o resultado. Tente novamente quando a conexão voltar."}</p>
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" variant="outline" disabled={recovery.lookupState === "checking"} onClick={() => void recovery.check(recovery.pending!)}>Consultar resultado</Button>
+        {!recovery.expired ? <Button type="button" disabled={applying} onClick={() => handleApply(recovery.pending!.preview, recovery.pending!.requestId)}>Repetir o mesmo pedido</Button> : recovery.lookupState === "unknown" ? <Button type="button" variant="outline" onClick={recovery.dismissExpired}>Fazer nova prévia</Button> : null}
+      </div>
+    </div> : recovery.appliedCount !== null && recovery.lookupState === "applied" ? <p role="status" className="app-surface mb-4 p-4 text-sm font-bold">Pedido recuperado: {recovery.appliedCount} {recovery.appliedCount === 1 ? "jogo alterado" : "jogos alterados"}. Nenhuma mensagem foi enviada.</p> : null}
     <div className="mb-3 flex items-center justify-between gap-3">
       <p className="text-sm font-semibold text-slate-600">{selecting ? "Marque os jogos que receberão a mesma alteração." : "Abra um jogo ou altere vários de uma vez."}</p>
-      <Button type="button" variant="outline" onClick={() => { setSelecting((value) => !value); setSelected([]); closePreview(); }}>{selecting ? "Cancelar seleção" : "Selecionar"}</Button>
+      <Button type="button" variant="outline" disabled={!!recovery.pending} onClick={() => { setSelecting((value) => !value); setSelected([]); closePreview(); }}>{selecting ? "Cancelar seleção" : "Selecionar"}</Button>
     </div>
     {selecting ? <div className="app-surface mb-4 p-4">
       <div className="flex items-center justify-between gap-3"><p className="text-sm font-black">{selected.length} selecionado{selected.length === 1 ? "" : "s"}</p><button type="button" className="min-h-11 px-2 text-xs font-bold text-emerald-800" onClick={() => { setSelected(selected.length === events.length ? [] : events.map((event) => event.id)); setScope("selected"); closePreview(); }}>{selected.length === events.length ? "Limpar seleção" : "Selecionar esta página"}</button></div>
@@ -219,10 +251,10 @@ export function EventBatchManager({
       {events.map((event) => {
         const chosen = selectedSet.has(event.id);
         const content = <div className="flex items-start gap-3"><div className={`mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-xl ${chosen ? "bg-grass text-white" : "bg-emerald-50 text-emerald-800"}`}>{selecting ? chosen ? <Check aria-hidden /> : <span className="size-5 rounded border-2 border-current" /> : <CalendarClock aria-hidden />}</div><div className="min-w-0 flex-1"><p className="truncate font-black">{event.title}</p><div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold text-slate-500"><span className="flex items-center gap-1"><Clock3 className="size-3.5" aria-hidden />{formatDate(event.starts_at, timeZone)}</span>{event.venue_name ? <span className="flex items-center gap-1"><MapPin className="size-3.5" aria-hidden />{event.venue_name}</span> : null}</div></div></div>;
-        return selecting ? <label key={event.id} className={`app-surface app-interactive block min-h-20 cursor-pointer p-4 ${chosen ? "border-emerald-600 ring-2 ring-emerald-600/20" : ""}`}><input type="checkbox" className="sr-only" checked={chosen} onChange={() => toggleSelection(event.id)} /><span className="sr-only">Selecionar {event.title}</span>{content}</label> : <Link key={event.id} href={eventHref(teamSlug, event.id, returnTo)} className="app-surface app-interactive block min-h-20 p-4">{content}</Link>;
+        return selecting ? <label key={event.id} className={`app-surface app-interactive block min-h-20 cursor-pointer p-4 focus-within:ring-2 focus-within:ring-emerald-700 ${chosen ? "border-emerald-600 ring-2 ring-emerald-600/20" : ""}`}><input type="checkbox" className="sr-only" checked={chosen} onChange={() => toggleSelection(event.id)} /><span className="sr-only">Selecionar {event.title}</span>{content}</label> : <Link key={event.id} href={eventHref(teamSlug, event.id, returnTo)} className="app-surface app-interactive block min-h-20 p-4">{content}</Link>;
       })}
     </div>
-    {selecting && selected.length ? <div className="fixed inset-x-0 bottom-20 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4 sm:w-96 sm:rounded-2xl sm:border"><Button type="button" className="w-full" disabled={previewing} onClick={handlePreview}>{previewing ? <LoaderCircle className="animate-spin" aria-hidden /> : null}Conferir alterações em {selected.length}</Button></div> : null}
+    {selecting && selected.length ? <div className="fixed inset-x-0 bottom-20 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4 sm:w-96 sm:rounded-2xl sm:border"><Button type="button" className="w-full" disabled={previewing || !!recovery.pending} onClick={handlePreview}>{previewing ? <LoaderCircle className="animate-spin" aria-hidden /> : null}Conferir alterações em {selected.length}</Button></div> : null}
     {actionState.outcome !== "idle" ? <PreviewDialog actionState={actionState} applying={applying} onApply={handleApply} onClose={closePreview} timeZone={timeZone} venues={venues} /> : null}
   </>;
 }
