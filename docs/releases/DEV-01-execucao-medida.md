@@ -94,8 +94,13 @@ timeout, processo ausente, lock concorrente, idempotência, risco sensível,
 retomada rejeitada, limite de tentativas e escopo são cobertos com processos e
 repositórios locais de teste, sem chamadas de modelo.
 
-Checkpoint deste habilitador: `idle`, aguardando revisão de PR, gates de `dev`,
-promoção e smoke para CP6. O checkpoint de produto `WP-R16-06` permanece CP3
+CP6 concluído. O PR #535 integrou a implementação em `dev` depois da aprovação
+de CI, Database, CodeQL, Dependency review, Terraform e Vercel. O PR #536
+promoveu `dev` para `main` em 2026-10-02. O smoke de produção passou, e o PR
+#542 reconciliou em `dev` as atualizações de dependências publicadas depois da
+promoção. Nenhum executor de modelo ou automação recorrente foi deixado ativo.
+
+O habilitador está fechado. O checkpoint de produto `WP-R16-06` permanece CP3
 idle com BAT-04 como próxima ação; não foi reclassificado por este pacote.
 
 Fonte de segurança: [GHSA-vcvr-r3jv-pc5j](https://github.com/advisories/GHSA-vcvr-r3jv-pc5j).
