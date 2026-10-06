@@ -34,6 +34,7 @@ export default async function Page({
   return (
     <AuthShell>
       <div className="w-full max-w-sm space-y-5">
+        <h1 className="font-display text-2xl font-semibold tracking-tight">Entre no seu racha</h1>
         {params.confirmed === "1" ? (
           <p
             role="status"

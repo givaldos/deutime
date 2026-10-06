@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "DeuTime — deu time, deu jogo";
+export const alt = "DeuTime | Quem organiza também merece jogar";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -68,8 +68,8 @@ export default function OgImage() {
               gap: 4,
             }}
           >
-            <span>Cansou de perguntar</span>
-            <span style={{ color: "#bdf63c" }}>{'"quem vai?"'}</span>
+            <span>Quem organiza</span>
+            <span style={{ color: "#bdf63c" }}>também merece jogar.</span>
           </div>
           <div
             style={{
@@ -80,7 +80,7 @@ export default function OgImage() {
               display: "flex",
             }}
           >
-            Convoca, cobra, fecha o numero e divide os times. Voce so marca o jogo — e joga.
+            Agenda, confirmações, equipes e resultados. Seu racha, organizado do convite ao pós-jogo.
           </div>
         </div>
 
