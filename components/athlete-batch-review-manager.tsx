@@ -37,11 +37,12 @@ function ReviewDialog({ state, applying, onApply, onClose, returnFocusRef }: {
   </div>;
 }
 
-export function AthleteBatchReviewManager({ athletes, teamId, teamSlug, returnUrl }: {
+export function AthleteBatchReviewManager({ athletes, teamId, teamSlug, returnUrl, emptyState }: {
   athletes: ManagementAthleteItem[];
   teamId: string;
   teamSlug: string;
   returnUrl: string;
+  emptyState?: React.ReactNode;
 }) {
   const router = useRouter();
   const [selecting, setSelecting] = useState(false);
@@ -115,6 +116,7 @@ export function AthleteBatchReviewManager({ athletes, teamId, teamSlug, returnUr
       {!recovery.expired ? <Button type="button" disabled={applying} onClick={() => apply(recovery.pending!.preview, recovery.pending!.requestId)}>Repetir o mesmo pedido</Button> : recovery.lookupState === "unknown" ? <Button type="button" variant="outline" onClick={recovery.dismissExpired}>Fazer nova prévia</Button> : null}</div>
   </div> : recovery.appliedCount !== null && recovery.lookupState === "applied" ? <p role="status" className="app-surface mb-4 p-4 text-sm font-bold">Pedido recuperado: {recovery.appliedCount} {recovery.appliedCount === 1 ? "cadastro analisado" : "cadastros analisados"}. Nenhuma mensagem foi enviada.</p> : null;
 
+  if (!athletes.length) return <>{recoveryNotice}{emptyState}</>;
   if (!selecting) return <>{recoveryNotice}<div className="mb-3 flex items-center justify-between gap-3"><p className="text-sm font-semibold text-slate-600">Abra um cadastro ou analise vários de uma vez.</p><Button type="button" variant="outline" disabled={!!recovery.pending} onClick={() => setSelecting(true)}>Selecionar</Button></div><ManagementAthleteList athletes={athletes} teamSlug={teamSlug} returnUrl={returnUrl} /></>;
   return <>
     {recoveryNotice}

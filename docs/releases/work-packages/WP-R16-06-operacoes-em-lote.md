@@ -247,7 +247,7 @@ mínimos e testes positivo, negativo e cross-tenant.
   recebeu indicação de foco visível. No navegador local, a prévia foi conferida
   a 360 px sem rolagem horizontal e Escape devolveu o foco ao botão. Falta
   validar com leitor de tela e em aparelhos Android e iPhone.
-- O teste local de 50 jogos mediu 5,9 ms na prévia e 74,0 ms na confirmação.
+- O teste local de 50 jogos mediu 5,6 ms na prévia e 60,3 ms na confirmação.
   O teste impõe limites de 5 s e 8 s, respectivamente, e confirma 50 mudanças,
   uma auditoria e replay sem reaplicação. Os números medem somente o banco
   local, não latência de rede ou experiência no aparelho.
@@ -255,16 +255,26 @@ mínimos e testes positivo, negativo e cross-tenant.
   atletas. A segunda aguardou a primeira; houve uma aplicação e um replay em
   cada domínio, sem duplicar comandos. O novo teste tem 15 verificações.
 - No navegador local, um jogo foi alterado e o recarregamento exibiu o novo
-  horário uma vez. A resposta terminou antes do recarregamento, portanto esse
-  ensaio não comprova a retomada após perda da resposta. A consulta agora
-  aceita também o formato de identificador legado do time de teste.
-- `db:reset`, `db:lint`, 2.316 testes pgTAP, lint, typecheck, 831 testes de
+  horário uma vez. Em um segundo ensaio, um atraso temporário depois da gravação
+  permitiu recarregar a página antes da resposta. A consulta recuperou o pedido
+  e mostrou um jogo alterado. O banco registrou um comando e uma mudança.
+  A consulta aceita também o formato de identificador legado do time de teste.
+- O mesmo ensaio com análise de atletas recuperou um cadastro depois de
+  recarregar a página. A lista vazia antes ocultava a consulta de recuperação
+  quando o último pendente era analisado; agora mantém o aviso e o estado
+  vazio. A lista e o detalhe de atletas passaram a aceitar os IDs legados
+  presentes nos dados locais. Os testes focados cobrem os dois formatos.
+- A largura da página de atletas foi igual à largura visível no navegador
+  local a 360 e 1280 px. Esses ensaios usaram o navegador de desktop e não
+  substituem validação em aparelhos ou com leitor de tela. O atraso temporário
+  usado para interromper a resposta foi removido do código.
+- `db:reset`, `db:lint`, 2.316 testes pgTAP, lint, typecheck, 834 testes de
   aplicação, build Webpack e integridade de migrations passaram. O build
   Turbopack local não alcançou o Google Fonts. `security:audit` falhou em
   `braces@3.0.3`, dependência do lint;
   o [aviso GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
   ainda não apresenta versão corrigida em 5 de outubro de 2026.
-- Pendente antes de aceitar `BAT-04` ou CP4: perda real de rede e retomada no
-  navegador, fluxo completo de 360 a 1280 px, teclado e leitor de tela em
+- Pendente antes de aceitar `BAT-04` ou CP4: perda real de rede no aparelho,
+  fluxo completo, teclado e leitor de tela em
   aparelhos Android e iPhone. CI e auditoria também são gates para integrar a
   branch.

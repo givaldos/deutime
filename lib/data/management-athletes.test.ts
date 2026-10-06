@@ -138,6 +138,21 @@ describe("management athletes data boundary", () => {
     }
   });
 
+  it("aceita IDs legados de atletas e do cursor", async () => {
+    const legacyId = "20000000-0000-0000-0000-000000000001";
+    mocks.rpc.mockResolvedValue({ data: {
+      ...validPayload,
+      items: [{ ...validPayload.items[0], id: legacyId }],
+      next_cursor: { sort_name: "joao", id: legacyId },
+    }, error: null });
+    const result = await getManagementAthletePage(teamId, "society", filters);
+    expect(result).toMatchObject({ mode: "enhanced", page: {
+      items: [{ id: legacyId }], nextCursor: { id: legacyId },
+    } });
+    expect(decodeManagementAthleteCursor(encodeManagementAthleteCursor({ sort_name: "joao", id: legacyId })))
+      .toEqual({ sort_name: "joao", id: legacyId });
+  });
+
   it("mantém a lista com iniciais quando a assinatura de mídia falha", async () => {
     mocks.createSignedUrls.mockResolvedValue({ data: null, error: { code: "storage_error" } });
     const result = await getManagementAthletePage(teamId, "society", filters);
