@@ -4,9 +4,13 @@ import { requireUser } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 
+const databaseUuid = z.string().regex(
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+);
+
 const lookupRequestSchema = z.object({
-  teamId: z.uuid(),
-  requestId: z.uuid(),
+  teamId: databaseUuid,
+  requestId: databaseUuid,
   domain: z.enum(["events", "athletes"]),
 });
 

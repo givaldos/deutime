@@ -32,6 +32,13 @@ describe("consulta de confirmação em lote", () => {
     });
   });
 
+  it("aceita identificador legado do time", async () => {
+    mocks.rpc.mockResolvedValue({ data: { status: "applied", applied_count: 1 }, error: null });
+    expect(await lookupBatchCommand({
+      teamId: "10000000-0000-0000-0000-000000000001", requestId, domain: "events",
+    })).toEqual({ status: "applied", appliedCount: 1 });
+  });
+
   it("não afirma aplicação sem resultado registrado", async () => {
     mocks.rpc.mockResolvedValue({ data: { status: "unknown" }, error: null });
     expect(await lookupBatchCommand({ teamId, requestId, domain: "events" })).toEqual({ status: "unknown" });

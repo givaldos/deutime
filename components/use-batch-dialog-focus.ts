@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
-export function useBatchDialogFocus(onClose: () => void) {
+export function useBatchDialogFocus(onClose: () => void, returnFocusRef: RefObject<HTMLElement | null>) {
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef(onClose);
 
@@ -10,6 +10,7 @@ export function useBatchDialogFocus(onClose: () => void) {
 
   useEffect(() => {
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const returnFocus = returnFocusRef.current;
     const dialog = dialogRef.current;
     dialog?.querySelector<HTMLElement>("button")?.focus();
 
@@ -40,9 +41,10 @@ export function useBatchDialogFocus(onClose: () => void) {
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      previousFocus?.focus();
+      if (returnFocus?.isConnected) returnFocus.focus();
+      else previousFocus?.focus();
     };
-  }, []);
+  }, [returnFocusRef]);
 
   return dialogRef;
 }

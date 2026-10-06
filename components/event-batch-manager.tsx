@@ -67,6 +67,7 @@ function PreviewDialog({
   applying,
   onApply,
   onClose,
+  returnFocusRef,
   timeZone,
   venues,
 }: {
@@ -74,11 +75,12 @@ function PreviewDialog({
   applying: boolean;
   onApply: (preview: BatchPreviewEnvelope) => void;
   onClose: () => void;
+  returnFocusRef: React.RefObject<HTMLButtonElement | null>;
   timeZone: string;
   venues: Array<{ id: string; name: string }>;
 }) {
   const preview = actionState.preview;
-  const dialogRef = useBatchDialogFocus(onClose);
+  const dialogRef = useBatchDialogFocus(onClose, returnFocusRef);
   return <div className="fixed inset-0 z-[60] flex items-end bg-slate-950/55 p-0 sm:items-center sm:justify-center sm:p-6">
     <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="batch-preview-title" className="max-h-[92dvh] w-full overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:max-w-2xl sm:rounded-3xl sm:p-6">
       <div className="flex items-start justify-between gap-4">
@@ -148,6 +150,7 @@ export function EventBatchManager({
   const [previewing, startPreview] = useTransition();
   const [applying, startApply] = useTransition();
   const requestId = useRef<string | null>(null);
+  const previewButtonRef = useRef<HTMLButtonElement>(null);
   const applyingRef = useRef(false);
   const recovery = useBatchRecovery(teamId, "events");
   const selectedSet = useMemo(() => new Set(selected), [selected]);
@@ -254,7 +257,7 @@ export function EventBatchManager({
         return selecting ? <label key={event.id} className={`app-surface app-interactive block min-h-20 cursor-pointer p-4 focus-within:ring-2 focus-within:ring-emerald-700 ${chosen ? "border-emerald-600 ring-2 ring-emerald-600/20" : ""}`}><input type="checkbox" className="sr-only" checked={chosen} onChange={() => toggleSelection(event.id)} /><span className="sr-only">Selecionar {event.title}</span>{content}</label> : <Link key={event.id} href={eventHref(teamSlug, event.id, returnTo)} className="app-surface app-interactive block min-h-20 p-4">{content}</Link>;
       })}
     </div>
-    {selecting && selected.length ? <div className="fixed inset-x-0 bottom-20 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4 sm:w-96 sm:rounded-2xl sm:border"><Button type="button" className="w-full" disabled={previewing || !!recovery.pending} onClick={handlePreview}>{previewing ? <LoaderCircle className="animate-spin" aria-hidden /> : null}Conferir alterações em {selected.length}</Button></div> : null}
-    {actionState.outcome !== "idle" ? <PreviewDialog actionState={actionState} applying={applying} onApply={handleApply} onClose={closePreview} timeZone={timeZone} venues={venues} /> : null}
+    {selecting && selected.length ? <div className="fixed inset-x-0 bottom-20 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4 sm:w-96 sm:rounded-2xl sm:border"><Button ref={previewButtonRef} type="button" className="w-full" disabled={previewing || !!recovery.pending} onClick={handlePreview}>{previewing ? <LoaderCircle className="animate-spin" aria-hidden /> : null}Conferir alterações em {selected.length}</Button></div> : null}
+    {actionState.outcome !== "idle" ? <PreviewDialog actionState={actionState} applying={applying} onApply={handleApply} onClose={closePreview} returnFocusRef={previewButtonRef} timeZone={timeZone} venues={venues} /> : null}
   </>;
 }

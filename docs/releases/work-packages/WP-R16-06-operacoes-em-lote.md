@@ -243,19 +243,28 @@ mínimos e testes positivo, negativo e cross-tenant.
   consulta o resultado e pode repetir o mesmo pedido, sem gerar outro ID.
   Prévia vencida sem resultado exige uma nova conferência.
 - Os diálogos recebem foco inicial, mantêm a navegação por Tab dentro deles,
-  aceitam Escape e devolvem o foco ao controle anterior. A seleção por teclado
-  recebeu indicação de foco visível. Falta validar com leitor de tela e em
-  aparelhos Android e iPhone.
-- O teste local de 50 jogos mediu 6,0 ms na prévia e 63,1 ms na confirmação.
+  aceitam Escape e devolvem o foco ao botão de prévia. A seleção por teclado
+  recebeu indicação de foco visível. No navegador local, a prévia foi conferida
+  a 360 px sem rolagem horizontal e Escape devolveu o foco ao botão. Falta
+  validar com leitor de tela e em aparelhos Android e iPhone.
+- O teste local de 50 jogos mediu 5,9 ms na prévia e 74,0 ms na confirmação.
   O teste impõe limites de 5 s e 8 s, respectivamente, e confirma 50 mudanças,
   uma auditoria e replay sem reaplicação. Os números medem somente o banco
   local, não latência de rede ou experiência no aparelho.
-- `db:reset`, `db:lint`, 2.301 testes pgTAP, lint, typecheck, testes de
-  aplicação e build Webpack passaram. O build Turbopack local não alcançou o
-  Google Fonts. `security:audit` falhou em `braces@3.0.3`, dependência do lint;
+- Duas sessões reais de banco disputaram o mesmo `request_id` em jogos e
+  atletas. A segunda aguardou a primeira; houve uma aplicação e um replay em
+  cada domínio, sem duplicar comandos. O novo teste tem 15 verificações.
+- No navegador local, um jogo foi alterado e o recarregamento exibiu o novo
+  horário uma vez. A resposta terminou antes do recarregamento, portanto esse
+  ensaio não comprova a retomada após perda da resposta. A consulta agora
+  aceita também o formato de identificador legado do time de teste.
+- `db:reset`, `db:lint`, 2.316 testes pgTAP, lint, typecheck, 831 testes de
+  aplicação, build Webpack e integridade de migrations passaram. O build
+  Turbopack local não alcançou o Google Fonts. `security:audit` falhou em
+  `braces@3.0.3`, dependência do lint;
   o [aviso GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
   ainda não apresenta versão corrigida em 5 de outubro de 2026.
-- Pendente antes de aceitar `BAT-04` ou CP4: concorrência com duas sessões
-  simultâneas, perda real de rede e retomada no navegador, fluxo de 360 a
-  1280 px, teclado e leitor de tela em aparelhos. CI e auditoria também são
-  gates para integrar a branch.
+- Pendente antes de aceitar `BAT-04` ou CP4: perda real de rede e retomada no
+  navegador, fluxo completo de 360 a 1280 px, teclado e leitor de tela em
+  aparelhos Android e iPhone. CI e auditoria também são gates para integrar a
+  branch.
