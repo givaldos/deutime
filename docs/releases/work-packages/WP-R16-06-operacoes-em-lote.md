@@ -268,13 +268,24 @@ mínimos e testes positivo, negativo e cross-tenant.
   local a 360 e 1280 px. Esses ensaios usaram o navegador de desktop e não
   substituem validação em aparelhos ou com leitor de tela. O atraso temporário
   usado para interromper a resposta foi removido do código.
+- Em 5 de outubro, um Samsung SM-A325M com Android 13 abriu o app local no
+  Chrome. No time fictício, a seleção, a prévia e a confirmação de um jogo
+  mostraram uma alteração e nenhuma mensagem enviada. Após interromper a
+  conexão local durante outra confirmação e recarregar a página antes da
+  resposta, a tela mostrou `Pedido recuperado: 1 jogo alterado` e nenhuma
+  mensagem enviada. O jogo apareceu com o novo horário. O atraso temporário
+  usado apenas nesse ensaio foi removido do código.
+- No mesmo aparelho, um cadastro fictício pendente passou pela seleção,
+  prévia e aprovação em lote. A lista de pendentes ficou vazia e o banco
+  confirmou o estado `active`. O banco local foi restaurado após os ensaios.
 - `db:reset`, `db:lint`, 2.316 testes pgTAP, lint, typecheck, 834 testes de
   aplicação, build Webpack e integridade de migrations passaram. O build
-  Turbopack local não alcançou o Google Fonts. `security:audit` falhou em
-  `braces@3.0.3`, dependência do lint;
+  Turbopack local falhou ao criar processo ou abrir porta no sandbox.
+  `npm audit --omit=dev --audit-level=moderate` não apontou vulnerabilidades.
+  `security:audit` falhou em `braces@3.0.3`, dependência do lint;
   o [aviso GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
   ainda não apresenta versão corrigida em 5 de outubro de 2026.
-- Pendente antes de aceitar `BAT-04` ou CP4: perda real de rede no aparelho,
-  fluxo completo, teclado e leitor de tela em
-  aparelhos Android e iPhone. CI e auditoria também são gates para integrar a
-  branch.
+- Pendente antes de aceitar `BAT-04` ou CP4: fluxo completo com teclado e
+  leitor de tela no Android, validação em iPhone físico e navegador interno do
+  WhatsApp. O iPhone ainda não foi detectado por este Mac. CI e auditoria
+  também são gates para integrar a branch.

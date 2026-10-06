@@ -12,11 +12,13 @@ tests:
   - "PASS: build Webpack e migrations:check -- origin/dev"
   - "PASS: duas sessões de banco para concorrência e replay em jogos e atletas"
   - "PASS: resposta interrompida após gravação; consulta recuperou jogos e atletas"
+  - "PASS: Android físico (Samsung SM-A325M, Android 13): jogo e atleta em lote; recuperação após perda da resposta local"
   - "PARCIAL: navegador local a 360 e 1280 px, sem rolagem horizontal"
-  - "BLOQUEADO: build Turbopack local sem acesso ao Google Fonts"
+  - "PASS: npm audit --omit=dev --audit-level=moderate sem vulnerabilidades"
+  - "BLOQUEADO: build Turbopack local sem permissão para criar processo ou abrir porta no sandbox"
   - "FALHA: security:audit em braces@3.0.3, sem versão corrigida no aviso"
-blocker: "Perda real de rede e validação em aparelhos, CI e auditoria de dependências pendentes."
-next_action: "Validar interrupção de rede, fluxo móvel completo e leitor de tela em Android e iPhone; resolver o gate de auditoria antes do PR de integração."
+blocker: "iPhone, leitor de tela, teclado, navegador interno do WhatsApp, CI e auditoria de dependências pendentes."
+next_action: "Validar BAT-04 no iPhone físico e concluir teclado, leitor de tela e navegador interno do WhatsApp; resolver a auditoria antes do PR de integração."
 ---
 
 # Trabalho atual
@@ -24,10 +26,11 @@ next_action: "Validar interrupção de rede, fluxo móvel completo e leitor de t
 `BAT-04` tem implementação local na branch `codex/bat-04`. A consulta de
 resultado por `request_id` e a retomada após perda da resposta foram adicionadas
 para jogos e atletas. O teste com 50 jogos, a concorrência com duas sessões e
-a recuperação da resposta interrompida no navegador local passaram. A lista
-de atletas agora conserva a consulta do pedido mesmo quando fica vazia. A flag
-global `batch_operations` permanece desligada, e as operações individuais
-continuam disponíveis.
+a recuperação da resposta interrompida no navegador local passaram. Um Android
+físico validou jogos, atletas e a recuperação de um jogo após perda da resposta
+local. A lista de atletas conserva a consulta do pedido mesmo quando fica vazia.
+A flag global `batch_operations` permanece desligada, e as operações
+individuais continuam disponíveis.
 
 O [pacote WP-R16-06](../releases/work-packages/WP-R16-06-operacoes-em-lote.md)
 registra as evidências e as validações pendentes. CP4 ainda não foi aceito.
