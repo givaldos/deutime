@@ -1,6 +1,6 @@
 # DeuTime — Catálogo detalhado de capacidades
 
-> Preservado em 27 de julho de 2026 e reconciliado em 21 de setembro de 2026.
+> Preservado em 27 de julho de 2026 e reconciliado em 6 de outubro de 2026.
 
 Este documento guarda o detalhamento funcional levantado no roadmap anterior. Seus checkboxes representam capacidades e critérios — não são, isoladamente, issues nem ordem de execução.
 
@@ -31,9 +31,11 @@ comercial sem apagar times ou resgates.
 publicação e imagem compartilhável estão disponíveis. A experiência profissional
 que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos está ativa.
 
-**Prioridade atual:** executar `BAT-04` do `WP-R16-06`, comprovando concorrência,
-replay após perda de rede, acessibilidade e desempenho. O CP3 entregou o
-lote de jogos, séries e atletas pendentes, ainda desligado globalmente.
+**Prioridade atual:** concluir `BAT-04` do `WP-R16-06`. Concorrência, recuperação
+após perda da resposta, desempenho local e Android físico já têm evidência. Ainda
+faltam iPhone, teclado, leitor de tela, navegador interno do WhatsApp, CI e a
+resolução da auditoria de dependências. O CP3 entregou o lote de jogos, séries e
+atletas pendentes, ainda desligado globalmente.
 Navegação/início, listas, elenco, campeonatos e calendário
 (`WP-R16-01` a `05`) encerraram CP6 e estão ativos nos cinco times.
 R15 ainda possui um aceite móvel/produtivo aberto e não deve ser encerrada por
@@ -65,8 +67,9 @@ explícito para desenvolver, antes de retomar qualquer descoberta ou implementa�
   alterações de jogos no caminho fino mobile.
 - [x] Executar `BAT-03`: séries, transições, cancelamento avulso e análise em
   lote de atletas pendentes.
-- [ ] Executar `BAT-04`: concorrência ampliada, replay após perda de rede,
-  acessibilidade e desempenho.
+- [ ] Concluir `BAT-04`: preservar concorrência, recuperação, desempenho e
+  Android já validados; fechar iPhone, teclado, leitor de tela, navegador interno
+  do WhatsApp, CI e auditoria antes do PR de integração.
 - [ ] Manter marketplace, split, repasse e cobrança de atletas fora da execução
   até validação própria de densidade, regulação e viabilidade.
 

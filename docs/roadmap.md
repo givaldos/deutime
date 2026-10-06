@@ -1,6 +1,6 @@
 # DeuTime — Roadmap executivo
 
-> Atualizado em 21 de setembro de 2026.
+> Atualizado em 6 de outubro de 2026.
 
 Este é o índice curto de direção e sequência. O detalhamento funcional está no [Catálogo de capacidades](backlog.md), as regras estáveis no [Contexto canônico](product-context.md) e a execução no [Playbook](development.md).
 
@@ -33,10 +33,13 @@ permanecem fora da proposta atual.
 incremental. Navegação e início (`WP-R16-01`), listas de jogos/campeonatos
 (`WP-R16-02`), elenco reconhecível (`WP-R16-03`), acompanhamento de campeonatos
 (`WP-R16-04`) e calendário (`WP-R16-05`) encerraram CP6 e estão ativos nos cinco
-times de produção. O `WP-R16-06` fechou CP3 com jogos, séries e análise de atletas,
-ainda desligado globalmente; a próxima fatia é `BAT-04`, para robustez,
-recuperação de rede, acessibilidade e desempenho. A R15 mantém um aceite móvel/produtivo aberto
-no pacote próprio e não será declarada concluída sem essa evidência.
+times de produção. O `WP-R16-06` fechou CP3 com jogos, séries e análise de atletas
+e continua desligado globalmente. O `BAT-04` comprovou concorrência, recuperação
+após perda da resposta, desempenho local e uso em Android físico. Ainda faltam
+iPhone, teclado, leitor de tela, navegador interno do WhatsApp, CI e a resolução
+da auditoria de dependências antes do PR de integração. A R15 mantém um aceite
+móvel e produtivo aberto no pacote próprio e não será declarada concluída sem
+essa evidência.
 
 ## Estado executivo
 
@@ -59,7 +62,7 @@ no pacote próprio e não será declarada concluída sem essa evidência.
 | **R13 — Agenda e competições profissionais** | ✅ `done / CP6` | Agenda profissional ativa nos cinco times e herdada por novos times, com smoke e rollback/restauração comprovados. | [Abrir](releases/R13-agenda-e-competicoes-profissionais.md) |
 | **R14 — Acesso por convite** | ✅ `done / CP6` | Novas equipes exigem código individual com hash, validade e revogação; ativação e rollback foram comprovados em produção. | [Abrir](releases/R14-acesso-por-convite.md) |
 | **R15 — Campeonato guiado** | 🟡 `active` — fechamento a reconciliar | Assistente de cinco passos e finalização transacional implementados, com evidências de testes; validação móvel/produtiva e CP6 ainda não registrados como concluídos no pacote. | [Abrir](releases/R15-campeonato-guiado.md) |
-| **R16 — Experiência de gestão simples** | 🟡 `active` — 5/9 pacotes em CP6 | Navegação, listas, elenco reconhecível, campeonatos e calendário ativos nos cinco times; operações em lote são a próxima entrega. | [Abrir](releases/R16-experiencia-de-gestao.md) |
+| **R16 — Experiência de gestão simples** | 🟡 `active` — 5/9 pacotes em CP6; pacote 06 em CP3 | Navegação, listas, elenco reconhecível, campeonatos e calendário ativos nos cinco times; operações em lote estão na validação `BAT-04`. | [Abrir](releases/R16-experiencia-de-gestao.md) |
 | **R11 — Assinatura pelo Asaas** | ⚪ adiada / `blocked` | Fora da fila, sem prazo e sem retomada automática; exige MVP consolidado e sinal explícito do produto para desenvolver, além do CP0 financeiro. | [Abrir](releases/R11-assinatura-asaas.md) |
 
 ## Regra de prioridade: Asaas sob autorização
@@ -157,7 +160,7 @@ ativação global própria descrita abaixo.
 | 14. Campeonato guiado | 🟡 R15 ativa no registro | Reconciliar evidências atuais, concluir validação móvel/produtiva e documentar CP6; preservar o assistente já implementado. |
 | 15. Gestão simples — acesso | ✅ R16, pacotes 01–02 em CP6 | Navegação persistente e listas completas de jogos/campeonatos ativas nos cinco times, com rollback/restauração comprovados. |
 | 16. Gestão simples — pessoas e competição | ✅ R16, pacotes 03–04 em CP6 | Elenco reconhecível e acompanhamento de campeonatos ativos nos cinco times, com recuperação comprovada. |
-| 17. Gestão simples — planejamento | 🟡 R16, pacote 05 em CP6 | Calendário e pendências estão ativos nos cinco times; alterações em lote seguem no pacote 06, com prévia, autorização, proteção de histórico e recuperação. |
+| 17. Gestão simples — planejamento | 🟡 R16, pacote 05 em CP6; pacote 06 em CP3 | Calendário e pendências estão ativos nos cinco times; operações em lote aguardam o fechamento de `BAT-04` antes do piloto. |
 | 18. Gestão simples — histórico e liberação | ⬜ R16, pacotes 07–09 | Equipes, campeões, estatísticas, link por fase, testes com público pouco experiente e liberação integral em produção. |
 | 19. Consolidação do MVP | ⬜ prioridade de produto | Corrigir lacunas restantes comprovadas e obter aceite da experiência em produção; não promove cobrança automaticamente. |
 | 20. Escala | ⬜ decisão futura | Priorizar demais melhorias com risco, uso real ou retorno mensurável. |
@@ -215,8 +218,9 @@ ativação global própria descrita abaixo.
 
 1. preservar `WP-R16-01` a `05` ativos, com os fallbacks e evidências já
    comprovados; não repetir rollout nem reabrir migrations aplicadas;
-2. executar `BAT-04` do `WP-R16-06`, comprovando concorrência, replay de rede,
-   acessibilidade e desempenho;
+2. concluir `BAT-04` do `WP-R16-06`: preservar as evidências de concorrência,
+   recuperação, desempenho e Android; validar iPhone, teclado, leitor de tela,
+   navegador interno do WhatsApp, CI e auditoria antes da integração;
 3. seguir com `WP-R16-07` a `WP-R16-09`, um por vez, fechando os contratos de
    cada fatia no momento necessário; piloto e recuperação fazem parte de cada uma;
 4. encerrar a R16 somente após os testes com organizadores pouco experientes e
@@ -255,7 +259,7 @@ O trabalho pós-MVP começa por **descoberta leve**, sem abrir várias implement
 | 16 | ~~Entregar `WP-R16-03` — elenco reconhecível~~ | ✅ CP6, rollout global idempotente e smoke produtivo registrados em 14 de setembro |
 | 17 | ~~Executar `WP-R16-04` — acompanhar campeonatos~~ | ✅ CP6, rollout 5/5, rollback/restauração, replay e smokes produtivos concluídos |
 | 18 | ~~Executar `WP-R16-05` — calendário e pendências~~ | ✅ CP6, rollout 5/5, rollback/restauração, replay e smokes produtivos concluídos |
-| 19 | Continuar R16 — gestão simples | sequência 06–09, um pacote por vez; rollout global antes de `done` |
+| 19 | Continuar R16: gestão simples | concluir `BAT-04` do pacote 06; depois executar 07–09, um pacote por vez, com rollout global antes de `done` |
 | 20 | Consolidar a experiência do MVP | jornadas validadas em produção, ausência de bloqueios críticos e aceite do responsável pelo produto |
 | Sob autorização, fora da fila | Retomar R11/Asaas | MVP consolidado e sinal explícito para desenvolver; depois revalidar CP0 financeiro, sem promoção automática |
 | 21 | Descobrir marketplace e cobrança dos atletas | densidade real de oferta e demanda, regulação, contabilidade, confiança e viabilidade transacional |
@@ -300,6 +304,18 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
   validação integrada permanecem pendentes.
 - [ ] R15 — permanece com validação móvel/produtiva aberta no pacote próprio;
   não considerar o progresso da R16 como evidência substituta.
+
+### Atualização de experiência entre 23 de setembro e 6 de outubro de 2026
+
+- [x] `WP-R16-05` — calendário e pendências encerrados em CP6 e ativos nos cinco
+  times, com piloto, rollback/restauração, replay e smokes produtivos.
+- [x] `WP-R16-06` — CP3 encerrado para jogos, séries e análise de atletas, com
+  limite de 50 itens, prévia sem escrita, confirmação atômica e replay seguro.
+- [ ] `BAT-04` — concorrência, recuperação após perda da resposta, desempenho
+  local e Android físico comprovados; iPhone, teclado, leitor de tela, navegador
+  interno do WhatsApp, CI e auditoria de dependências permanecem pendentes.
+- [ ] `WP-R16-07` a `09` — equipes e estatísticas, link por fase e validação
+  integrada permanecem pendentes.
 
 ### Situação das entregas em 3 de setembro de 2026
 
@@ -373,14 +389,15 @@ As novas pendências não alteram o que foi comprovado nas releases encerradas.
 R12 recuperou confiança, privacidade e autonomia. R13 implementou a agenda e as
 competições profissionais e já foi liberada globalmente. R15 entrega a criação
 guiada, ainda com validação final pendente. A R16 já entregou navegação, listas,
-elenco reconhecível e acompanhamento de campeonatos; agora avança para calendário
-e pendências. A R11 está adiada por decisão do produto, sem retomada automática.
+elenco reconhecível, acompanhamento de campeonatos e calendário. O pacote de
+operações em lote está em robustez antes do piloto. A R11 está adiada por decisão
+do produto, sem retomada automática.
 
 ### R16 — navegação e gestão simples, prioridade atual
 
 **Resultado:** uma pessoa com pouca familiaridade digital organiza o time pelo
 celular, entende o que falta fazer e consulta passado, presente e próximos jogos.
-Execução incremental por fatia, com `WP-R16-01` a `04` em CP6:
+Execução incremental por fatia, com `WP-R16-01` a `05` em CP6:
 [`R16-experiencia-de-gestao.md`](releases/R16-experiencia-de-gestao.md).
 
 **Navegação proposta:** Início, Jogos, Campeonatos, Atletas e Mais. Nome e escudo
@@ -406,10 +423,10 @@ Destinos novos só aparecem quando sua tela estiver funcional e autorizada.
 prévia antes de alterar vários registros; foto/escudo para reconhecimento;
 estados vazio/erro/carregamento distintos e preservação de dados ao corrigir.
 
-**Ainda falta para esta frente estar completa:** `WP-R16-05` a `09`, validação
-integrada com o público e rollout das capacidades restantes. Os quatro pacotes
-concluídos mantêm seus fallbacks. Sem prazos fictícios: a próxima fatia só começa
-quando sua dependência e CP0 estiverem aceitos, mantendo mudanças pequenas.
+**Ainda falta para esta frente estar completa:** concluir robustez, piloto e
+rollout do `WP-R16-06`; executar `WP-R16-07` a `09`; validar a jornada integrada
+com o público. Os cinco pacotes concluídos mantêm seus fallbacks. A próxima fatia
+só começa quando sua dependência e CP0 estiverem aceitos.
 
 #### Primeira entrega detalhada — navegação com GPT Sol
 
@@ -646,7 +663,7 @@ sem perder histórico nem alterar o calendário automaticamente.
 | **R13 — Agenda e competições profissionais** | ✅ [`done / CP6`](releases/R13-agenda-e-competicoes-profissionais.md) | Criação clara, equipes padrão, regulamento e conflitos ativos globalmente, com herança e recuperação comprovadas. | R01, R07, R09, R12 | concluída | criação e remarcação atuais |
 | **R14 — Acesso por convite** | ✅ [`done / CP6`](releases/R14-acesso-por-convite.md) | Criação de novas equipes autorizada por código individual durante o pré-lançamento, com operação e rollback. | R00, R12 | concluída | desligar o controle global |
 | **R15 — Campeonato guiado** | 🟡 [`active`](releases/R15-campeonato-guiado.md) | Assistente de cinco passos com agenda, partidas e convocados; fechamento produtivo ainda a reconciliar. | R09, R13 | registrar validação e CP6 | fluxo detalhado anterior |
-| **R16 — Experiência de gestão simples** | 🟡 [`active — 4/9 CP6`](releases/R16-experiencia-de-gestao.md) | Navegação, listas, elenco reconhecível e campeonatos ativos; calendário, lote, estatísticas, link por fase e gate integrado pendentes. | R12, R13, R15 | CP0 por fatia; próximo `WP-R16-05` | fallbacks comprovados dos pacotes 01–04; rotas e edição individual preservadas |
+| **R16 — Experiência de gestão simples** | 🟡 [`active — 5/9 CP6`](releases/R16-experiencia-de-gestao.md) | Navegação, listas, elenco reconhecível, campeonatos e calendário ativos; operações em lote estão em CP3 e os pacotes 07–09 permanecem pendentes. | R12, R13, R15 | concluir `BAT-04` do `WP-R16-06` | fallbacks comprovados dos pacotes 01–05; edição individual preservada |
 
 ### R09 — campeonatos configuráveis
 
