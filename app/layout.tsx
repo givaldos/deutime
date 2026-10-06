@@ -20,11 +20,11 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   metadataBase: getAppUrl(),
   title: {
-    default: "DeuTime — cansou de perguntar \"quem vai?\"",
+    default: "DeuTime | Quem organiza também merece jogar",
     template: "%s | DeuTime",
   },
   description:
-    "O DeuTime convoca a galera, cobra resposta, fecha o número e divide os times. Você só marca o jogo — e joga.",
+    "Organize seu racha com agenda, confirmações pelo link, divisão de times, súmula e campeonatos. Acompanhe cada jogo do convite ao pós-jogo com o DeuTime.",
   applicationName: "DeuTime",
   icons: {
     apple: {
@@ -37,24 +37,24 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     siteName: "DeuTime",
-    title: "DeuTime — deu time, deu jogo",
+    title: "DeuTime | Quem organiza também merece jogar",
     description:
-      "O DeuTime convoca a galera, cobra resposta, fecha o número e divide os times. Você só marca o jogo — e joga.",
+      "Agenda, confirmações, equipes e resultados no mesmo lugar. Mais clareza para cuidar do racha.",
     url: "https://deutime.app",
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "DeuTime — deu time, deu jogo",
+        alt: "DeuTime | Quem organiza também merece jogar",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "DeuTime — deu time, deu jogo",
+    title: "DeuTime | Quem organiza também merece jogar",
     description:
-      "O DeuTime convoca a galera, cobra resposta, fecha o número e divide os times. Você só marca o jogo — e joga.",
+      "Agenda, confirmações, equipes e resultados no mesmo lugar. Mais clareza para cuidar do racha.",
     images: ["/opengraph-image"],
   },
   robots: { index: true, follow: true },
