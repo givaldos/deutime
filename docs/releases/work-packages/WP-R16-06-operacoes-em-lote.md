@@ -278,14 +278,24 @@ mínimos e testes positivo, negativo e cross-tenant.
 - No mesmo aparelho, um cadastro fictício pendente passou pela seleção,
   prévia e aprovação em lote. A lista de pendentes ficou vazia e o banco
   confirmou o estado `active`. O banco local foi restaurado após os ensaios.
+- Em 6 de outubro, os diálogos de jogos e atletas foram percorridos por teclado
+  no navegador local: o foco inicial ficou no botão de fechar, Shift+Tab levou
+  ao último botão, Tab voltou ao primeiro e Escape devolveu o foco ao botão de
+  prévia. O nome da caixa de seleção de jogos repetia o título; agora anuncia
+  título e horário uma vez. A árvore de acessibilidade confirmou o novo nome,
+  e o cartão continuou selecionável. Esse teste não substitui a leitura por
+  TalkBack ou VoiceOver.
 - `db:reset`, `db:lint`, 2.316 testes pgTAP, lint, typecheck, 834 testes de
   aplicação, build Webpack e integridade de migrations passaram. O build
   Turbopack local falhou ao criar processo ou abrir porta no sandbox.
   `npm audit --omit=dev --audit-level=moderate` não apontou vulnerabilidades.
-  `security:audit` falhou em `braces@3.0.3`, dependência do lint;
+  Em 6 de outubro, `sharp` passou a 0.35.5 e `source-map-js` a 1.2.2 após
+  novos avisos de segurança. Lint, typecheck, 834 testes e build Webpack
+  passaram após a atualização. `security:audit` ainda falhou na cadeia de
+  `braces@3.0.3`, dependência do lint;
   o [aviso GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
-  ainda não apresenta versão corrigida em 5 de outubro de 2026.
-- Pendente antes de aceitar `BAT-04` ou CP4: fluxo completo com teclado e
-  leitor de tela no Android, validação em iPhone físico e navegador interno do
-  WhatsApp. O iPhone ainda não foi detectado por este Mac. CI e auditoria
-  também são gates para integrar a branch.
+  ainda não apresenta versão corrigida em 6 de outubro de 2026.
+- Pendente antes de aceitar `BAT-04` ou CP4: leitor de tela e teclado em
+  aparelhos físicos, validação em iPhone e navegador interno do WhatsApp.
+  Nenhum aparelho foi detectado nesta retomada. CI e auditoria também são
+  gates para integrar a branch.
