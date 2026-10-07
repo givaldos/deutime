@@ -17,7 +17,7 @@ const positionSchema = z.object({
 });
 
 const participationSchema = z.object({
-  event_id: z.uuid(),
+  event_id: z.guid(),
   title: z.string().min(2),
   kind: z.enum([
     "weekly_match",
@@ -40,7 +40,7 @@ const participationSchema = z.object({
 });
 
 const detailSchema = z.object({
-  id: z.uuid(),
+  id: z.guid(),
   registration_number: z.number().int().positive(),
   claimed: z.boolean(),
   display_name: z.string().min(2),

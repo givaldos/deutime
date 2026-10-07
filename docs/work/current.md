@@ -1,27 +1,58 @@
 ---
 release: R16
-work_package: null
-scope: revisao_home_publica
-branch_or_commit: "codex/home-publica"
+work_package: WP-R16-06
+scope: operacoes_em_lote
+branch_or_commit: "codex/bat-04"
 checkpoint: CP3
 status: idle
 completed_ac: []
 tests:
-  - "PASS: npm run verify (lint, TypeScript, 830 testes, contexto, controlador e build Turbopack)"
-  - "PASS: home em 320, 360, 1280 e 1440 px sem rolagem horizontal"
-  - "PASS: demonstração e FAQ por teclado; caminhos de cadastro, login e recuperação"
-  - "PASS: git diff --check"
-blocker: null
-next_action: "Revisar a prévia da home e validar aparelhos, leitor de tela e navegador do WhatsApp antes de integrar por PR para dev."
+  - "PASS: db:reset, db:lint e db:test (2.316 testes)"
+  - "PASS: lint, typecheck e 834 testes de aplicação"
+  - "PASS: build Webpack e migrations:check -- origin/dev"
+  - "PASS: duas sessões de banco para concorrência e replay em jogos e atletas"
+  - "PASS: resposta interrompida após gravação; consulta recuperou jogos e atletas"
+  - "PASS: Android físico (Samsung SM-A325M, Android 13): jogo e atleta em lote; recuperação após perda da resposta local"
+  - "PASS: Tab, Shift+Tab, Escape e devolução de foco nos diálogos de jogos e atletas no navegador local"
+  - "PASS: rótulo acessível dos jogos anuncia título e horário uma vez; cartão continua selecionável"
+  - "PASS: sharp 0.35.5 e source-map-js 1.2.2; lint, typecheck, 834 testes e build Webpack"
+  - "PASS: branch BAT-04 sincronizada com origin/dev; lint, typecheck, 838 testes, contexto, controlador e build Webpack"
+  - "DISPENSADO em 6/10: TalkBack e teclado físico no Android, e jornada no iPhone; revisão futura, sem teste executado"
+  - "DISPENSADO em 6/10: navegador interno do WhatsApp; revisão futura, sem teste executado"
+  - "PARCIAL: navegador local a 360 e 1280 px, sem rolagem horizontal"
+  - "PASS: npm audit --omit=dev --audit-level=moderate sem vulnerabilidades"
+  - "BLOQUEADO: build Turbopack local sem permissão para criar processo ou abrir porta no sandbox"
+  - "FALHA: security:audit em braces@3.0.3, sem versão corrigida no aviso"
+blocker: "CI da integração pendente; security:audit continua falhando em braces, com exceção pontual para a promoção solicitada."
+next_action: "Abrir PR da BAT-04 para dev, conferir CI e Database; depois promover dev para main e reconciliar as branches. Revisar Android, iPhone e navegador interno do WhatsApp antes da liberação global."
 ---
 
 # Trabalho atual
 
-Esta worktree contém a revisão visual da home e da entrada pública, solicitada
-separadamente dos pacotes em andamento. A
-[evidência](../releases/evidence/home-publica-2026-10-06.md) reúne escopo,
-validação e limites. Não há aceite CP4, PR, merge ou publicação desta proposta.
+`BAT-04` tem implementação local na branch `codex/bat-04`. A consulta de
+resultado por `request_id` e a retomada após perda da resposta foram adicionadas
+para jogos e atletas. O teste com 50 jogos, a concorrência com duas sessões e
+a recuperação da resposta interrompida no navegador local passaram. Um Android
+físico validou jogos, atletas e a recuperação de um jogo após perda da resposta
+local. A lista de atletas conserva a consulta do pedido mesmo quando fica vazia.
+A navegação por teclado nos dois diálogos passou no navegador local.
+A flag global `batch_operations` permanece desligada, e as operações
+individuais continuam disponíveis.
 
-O trabalho de operações em lote permanece na branch `codex/bat-04` e em seu
-checkpoint próprio. Esta implementação não altera esse trabalho nem declara
-encerrados os pacotes R16. A base desta branch é `dev` em `0358efe`.
+Em 6 de outubro, o responsável dispensou a validação física restante no Android
+e no iPhone para esta etapa, com revisão futura. TalkBack e teclado físico no
+Android e a jornada no iPhone não foram executados nem contam como testes
+aprovados.
+
+O responsável também dispensou o teste no navegador interno do WhatsApp nesta
+etapa, com revisão futura. O WhatsApp não estava instalado no Android conectado;
+esse teste não foi executado nem registrado como aprovado. O responsável decidiu
+aguardar a correção de `braces` antes de integrar a branch. Em nova instrução de
+6 de outubro, solicitou promover a BAT-04 para `dev` e `main`. Esta decisão
+substitui a espera: a auditoria completa continua falhando na dependência de
+desenvolvimento `braces@3.0.3`, sem versão corrigida no aviso. A auditoria das
+dependências de produção não apontou vulnerabilidades. A exceção vale apenas
+para esta promoção; a correção de `braces` permanece pendente.
+
+O [pacote WP-R16-06](../releases/work-packages/WP-R16-06-operacoes-em-lote.md)
+registra as evidências e as validações pendentes. CP4 ainda não foi aceito.

@@ -96,6 +96,19 @@ describe("management athlete detail data boundary", () => {
     }
   });
 
+  it("aceita IDs legados no detalhe e nas participações", async () => {
+    const legacyAthleteId = "20000000-0000-0000-0000-000000000001";
+    const legacyEventId = "40000000-0000-0000-0000-000000000001";
+    mocks.rpc.mockResolvedValue({ data: {
+      ...validPayload,
+      id: legacyAthleteId,
+      recent_participations: [{ ...validPayload.recent_participations[0], event_id: legacyEventId }],
+    }, error: null });
+    await expect(getManagementAthleteDetail(teamId, legacyAthleteId)).resolves.toMatchObject({
+      mode: "enhanced", detail: { id: legacyAthleteId, recent_participations: [{ event_id: legacyEventId }] },
+    });
+  });
+
   it("mantém o detalhe disponível com iniciais quando a mídia falha", async () => {
     mocks.createSignedUrl.mockResolvedValue({ data: null, error: { message: "falhou" } });
     await expect(getManagementAthleteDetail(teamId, athleteId)).resolves.toMatchObject({

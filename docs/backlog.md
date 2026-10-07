@@ -1,6 +1,6 @@
 # DeuTime — Catálogo detalhado de capacidades
 
-> Preservado em 27 de julho de 2026 e reconciliado em 21 de setembro de 2026.
+> Preservado em 27 de julho de 2026 e reconciliado em 6 de outubro de 2026.
 
 Este documento guarda o detalhamento funcional levantado no roadmap anterior. Seus checkboxes representam capacidades e critérios — não são, isoladamente, issues nem ordem de execução.
 
@@ -31,9 +31,14 @@ comercial sem apagar times ou resgates.
 publicação e imagem compartilhável estão disponíveis. A experiência profissional
 que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos está ativa.
 
-**Prioridade atual:** executar `BAT-04` do `WP-R16-06`, comprovando concorrência,
-replay após perda de rede, acessibilidade e desempenho. O CP3 entregou o
-lote de jogos, séries e atletas pendentes, ainda desligado globalmente.
+**Prioridade atual:** concluir `BAT-04` do `WP-R16-06`. Concorrência, recuperação
+após perda da resposta, desempenho local e uso em Android físico já têm evidência.
+A validação física restante em Android e iPhone e o navegador interno do
+WhatsApp foram dispensados nesta etapa, com revisão futura. A promoção para
+`dev` e `main` foi solicitada com exceção pontual para a auditoria completa,
+que segue falhando em uma dependência de lint. Faltam CI e correção da
+dependência. O CP3 entregou o lote de jogos,
+séries e atletas pendentes, ainda desligado globalmente.
 Navegação/início, listas, elenco, campeonatos e calendário
 (`WP-R16-01` a `05`) encerraram CP6 e estão ativos nos cinco times.
 R15 ainda possui um aceite móvel/produtivo aberto e não deve ser encerrada por
@@ -65,8 +70,13 @@ explícito para desenvolver, antes de retomar qualquer descoberta ou implementa�
   alterações de jogos no caminho fino mobile.
 - [x] Executar `BAT-03`: séries, transições, cancelamento avulso e análise em
   lote de atletas pendentes.
-- [ ] Executar `BAT-04`: concorrência ampliada, replay após perda de rede,
-  acessibilidade e desempenho.
+- [ ] Concluir `BAT-04`: preservar concorrência, recuperação, desempenho e
+  Android já validados; obter CI antes da integração. A correção de `braces`
+  permanece pendente, com exceção pontual para esta promoção.
+- [ ] Antes da liberação global da R16, revisar a jornada em iPhone físico e
+  testar TalkBack e teclado físico no Android e o navegador interno do
+  WhatsApp. Os testes foram dispensados de `BAT-04` pelo responsável em 6 de
+  outubro, não executados nem aprovados.
 - [ ] Manter marketplace, split, repasse e cobrança de atletas fora da execução
   até validação própria de densidade, regulação e viabilidade.
 

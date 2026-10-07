@@ -231,3 +231,97 @@ mínimos e testes positivo, negativo e cross-tenant.
   acessar o Google Fonts; CI segue obrigatório;
 - [x] `batch_operations` permanece desligada em todos os times. `BAT-04` é a
   próxima fatia para robustez de rede, concorrência, acessibilidade e desempenho.
+
+## BAT-04 em validação
+
+- A consulta `get_batch_command_result` recupera a quantidade aplicada pelo
+  `request_id` para o autor e time do comando. Outro gestor do mesmo time não
+  recebe o resultado. A consulta funciona após desligar a flag, sem reabrir
+  prévias ou confirmações.
+- Jogos e atletas guardam na sessão do navegador somente o identificador do
+  pedido e a prévia mínima com IDs e versões. Após perda da resposta, a tela
+  consulta o resultado e pode repetir o mesmo pedido, sem gerar outro ID.
+  Prévia vencida sem resultado exige uma nova conferência.
+- Os diálogos recebem foco inicial, mantêm a navegação por Tab dentro deles,
+  aceitam Escape e devolvem o foco ao botão de prévia. A seleção por teclado
+  recebeu indicação de foco visível. No navegador local, a prévia foi conferida
+  a 360 px sem rolagem horizontal e Escape devolveu o foco ao botão. A
+  validação com leitor de tela e teclado físico no Android e a jornada no
+  iPhone foram dispensadas nesta etapa, com revisão futura.
+- O teste local de 50 jogos mediu 5,6 ms na prévia e 60,3 ms na confirmação.
+  O teste impõe limites de 5 s e 8 s, respectivamente, e confirma 50 mudanças,
+  uma auditoria e replay sem reaplicação. Os números medem somente o banco
+  local, não latência de rede ou experiência no aparelho.
+- Duas sessões reais de banco disputaram o mesmo `request_id` em jogos e
+  atletas. A segunda aguardou a primeira; houve uma aplicação e um replay em
+  cada domínio, sem duplicar comandos. O novo teste tem 15 verificações.
+- No navegador local, um jogo foi alterado e o recarregamento exibiu o novo
+  horário uma vez. Em um segundo ensaio, um atraso temporário depois da gravação
+  permitiu recarregar a página antes da resposta. A consulta recuperou o pedido
+  e mostrou um jogo alterado. O banco registrou um comando e uma mudança.
+  A consulta aceita também o formato de identificador legado do time de teste.
+- O mesmo ensaio com análise de atletas recuperou um cadastro depois de
+  recarregar a página. A lista vazia antes ocultava a consulta de recuperação
+  quando o último pendente era analisado; agora mantém o aviso e o estado
+  vazio. A lista e o detalhe de atletas passaram a aceitar os IDs legados
+  presentes nos dados locais. Os testes focados cobrem os dois formatos.
+- A largura da página de atletas foi igual à largura visível no navegador
+  local a 360 e 1280 px. Esses ensaios usaram o navegador de desktop e não
+  substituem validação em aparelhos ou com leitor de tela. O atraso temporário
+  usado para interromper a resposta foi removido do código.
+- Em 5 de outubro, um Samsung SM-A325M com Android 13 abriu o app local no
+  Chrome. No time fictício, a seleção, a prévia e a confirmação de um jogo
+  mostraram uma alteração e nenhuma mensagem enviada. Após interromper a
+  conexão local durante outra confirmação e recarregar a página antes da
+  resposta, a tela mostrou `Pedido recuperado: 1 jogo alterado` e nenhuma
+  mensagem enviada. O jogo apareceu com o novo horário. O atraso temporário
+  usado apenas nesse ensaio foi removido do código.
+- No mesmo aparelho, um cadastro fictício pendente passou pela seleção,
+  prévia e aprovação em lote. A lista de pendentes ficou vazia e o banco
+  confirmou o estado `active`. O banco local foi restaurado após os ensaios.
+- Em 6 de outubro, os diálogos de jogos e atletas foram percorridos por teclado
+  no navegador local: o foco inicial ficou no botão de fechar, Shift+Tab levou
+  ao último botão, Tab voltou ao primeiro e Escape devolveu o foco ao botão de
+  prévia. O nome da caixa de seleção de jogos repetia o título; agora anuncia
+  título e horário uma vez. A árvore de acessibilidade confirmou o novo nome,
+  e o cartão continuou selecionável. Esse teste não substitui a leitura por
+  TalkBack ou VoiceOver.
+- `db:reset`, `db:lint`, 2.316 testes pgTAP, lint, typecheck, 834 testes de
+  aplicação, build Webpack e integridade de migrations passaram. O build
+  Turbopack local falhou ao criar processo ou abrir porta no sandbox.
+  `npm audit --omit=dev --audit-level=moderate` não apontou vulnerabilidades.
+  Em 6 de outubro, `sharp` passou a 0.35.5 e `source-map-js` a 1.2.2 após
+  novos avisos de segurança. Lint, typecheck, 834 testes e build Webpack
+  passaram após a atualização. `security:audit` ainda falhou na cadeia de
+  `braces@3.0.3`, dependência do lint;
+  o [aviso GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
+  ainda não apresenta versão corrigida em 6 de outubro de 2026.
+- Em 6 de outubro, o responsável dispensou a validação física restante no
+  Android e no iPhone para `BAT-04`, com revisão futura antes da liberação
+  global da R16. O uso físico já testado no Android mantém sua evidência;
+  TalkBack e teclado físico no Android e a jornada no iPhone não foram
+  executados nem registrados como aprovados.
+- A branch `codex/bat-04` recebeu `origin/dev` no commit `00f5c0b` e foi
+  enviada ao remoto. Lint, TypeScript, 838 testes de aplicação, testes de
+  contexto e do controlador e build Webpack passaram no código combinado.
+  O build Turbopack falhou ao criar processo e abrir porta no sandbox.
+  `security:audit` ainda falha na cadeia de `braces`. `origin/dev` e
+  `origin/main` têm conteúdo idêntico, e `origin/main` é ancestral de
+  `origin/dev`.
+- Em 6 de outubro, o responsável também dispensou o teste no navegador interno
+  do WhatsApp nesta etapa, com revisão futura antes da liberação global da R16.
+  O WhatsApp não estava instalado nos transportes Android detectados por ADB;
+  o teste não foi executado nem registrado como aprovado.
+- A auditoria completa continua falhando em `braces@3.0.3`, presente somente na
+  cadeia de lint. O responsável decidiu aguardar uma correção da dependência,
+  sem aceitar exceção para integrar a branch.
+- Em nova instrução de 6 de outubro, o responsável solicitou integrar a
+  `BAT-04` em `dev` e `main`, substituindo a espera pela correção. A exceção
+  pontual abrange somente esta promoção: a auditoria completa segue falhando
+  em `braces@3.0.3`, na cadeia de lint, sem versão corrigida no aviso. A
+  auditoria das dependências de produção passou sem vulnerabilidades. A
+  correção da dependência permanece pendente; nenhum resultado de auditoria
+  foi marcado como aprovado.
+- Pendente antes de aceitar `BAT-04` ou CP4: CI e as revisões futuras. A revisão
+  física de Android e iPhone e do navegador interno do WhatsApp permanece
+  registrada para antes da liberação global da R16.
