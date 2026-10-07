@@ -16,12 +16,13 @@ tests:
   - "PASS: Tab, Shift+Tab, Escape e devolução de foco nos diálogos de jogos e atletas no navegador local"
   - "PASS: rótulo acessível dos jogos anuncia título e horário uma vez; cartão continua selecionável"
   - "PASS: sharp 0.35.5 e source-map-js 1.2.2; lint, typecheck, 834 testes e build Webpack"
+  - "DISPENSADO: teste em iPhone físico por decisão do responsável em 6/10; não executado"
   - "PARCIAL: navegador local a 360 e 1280 px, sem rolagem horizontal"
   - "PASS: npm audit --omit=dev --audit-level=moderate sem vulnerabilidades"
   - "BLOQUEADO: build Turbopack local sem permissão para criar processo ou abrir porta no sandbox"
   - "FALHA: security:audit em braces@3.0.3, sem versão corrigida no aviso"
-blocker: "iPhone, leitor de tela e teclado em aparelhos, navegador interno do WhatsApp, CI e auditoria de dependências pendentes."
-next_action: "Com aparelhos disponíveis, validar BAT-04 no iPhone e com leitores de tela e teclado físicos; concluir o navegador interno do WhatsApp e resolver a auditoria antes do PR de integração."
+blocker: "Leitor de tela e teclado em aparelho, navegador interno do WhatsApp, CI e auditoria de dependências pendentes."
+next_action: "Com Android disponível, validar BAT-04 com leitor de tela e teclado físico; concluir o navegador interno do WhatsApp e resolver a auditoria antes do PR de integração."
 ---
 
 # Trabalho atual
@@ -35,6 +36,9 @@ local. A lista de atletas conserva a consulta do pedido mesmo quando fica vazia.
 A navegação por teclado nos dois diálogos passou no navegador local.
 A flag global `batch_operations` permanece desligada, e as operações
 individuais continuam disponíveis.
+
+O responsável dispensou o teste em iPhone físico em 6 de outubro. O teste não
+foi executado e não compõe a evidência de aprovação de CP4.
 
 O [pacote WP-R16-06](../releases/work-packages/WP-R16-06-operacoes-em-lote.md)
 registra as evidências e as validações pendentes. CP4 ainda não foi aceito.

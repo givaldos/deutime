@@ -295,7 +295,8 @@ mínimos e testes positivo, negativo e cross-tenant.
   `braces@3.0.3`, dependência do lint;
   o [aviso GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
   ainda não apresenta versão corrigida em 6 de outubro de 2026.
-- Pendente antes de aceitar `BAT-04` ou CP4: leitor de tela e teclado em
-  aparelhos físicos, validação em iPhone e navegador interno do WhatsApp.
-  Nenhum aparelho foi detectado nesta retomada. CI e auditoria também são
+- Em 6 de outubro, o responsável dispensou a validação em iPhone físico para
+  `BAT-04`. O teste não foi executado nem registrado como aprovado.
+- Pendente antes de aceitar `BAT-04` ou CP4: leitor de tela e teclado no
+  Android físico e navegador interno do WhatsApp. CI e auditoria também são
   gates para integrar a branch.
