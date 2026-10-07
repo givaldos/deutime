@@ -513,6 +513,15 @@ das jornadas, piloto e rollout continuam pendentes.
 - IDs de PR, resultados de checks da integração, promoção e smoke serão
   evidenciados nos próprios PRs; não inferir produção validada deste registro local.
 
+### Revisão adicional da home pública
+
+Em 6 de outubro de 2026, a branch isolada `codex/home-publica` refez a home,
+a apresentação compartilhada de autenticação e os metadados públicos. A
+[evidência local](evidence/home-publica-2026-10-06.md) registra o escopo, a
+revisão das promessas do produto, o `verify` aprovado e as verificações no
+navegador. A proposta aguarda revisão e validação em aparelhos antes da
+integração. Não altera o aceite dos pacotes R16 nem o estado de produção.
+
 ## Referências da proposta
 
 - [Nielsen Norman Group — reconhecimento e memória](https://www.nngroup.com/articles/recognition-and-recall/): tornar destinos e ações visíveis.

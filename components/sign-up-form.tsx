@@ -75,8 +75,12 @@ export function SignUpForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Crie sua conta</CardTitle>
+          <CardTitle className="text-2xl"><h1>Crie sua conta</h1></CardTitle>
           <CardDescription>Para administradores e organizadores de times.</CardDescription>
+          <p className="mt-3 rounded-lg bg-lime-50 px-3 py-2 text-sm leading-6 text-emerald-950">
+            Nesta fase, você precisa de um código de convite para criar um time.
+            O código será solicitado depois de entrar na sua conta.
+          </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignUp}>
