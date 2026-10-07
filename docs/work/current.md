@@ -18,12 +18,13 @@ tests:
   - "PASS: sharp 0.35.5 e source-map-js 1.2.2; lint, typecheck, 834 testes e build Webpack"
   - "PASS: branch BAT-04 sincronizada com origin/dev; lint, typecheck, 838 testes, contexto, controlador e build Webpack"
   - "DISPENSADO em 6/10: TalkBack e teclado físico no Android, e jornada no iPhone; revisão futura, sem teste executado"
+  - "DISPENSADO em 6/10: navegador interno do WhatsApp; revisão futura, sem teste executado"
   - "PARCIAL: navegador local a 360 e 1280 px, sem rolagem horizontal"
   - "PASS: npm audit --omit=dev --audit-level=moderate sem vulnerabilidades"
   - "BLOQUEADO: build Turbopack local sem permissão para criar processo ou abrir porta no sandbox"
   - "FALHA: security:audit em braces@3.0.3, sem versão corrigida no aviso"
-blocker: "Navegador interno do WhatsApp, CI e auditoria de dependências pendentes."
-next_action: "Validar BAT-04 no navegador interno do WhatsApp e resolver a auditoria; obter CI antes da integração. Revisar Android e iPhone físicos em etapa futura."
+blocker: "Auditoria de dependências falha em braces; responsável decidiu aguardar correção. CI da integração ainda não executada."
+next_action: "Aguardar correção de braces, repetir security:audit e obter CI antes da integração. Revisar Android, iPhone e navegador interno do WhatsApp antes da liberação global."
 ---
 
 # Trabalho atual
@@ -42,6 +43,11 @@ Em 6 de outubro, o responsável dispensou a validação física restante no Andr
 e no iPhone para esta etapa, com revisão futura. TalkBack e teclado físico no
 Android e a jornada no iPhone não foram executados nem contam como testes
 aprovados.
+
+O responsável também dispensou o teste no navegador interno do WhatsApp nesta
+etapa, com revisão futura. O WhatsApp não estava instalado no Android conectado;
+esse teste não foi executado nem registrado como aprovado. O responsável decidiu
+aguardar a correção de `braces` antes de integrar a branch.
 
 O [pacote WP-R16-06](../releases/work-packages/WP-R16-06-operacoes-em-lote.md)
 registra as evidências e as validações pendentes. CP4 ainda não foi aceito.

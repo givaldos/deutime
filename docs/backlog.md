@@ -33,10 +33,10 @@ que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos está ati
 
 **Prioridade atual:** concluir `BAT-04` do `WP-R16-06`. Concorrência, recuperação
 após perda da resposta, desempenho local e uso em Android físico já têm evidência.
-A validação física restante em Android e iPhone foi dispensada nesta etapa, com
-revisão futura. Faltam navegador interno do WhatsApp, CI e resolução da
-auditoria de dependências. O CP3 entregou o lote de jogos, séries e
-atletas pendentes, ainda desligado globalmente.
+A validação física restante em Android e iPhone e o navegador interno do
+WhatsApp foram dispensados nesta etapa, com revisão futura. Faltam CI e
+correção da dependência apontada pela auditoria. O CP3 entregou o lote de jogos,
+séries e atletas pendentes, ainda desligado globalmente.
 Navegação/início, listas, elenco, campeonatos e calendário
 (`WP-R16-01` a `05`) encerraram CP6 e estão ativos nos cinco times.
 R15 ainda possui um aceite móvel/produtivo aberto e não deve ser encerrada por
@@ -69,11 +69,12 @@ explícito para desenvolver, antes de retomar qualquer descoberta ou implementa�
 - [x] Executar `BAT-03`: séries, transições, cancelamento avulso e análise em
   lote de atletas pendentes.
 - [ ] Concluir `BAT-04`: preservar concorrência, recuperação, desempenho e
-  Android já validados; fechar navegador interno do WhatsApp, CI e auditoria
-  antes da integração.
+  Android já validados; aguardar correção da dependência apontada pela
+  auditoria e obter CI antes da integração.
 - [ ] Antes da liberação global da R16, revisar a jornada em iPhone físico e
-  testar TalkBack e teclado físico no Android. Os testes foram dispensados de
-  `BAT-04` pelo responsável em 6 de outubro, não executados nem aprovados.
+  testar TalkBack e teclado físico no Android e o navegador interno do
+  WhatsApp. Os testes foram dispensados de `BAT-04` pelo responsável em 6 de
+  outubro, não executados nem aprovados.
 - [ ] Manter marketplace, split, repasse e cobrança de atletas fora da execução
   até validação própria de densidade, regulação e viabilidade.
 

@@ -36,11 +36,11 @@ incremental. Navegação e início (`WP-R16-01`), listas de jogos/campeonatos
 times de produção. O `WP-R16-06` fechou CP3 com jogos, séries e análise de atletas
 e continua desligado globalmente. O `BAT-04` comprovou concorrência, recuperação
 após perda da resposta, desempenho local e uso em Android físico. A validação
-física restante em Android e iPhone foi dispensada nesta etapa, com revisão
-futura antes da liberação global. Faltam navegador interno do WhatsApp, CI e a
-resolução da auditoria de dependências antes da integração. A R15 mantém um aceite
-móvel e produtivo aberto no pacote próprio e não será declarada concluída sem
-essa evidência.
+física restante em Android e iPhone e o navegador interno do WhatsApp foram
+dispensados nesta etapa, com revisão futura antes da liberação global. Faltam
+CI e correção da dependência apontada pela auditoria antes da integração. A R15
+mantém um aceite móvel e produtivo aberto no pacote próprio e não será
+declarada concluída sem essa evidência.
 
 ## Estado executivo
 
@@ -220,9 +220,9 @@ ativação global própria descrita abaixo.
 1. preservar `WP-R16-01` a `05` ativos, com os fallbacks e evidências já
    comprovados; não repetir rollout nem reabrir migrations aplicadas;
 2. concluir `BAT-04` do `WP-R16-06`: preservar as evidências de concorrência,
-   recuperação, desempenho e Android; validar navegador interno do WhatsApp,
-   CI e auditoria antes da integração; revisar Android e iPhone físicos antes
-   da liberação global da R16;
+   recuperação, desempenho e Android; aguardar a correção da dependência
+   apontada pela auditoria e obter CI antes da integração; revisar Android,
+   iPhone e navegador interno do WhatsApp antes da liberação global da R16;
 3. seguir com `WP-R16-07` a `WP-R16-09`, um por vez, fechando os contratos de
    cada fatia no momento necessário; piloto e recuperação fazem parte de cada uma;
 4. encerrar a R16 somente após os testes com organizadores pouco experientes e
@@ -315,8 +315,9 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
   limite de 50 itens, prévia sem escrita, confirmação atômica e replay seguro.
 - [ ] `BAT-04` — concorrência, recuperação após perda da resposta, desempenho
   local e uso em Android físico comprovados; validação física restante em
-  Android e iPhone dispensada nesta etapa, com revisão futura. Navegador
-  interno do WhatsApp, CI e auditoria de dependências permanecem pendentes.
+  Android e iPhone e navegador interno do WhatsApp dispensados nesta etapa,
+  com revisão futura. CI e correção da dependência apontada pela auditoria
+  permanecem pendentes.
 - [ ] `WP-R16-07` a `09` — equipes e estatísticas, link por fase e validação
   integrada permanecem pendentes.
 

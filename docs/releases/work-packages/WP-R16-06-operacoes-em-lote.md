@@ -308,6 +308,13 @@ mínimos e testes positivo, negativo e cross-tenant.
   `security:audit` ainda falha na cadeia de `braces`. `origin/dev` e
   `origin/main` têm conteúdo idêntico, e `origin/main` é ancestral de
   `origin/dev`.
-- Pendente antes de aceitar `BAT-04` ou CP4: navegador interno do WhatsApp,
-  CI e auditoria. A revisão física de Android e iPhone permanece registrada
-  para antes da liberação global da R16.
+- Em 6 de outubro, o responsável também dispensou o teste no navegador interno
+  do WhatsApp nesta etapa, com revisão futura antes da liberação global da R16.
+  O WhatsApp não estava instalado nos transportes Android detectados por ADB;
+  o teste não foi executado nem registrado como aprovado.
+- A auditoria completa continua falhando em `braces@3.0.3`, presente somente na
+  cadeia de lint. O responsável decidiu aguardar uma correção da dependência,
+  sem aceitar exceção para integrar a branch.
+- Pendente antes de aceitar `BAT-04` ou CP4: auditoria completa e CI. A revisão
+  física de Android e iPhone e do navegador interno do WhatsApp permanece
+  registrada para antes da liberação global da R16.

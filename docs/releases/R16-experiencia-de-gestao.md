@@ -43,9 +43,10 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 [WP-R16-06](work-packages/WP-R16-06-operacoes-em-lote.md) para concorrência,
 recuperação após perda de rede, acessibilidade e desempenho. Concorrência,
 recuperação, desempenho local e uso em Android físico já têm evidência. A
-validação física restante em Android e iPhone foi dispensada nesta etapa, com
-revisão futura antes da liberação global. Ainda faltam navegador interno do
-WhatsApp, CI e auditoria antes da integração.
+validação física restante em Android e iPhone e o navegador interno do WhatsApp
+foram dispensados nesta etapa, com revisão futura antes da liberação global.
+Ainda faltam a correção da dependência apontada pela auditoria e CI antes da
+integração.
 Os pacotes [Calendário e pendências compreensíveis](work-packages/WP-R16-05-calendario.md),
 [Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
 [Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md) e
