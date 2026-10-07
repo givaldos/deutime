@@ -297,6 +297,13 @@ mínimos e testes positivo, negativo e cross-tenant.
   ainda não apresenta versão corrigida em 6 de outubro de 2026.
 - Em 6 de outubro, o responsável dispensou a validação em iPhone físico para
   `BAT-04`. O teste não foi executado nem registrado como aprovado.
+- A branch `codex/bat-04` recebeu `origin/dev` no commit `00f5c0b` e foi
+  enviada ao remoto. Lint, TypeScript, 838 testes de aplicação, testes de
+  contexto e do controlador e build Webpack passaram no código combinado.
+  O build Turbopack falhou ao criar processo e abrir porta no sandbox.
+  `security:audit` ainda falha na cadeia de `braces`. `origin/dev` e
+  `origin/main` têm conteúdo idêntico, e `origin/main` é ancestral de
+  `origin/dev`.
 - Pendente antes de aceitar `BAT-04` ou CP4: leitor de tela e teclado no
   Android físico e navegador interno do WhatsApp. CI e auditoria também são
   gates para integrar a branch.

@@ -16,6 +16,7 @@ tests:
   - "PASS: Tab, Shift+Tab, Escape e devolução de foco nos diálogos de jogos e atletas no navegador local"
   - "PASS: rótulo acessível dos jogos anuncia título e horário uma vez; cartão continua selecionável"
   - "PASS: sharp 0.35.5 e source-map-js 1.2.2; lint, typecheck, 834 testes e build Webpack"
+  - "PASS: branch BAT-04 sincronizada com origin/dev; lint, typecheck, 838 testes, contexto, controlador e build Webpack"
   - "DISPENSADO: teste em iPhone físico por decisão do responsável em 6/10; não executado"
   - "PARCIAL: navegador local a 360 e 1280 px, sem rolagem horizontal"
   - "PASS: npm audit --omit=dev --audit-level=moderate sem vulnerabilidades"
