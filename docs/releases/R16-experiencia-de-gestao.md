@@ -39,16 +39,16 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Próximo: robustecer as operações em lote**, executando `BAT-04` do
-[WP-R16-06](work-packages/WP-R16-06-operacoes-em-lote.md) para concorrência,
-recuperação após perda de rede, acessibilidade e desempenho. Concorrência,
-recuperação, desempenho local e uso em Android físico já têm evidência. A
-validação física restante em Android e iPhone e o navegador interno do WhatsApp
-foram dispensados nesta etapa, com revisão futura antes da liberação global.
-O código da BAT-04 foi integrado em `dev` e `main`, com CI, Database, deploy
-do banco e smoke aprovados. A flag permanece desligada. A exceção pontual
-permitiu a promoção apesar da auditoria completa ainda falhar em `braces`,
-na cadeia de lint; a correção continua necessária.
+**Próximo: fechar CP1 de equipes, campeões e estatísticas** no
+[WP-R16-07](work-packages/WP-R16-07-equipes-estatisticas.md). O CP0 delimita
+fontes, escopo, critérios e riscos; o contrato de agregação, privacidade e
+fallback deve ser fechado antes de alterar banco ou interface. A BAT-04 do
+[WP-R16-06](work-packages/WP-R16-06-operacoes-em-lote.md) foi integrada em
+`dev` e `main`, com CI, Database, deploy do banco e smoke aprovados. A flag
+permanece desligada. A validação restante em Android, iPhone e navegador
+interno do WhatsApp foi dispensada nesta etapa e segue para revisão futura
+antes da liberação global. A auditoria completa continua falhando em `braces`
+na cadeia de lint; a correção permanece necessária.
 Os pacotes [Calendário e pendências compreensíveis](work-packages/WP-R16-05-calendario.md),
 [Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
 [Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md) e
@@ -490,7 +490,8 @@ elenco reconhecível, acompanhamento de campeonatos e calendário estão ativos 
 alterar 9 eventos, rollout global idempotente e smoke pós-ativação. O
 `WP-R16-06` fechou CP3 com jogos, séries e análise de atletas, limite de 50 itens,
 prévia, escrita atômica e replay idempotente. A flag global permanece desligada.
-Robustez integrada e os pacotes `WP-R16-07` a `09` permanecem pendentes.
+Robustez integrada; o `WP-R16-07` tem CP0 preparado, sem implementação, e os
+pacotes `WP-R16-08` e `09` permanecem pendentes.
 O planejamento não encerra a R15; suas evidências permanecem no pacote próprio.
 O checkpoint obsoleto de pré-merge foi reconciliado na promoção documental abaixo. Na execução,
 registrar por pacote critério, comando/ensaio, resultado, commit, ambiente e
