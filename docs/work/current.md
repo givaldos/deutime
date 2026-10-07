@@ -23,8 +23,8 @@ tests:
   - "PASS: npm audit --omit=dev --audit-level=moderate sem vulnerabilidades"
   - "BLOQUEADO: build Turbopack local sem permissão para criar processo ou abrir porta no sandbox"
   - "FALHA: security:audit em braces@3.0.3, sem versão corrigida no aviso"
-blocker: "Auditoria de dependências falha em braces; responsável decidiu aguardar correção. CI da integração ainda não executada."
-next_action: "Aguardar correção de braces, repetir security:audit e obter CI antes da integração. Revisar Android, iPhone e navegador interno do WhatsApp antes da liberação global."
+blocker: "CI da integração pendente; security:audit continua falhando em braces, com exceção pontual para a promoção solicitada."
+next_action: "Abrir PR da BAT-04 para dev, conferir CI e Database; depois promover dev para main e reconciliar as branches. Revisar Android, iPhone e navegador interno do WhatsApp antes da liberação global."
 ---
 
 # Trabalho atual
@@ -47,7 +47,12 @@ aprovados.
 O responsável também dispensou o teste no navegador interno do WhatsApp nesta
 etapa, com revisão futura. O WhatsApp não estava instalado no Android conectado;
 esse teste não foi executado nem registrado como aprovado. O responsável decidiu
-aguardar a correção de `braces` antes de integrar a branch.
+aguardar a correção de `braces` antes de integrar a branch. Em nova instrução de
+6 de outubro, solicitou promover a BAT-04 para `dev` e `main`. Esta decisão
+substitui a espera: a auditoria completa continua falhando na dependência de
+desenvolvimento `braces@3.0.3`, sem versão corrigida no aviso. A auditoria das
+dependências de produção não apontou vulnerabilidades. A exceção vale apenas
+para esta promoção; a correção de `braces` permanece pendente.
 
 O [pacote WP-R16-06](../releases/work-packages/WP-R16-06-operacoes-em-lote.md)
 registra as evidências e as validações pendentes. CP4 ainda não foi aceito.

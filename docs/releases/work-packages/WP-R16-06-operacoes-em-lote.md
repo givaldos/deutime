@@ -315,6 +315,13 @@ mínimos e testes positivo, negativo e cross-tenant.
 - A auditoria completa continua falhando em `braces@3.0.3`, presente somente na
   cadeia de lint. O responsável decidiu aguardar uma correção da dependência,
   sem aceitar exceção para integrar a branch.
-- Pendente antes de aceitar `BAT-04` ou CP4: auditoria completa e CI. A revisão
+- Em nova instrução de 6 de outubro, o responsável solicitou integrar a
+  `BAT-04` em `dev` e `main`, substituindo a espera pela correção. A exceção
+  pontual abrange somente esta promoção: a auditoria completa segue falhando
+  em `braces@3.0.3`, na cadeia de lint, sem versão corrigida no aviso. A
+  auditoria das dependências de produção passou sem vulnerabilidades. A
+  correção da dependência permanece pendente; nenhum resultado de auditoria
+  foi marcado como aprovado.
+- Pendente antes de aceitar `BAT-04` ou CP4: CI e as revisões futuras. A revisão
   física de Android e iPhone e do navegador interno do WhatsApp permanece
   registrada para antes da liberação global da R16.

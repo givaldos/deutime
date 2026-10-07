@@ -38,7 +38,8 @@ e continua desligado globalmente. O `BAT-04` comprovou concorrência, recuperaç
 após perda da resposta, desempenho local e uso em Android físico. A validação
 física restante em Android e iPhone e o navegador interno do WhatsApp foram
 dispensados nesta etapa, com revisão futura antes da liberação global. Faltam
-CI e correção da dependência apontada pela auditoria antes da integração. A R15
+CI antes da integração. A promoção foi solicitada com exceção pontual para a
+auditoria completa, que segue falhando em uma dependência de lint. A R15
 mantém um aceite móvel e produtivo aberto no pacote próprio e não será
 declarada concluída sem essa evidência.
 
@@ -220,8 +221,8 @@ ativação global própria descrita abaixo.
 1. preservar `WP-R16-01` a `05` ativos, com os fallbacks e evidências já
    comprovados; não repetir rollout nem reabrir migrations aplicadas;
 2. concluir `BAT-04` do `WP-R16-06`: preservar as evidências de concorrência,
-   recuperação, desempenho e Android; aguardar a correção da dependência
-   apontada pela auditoria e obter CI antes da integração; revisar Android,
+   recuperação, desempenho e Android; obter CI antes da integração, com exceção
+   pontual para a auditoria completa ainda falha; revisar Android,
    iPhone e navegador interno do WhatsApp antes da liberação global da R16;
 3. seguir com `WP-R16-07` a `WP-R16-09`, um por vez, fechando os contratos de
    cada fatia no momento necessário; piloto e recuperação fazem parte de cada uma;
@@ -317,7 +318,8 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
   local e uso em Android físico comprovados; validação física restante em
   Android e iPhone e navegador interno do WhatsApp dispensados nesta etapa,
   com revisão futura. CI e correção da dependência apontada pela auditoria
-  permanecem pendentes.
+  permanecem pendentes; a promoção solicitada tem exceção pontual para esta
+  falha da auditoria.
 - [ ] `WP-R16-07` a `09` — equipes e estatísticas, link por fase e validação
   integrada permanecem pendentes.
 
