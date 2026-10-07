@@ -32,9 +32,10 @@ publicação e imagem compartilhável estão disponíveis. A experiência profis
 que separa Novo jogo e Novo campeonato e adiciona padrões e conflitos está ativa.
 
 **Prioridade atual:** concluir `BAT-04` do `WP-R16-06`. Concorrência, recuperação
-após perda da resposta, desempenho local e Android físico já têm evidência. Ainda
-faltam iPhone, teclado, leitor de tela, navegador interno do WhatsApp, CI e a
-resolução da auditoria de dependências. O CP3 entregou o lote de jogos, séries e
+após perda da resposta, desempenho local e uso em Android físico já têm evidência.
+A validação física restante em Android e iPhone foi dispensada nesta etapa, com
+revisão futura. Faltam navegador interno do WhatsApp, CI e resolução da
+auditoria de dependências. O CP3 entregou o lote de jogos, séries e
 atletas pendentes, ainda desligado globalmente.
 Navegação/início, listas, elenco, campeonatos e calendário
 (`WP-R16-01` a `05`) encerraram CP6 e estão ativos nos cinco times.
@@ -68,8 +69,11 @@ explícito para desenvolver, antes de retomar qualquer descoberta ou implementa�
 - [x] Executar `BAT-03`: séries, transições, cancelamento avulso e análise em
   lote de atletas pendentes.
 - [ ] Concluir `BAT-04`: preservar concorrência, recuperação, desempenho e
-  Android já validados; fechar iPhone, teclado, leitor de tela, navegador interno
-  do WhatsApp, CI e auditoria antes do PR de integração.
+  Android já validados; fechar navegador interno do WhatsApp, CI e auditoria
+  antes da integração.
+- [ ] Antes da liberação global da R16, revisar a jornada em iPhone físico e
+  testar TalkBack e teclado físico no Android. Os testes foram dispensados de
+  `BAT-04` pelo responsável em 6 de outubro, não executados nem aprovados.
 - [ ] Manter marketplace, split, repasse e cobrança de atletas fora da execução
   até validação própria de densidade, regulação e viabilidade.
 

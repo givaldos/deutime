@@ -245,8 +245,9 @@ mínimos e testes positivo, negativo e cross-tenant.
 - Os diálogos recebem foco inicial, mantêm a navegação por Tab dentro deles,
   aceitam Escape e devolvem o foco ao botão de prévia. A seleção por teclado
   recebeu indicação de foco visível. No navegador local, a prévia foi conferida
-  a 360 px sem rolagem horizontal e Escape devolveu o foco ao botão. Falta
-  validar com leitor de tela e em aparelhos Android e iPhone.
+  a 360 px sem rolagem horizontal e Escape devolveu o foco ao botão. A
+  validação com leitor de tela e teclado físico no Android e a jornada no
+  iPhone foram dispensadas nesta etapa, com revisão futura.
 - O teste local de 50 jogos mediu 5,6 ms na prévia e 60,3 ms na confirmação.
   O teste impõe limites de 5 s e 8 s, respectivamente, e confirma 50 mudanças,
   uma auditoria e replay sem reaplicação. Os números medem somente o banco
@@ -295,8 +296,11 @@ mínimos e testes positivo, negativo e cross-tenant.
   `braces@3.0.3`, dependência do lint;
   o [aviso GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)
   ainda não apresenta versão corrigida em 6 de outubro de 2026.
-- Em 6 de outubro, o responsável dispensou a validação em iPhone físico para
-  `BAT-04`. O teste não foi executado nem registrado como aprovado.
+- Em 6 de outubro, o responsável dispensou a validação física restante no
+  Android e no iPhone para `BAT-04`, com revisão futura antes da liberação
+  global da R16. O uso físico já testado no Android mantém sua evidência;
+  TalkBack e teclado físico no Android e a jornada no iPhone não foram
+  executados nem registrados como aprovados.
 - A branch `codex/bat-04` recebeu `origin/dev` no commit `00f5c0b` e foi
   enviada ao remoto. Lint, TypeScript, 838 testes de aplicação, testes de
   contexto e do controlador e build Webpack passaram no código combinado.
@@ -304,6 +308,6 @@ mínimos e testes positivo, negativo e cross-tenant.
   `security:audit` ainda falha na cadeia de `braces`. `origin/dev` e
   `origin/main` têm conteúdo idêntico, e `origin/main` é ancestral de
   `origin/dev`.
-- Pendente antes de aceitar `BAT-04` ou CP4: leitor de tela e teclado no
-  Android físico e navegador interno do WhatsApp. CI e auditoria também são
-  gates para integrar a branch.
+- Pendente antes de aceitar `BAT-04` ou CP4: navegador interno do WhatsApp,
+  CI e auditoria. A revisão física de Android e iPhone permanece registrada
+  para antes da liberação global da R16.

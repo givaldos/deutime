@@ -17,13 +17,13 @@ tests:
   - "PASS: rótulo acessível dos jogos anuncia título e horário uma vez; cartão continua selecionável"
   - "PASS: sharp 0.35.5 e source-map-js 1.2.2; lint, typecheck, 834 testes e build Webpack"
   - "PASS: branch BAT-04 sincronizada com origin/dev; lint, typecheck, 838 testes, contexto, controlador e build Webpack"
-  - "DISPENSADO: teste em iPhone físico por decisão do responsável em 6/10; não executado"
+  - "DISPENSADO em 6/10: TalkBack e teclado físico no Android, e jornada no iPhone; revisão futura, sem teste executado"
   - "PARCIAL: navegador local a 360 e 1280 px, sem rolagem horizontal"
   - "PASS: npm audit --omit=dev --audit-level=moderate sem vulnerabilidades"
   - "BLOQUEADO: build Turbopack local sem permissão para criar processo ou abrir porta no sandbox"
   - "FALHA: security:audit em braces@3.0.3, sem versão corrigida no aviso"
-blocker: "Leitor de tela e teclado em aparelho, navegador interno do WhatsApp, CI e auditoria de dependências pendentes."
-next_action: "Com Android disponível, validar BAT-04 com leitor de tela e teclado físico; concluir o navegador interno do WhatsApp e resolver a auditoria antes do PR de integração."
+blocker: "Navegador interno do WhatsApp, CI e auditoria de dependências pendentes."
+next_action: "Validar BAT-04 no navegador interno do WhatsApp e resolver a auditoria; obter CI antes da integração. Revisar Android e iPhone físicos em etapa futura."
 ---
 
 # Trabalho atual
@@ -38,8 +38,10 @@ A navegação por teclado nos dois diálogos passou no navegador local.
 A flag global `batch_operations` permanece desligada, e as operações
 individuais continuam disponíveis.
 
-O responsável dispensou o teste em iPhone físico em 6 de outubro. O teste não
-foi executado e não compõe a evidência de aprovação de CP4.
+Em 6 de outubro, o responsável dispensou a validação física restante no Android
+e no iPhone para esta etapa, com revisão futura. TalkBack e teclado físico no
+Android e a jornada no iPhone não foram executados nem contam como testes
+aprovados.
 
 O [pacote WP-R16-06](../releases/work-packages/WP-R16-06-operacoes-em-lote.md)
 registra as evidências e as validações pendentes. CP4 ainda não foi aceito.
