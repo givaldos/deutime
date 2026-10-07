@@ -45,9 +45,10 @@ recuperação após perda de rede, acessibilidade e desempenho. Concorrência,
 recuperação, desempenho local e uso em Android físico já têm evidência. A
 validação física restante em Android e iPhone e o navegador interno do WhatsApp
 foram dispensados nesta etapa, com revisão futura antes da liberação global.
-O responsável solicitou a promoção com exceção pontual para a auditoria
-completa, que segue falhando em `braces` na cadeia de lint. CI permanece
-pendente; a correção da dependência continua necessária.
+O código da BAT-04 foi integrado em `dev` e `main`, com CI, Database, deploy
+do banco e smoke aprovados. A flag permanece desligada. A exceção pontual
+permitiu a promoção apesar da auditoria completa ainda falhar em `braces`,
+na cadeia de lint; a correção continua necessária.
 Os pacotes [Calendário e pendências compreensíveis](work-packages/WP-R16-05-calendario.md),
 [Elenco reconhecível](work-packages/WP-R16-03-elenco.md),
 [Listas completas de Jogos e Campeonatos](work-packages/WP-R16-02-listas.md) e
