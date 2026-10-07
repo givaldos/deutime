@@ -37,9 +37,10 @@ times de produção. O `WP-R16-06` fechou CP3 com jogos, séries e análise de a
 e continua desligado globalmente. O `BAT-04` comprovou concorrência, recuperação
 após perda da resposta, desempenho local e uso em Android físico. A validação
 física restante em Android e iPhone e o navegador interno do WhatsApp foram
-dispensados nesta etapa, com revisão futura antes da liberação global. Faltam
-CI antes da integração. A promoção foi solicitada com exceção pontual para a
-auditoria completa, que segue falhando em uma dependência de lint. A R15
+dispensados nesta etapa, com revisão futura antes da liberação global. O código
+foi integrado em `dev` e `main`, com CI, Database, deploy do banco e smoke
+aprovados. A auditoria completa segue falhando em uma dependência de lint; a
+promoção teve exceção pontual. A R15
 mantém um aceite móvel e produtivo aberto no pacote próprio e não será
 declarada concluída sem essa evidência.
 
@@ -221,9 +222,9 @@ ativação global própria descrita abaixo.
 1. preservar `WP-R16-01` a `05` ativos, com os fallbacks e evidências já
    comprovados; não repetir rollout nem reabrir migrations aplicadas;
 2. concluir `BAT-04` do `WP-R16-06`: preservar as evidências de concorrência,
-   recuperação, desempenho e Android; obter CI antes da integração, com exceção
-   pontual para a auditoria completa ainda falha; revisar Android,
-   iPhone e navegador interno do WhatsApp antes da liberação global da R16;
+   recuperação, desempenho, Android e integração em `dev` e `main`; revisar
+   Android, iPhone e navegador interno do WhatsApp antes da liberação global da
+   R16 e corrigir a dependência de lint apontada pela auditoria;
 3. seguir com `WP-R16-07` a `WP-R16-09`, um por vez, fechando os contratos de
    cada fatia no momento necessário; piloto e recuperação fazem parte de cada uma;
 4. encerrar a R16 somente após os testes com organizadores pouco experientes e
@@ -317,9 +318,9 @@ Levantar requisitos agora não autoriza implementação. Exceções à sequênci
 - [ ] `BAT-04` — concorrência, recuperação após perda da resposta, desempenho
   local e uso em Android físico comprovados; validação física restante em
   Android e iPhone e navegador interno do WhatsApp dispensados nesta etapa,
-  com revisão futura. CI e correção da dependência apontada pela auditoria
-  permanecem pendentes; a promoção solicitada tem exceção pontual para esta
-  falha da auditoria.
+  com revisão futura. O código está em `dev` e `main`, com CI, Database, deploy
+  do banco e smoke aprovados; a correção da dependência apontada pela
+  auditoria permanece pendente após exceção pontual para a promoção.
 - [ ] `WP-R16-07` a `09` — equipes e estatísticas, link por fase e validação
   integrada permanecem pendentes.
 

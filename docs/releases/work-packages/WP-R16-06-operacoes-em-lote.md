@@ -322,6 +322,16 @@ mínimos e testes positivo, negativo e cross-tenant.
   auditoria das dependências de produção passou sem vulnerabilidades. A
   correção da dependência permanece pendente; nenhum resultado de auditoria
   foi marcado como aprovado.
-- Pendente antes de aceitar `BAT-04` ou CP4: CI e as revisões futuras. A revisão
-  física de Android e iPhone e do navegador interno do WhatsApp permanece
-  registrada para antes da liberação global da R16.
+- O [PR #549](https://github.com/givaldos/deutime/pull/549) integrou a BAT-04
+  em `dev` (`1f15ab8`); o [PR #550](https://github.com/givaldos/deutime/pull/550)
+  promoveu esse estado a `main` (`99290da`), e o
+  [PR #551](https://github.com/givaldos/deutime/pull/551) reconciliou `main`
+  em `dev` (`292a84e`). CI, Database, CodeQL e Terraform passaram em `dev` e
+  `main`. O deploy Supabase aplicou a migration e confirmou o histórico remoto;
+  o smoke público sem escrita passou em `main`. As branches têm conteúdo
+  idêntico, e `main` é ancestral de `dev`.
+- O código está integrado com `batch_operations` desligada globalmente. CP4 e
+  a liberação global ainda exigem a revisão física de Android e iPhone e do
+  navegador interno do WhatsApp, dispensada nesta etapa. A correção de
+  `braces` continua pendente; a exceção pontual da promoção não muda a falha
+  da auditoria completa.

@@ -2,7 +2,7 @@
 release: R16
 work_package: WP-R16-06
 scope: operacoes_em_lote
-branch_or_commit: "codex/bat-04"
+branch_or_commit: "99290da"
 checkpoint: CP3
 status: idle
 completed_ac: []
@@ -17,19 +17,21 @@ tests:
   - "PASS: rótulo acessível dos jogos anuncia título e horário uma vez; cartão continua selecionável"
   - "PASS: sharp 0.35.5 e source-map-js 1.2.2; lint, typecheck, 834 testes e build Webpack"
   - "PASS: branch BAT-04 sincronizada com origin/dev; lint, typecheck, 838 testes, contexto, controlador e build Webpack"
+  - "PASS: PR #549 em dev; PR #550 em main; PR #551 reconciliou main em dev"
+  - "PASS: CI, Database, CodeQL e Terraform em dev e main; deploy Supabase e smoke público sem escrita em main"
   - "DISPENSADO em 6/10: TalkBack e teclado físico no Android, e jornada no iPhone; revisão futura, sem teste executado"
   - "DISPENSADO em 6/10: navegador interno do WhatsApp; revisão futura, sem teste executado"
   - "PARCIAL: navegador local a 360 e 1280 px, sem rolagem horizontal"
   - "PASS: npm audit --omit=dev --audit-level=moderate sem vulnerabilidades"
   - "BLOQUEADO: build Turbopack local sem permissão para criar processo ou abrir porta no sandbox"
   - "FALHA: security:audit em braces@3.0.3, sem versão corrigida no aviso"
-blocker: "CI da integração pendente; security:audit continua falhando em braces, com exceção pontual para a promoção solicitada."
-next_action: "Abrir PR da BAT-04 para dev, conferir CI e Database; depois promover dev para main e reconciliar as branches. Revisar Android, iPhone e navegador interno do WhatsApp antes da liberação global."
+blocker: "CP4 e liberação global dependem da revisão futura em Android, iPhone e navegador interno do WhatsApp; security:audit continua falhando em braces."
+next_action: "Manter batch_operations desligada. Revisar Android, iPhone e navegador interno do WhatsApp antes da liberação global e corrigir braces quando houver versão segura."
 ---
 
 # Trabalho atual
 
-`BAT-04` tem implementação local na branch `codex/bat-04`. A consulta de
+`BAT-04` foi integrada em `dev` e `main` com a flag global desligada. A consulta de
 resultado por `request_id` e a retomada após perda da resposta foram adicionadas
 para jogos e atletas. O teste com 50 jogos, a concorrência com duas sessões e
 a recuperação da resposta interrompida no navegador local passaram. Um Android
@@ -55,4 +57,6 @@ dependências de produção não apontou vulnerabilidades. A exceção vale apen
 para esta promoção; a correção de `braces` permanece pendente.
 
 O [pacote WP-R16-06](../releases/work-packages/WP-R16-06-operacoes-em-lote.md)
-registra as evidências e as validações pendentes. CP4 ainda não foi aceito.
+registra as evidências e as validações pendentes. Os PRs #549, #550 e #551
+concluíram a promoção e a reconciliação; CI, Database, CodeQL, Terraform,
+deploy do banco e smoke público sem escrita passaram. CP4 ainda não foi aceito.
