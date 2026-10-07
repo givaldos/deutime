@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
+vi.mock("@/app/app/[teamSlug]/batch-actions", () => ({ lookupBatchCommand: vi.fn() }));
 vi.mock("@/app/app/[teamSlug]/athletes/actions", () => ({
   previewAthleteBatchReview: vi.fn(),
   applyAthleteBatchReview: vi.fn(),

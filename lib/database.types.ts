@@ -4375,6 +4375,14 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_batch_command_result: {
+        Args: {
+          requested_domain: string
+          requested_request_id: string
+          requested_team_id: string
+        }
+        Returns: Json
+      }
       get_calendar_workspace_health: {
         Args: { requested_team_id: string }
         Returns: {

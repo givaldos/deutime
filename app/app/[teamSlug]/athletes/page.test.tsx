@@ -6,6 +6,7 @@ const state = vi.hoisted(() => ({
   batchOperationsEnabled: false,
   recognizableRosterEnabled: false,
   empty: false,
+  recoveredCount: null as number | null,
 }));
 
 const athleteId = "22222222-2222-4222-8222-222222222222";
@@ -39,6 +40,9 @@ vi.mock("@/lib/features/delivery/server", () => ({
 vi.mock("next/navigation", () => ({
   notFound: () => { throw new Error("NEXT_NOT_FOUND"); },
   useRouter: () => ({ refresh: vi.fn() }),
+}));
+vi.mock("@/components/use-batch-recovery", () => ({
+  useBatchRecovery: () => ({ pending: null, lookupState: "applied", appliedCount: state.recoveredCount }),
 }));
 vi.mock("@/app/app/[teamSlug]/athletes/actions", () => ({
   reviewAthlete: vi.fn(),
@@ -107,6 +111,7 @@ beforeEach(() => {
   state.batchOperationsEnabled = false;
   state.recognizableRosterEnabled = false;
   state.empty = false;
+  state.recoveredCount = null;
 });
 
 describe("elenco reconhecível", () => {
@@ -173,5 +178,18 @@ describe("elenco reconhecível", () => {
 
     expect(html).toContain("Abra um cadastro ou analise vários de uma vez");
     expect(html).toContain("Selecionar");
+  });
+
+  it("mantém o gerenciador de recuperação quando o último pendente sai da lista", async () => {
+    state.batchOperationsEnabled = true;
+    state.recognizableRosterEnabled = true;
+    state.empty = true;
+    state.recoveredCount = 1;
+
+    const html = renderToStaticMarkup(await AthletesPage(props({ status: "pending" })));
+
+    expect(html).toContain("Nenhum atleta em aguardando aprovação");
+    expect(html).toContain("Pedido recuperado: 1 cadastro analisado");
+    expect(html).not.toContain("Abra um cadastro ou analise vários de uma vez");
   });
 });

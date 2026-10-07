@@ -10,7 +10,7 @@ export type ManagementAthleteStatus = (typeof athleteStatuses)[number];
 
 const cursorSchema = z.object({
   sort_name: z.string().min(2).max(120),
-  id: z.uuid(),
+  id: z.guid(),
 }).strict();
 
 const positionSchema = z.object({
@@ -21,7 +21,7 @@ const positionSchema = z.object({
 });
 
 const managementAthleteItemSchema = z.object({
-  id: z.uuid(),
+  id: z.guid(),
   registration_number: z.number().int().positive(),
   claimed: z.boolean(),
   display_name: z.string().min(2),
