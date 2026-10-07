@@ -39,10 +39,10 @@ O atleta chega pelo WhatsApp ao jogo certo, com acesso simples e dados protegido
 
 ## Prioridade e recorte da próxima execução
 
-**Próximo: fechar CP1 de equipes, campeões e estatísticas** no
-[WP-R16-07](work-packages/WP-R16-07-equipes-estatisticas.md). O CP0 delimita
-fontes, escopo, critérios e riscos; o contrato de agregação, privacidade e
-fallback deve ser fechado antes de alterar banco ou interface. A BAT-04 do
+**Próximo: implementar CP2 de equipes e estatísticas** no
+[WP-R16-07](work-packages/WP-R16-07-equipes-estatisticas.md). O CP1 define
+fonte, agregação, campeão, permissões, API, estados e fallback. A primeira
+fatia é a campanha privada de uma equipe, atrás de flag desligada. A BAT-04 do
 [WP-R16-06](work-packages/WP-R16-06-operacoes-em-lote.md) foi integrada em
 `dev` e `main`, com CI, Database, deploy do banco e smoke aprovados. A flag
 permanece desligada. A validação restante em Android, iPhone e navegador
@@ -490,7 +490,7 @@ elenco reconhecível, acompanhamento de campeonatos e calendário estão ativos 
 alterar 9 eventos, rollout global idempotente e smoke pós-ativação. O
 `WP-R16-06` fechou CP3 com jogos, séries e análise de atletas, limite de 50 itens,
 prévia, escrita atômica e replay idempotente. A flag global permanece desligada.
-Robustez integrada; o `WP-R16-07` tem CP0 preparado, sem implementação, e os
+Robustez integrada; o `WP-R16-07` tem CP1 definido, sem implementação, e os
 pacotes `WP-R16-08` e `09` permanecem pendentes.
 O planejamento não encerra a R15; suas evidências permanecem no pacote próprio.
 O checkpoint obsoleto de pré-merge foi reconciliado na promoção documental abaixo. Na execução,
